@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "683270494670",
+    "project_id": "dada-89661",
+    "storage_bucket": "dada-89661.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:683270494670:android:60b697ca22a5a329d2339f",
+        "android_client_info": {
+          "package_name": "com.example.dada"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "683270494670-4hmh8unuk2dtrp434311gdsonl0a5dtf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC01HYnauRmcGRT8OwWat8J5UO6dPHH7vI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "683270494670-4hmh8unuk2dtrp434311gdsonl0a5dtf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "683270494670-05jkk4ul0k9in9k3k08hv0mgj4mghp36.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.dada2"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:683270494670:android:5cdfc322deaffbe7d2339f",
+        "android_client_info": {
+          "package_name": "com.example.dada_2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "683270494670-4hmh8unuk2dtrp434311gdsonl0a5dtf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC01HYnauRmcGRT8OwWat8J5UO6dPHH7vI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "683270494670-4hmh8unuk2dtrp434311gdsonl0a5dtf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "683270494670-05jkk4ul0k9in9k3k08hv0mgj4mghp36.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.dada2"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

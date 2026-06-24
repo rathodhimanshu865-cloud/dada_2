@@ -1,108 +1,75 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/homepage_model.dart';
 
 class HomePageController extends ChangeNotifier {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   WebsiteSettings websiteSettings = WebsiteSettings();
-  NoticeBar noticeBar = NoticeBar();
-  List<HeroBanner> heroBanners = [];
-  LiveKatha liveKatha = LiveKatha();
-  AboutDada aboutDada = AboutDada();
+  HeroSection heroSection = HeroSection();
   List<UpcomingKatha> upcomingKathas = [];
-  List<LatestVideo> latestVideos = [];
-  Suvichar suvichar = Suvichar();
-  List<GalleryPhoto> galleryPhotos = [];
-  Statistics statistics = Statistics();
-  SocialMedia socialMedia = SocialMedia();
-  ContactInfo contactInfo = ContactInfo();
-  FooterSettings footerSettings = FooterSettings();
+  AboutSection aboutSection = AboutSection();
+  DailySuvichar dailySuvichar = DailySuvichar();
+  List<VideoItem> videos = [];
+  RamKathaSection ramKatha = RamKathaSection();
+  FooterData footer = FooterData();
 
-  // Methods to update state
-  void updateWebsiteSettings(WebsiteSettings settings) {
-    websiteSettings = settings;
+  bool isLoading = false;
+
+  HomePageController() {
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    isLoading = true;
+    notifyListeners();
+    try {
+      final doc = await _firestore.collection('cms').doc('homepage').get();
+      if (doc.exists) {
+        final data = doc.data()!;
+        websiteSettings = WebsiteSettings.fromMap(data['websiteSettings'] ?? {});
+        heroSection = HeroSection.fromMap(data['heroSection'] ?? {});
+        // Ensure we always have 8 slots for hero images
+        while (heroSection.bannerUrls.length < 8) {
+          heroSection.bannerUrls.add('');
+        }
+        upcomingKathas = (data['upcomingKathas'] as List? ?? []).map((e) => UpcomingKatha.fromMap(e)).toList();
+        aboutSection = AboutSection.fromMap(data['aboutSection'] ?? data['aboutDada'] ?? {});
+        dailySuvichar = DailySuvichar.fromMap(data['dailySuvichar'] ?? {});
+        videos = (data['videos'] as List? ?? []).map((e) => VideoItem.fromMap(e)).toList();
+        ramKatha = RamKathaSection.fromMap(data['ramKatha'] ?? {});
+        footer = FooterData.fromMap(data['footer'] ?? {});
+      }
+    } catch (e) {
+      debugPrint("Load error: $e");
+    }
+    isLoading = false;
     notifyListeners();
   }
 
-  void updateNoticeBar(NoticeBar bar) {
-    noticeBar = bar;
-    notifyListeners();
-  }
+  void addKatha() { upcomingKathas.add(UpcomingKatha()); notifyListeners(); }
+  void removeKatha(int i) { upcomingKathas.removeAt(i); notifyListeners(); }
+  void addVideo() { videos.add(VideoItem()); notifyListeners(); }
+  void removeVideo(int i) { videos.removeAt(i); notifyListeners(); }
 
-  void addHeroBanner(HeroBanner banner) {
-    heroBanners.add(banner);
+  Future<void> publish() async {
+    isLoading = true;
     notifyListeners();
-  }
-
-  void removeHeroBanner(int index) {
-    heroBanners.removeAt(index);
+    try {
+      await _firestore.collection('cms').doc('homepage').set({
+        'websiteSettings': websiteSettings.toMap(),
+        'heroSection': heroSection.toMap(),
+        'upcomingKathas': upcomingKathas.map((e) => e.toMap()).toList(),
+        'aboutSection': aboutSection.toMap(),
+        'dailySuvichar': dailySuvichar.toMap(),
+        'videos': videos.map((e) => e.toMap()).toList(),
+        'ramKatha': ramKatha.toMap(),
+        'footer': footer.toMap(),
+      });
+    } catch (e) {
+      debugPrint("Save error: $e");
+    }
+    isLoading = false;
     notifyListeners();
-  }
-
-  void updateLiveKatha(LiveKatha katha) {
-    liveKatha = katha;
-    notifyListeners();
-  }
-
-  void updateAboutDada(AboutDada about) {
-    aboutDada = about;
-    notifyListeners();
-  }
-
-  void addUpcomingKatha(UpcomingKatha katha) {
-    upcomingKathas.add(katha);
-    notifyListeners();
-  }
-
-  void removeUpcomingKatha(int index) {
-    upcomingKathas.removeAt(index);
-    notifyListeners();
-  }
-
-  void addLatestVideo(LatestVideo video) {
-    latestVideos.add(video);
-    notifyListeners();
-  }
-
-  void removeLatestVideo(int index) {
-    latestVideos.removeAt(index);
-    notifyListeners();
-  }
-
-  void updateSuvichar(Suvichar s) {
-    suvichar = s;
-    notifyListeners();
-  }
-
-  void addGalleryPhoto(GalleryPhoto photo) {
-    galleryPhotos.add(photo);
-    notifyListeners();
-  }
-
-  void removeGalleryPhoto(int index) {
-    galleryPhotos.removeAt(index);
-    notifyListeners();
-  }
-
-  void updateStatistics(Statistics stats) {
-    statistics = stats;
-    notifyListeners();
-  }
-
-  void updateSocialMedia(SocialMedia social) {
-    socialMedia = social;
-    notifyListeners();
-  }
-
-  void updateContactInfo(ContactInfo contact) {
-    contactInfo = contact;
-    notifyListeners();
-  }
-
-  void updateFooterSettings(FooterSettings footer) {
-    footerSettings = footer;
-    notifyListeners();
-  }
-
-  void saveAll() {
-    debugPrint('Saving all settings...');
   }
 }

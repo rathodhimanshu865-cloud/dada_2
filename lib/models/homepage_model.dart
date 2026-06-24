@@ -1,219 +1,142 @@
 class WebsiteSettings {
   String name;
-  String tagline;
-  String? logoUrl;
-  String? faviconUrl;
-
-  WebsiteSettings({
-    this.name = '',
-    this.tagline = '',
-    this.logoUrl,
-    this.faviconUrl,
-  });
+  String logoUrl;
+  WebsiteSettings({this.name = '', this.logoUrl = ''});
+  Map<String, dynamic> toMap() => {'name': name, 'logoUrl': logoUrl};
+  factory WebsiteSettings.fromMap(Map<String, dynamic> map) => WebsiteSettings(
+    name: map['name'] ?? '',
+    logoUrl: map['logoUrl'] ?? '',
+  );
 }
 
-class NoticeBar {
-  bool enabled;
-  String text;
-  String link;
-  bool openInNewTab;
-
-  NoticeBar({
-    this.enabled = false,
-    this.text = '',
-    this.link = '',
-    this.openInNewTab = false,
-  });
-}
-
-class HeroBanner {
-  String? imageUrl;
-  String? mobileImageUrl;
-  String heading;
-  String subHeading;
-  String button1Text;
-  String button1Link;
-  String button2Text;
-  String button2Link;
-  int sortOrder;
-  bool status;
-
-  HeroBanner({
-    this.imageUrl,
-    this.mobileImageUrl,
-    this.heading = '',
-    this.subHeading = '',
-    this.button1Text = '',
-    this.button1Link = '',
-    this.button2Text = '',
-    this.button2Link = '',
-    this.sortOrder = 0,
-    this.status = true,
-  });
-}
-
-class LiveKatha {
-  bool showLiveSection;
-  String title;
-  String description;
-  String youtubeLiveUrl;
-  String? thumbnail;
-
-  LiveKatha({
-    this.showLiveSection = false,
-    this.title = '',
-    this.description = '',
-    this.youtubeLiveUrl = '',
-    this.thumbnail,
-  });
-}
-
-class AboutDada {
-  String title;
-  String? photoUrl;
-  String description;
-  String readMoreText;
-  String readMoreLink;
-
-  AboutDada({
-    this.title = '',
-    this.photoUrl,
-    this.description = '',
-    this.readMoreText = '',
-    this.readMoreLink = '',
-  });
+class HeroSection {
+  List<String> bannerUrls;
+  HeroSection({List<String>? bannerUrls}) : this.bannerUrls = bannerUrls ?? List.filled(8, '');
+  Map<String, dynamic> toMap() => {'bannerUrls': bannerUrls};
+  factory HeroSection.fromMap(Map<String, dynamic> map) => HeroSection(
+    bannerUrls: List<String>.from(map['bannerUrls'] ?? []),
+  );
 }
 
 class UpcomingKatha {
-  String? bannerUrl;
+  String kathaNumber;
   String name;
-  String type;
-  String location;
-  String state;
-  String country;
+  String dateString;
   DateTime? startDate;
   DateTime? endDate;
-  String googleMapLink;
-  String registrationLink;
-  String description;
-  bool status;
 
   UpcomingKatha({
-    this.bannerUrl,
+    this.kathaNumber = '',
     this.name = '',
-    this.type = 'General',
-    this.location = '',
-    this.state = '',
-    this.country = '',
+    this.dateString = '',
     this.startDate,
     this.endDate,
-    this.googleMapLink = '',
-    this.registrationLink = '',
-    this.description = '',
-    this.status = true,
   });
+
+  Map<String, dynamic> toMap() => {
+    'kathaNumber': kathaNumber,
+    'name': name,
+    'dateString': dateString,
+    'startDate': startDate?.toIso8601String(),
+    'endDate': endDate?.toIso8601String(),
+  };
+
+  factory UpcomingKatha.fromMap(Map<String, dynamic> map) => UpcomingKatha(
+    kathaNumber: map['kathaNumber'] ?? '',
+    name: map['name'] ?? '',
+    dateString: map['dateString'] ?? '',
+    startDate: map['startDate'] != null ? DateTime.tryParse(map['startDate']) : null,
+    endDate: map['endDate'] != null ? DateTime.tryParse(map['endDate']) : null,
+  );
 }
 
-class LatestVideo {
-  String? thumbnail;
+class AboutSection {
+  String photoUrl;
+  String description;
+  AboutSection({this.photoUrl = '', this.description = ''});
+  Map<String, dynamic> toMap() => {'photoUrl': photoUrl, 'description': description};
+  factory AboutSection.fromMap(Map<String, dynamic> map) => AboutSection(
+    photoUrl: map['photoUrl'] ?? '',
+    description: map['description'] ?? '',
+  );
+}
+
+class DailySuvichar {
+  String imageUrl;
+  String date;
+
+  DailySuvichar({this.imageUrl = '', this.date = ''});
+
+  Map<String, dynamic> toMap() => {
+    'imageUrl': imageUrl,
+    'date': date,
+  };
+
+  factory DailySuvichar.fromMap(Map<String, dynamic> map) => DailySuvichar(
+    imageUrl: map['imageUrl'] ?? '',
+    date: map['date'] ?? '',
+  );
+}
+
+class VideoItem {
   String title;
   String youtubeUrl;
-  String duration;
-  DateTime? publishDate;
-  bool status;
 
-  LatestVideo({
-    this.thumbnail,
-    this.title = '',
-    this.youtubeUrl = '',
-    this.duration = '',
-    this.publishDate,
-    this.status = true,
-  });
+  VideoItem({this.title = '', this.youtubeUrl = ''});
+
+  Map<String, dynamic> toMap() => {'title': title, 'youtubeUrl': youtubeUrl};
+
+  factory VideoItem.fromMap(Map<String, dynamic> map) => VideoItem(
+    title: map['title'] ?? '',
+    youtubeUrl: map['youtubeUrl'] ?? '',
+  );
+
+  // Helper to extract YouTube Thumbnail from any YouTube/Shorts URL
+  String get thumbnail {
+    if (youtubeUrl.isEmpty) return 'https://via.placeholder.com/300x500';
+    
+    String videoId = '';
+    if (youtubeUrl.contains('/shorts/')) {
+      videoId = youtubeUrl.split('/shorts/')[1].split('?')[0];
+    } else if (youtubeUrl.contains('v=')) {
+      videoId = youtubeUrl.split('v=')[1].split('&')[0];
+    } else if (youtubeUrl.contains('youtu.be/')) {
+      videoId = youtubeUrl.split('youtu.be/')[1].split('?')[0];
+    }
+
+    return videoId.isNotEmpty 
+      ? 'https://img.youtube.com/vi/$videoId/hqdefault.jpg' 
+      : 'https://via.placeholder.com/300x500';
+  }
 }
 
-class Suvichar {
-  String text;
-  String author;
-  String? backgroundImage;
-
-  Suvichar({
-    this.text = '',
-    this.author = '',
-    this.backgroundImage,
-  });
-}
-
-class GalleryPhoto {
-  String? photoUrl;
+class RamKathaSection {
   String title;
-  int sortOrder;
-
-  GalleryPhoto({
-    this.photoUrl,
-    this.title = '',
-    this.sortOrder = 0,
-  });
+  String description1;
+  String description2;
+  String photoUrl;
+  RamKathaSection({this.title = 'Ram Katha', this.description1 = '', this.description2 = '', this.photoUrl = ''});
+  Map<String, dynamic> toMap() => {
+    'title': title,
+    'description1': description1,
+    'description2': description2,
+    'photoUrl': photoUrl,
+  };
+  factory RamKathaSection.fromMap(Map<String, dynamic> map) => RamKathaSection(
+    title: map['title'] ?? 'Ram Katha',
+    description1: map['description1'] ?? '',
+    description2: map['description2'] ?? '',
+    photoUrl: map['photoUrl'] ?? '',
+  );
 }
 
-class Statistics {
-  int totalKathas;
-  int totalCountries;
-  int totalCities;
-  int totalDevotees;
-
-  Statistics({
-    this.totalKathas = 0,
-    this.totalCountries = 0,
-    this.totalCities = 0,
-    this.totalDevotees = 0,
-  });
-}
-
-class SocialMedia {
-  String facebook;
-  String instagram;
-  String youtube;
-  String whatsapp;
-  String telegram;
-  String twitter;
-
-  SocialMedia({
-    this.facebook = '',
-    this.instagram = '',
-    this.youtube = '',
-    this.whatsapp = '',
-    this.telegram = '',
-    this.twitter = '',
-  });
-}
-
-class ContactInfo {
-  String address;
-  String mobile;
-  String whatsapp;
-  String email;
-  String googleMapLink;
-
-  ContactInfo({
-    this.address = '',
-    this.mobile = '',
-    this.whatsapp = '',
-    this.email = '',
-    this.googleMapLink = '',
-  });
-}
-
-class FooterSettings {
+class FooterData {
   String description;
-  String copyrightText;
-  String privacyPolicyLink;
-  String termsConditionsLink;
-
-  FooterSettings({
-    this.description = '',
-    this.copyrightText = '',
-    this.privacyPolicyLink = '',
-    this.termsConditionsLink = '',
-  });
+  String copyright;
+  FooterData({this.description = '', this.copyright = ''});
+  Map<String, dynamic> toMap() => {'description': description, 'copyright': copyright};
+  factory FooterData.fromMap(Map<String, dynamic> map) => FooterData(
+    description: map['description'] ?? '',
+    copyright: map['copyright'] ?? '',
+  );
 }
