@@ -12,8 +12,11 @@ class HomePageController extends ChangeNotifier {
   DailySuvichar dailySuvichar = DailySuvichar();
   List<VideoItem> videos = [];
   RamKathaSection ramKatha = RamKathaSection();
+  StotraSection stotraSection = StotraSection();
   FooterData footer = FooterData();
   AboutKathaPageData aboutKathaPage = AboutKathaPageData();
+  List<KathaRecord> allKathas = [];
+  KathaListPageData kathaListPageData = KathaListPageData();
 
   bool isLoading = false;
 
@@ -39,8 +42,11 @@ class HomePageController extends ChangeNotifier {
         dailySuvichar = DailySuvichar.fromMap(data['dailySuvichar'] ?? {});
         videos = (data['videos'] as List? ?? []).map((e) => VideoItem.fromMap(e)).toList();
         ramKatha = RamKathaSection.fromMap(data['ramKatha'] ?? {});
+        stotraSection = StotraSection.fromMap(data['stotraSection'] ?? {});
         footer = FooterData.fromMap(data['footer'] ?? {});
         aboutKathaPage = AboutKathaPageData.fromMap(data['aboutKathaPage'] ?? {});
+        allKathas = (data['allKathas'] as List? ?? []).map((e) => KathaRecord.fromMap(e)).toList();
+        kathaListPageData = KathaListPageData.fromMap(data['kathaListPageData'] ?? {});
       }
     } catch (e) {
       debugPrint("Load error: $e");
@@ -54,6 +60,12 @@ class HomePageController extends ChangeNotifier {
   void addVideo() { videos.add(VideoItem()); notifyListeners(); }
   void removeVideo(int i) { videos.removeAt(i); notifyListeners(); }
 
+  void addKathaRecord() { allKathas.add(KathaRecord()); notifyListeners(); }
+  void removeKathaRecord(int i) { allKathas.removeAt(i); notifyListeners(); }
+
+  void addStotraItem() { stotraSection.items.add(StotraItem()); notifyListeners(); }
+  void removeStotraItem(int i) { stotraSection.items.removeAt(i); notifyListeners(); }
+
   Future<void> publish() async {
     isLoading = true;
     notifyListeners();
@@ -66,8 +78,11 @@ class HomePageController extends ChangeNotifier {
         'dailySuvichar': dailySuvichar.toMap(),
         'videos': videos.map((e) => e.toMap()).toList(),
         'ramKatha': ramKatha.toMap(),
+        'stotraSection': stotraSection.toMap(),
         'footer': footer.toMap(),
         'aboutKathaPage': aboutKathaPage.toMap(),
+        'allKathas': allKathas.map((e) => e.toMap()).toList(),
+        'kathaListPageData': kathaListPageData.toMap(),
       });
     } catch (e) {
       debugPrint("Save error: $e");

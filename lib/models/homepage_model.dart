@@ -22,6 +22,9 @@ class UpcomingKatha {
   String kathaNumber;
   String name;
   String dateString;
+  String timing;
+  String location;
+  String hosting;
   DateTime? startDate;
   DateTime? endDate;
 
@@ -29,6 +32,9 @@ class UpcomingKatha {
     this.kathaNumber = '',
     this.name = '',
     this.dateString = '',
+    this.timing = '',
+    this.location = '',
+    this.hosting = '',
     this.startDate,
     this.endDate,
   });
@@ -37,6 +43,9 @@ class UpcomingKatha {
     'kathaNumber': kathaNumber,
     'name': name,
     'dateString': dateString,
+    'timing': timing,
+    'location': location,
+    'hosting': hosting,
     'startDate': startDate?.toIso8601String(),
     'endDate': endDate?.toIso8601String(),
   };
@@ -45,6 +54,9 @@ class UpcomingKatha {
     kathaNumber: map['kathaNumber'] ?? '',
     name: map['name'] ?? '',
     dateString: map['dateString'] ?? '',
+    timing: map['timing'] ?? '',
+    location: map['location'] ?? '',
+    hosting: map['hosting'] ?? '',
     startDate: map['startDate'] != null ? DateTime.tryParse(map['startDate']) : null,
     endDate: map['endDate'] != null ? DateTime.tryParse(map['endDate']) : null,
   );
@@ -141,6 +153,116 @@ class FooterData {
   );
 }
 
+class KathaRecord {
+  String kathaNumber;
+  String year;
+  String dates;
+  String topic;
+  String location;
+  String country;
+  String language;
+  String youtubePlaylistUrl;
+  String pdfLink;
+  String description;
+  String imageUrl;
+
+  KathaRecord({
+    this.kathaNumber = '',
+    this.year = '',
+    this.dates = '',
+    this.topic = '',
+    this.location = '',
+    this.country = 'India',
+    this.language = 'Hindi',
+    this.youtubePlaylistUrl = '',
+    this.pdfLink = '',
+    this.description = '',
+    this.imageUrl = '',
+  });
+
+  Map<String, dynamic> toMap() => {
+    'kathaNumber': kathaNumber,
+    'year': year,
+    'dates': dates,
+    'topic': topic,
+    'location': location,
+    'country': country,
+    'language': language,
+    'youtubePlaylistUrl': youtubePlaylistUrl,
+    'pdfLink': pdfLink,
+    'description': description,
+    'imageUrl': imageUrl,
+  };
+
+  factory KathaRecord.fromMap(Map<String, dynamic> map) => KathaRecord(
+    kathaNumber: map['kathaNumber'] ?? '',
+    year: map['year'] ?? '',
+    dates: map['dates'] ?? '',
+    topic: map['topic'] ?? '',
+    location: map['location'] ?? '',
+    country: map['country'] ?? 'India',
+    language: map['language'] ?? 'Hindi',
+    youtubePlaylistUrl: map['youtubePlaylistUrl'] ?? '',
+    pdfLink: map['pdfLink'] ?? '',
+    description: map['description'] ?? '',
+    imageUrl: map['imageUrl'] ?? '',
+  );
+}
+
+class StotraItem {
+  String title;
+  String englishPdfUrl;
+  String hindiPdfUrl;
+  String gujaratiPdfUrl;
+
+  StotraItem({
+    this.title = '',
+    this.englishPdfUrl = '',
+    this.hindiPdfUrl = '',
+    this.gujaratiPdfUrl = '',
+  });
+
+  Map<String, dynamic> toMap() => {
+    'title': title,
+    'englishPdfUrl': englishPdfUrl,
+    'hindiPdfUrl': hindiPdfUrl,
+    'gujaratiPdfUrl': gujaratiPdfUrl,
+  };
+
+  factory StotraItem.fromMap(Map<String, dynamic> map) => StotraItem(
+    title: map['title'] ?? '',
+    englishPdfUrl: map['englishPdfUrl'] ?? '',
+    hindiPdfUrl: map['hindiPdfUrl'] ?? '',
+    gujaratiPdfUrl: map['gujaratiPdfUrl'] ?? '',
+  );
+}
+
+
+class StotraSection {
+  String pageTitle;
+  String topHeaderImage;
+  List<StotraItem> items;
+
+  StotraSection({
+    this.pageTitle = 'Stotra / Bhajan / Aarti',
+    this.topHeaderImage = '',
+    List<StotraItem>? items,
+  }) : items = items ?? [];
+
+  Map<String, dynamic> toMap() => {
+    'pageTitle': pageTitle,
+    'topHeaderImage': topHeaderImage,
+    'items': items.map((e) => e.toMap()).toList(),
+  };
+
+  factory StotraSection.fromMap(Map<String, dynamic> map) => StotraSection(
+    pageTitle: map['pageTitle'] ?? 'Stotra / Bhajan / Aarti',
+    topHeaderImage: map['topHeaderImage'] ?? '',
+    items: (map['items'] as List? ?? []).map((e) => StotraItem.fromMap(e)).toList(),
+  );
+}
+
+
 class AboutKathaPageData {
   String topHeaderImage;
   String title;
@@ -212,4 +334,17 @@ class AboutKathaPageData {
     largeBottomImage: map['largeBottomImage'] ?? '',
   );
 }
+
+class KathaListPageData {
+  String bannerImageUrl;
+
+  KathaListPageData({this.bannerImageUrl = ''});
+
+  Map<String, dynamic> toMap() => {'bannerImageUrl': bannerImageUrl};
+
+  factory KathaListPageData.fromMap(Map<String, dynamic> map) => KathaListPageData(
+    bannerImageUrl: map['bannerImageUrl'] ?? '',
+  );
+}
+
 

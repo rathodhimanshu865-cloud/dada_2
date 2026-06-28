@@ -79,7 +79,7 @@ class _UserHeaderState extends State<UserHeader> {
             children: [
               _navItem('Home', active: true, onTap: () => Navigator.pushNamed(context, '/')),
               _ramKathaDropdown(),
-              _navItem('Live'),
+              _navItem('Stotra / Bhajan / Aarti', onTap: () => Navigator.pushNamed(context, '/stotra')),
               _navItem('Gallery'),
               _navItem('Contact Us'),
             ],
@@ -100,8 +100,11 @@ class _UserHeaderState extends State<UserHeader> {
         onSelected: (value) {
           if (value == 'About Ram Katha') {
             Navigator.pushNamed(context, '/about_katha');
+          } else if (value == 'Full Katha List') {
+            Navigator.pushNamed(context, '/katha_list');
+          } else if (value == 'Upcoming Ram Kathas') {
+            Navigator.pushNamed(context, '/upcoming_ram_kathas');
           }
-          // Add other redirections here as pages are created
         },
         child: const Row(
           mainAxisSize: MainAxisSize.min,
