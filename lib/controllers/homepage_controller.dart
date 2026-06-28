@@ -14,6 +14,8 @@ class HomePageController extends ChangeNotifier {
   RamKathaSection ramKatha = RamKathaSection();
   FooterData footer = FooterData();
   AboutKathaPageData aboutKathaPage = AboutKathaPageData();
+  List<KathaRecord> allKathas = [];
+  KathaListPageData kathaListPageData = KathaListPageData();
 
   bool isLoading = false;
 
@@ -41,6 +43,8 @@ class HomePageController extends ChangeNotifier {
         ramKatha = RamKathaSection.fromMap(data['ramKatha'] ?? {});
         footer = FooterData.fromMap(data['footer'] ?? {});
         aboutKathaPage = AboutKathaPageData.fromMap(data['aboutKathaPage'] ?? {});
+        allKathas = (data['allKathas'] as List? ?? []).map((e) => KathaRecord.fromMap(e)).toList();
+        kathaListPageData = KathaListPageData.fromMap(data['kathaListPageData'] ?? {});
       }
     } catch (e) {
       debugPrint("Load error: $e");
@@ -53,6 +57,9 @@ class HomePageController extends ChangeNotifier {
   void removeKatha(int i) { upcomingKathas.removeAt(i); notifyListeners(); }
   void addVideo() { videos.add(VideoItem()); notifyListeners(); }
   void removeVideo(int i) { videos.removeAt(i); notifyListeners(); }
+
+  void addKathaRecord() { allKathas.add(KathaRecord()); notifyListeners(); }
+  void removeKathaRecord(int i) { allKathas.removeAt(i); notifyListeners(); }
 
   Future<void> publish() async {
     isLoading = true;
@@ -68,6 +75,8 @@ class HomePageController extends ChangeNotifier {
         'ramKatha': ramKatha.toMap(),
         'footer': footer.toMap(),
         'aboutKathaPage': aboutKathaPage.toMap(),
+        'allKathas': allKathas.map((e) => e.toMap()).toList(),
+        'kathaListPageData': kathaListPageData.toMap(),
       });
     } catch (e) {
       debugPrint("Save error: $e");

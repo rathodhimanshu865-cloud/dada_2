@@ -141,6 +141,63 @@ class FooterData {
   );
 }
 
+class KathaRecord {
+  String kathaNumber;
+  String year;
+  String dates;
+  String topic;
+  String location;
+  String country;
+  String language;
+  String youtubePlaylistUrl;
+  String pdfLink;
+  String description;
+  String imageUrl;
+
+  KathaRecord({
+    this.kathaNumber = '',
+    this.year = '',
+    this.dates = '',
+    this.topic = '',
+    this.location = '',
+    this.country = 'India',
+    this.language = 'Hindi',
+    this.youtubePlaylistUrl = '',
+    this.pdfLink = '',
+    this.description = '',
+    this.imageUrl = '',
+  });
+
+  Map<String, dynamic> toMap() => {
+    'kathaNumber': kathaNumber,
+    'year': year,
+    'dates': dates,
+    'topic': topic,
+    'location': location,
+    'country': country,
+    'language': language,
+    'youtubePlaylistUrl': youtubePlaylistUrl,
+    'pdfLink': pdfLink,
+    'description': description,
+    'imageUrl': imageUrl,
+  };
+
+  factory KathaRecord.fromMap(Map<String, dynamic> map) => KathaRecord(
+    kathaNumber: map['kathaNumber'] ?? '',
+    year: map['year'] ?? '',
+    dates: map['dates'] ?? '',
+    topic: map['topic'] ?? '',
+    location: map['location'] ?? '',
+    country: map['country'] ?? 'India',
+    language: map['language'] ?? 'Hindi',
+    youtubePlaylistUrl: map['youtubePlaylistUrl'] ?? '',
+    pdfLink: map['pdfLink'] ?? '',
+    description: map['description'] ?? '',
+    imageUrl: map['imageUrl'] ?? '',
+  );
+}
+
+
 class AboutKathaPageData {
   String topHeaderImage;
   String title;
@@ -212,4 +269,17 @@ class AboutKathaPageData {
     largeBottomImage: map['largeBottomImage'] ?? '',
   );
 }
+
+class KathaListPageData {
+  String bannerImageUrl;
+
+  KathaListPageData({this.bannerImageUrl = ''});
+
+  Map<String, dynamic> toMap() => {'bannerImageUrl': bannerImageUrl};
+
+  factory KathaListPageData.fromMap(Map<String, dynamic> map) => KathaListPageData(
+    bannerImageUrl: map['bannerImageUrl'] ?? '',
+  );
+}
+
 

@@ -100,8 +100,9 @@ class _UserHeaderState extends State<UserHeader> {
         onSelected: (value) {
           if (value == 'About Ram Katha') {
             Navigator.pushNamed(context, '/about_katha');
+          } else if (value == 'Full Katha List') {
+            Navigator.pushNamed(context, '/katha_list');
           }
-          // Add other redirections here as pages are created
         },
         child: const Row(
           mainAxisSize: MainAxisSize.min,
