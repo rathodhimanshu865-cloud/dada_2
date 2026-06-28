@@ -1,4 +1,3 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
@@ -16,7 +15,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   final List<String> menuItems = [
     'Homepage Sections',
-    'Stotra Section',
     'Full Katha List',
     'About Katha Page',
     'Navigation Settings'
@@ -35,93 +33,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
           border: const OutlineInputBorder(),
         ),
         onChanged: onChanged,
-      ),
-    );
-  }
-
-  Future<String?> _pickPdfFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-    );
-    if (result != null && result.files.isNotEmpty) {
-      return result.files.first.path;
-    }
-    return null;
-  }
-
-  Future<String?> _pickImageFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-    );
-    if (result != null && result.files.isNotEmpty) {
-      return result.files.first.path;
-    }
-    return null;
-  }
-
-  Widget _buildPdfField(String label, String currentValue, Function(String) onChanged) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: TextFormField(
-              initialValue: currentValue,
-              decoration: InputDecoration(
-                labelText: label,
-                filled: true,
-                fillColor: Colors.grey[50],
-                border: const OutlineInputBorder(),
-              ),
-              onChanged: onChanged,
-            ),
-          ),
-          const SizedBox(width: 12),
-          ElevatedButton(
-            onPressed: () async {
-              final path = await _pickPdfFile();
-              if (path != null) {
-                onChanged(path);
-              }
-            },
-            child: const Text('Select PDF'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImageField(String label, String currentValue, Function(String) onChanged) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: TextFormField(
-              initialValue: currentValue,
-              decoration: InputDecoration(
-                labelText: label,
-                filled: true,
-                fillColor: Colors.grey[50],
-                border: const OutlineInputBorder(),
-              ),
-              onChanged: onChanged,
-            ),
-          ),
-          const SizedBox(width: 12),
-          ElevatedButton(
-            onPressed: () async {
-              final path = await _pickImageFile();
-              if (path != null) {
-                onChanged(path);
-              }
-            },
-            child: const Text('Select Image'),
-          ),
-        ],
       ),
     );
   }
@@ -171,10 +82,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget _buildCurrentView(HomePageController controller) {
     switch (currentMenuIndex) {
       case 0: return _homepageView(controller);
-      case 1: return _stotraView(controller);
-      case 2: return _kathaListView(controller);
-      case 3: return _aboutKathaView(controller);
-      case 4: return const Center(child: Text('Navigation Settings not implemented yet'));
+      case 1: return _kathaListView(controller);
+      case 2: return _aboutKathaView(controller);
       default: return const Center(child: Text('Select a section from the menu'));
     }
   }
@@ -274,10 +183,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       children: [
                         _buildField('Katha Number (ID)', entry.value.kathaNumber, (v) => entry.value.kathaNumber = v),
                         _buildField('Katha Name', entry.value.name, (v) => entry.value.name = v),
-                        _buildField('Katha Date', entry.value.dateString, (v) => entry.value.dateString = v),
-                        _buildField('Katha Timing', entry.value.timing, (v) => entry.value.timing = v),
-                        _buildField('Katha Location', entry.value.location, (v) => entry.value.location = v),
-                        _buildField('Katha Hosting', entry.value.hosting, (v) => entry.value.hosting = v),
+                        _buildField('Display Date String', entry.value.dateString, (v) => entry.value.dateString = v),
                         Row(
                           children: [
                             Expanded(
@@ -361,59 +267,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 _sectionHeader('8. FOOTER SETTINGS'),
                 _buildField('Footer Description', controller.footer.description, (v) => controller.footer.description = v, maxLines: 3),
                 _buildField('Copyright Text', controller.footer.copyright, (v) => controller.footer.copyright = v),
-      ],
-    );
-  }
-
-  Widget _stotraView(HomePageController controller) {
-    return ListView(
-      padding: const EdgeInsets.all(40),
-      children: [
-        _sectionHeader('STOTRA / BHAJAN / AARTI'),
-        _buildField('Page Title', controller.stotraSection.pageTitle, (v) => controller.stotraSection.pageTitle = v),
-        _buildImageField('Top Header Image', controller.stotraSection.topHeaderImage, (v) => controller.stotraSection.topHeaderImage = v),
-        const Divider(),
-        const SizedBox(height: 20),
-        const Text('List Items', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 20),
-        ...controller.stotraSection.items.asMap().entries.map((entry) {
-          int index = entry.key;
-          final item = entry.value;
-          return Card(
-            margin: const EdgeInsets.only(bottom: 20),
-            child: ExpansionTile(
-              title: Text('${index + 1}. ${item.title.isNotEmpty ? item.title : 'New Stotra Item'}'),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () {
-                    setState(() => controller.stotraSection.items.removeAt(index));
-                  }),
-                  const Icon(Icons.expand_more),
-                ],
-              ),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      _buildField('Title', item.title, (v) => item.title = v),
-                      _buildPdfField('English PDF URL / Path', item.englishPdfUrl, (v) => item.englishPdfUrl = v),
-                      _buildPdfField('Hindi PDF URL / Path', item.hindiPdfUrl, (v) => item.hindiPdfUrl = v),
-                      _buildPdfField('Gujarati PDF URL / Path', item.gujaratiPdfUrl, (v) => item.gujaratiPdfUrl = v),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          );
-        }),
-        const SizedBox(height: 20),
-        ElevatedButton.icon(
-          onPressed: controller.addStotraItem,
-          icon: const Icon(Icons.add),
-          label: const Text('ADD STOTRA / BHAJAN / AARTI ITEM'),
-        ),
       ],
     );
   }
