@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class WebsiteSettings {
   String name;
   String logoUrl;
@@ -103,10 +105,8 @@ class VideoItem {
     youtubeUrl: map['youtubeUrl'] ?? '',
   );
 
-  // Helper to extract YouTube Thumbnail from any YouTube/Shorts URL
   String get thumbnail {
     if (youtubeUrl.isEmpty) return 'https://via.placeholder.com/300x500';
-    
     String videoId = '';
     if (youtubeUrl.contains('/shorts/')) {
       videoId = youtubeUrl.split('/shorts/')[1].split('?')[0];
@@ -115,7 +115,6 @@ class VideoItem {
     } else if (youtubeUrl.contains('youtu.be/')) {
       videoId = youtubeUrl.split('youtu.be/')[1].split('?')[0];
     }
-
     return videoId.isNotEmpty 
       ? 'https://img.youtube.com/vi/$videoId/hqdefault.jpg' 
       : 'https://via.placeholder.com/300x500';
@@ -162,7 +161,6 @@ class KathaRecord {
   String country;
   String language;
   String youtubePlaylistUrl;
-  String pdfLink;
   String description;
   String imageUrl;
 
@@ -175,7 +173,6 @@ class KathaRecord {
     this.country = 'India',
     this.language = 'Hindi',
     this.youtubePlaylistUrl = '',
-    this.pdfLink = '',
     this.description = '',
     this.imageUrl = '',
   });
@@ -189,7 +186,6 @@ class KathaRecord {
     'country': country,
     'language': language,
     'youtubePlaylistUrl': youtubePlaylistUrl,
-    'pdfLink': pdfLink,
     'description': description,
     'imageUrl': imageUrl,
   };
@@ -203,7 +199,6 @@ class KathaRecord {
     country: map['country'] ?? 'India',
     language: map['language'] ?? 'Hindi',
     youtubePlaylistUrl: map['youtubePlaylistUrl'] ?? '',
-    pdfLink: map['pdfLink'] ?? '',
     description: map['description'] ?? '',
     imageUrl: map['imageUrl'] ?? '',
   );
@@ -237,7 +232,6 @@ class StotraItem {
   );
 }
 
-
 class StotraSection {
   String pageTitle;
   String topHeaderImage;
@@ -270,15 +264,10 @@ class AboutKathaPageData {
   String subDescCol1;
   String subDescCol2;
   String subDescCol3;
-  
-  // Middle section with image and text
   String midSectionImage;
   String midSectionTitle;
   String midSectionPara1;
-  String midSectionPara2;
-
-  // Bottom section with calligraphy
-  String signatureImage; // For "Satya Prem Karuna" image
+  String signatureImage;
   String bottomPara1;
   String bottomPara2;
   String largeBottomImage;
@@ -293,7 +282,6 @@ class AboutKathaPageData {
     this.midSectionImage = '',
     this.midSectionTitle = '',
     this.midSectionPara1 = '',
-    this.midSectionPara2 = '',
     this.signatureImage = '',
     this.bottomPara1 = '',
     this.bottomPara2 = '',
@@ -310,7 +298,6 @@ class AboutKathaPageData {
     'midSectionImage': midSectionImage,
     'midSectionTitle': midSectionTitle,
     'midSectionPara1': midSectionPara1,
-    'midSectionPara2': midSectionPara2,
     'signatureImage': signatureImage,
     'bottomPara1': bottomPara1,
     'bottomPara2': bottomPara2,
@@ -327,7 +314,6 @@ class AboutKathaPageData {
     midSectionImage: map['midSectionImage'] ?? '',
     midSectionTitle: map['midSectionTitle'] ?? '',
     midSectionPara1: map['midSectionPara1'] ?? '',
-    midSectionPara2: map['midSectionPara2'] ?? '',
     signatureImage: map['signatureImage'] ?? '',
     bottomPara1: map['bottomPara1'] ?? '',
     bottomPara2: map['bottomPara2'] ?? '',
@@ -337,14 +323,9 @@ class AboutKathaPageData {
 
 class KathaListPageData {
   String bannerImageUrl;
-
   KathaListPageData({this.bannerImageUrl = ''});
-
   Map<String, dynamic> toMap() => {'bannerImageUrl': bannerImageUrl};
-
   factory KathaListPageData.fromMap(Map<String, dynamic> map) => KathaListPageData(
     bannerImageUrl: map['bannerImageUrl'] ?? '',
   );
 }
-
-

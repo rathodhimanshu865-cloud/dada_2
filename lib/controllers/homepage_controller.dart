@@ -33,12 +33,11 @@ class HomePageController extends ChangeNotifier {
         final data = doc.data()!;
         websiteSettings = WebsiteSettings.fromMap(data['websiteSettings'] ?? {});
         heroSection = HeroSection.fromMap(data['heroSection'] ?? {});
-        // Ensure we always have 8 slots for hero images
         while (heroSection.bannerUrls.length < 8) {
           heroSection.bannerUrls.add('');
         }
         upcomingKathas = (data['upcomingKathas'] as List? ?? []).map((e) => UpcomingKatha.fromMap(e)).toList();
-        aboutSection = AboutSection.fromMap(data['aboutSection'] ?? data['aboutDada'] ?? {});
+        aboutSection = AboutSection.fromMap(data['aboutSection'] ?? {});
         dailySuvichar = DailySuvichar.fromMap(data['dailySuvichar'] ?? {});
         videos = (data['videos'] as List? ?? []).map((e) => VideoItem.fromMap(e)).toList();
         ramKatha = RamKathaSection.fromMap(data['ramKatha'] ?? {});
@@ -59,10 +58,8 @@ class HomePageController extends ChangeNotifier {
   void removeKatha(int i) { upcomingKathas.removeAt(i); notifyListeners(); }
   void addVideo() { videos.add(VideoItem()); notifyListeners(); }
   void removeVideo(int i) { videos.removeAt(i); notifyListeners(); }
-
   void addKathaRecord() { allKathas.add(KathaRecord()); notifyListeners(); }
   void removeKathaRecord(int i) { allKathas.removeAt(i); notifyListeners(); }
-
   void addStotraItem() { stotraSection.items.add(StotraItem()); notifyListeners(); }
   void removeStotraItem(int i) { stotraSection.items.removeAt(i); notifyListeners(); }
 
@@ -84,6 +81,7 @@ class HomePageController extends ChangeNotifier {
         'allKathas': allKathas.map((e) => e.toMap()).toList(),
         'kathaListPageData': kathaListPageData.toMap(),
       });
+      await loadData();
     } catch (e) {
       debugPrint("Save error: $e");
     }

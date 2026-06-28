@@ -79,7 +79,7 @@ class _UserHeaderState extends State<UserHeader> {
             children: [
               _navItem('Home', active: true, onTap: () => Navigator.pushNamed(context, '/')),
               _ramKathaDropdown(),
-              _navItem('Stotra / Bhajan / Aarti', onTap: () => Navigator.pushNamed(context, '/stotra')),
+              _navItem('Stuti', onTap: () => Navigator.pushNamed(context, '/stotra')),
               _navItem('Gallery'),
               _navItem('Contact Us'),
             ],
