@@ -140,3 +140,76 @@ class FooterData {
     copyright: map['copyright'] ?? '',
   );
 }
+
+class AboutKathaPageData {
+  String topHeaderImage;
+  String title;
+  String mainItalicDesc;
+  String subDescCol1;
+  String subDescCol2;
+  String subDescCol3;
+  
+  // Middle section with image and text
+  String midSectionImage;
+  String midSectionTitle;
+  String midSectionPara1;
+  String midSectionPara2;
+
+  // Bottom section with calligraphy
+  String signatureImage; // For "Satya Prem Karuna" image
+  String bottomPara1;
+  String bottomPara2;
+  String largeBottomImage;
+
+  AboutKathaPageData({
+    this.topHeaderImage = '',
+    this.title = 'About Ram Katha & Morari Bapu',
+    this.mainItalicDesc = '',
+    this.subDescCol1 = '',
+    this.subDescCol2 = '',
+    this.subDescCol3 = '',
+    this.midSectionImage = '',
+    this.midSectionTitle = '',
+    this.midSectionPara1 = '',
+    this.midSectionPara2 = '',
+    this.signatureImage = '',
+    this.bottomPara1 = '',
+    this.bottomPara2 = '',
+    this.largeBottomImage = '',
+  });
+
+  Map<String, dynamic> toMap() => {
+    'topHeaderImage': topHeaderImage,
+    'title': title,
+    'mainItalicDesc': mainItalicDesc,
+    'subDescCol1': subDescCol1,
+    'subDescCol2': subDescCol2,
+    'subDescCol3': subDescCol3,
+    'midSectionImage': midSectionImage,
+    'midSectionTitle': midSectionTitle,
+    'midSectionPara1': midSectionPara1,
+    'midSectionPara2': midSectionPara2,
+    'signatureImage': signatureImage,
+    'bottomPara1': bottomPara1,
+    'bottomPara2': bottomPara2,
+    'largeBottomImage': largeBottomImage,
+  };
+
+  factory AboutKathaPageData.fromMap(Map<String, dynamic> map) => AboutKathaPageData(
+    topHeaderImage: map['topHeaderImage'] ?? '',
+    title: map['title'] ?? 'About Ram Katha & Morari Bapu',
+    mainItalicDesc: map['mainItalicDesc'] ?? '',
+    subDescCol1: map['subDescCol1'] ?? '',
+    subDescCol2: map['subDescCol2'] ?? '',
+    subDescCol3: map['subDescCol3'] ?? '',
+    midSectionImage: map['midSectionImage'] ?? '',
+    midSectionTitle: map['midSectionTitle'] ?? '',
+    midSectionPara1: map['midSectionPara1'] ?? '',
+    midSectionPara2: map['midSectionPara2'] ?? '',
+    signatureImage: map['signatureImage'] ?? '',
+    bottomPara1: map['bottomPara1'] ?? '',
+    bottomPara2: map['bottomPara2'] ?? '',
+    largeBottomImage: map['largeBottomImage'] ?? '',
+  );
+}
+

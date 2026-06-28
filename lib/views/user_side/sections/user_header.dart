@@ -25,17 +25,17 @@ class _UserHeaderState extends State<UserHeader> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Left: Social Icons (Exactly like photo)
+              // Left: Social Icons
               Row(
                 children: [
                   _socialIcon(Icons.facebook),
-                  _socialIcon(Icons.close), // X (Twitter)
-                  _socialIcon(Icons.camera_alt_outlined), // Instagram
-                  _socialIcon(Icons.play_arrow), // YouTube
+                  _socialIcon(Icons.close),
+                  _socialIcon(Icons.camera_alt_outlined),
+                  _socialIcon(Icons.play_arrow),
                 ],
               ),
               
-              // Center: Logo (Adjustable from Admin)
+              // Center: Logo
               Image.network(
                 widget.controller.websiteSettings.logoUrl,
                 height: 80,
@@ -56,7 +56,7 @@ class _UserHeaderState extends State<UserHeader> {
                 ),
               ),
               
-              // Right: Language Dropdown (Exactly like photo)
+              // Right: Language & Admin
               Row(
                 children: [
                   _languageDropdown(),
@@ -77,14 +77,70 @@ class _UserHeaderState extends State<UserHeader> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _navItem('Home', active: true),
-              _navItem('Past Kathas'),
+              _navItem('Home', active: true, onTap: () => Navigator.pushNamed(context, '/')),
+              _ramKathaDropdown(),
               _navItem('Live'),
               _navItem('Gallery'),
               _navItem('Contact Us'),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _ramKathaDropdown() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: PopupMenuButton<String>(
+        offset: const Offset(0, 30),
+        elevation: 10,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        color: Colors.white,
+        onSelected: (value) {
+          if (value == 'About Ram Katha') {
+            Navigator.pushNamed(context, '/about_katha');
+          }
+          // Add other redirections here as pages are created
+        },
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'RAM KATHA',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+                letterSpacing: 0.8,
+              ),
+            ),
+            Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.brown),
+          ],
+        ),
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+          _dropdownItem('About Ram Katha', isFirst: true),
+          _dropdownItem('Full Katha List'),
+          _dropdownItem('Upcoming Ram Kathas'),
+          _dropdownItem('Katha Booklets'),
+          _dropdownItem('Katha Chaupais'),
+          _dropdownItem('Katha Glossary'),
+        ],
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _dropdownItem(String title, {bool isFirst = false}) {
+    return PopupMenuItem<String>(
+      value: title,
+      height: 40,
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          color: isFirst ? Colors.brown[300] : Colors.blueGrey[700],
+          fontWeight: isFirst ? FontWeight.bold : FontWeight.w400,
+        ),
       ),
     );
   }
@@ -143,7 +199,6 @@ class _UserHeaderState extends State<UserHeader> {
   }
 
   Widget _getFlag(String lang) {
-    // Small Indian flag colored container for Gujarati/Hindi, UK for English
     return Container(
       width: 20,
       height: 14,
@@ -160,16 +215,19 @@ class _UserHeaderState extends State<UserHeader> {
     );
   }
 
-  Widget _navItem(String title, {bool active = false}) {
+  Widget _navItem(String title, {bool active = false, VoidCallback? onTap}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: active ? FontWeight.bold : FontWeight.w600,
-          color: active ? Colors.brown[800] : Colors.black,
-          letterSpacing: 0.8,
+      child: InkWell(
+        onTap: onTap,
+        child: Text(
+          title.toUpperCase(),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: active ? FontWeight.bold : FontWeight.w600,
+            color: active ? Colors.brown[800] : Colors.black,
+            letterSpacing: 0.8,
+          ),
         ),
       ),
     );

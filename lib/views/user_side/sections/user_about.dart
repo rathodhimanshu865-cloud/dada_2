@@ -64,7 +64,7 @@ class UserAbout extends StatelessWidget {
                   ),
                   const SizedBox(height: 30),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () => Navigator.pushNamed(context, '/about_katha'),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [

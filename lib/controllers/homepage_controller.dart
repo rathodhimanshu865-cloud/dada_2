@@ -13,6 +13,7 @@ class HomePageController extends ChangeNotifier {
   List<VideoItem> videos = [];
   RamKathaSection ramKatha = RamKathaSection();
   FooterData footer = FooterData();
+  AboutKathaPageData aboutKathaPage = AboutKathaPageData();
 
   bool isLoading = false;
 
@@ -39,6 +40,7 @@ class HomePageController extends ChangeNotifier {
         videos = (data['videos'] as List? ?? []).map((e) => VideoItem.fromMap(e)).toList();
         ramKatha = RamKathaSection.fromMap(data['ramKatha'] ?? {});
         footer = FooterData.fromMap(data['footer'] ?? {});
+        aboutKathaPage = AboutKathaPageData.fromMap(data['aboutKathaPage'] ?? {});
       }
     } catch (e) {
       debugPrint("Load error: $e");
@@ -65,6 +67,7 @@ class HomePageController extends ChangeNotifier {
         'videos': videos.map((e) => e.toMap()).toList(),
         'ramKatha': ramKatha.toMap(),
         'footer': footer.toMap(),
+        'aboutKathaPage': aboutKathaPage.toMap(),
       });
     } catch (e) {
       debugPrint("Save error: $e");
