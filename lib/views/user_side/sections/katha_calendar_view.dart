@@ -13,9 +13,9 @@ class KathaCalendarView extends StatefulWidget {
 }
 
 class _KathaCalendarViewState extends State<KathaCalendarView> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
+  
 
   @override
   Widget build(BuildContext context) {
@@ -33,17 +33,30 @@ class _KathaCalendarViewState extends State<KathaCalendarView> {
               children: [
                 Text(
                   DateFormat('MMMM yyyy').format(_focusedDay),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Row(
                   children: [
                     IconButton(
                       icon: const Icon(Icons.chevron_left),
-                      onPressed: () => setState(() => _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1)),
+                      onPressed: () => setState(
+                        () => _focusedDay = DateTime(
+                          _focusedDay.year,
+                          _focusedDay.month - 1,
+                        ),
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.chevron_right),
-                      onPressed: () => setState(() => _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1)),
+                      onPressed: () => setState(
+                        () => _focusedDay = DateTime(
+                          _focusedDay.year,
+                          _focusedDay.month + 1,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -57,13 +70,22 @@ class _KathaCalendarViewState extends State<KathaCalendarView> {
               headerVisible: false,
               daysOfWeekHeight: 40,
               daysOfWeekStyle: const DaysOfWeekStyle(
-                weekdayStyle: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'serif'),
-                weekendStyle: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'serif'),
+                weekdayStyle: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'serif',
+                ),
+                weekendStyle: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'serif',
+                ),
               ),
               calendarBuilders: CalendarBuilders(
-                defaultBuilder: (context, day, focusedDay) => _buildDayCell(day),
-                outsideBuilder: (context, day, focusedDay) => _buildDayCell(day, isOutside: true),
-                todayBuilder: (context, day, focusedDay) => _buildDayCell(day, isToday: true),
+                defaultBuilder: (context, day, focusedDay) =>
+                    _buildDayCell(day),
+                outsideBuilder: (context, day, focusedDay) =>
+                    _buildDayCell(day, isOutside: true),
+                todayBuilder: (context, day, focusedDay) =>
+                    _buildDayCell(day, isToday: true),
               ),
               onPageChanged: (focusedDay) {
                 _focusedDay = focusedDay;
@@ -75,12 +97,18 @@ class _KathaCalendarViewState extends State<KathaCalendarView> {
     );
   }
 
-  Widget _buildDayCell(DateTime day, {bool isOutside = false, bool isToday = false}) {
+  Widget _buildDayCell(
+    DateTime day, {
+    bool isOutside = false,
+    bool isToday = false,
+  }) {
     // Check if this day falls within any katha range
     UpcomingKatha? activeKatha;
     for (var katha in widget.kathas) {
       if (katha.startDate != null && katha.endDate != null) {
-        if (day.isAfter(katha.startDate!.subtract(const Duration(seconds: 1))) && 
+        if (day.isAfter(
+              katha.startDate!.subtract(const Duration(seconds: 1)),
+            ) &&
             day.isBefore(katha.endDate!.add(const Duration(days: 1)))) {
           activeKatha = katha;
           break;
@@ -102,7 +130,9 @@ class _KathaCalendarViewState extends State<KathaCalendarView> {
             child: Text(
               '${day.day}',
               style: TextStyle(
-                color: isOutside ? Colors.grey[300] : (isToday ? Colors.brown : Colors.grey[600]),
+                color: isOutside
+                    ? Colors.grey[300]
+                    : (isToday ? Colors.brown : Colors.grey[600]),
                 fontSize: 12,
               ),
             ),
@@ -115,7 +145,10 @@ class _KathaCalendarViewState extends State<KathaCalendarView> {
               child: GestureDetector(
                 onTap: () => _showKathaDetail(activeKatha!),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 2,
+                  ),
                   margin: const EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
                     color: const Color(0xFFC19A6B),
@@ -123,22 +156,26 @@ class _KathaCalendarViewState extends State<KathaCalendarView> {
                   ),
                   child: Text(
                     'Katha ${activeKatha.kathaNumber} - ${activeKatha.name}',
-                    style: const TextStyle(color: Colors.white, fontSize: 8, overflow: TextOverflow.ellipsis),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
               ),
             ),
           if (isToday)
-             Center(
-               child: Container(
-                 width: 24,
-                 height: 24,
-                 decoration: BoxDecoration(
-                   border: Border.all(color: Colors.brown, width: 1),
-                   shape: BoxShape.circle,
-                 ),
-               ),
-             ),
+            Center(
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.brown, width: 1),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -168,17 +205,44 @@ class _KathaCalendarViewState extends State<KathaCalendarView> {
               ),
               Text(
                 'Katha ${katha.kathaNumber} - ${katha.name}',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF444444)),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF444444),
+                ),
               ),
-              const Center(child: SizedBox(width: 40, child: Divider(color: Colors.brown, thickness: 2))),
+              const Center(
+                child: SizedBox(
+                  width: 40,
+                  child: Divider(color: Colors.brown, thickness: 2),
+                ),
+              ),
               const SizedBox(height: 20),
-              _detailRow('Starts', katha.startDate != null ? DateFormat('M/d/yyyy, hh:mm a').format(katha.startDate!) : '-'),
-              _detailRow('Ends', katha.endDate != null ? DateFormat('M/d/yyyy, hh:mm a').format(katha.endDate!) : '-'),
-              const Center(child: SizedBox(width: 40, child: Divider(color: Colors.brown, thickness: 2))),
+              _detailRow(
+                'Starts',
+                katha.startDate != null
+                    ? DateFormat('M/d/yyyy, hh:mm a').format(katha.startDate!)
+                    : '-',
+              ),
+              _detailRow(
+                'Ends',
+                katha.endDate != null
+                    ? DateFormat('M/d/yyyy, hh:mm a').format(katha.endDate!)
+                    : '-',
+              ),
+              const Center(
+                child: SizedBox(
+                  width: 40,
+                  child: Divider(color: Colors.brown, thickness: 2),
+                ),
+              ),
               const SizedBox(height: 20),
               Row(
                 children: [
-                  const Text('View Katha  ', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                  const Text(
+                    'View Katha  ',
+                    style: TextStyle(fontSize: 13, color: Colors.grey),
+                  ),
                   GestureDetector(
                     onTap: () {
                       final Event event = Event(
@@ -186,13 +250,19 @@ class _KathaCalendarViewState extends State<KathaCalendarView> {
                         description: 'Ram Katha by Pu. Jigneshdada',
                         location: katha.name,
                         startDate: katha.startDate ?? DateTime.now(),
-                        endDate: katha.endDate ?? DateTime.now().add(const Duration(hours: 2)),
+                        endDate:
+                            katha.endDate ??
+                            DateTime.now().add(const Duration(hours: 2)),
                       );
                       Add2Calendar.addEvent2Cal(event);
                     },
                     child: const Text(
                       'Add to your calendar',
-                      style: TextStyle(fontSize: 13, color: Colors.brown, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.brown,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -209,9 +279,23 @@ class _KathaCalendarViewState extends State<KathaCalendarView> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Text(label, style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.grey, fontSize: 14)),
+          Text(
+            label,
+            style: const TextStyle(
+              fontStyle: FontStyle.italic,
+              color: Colors.grey,
+              fontSize: 14,
+            ),
+          ),
           const Spacer(),
-          Text(value, style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.black87, fontSize: 14)),
+          Text(
+            value,
+            style: const TextStyle(
+              fontStyle: FontStyle.italic,
+              color: Colors.black87,
+              fontSize: 14,
+            ),
+          ),
         ],
       ),
     );

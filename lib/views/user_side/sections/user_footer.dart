@@ -12,8 +12,7 @@ class UserFooter extends StatelessWidget {
       padding: const EdgeInsets.all(60),
       child: Column(
         children: [
-          LayoutBuilder(builder: (context, constraints) {
-            bool isDesktop = constraints.maxWidth > 800;
+            LayoutBuilder(builder: (context, constraints) {
             return Wrap(
               spacing: 60,
               runSpacing: 40,

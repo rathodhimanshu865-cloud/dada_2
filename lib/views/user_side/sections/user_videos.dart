@@ -26,7 +26,12 @@ class UserVideos extends StatelessWidget {
               SizedBox(width: 10),
               Text(
                 'Videos',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.brown, fontFamily: 'serif'),
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.brown,
+                  fontFamily: 'serif',
+                ),
               ),
             ],
           ),
@@ -47,7 +52,11 @@ class UserVideos extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 5)),
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
                       ],
                       image: DecorationImage(
                         image: NetworkImage(video.thumbnail),
@@ -62,12 +71,19 @@ class UserVideos extends StatelessWidget {
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.7),
+                              ],
                             ),
                           ),
                         ),
                         const Center(
-                          child: Icon(Icons.play_circle_outline, color: Colors.white, size: 60),
+                          child: Icon(
+                            Icons.play_circle_outline,
+                            color: Colors.white,
+                            size: 60,
+                          ),
                         ),
                         Positioned(
                           bottom: 20,
@@ -77,15 +93,23 @@ class UserVideos extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                video.title, 
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                                video.title,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 5),
                               const Text(
-                                'YouTube Shorts', 
-                                style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500)
+                                'YouTube Shorts',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ],
                           ),

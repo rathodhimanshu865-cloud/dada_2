@@ -12,6 +12,103 @@ class UserHeader extends StatefulWidget {
 class _UserHeaderState extends State<UserHeader> {
   String selectedLanguage = 'English';
 
+  Widget _ramKathaDropdown() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: PopupMenuButton<String>(
+        offset: const Offset(0, 30),
+        elevation: 10,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        color: Colors.white,
+        onSelected: (value) {
+          if (value == 'About Ram Katha') {
+            Navigator.pushNamed(context, '/about_katha');
+          } else if (value == 'Full Katha List') {
+            Navigator.pushNamed(context, '/katha_list');
+          } else if (value == 'Upcoming Ram Kathas') {
+            Navigator.pushNamed(context, '/upcoming_ram_kathas');
+          }
+        },
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'RAM KATHA',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+                letterSpacing: 0.8,
+              ),
+            ),
+            Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.brown),
+          ],
+        ),
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+          _dropdownItem('About Ram Katha', isFirst: true),
+          _dropdownItem('Full Katha List'),
+          _dropdownItem('Upcoming Ram Kathas'),
+          _dropdownItem('Katha Booklets'),
+          _dropdownItem('Katha Chaupais'),
+          _dropdownItem('Katha Glossary'),
+        ],
+      ),
+    );
+  }
+
+  Widget _galleryDropdown() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: PopupMenuButton<String>(
+        offset: const Offset(0, 30),
+        elevation: 10,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        color: Colors.white,
+        onSelected: (value) {
+          if (value == 'Photos') {
+            Navigator.pushNamed(context, '/photo_gallery');
+          } else if (value == 'Videos') {
+            Navigator.pushNamed(context, '/video_gallery');
+          }
+        },
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'GALLERY',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+                letterSpacing: 0.8,
+              ),
+            ),
+            Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.brown),
+          ],
+        ),
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+          const PopupMenuItem<String>(value: 'Photos', child: Text('Photos')),
+          const PopupMenuItem<String>(value: 'Videos', child: Text('Videos')),
+        ],
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _dropdownItem(String title, {bool isFirst = false}) {
+    return PopupMenuItem<String>(
+      value: title,
+      height: 40,
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          color: isFirst ? Colors.brown[300] : Colors.blueGrey[700],
+          fontWeight: isFirst ? FontWeight.bold : FontWeight.w400,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -80,70 +177,12 @@ class _UserHeaderState extends State<UserHeader> {
               _navItem('Home', active: true, onTap: () => Navigator.pushNamed(context, '/')),
               _ramKathaDropdown(),
               _navItem('Stuti', onTap: () => Navigator.pushNamed(context, '/stotra')),
-              _navItem('Gallery'),
+              _navItem('Live'),
+              _galleryDropdown(),
               _navItem('Contact Us'),
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _ramKathaDropdown() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: PopupMenuButton<String>(
-        offset: const Offset(0, 30),
-        elevation: 10,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-        color: Colors.white,
-        onSelected: (value) {
-          if (value == 'About Ram Katha') {
-            Navigator.pushNamed(context, '/about_katha');
-          } else if (value == 'Full Katha List') {
-            Navigator.pushNamed(context, '/katha_list');
-          } else if (value == 'Upcoming Ram Kathas') {
-            Navigator.pushNamed(context, '/upcoming_ram_kathas');
-          }
-        },
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'RAM KATHA',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-                letterSpacing: 0.8,
-              ),
-            ),
-            Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.brown),
-          ],
-        ),
-        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-          _dropdownItem('About Ram Katha', isFirst: true),
-          _dropdownItem('Full Katha List'),
-          _dropdownItem('Upcoming Ram Kathas'),
-          _dropdownItem('Katha Booklets'),
-          _dropdownItem('Katha Chaupais'),
-          _dropdownItem('Katha Glossary'),
-        ],
-      ),
-    );
-  }
-
-  PopupMenuItem<String> _dropdownItem(String title, {bool isFirst = false}) {
-    return PopupMenuItem<String>(
-      value: title,
-      height: 40,
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 14,
-          color: isFirst ? Colors.brown[300] : Colors.blueGrey[700],
-          fontWeight: isFirst ? FontWeight.bold : FontWeight.w400,
-        ),
       ),
     );
   }

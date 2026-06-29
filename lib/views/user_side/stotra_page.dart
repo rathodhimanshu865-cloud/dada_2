@@ -22,7 +22,9 @@ class StotraPage extends StatelessWidget {
     final section = controller.stotraSection;
 
     if (controller.isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator(color: Colors.black)));
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: Colors.black)),
+      );
     }
 
     return Scaffold(
@@ -31,13 +33,13 @@ class StotraPage extends StatelessWidget {
         child: Column(
           children: [
             UserHeader(controller: controller),
-            
+
             // Top Header Image
             if (section.topHeaderImage.isNotEmpty)
               Image.network(
-                section.topHeaderImage, 
-                width: double.infinity, 
-                height: 400, 
+                section.topHeaderImage,
+                width: double.infinity,
+                height: 400,
                 fit: BoxFit.cover,
                 errorBuilder: (c, e, s) => const SizedBox.shrink(),
               ),
@@ -47,10 +49,17 @@ class StotraPage extends StatelessWidget {
             // Page Title
             Text(
               section.pageTitle,
-              style: const TextStyle(fontSize: 32, fontFamily: 'serif', color: Color(0xFF444444)),
+              style: const TextStyle(
+                fontSize: 32,
+                fontFamily: 'serif',
+                color: Color(0xFF444444),
+              ),
             ),
             const SizedBox(height: 10),
-            const Text('Home > Stotra / Bhajan / Aarti', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            const Text(
+              'Home > Stotra / Bhajan / Aarti',
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+            ),
 
             const SizedBox(height: 60),
 
@@ -80,18 +89,27 @@ class StotraPage extends StatelessWidget {
                                 child: Center(
                                   child: Text(
                                     '${index + 1}',
-                                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 20),
-                              
+
                               // Stotra Name
                               Expanded(
                                 flex: 4,
                                 child: Text(
                                   item.title,
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Color(0xFF444444), fontFamily: 'serif'),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF444444),
+                                    fontFamily: 'serif',
+                                  ),
                                 ),
                               ),
 
@@ -99,7 +117,7 @@ class StotraPage extends StatelessWidget {
 
                               // English PDF
                               _pdfLink('English', item.englishPdfUrl),
-                              
+
                               const VerticalDivider(width: 40),
 
                               // Hindi PDF
@@ -117,7 +135,7 @@ class StotraPage extends StatelessWidget {
                         const Divider(color: Color(0xFFEEEEEE), thickness: 1),
                       ],
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ),
@@ -137,11 +155,19 @@ class StotraPage extends StatelessWidget {
         onTap: () => _launchUrl(url),
         child: Row(
           children: [
-            const Icon(Icons.picture_as_pdf_outlined, size: 20, color: Colors.grey),
+            const Icon(
+              Icons.picture_as_pdf_outlined,
+              size: 20,
+              color: Colors.grey,
+            ),
             const SizedBox(width: 10),
             Text(
-              label, 
-              style: const TextStyle(fontSize: 13, color: Color(0xFF444444), fontWeight: FontWeight.w400)
+              label,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF444444),
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ],
         ),

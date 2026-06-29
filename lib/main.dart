@@ -6,8 +6,10 @@ import 'controllers/homepage_controller.dart';
 import 'views/user_side/user_homepage.dart';
 import 'views/user_side/about_katha_page.dart';
 import 'views/user_side/katha_list_page.dart';
+import 'views/user_side/photo_gallery_page.dart';
 import 'views/user_side/stotra_page.dart';
 import 'views/user_side/upcoming_ram_kathas_page.dart';
+import 'views/user_side/video_gallery_page.dart';
 import 'views/admin/admin_login_page.dart';
 import 'views/admin/admin_dashboard.dart';
 
@@ -92,8 +94,10 @@ class MyApp extends StatelessWidget {
           '/': (context) => const UserHomePage(),
           '/about_katha': (context) => const AboutKathaPage(),
           '/katha_list': (context) => const KathaListPage(),
+          '/photo_gallery': (context) => const PhotoGalleryPage(),
           '/stotra': (context) => const StotraPage(),
           '/upcoming_ram_kathas': (context) => const UpcomingRamKathasPage(),
+          '/video_gallery': (context) => const VideoGalleryPage(),
           '/admin_login': (context) => const AdminLoginPage(),
           '/admin_dashboard': (context) => const AdminDashboard(),
         },

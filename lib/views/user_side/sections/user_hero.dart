@@ -43,7 +43,7 @@ class _UserHeroState extends State<UserHero> {
   void dispose() {
     _timer?.cancel();
     _pageController.dispose();
-    super.initState();
+    super.dispose();
   }
 
   @override
@@ -55,14 +55,20 @@ class _UserHeroState extends State<UserHero> {
 
     // If no images are uploaded, show placeholders
     if (images.isEmpty) {
-      images.addAll(List.filled(8, 'https://via.placeholder.com/1200x500?text=Upload+Image+in+Admin'));
+      images.addAll(
+        List.filled(
+          8,
+          'https://via.placeholder.com/1200x500?text=Upload+Image+in+Admin',
+        ),
+      );
     }
 
     return Stack(
       children: [
         SizedBox(
           width: double.infinity,
-          height: 550, // Adjusted height to match the professional look of the photo
+          height:
+              550, // Adjusted height to match the professional look of the photo
           child: PageView.builder(
             controller: _pageController,
             onPageChanged: (int page) {
@@ -77,13 +83,15 @@ class _UserHeroState extends State<UserHero> {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
                   color: Colors.grey[200],
-                  child: const Center(child: Icon(Icons.image, size: 50, color: Colors.grey)),
+                  child: const Center(
+                    child: Icon(Icons.image, size: 50, color: Colors.grey),
+                  ),
                 ),
               );
             },
           ),
         ),
-        
+
         // Navigation Arrows (Optional, but visible in the photo)
         Positioned.fill(
           child: Row(
@@ -91,20 +99,34 @@ class _UserHeroState extends State<UserHero> {
             children: [
               IconButton(
                 onPressed: () {
-                  _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
+                  _pageController.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeIn,
+                  );
                 },
-                icon: const Icon(Icons.chevron_left, color: Colors.white54, size: 40),
+                icon: const Icon(
+                  Icons.chevron_left,
+                  color: Colors.white54,
+                  size: 40,
+                ),
               ),
               IconButton(
                 onPressed: () {
-                  _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
+                  _pageController.nextPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeIn,
+                  );
                 },
-                icon: const Icon(Icons.chevron_right, color: Colors.white54, size: 40),
+                icon: const Icon(
+                  Icons.chevron_right,
+                  color: Colors.white54,
+                  size: 40,
+                ),
               ),
             ],
           ),
         ),
-        
+
         // Gradient overlay at the bottom for smooth transition (Exactly like the photo)
         Positioned(
           bottom: 0,
@@ -117,9 +139,13 @@ class _UserHeroState extends State<UserHero> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.white.withOpacity(0.0),
-                  const Color(0xFFFDF9F6).withOpacity(0.6), // Subtle warm transition
-                  const Color(0xFFFDF9F6), // Matches the background color of the next sections
+                  Colors.white.withValues(alpha: 0.0),
+                  const Color(
+                    0xFFFDF9F6,
+                  ).withValues(alpha: 0.6), // Subtle warm transition
+                  const Color(
+                    0xFFFDF9F6,
+                  ), // Matches the background color of the next sections
                 ],
               ),
             ),
@@ -139,7 +165,9 @@ class _UserHeroState extends State<UserHero> {
                 height: 2,
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
-                  color: index == _currentPage ? Colors.brown : Colors.white.withOpacity(0.5),
+                  color: index == _currentPage
+                      ? Colors.brown
+                      : Colors.white.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(2),
                 ),
               );
