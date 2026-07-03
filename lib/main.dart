@@ -10,14 +10,13 @@ import 'views/user_side/photo_gallery_page.dart';
 import 'views/user_side/stotra_page.dart';
 import 'views/user_side/upcoming_ram_kathas_page.dart';
 import 'views/user_side/video_gallery_page.dart';
+import 'views/user_side/contact_page.dart';
 import 'views/admin/admin_login_page.dart';
 import 'views/admin/admin_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -77,14 +76,19 @@ class MyApp extends StatelessWidget {
               borderSide: const BorderSide(color: Colors.black, width: 1.5),
             ),
             labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
               foregroundColor: Colors.white,
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             ),
           ),
@@ -98,6 +102,7 @@ class MyApp extends StatelessWidget {
           '/stotra': (context) => const StotraPage(),
           '/upcoming_ram_kathas': (context) => const UpcomingRamKathasPage(),
           '/video_gallery': (context) => const VideoGalleryPage(),
+          '/contact_us': (context) => const ContactPage(),
           '/admin_login': (context) => const AdminLoginPage(),
           '/admin_dashboard': (context) => const AdminDashboard(),
         },

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path_helper;
 import '../models/homepage_model.dart';
+import '../models/contact_model.dart';
 
 class HomePageController extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -25,6 +26,8 @@ class HomePageController extends ChangeNotifier {
   KathaListPageData kathaListPageData = KathaListPageData();
   VideoGalleryPageData videoGalleryData = VideoGalleryPageData();
   PhotoGalleryPageData photoGalleryData = PhotoGalleryPageData();
+  
+  List<ContactInquiry> inquiries = [];
 
   bool isLoading = false;
 
@@ -57,6 +60,10 @@ class HomePageController extends ChangeNotifier {
         videoGalleryData = VideoGalleryPageData.fromMap(data['videoGalleryData'] ?? {});
         photoGalleryData = PhotoGalleryPageData.fromMap(data['photoGalleryData'] ?? {});
       }
+      
+      // Load Inquiries
+      final inquirySnapshot = await _firestore.collection('inquiries').orderBy('timestamp', descending: true).get();
+      inquiries = inquirySnapshot.docs.map((doc) => ContactInquiry.fromMap(doc.id, doc.data())).toList();
     } catch (e) {
       debugPrint("Load error: $e");
     }
@@ -79,6 +86,15 @@ class HomePageController extends ChangeNotifier {
   void removeKathaRecord(int i) { allKathas.removeAt(i); notifyListeners(); }
   void addStotraItem() { stotraSection.items.add(StotraItem()); notifyListeners(); }
   void removeStotraItem(int i) { stotraSection.items.removeAt(i); notifyListeners(); }
+
+  Future<void> submitInquiry(ContactInquiry inquiry) async {
+    try {
+      await _firestore.collection('inquiries').add(inquiry.toMap());
+      await loadData(); // Refresh list
+    } catch (e) {
+      debugPrint("Submit error: $e");
+    }
+  }
 
   void addVideoCategory() { videoGalleryData.categories.add(VideoCategory()); notifyListeners(); }
   void removeVideoCategory(int i) { videoGalleryData.categories.removeAt(i); notifyListeners(); }

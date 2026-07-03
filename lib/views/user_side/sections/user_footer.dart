@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../controllers/homepage_controller.dart';
 
 class UserFooter extends StatelessWidget {
@@ -42,10 +43,34 @@ class UserFooter extends StatelessWidget {
                     ],
                   ),
                 ),
-                _footerColumn('More', ['Home', 'Past Kathas']),
-                _footerColumn('Sections', ['About', 'Upcoming Kathas', 'Chaupai', 'Videos', 'Gallery']),
-                _footerColumn('Resources', ['Books', 'Photos', 'Audio', 'Downloads', 'Suvichar']),
-                _footerColumn('Contact', ['Support']),
+                _footerColumn(
+                  'Main',
+                  [
+                    _footerLink(context, 'Home', '/'),
+                    _footerLink(context, 'Contact Us', '/contact_us'),
+                  ],
+                ),
+                _footerColumn(
+                  'Katha',
+                  [
+                    _footerLink(context, 'About Kathas', '/about_katha'),
+                    _footerLink(context, 'Full Katha List', '/katha_list'),
+                    _footerLink(context, 'Upcoming Kathas', '/upcoming_ram_kathas'),
+                  ],
+                ),
+                _footerColumn(
+                  'Stotra / Bhajan / Aarti',
+                  [
+                    _footerLink(context, 'View Page', '/stotra'),
+                  ],
+                ),
+                _footerColumn(
+                  'Gallery',
+                  [
+                    _footerLink(context, 'Photos', '/photo_gallery'),
+                    _footerLink(context, 'Videos', '/video_gallery'),
+                  ],
+                ),
               ],
             );
           }),
@@ -58,57 +83,79 @@ class UserFooter extends StatelessWidget {
               Text(controller.footer.copyright, style: const TextStyle(color: Colors.grey, fontSize: 11)),
               Row(
                 children: [
-                  _socialIcon(Icons.facebook),
-                  _socialIcon(Icons.camera_alt_outlined),
-                  _socialIcon(Icons.play_circle_outline),
-                  _socialIcon(Icons.send),
+                  _socialIcon(Icons.play_circle_outline, controller.websiteSettings.youtubeUrl, 'YouTube', const Color(0xFFCD201F)),
+                  _socialIcon(Icons.camera_alt_outlined, controller.websiteSettings.instagramUrl, 'Instagram', const Color(0xFFC13584)),
+                  _socialIcon(Icons.facebook, controller.websiteSettings.facebookUrl, 'Facebook', const Color(0xFF1877F2)),
+                  _socialIcon(Icons.chat, controller.websiteSettings.whatsappUrl, 'WhatsApp', const Color(0xFF25D366)),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 20),
-          GestureDetector(
-            onTap: () => Navigator.pushNamed(context, '/admin_login'),
+          TextButton(
+            onPressed: () => Navigator.pushNamed(context, '/admin_login'),
             child: const Text(
-              'Admin Login', 
-              style: TextStyle(color: Colors.white24, fontSize: 10, decoration: TextDecoration.underline)
+              'Admin Panel',
+              style: TextStyle(color: Colors.white70, fontSize: 12, decoration: TextDecoration.underline),
             ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.network('https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg', height: 40),
-              const SizedBox(width: 15),
-              Image.network('https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg', height: 40),
-            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _footerColumn(String title, List<String> items) {
+  Widget _footerColumn(String title, List<Widget> items) {
     return SizedBox(
-      width: 150,
+      width: 180,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           ...items.map((item) => Padding(
             padding: const EdgeInsets.only(bottom: 10),
-            child: Text(item, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+            child: item,
           )),
         ],
       ),
     );
   }
 
-  Widget _socialIcon(IconData icon) {
+  Widget _footerLink(BuildContext context, String label, String route) {
+    return InkWell(
+      onTap: () => Navigator.pushNamed(context, route),
+      child: Text(
+        label,
+        style: const TextStyle(color: Colors.grey, fontSize: 13),
+      ),
+    );
+  }
+
+  Future<void> _launchSocialUrl(String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null || !uri.hasScheme) return;
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  Widget _socialIcon(IconData icon, String url, String tooltip, Color backgroundColor) {
     return Padding(
       padding: const EdgeInsets.only(left: 15),
-      child: Icon(icon, size: 18, color: Colors.grey),
+      child: Tooltip(
+        message: tooltip,
+        child: InkWell(
+          onTap: () => _launchSocialUrl(url),
+          borderRadius: BorderRadius.circular(999),
+          child: Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 14, color: Colors.white),
+          ),
+        ),
+      ),
     );
   }
 }

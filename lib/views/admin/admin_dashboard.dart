@@ -20,6 +20,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'About Katha Page',
     'Video Gallery',
     'Photo Gallery',
+    'Enquiries',
     'Navigation Settings'
   ];
 
@@ -360,6 +361,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 _buildField('Website Name', controller.websiteSettings.name, (v) => controller.websiteSettings.name = v),
                 _buildField('Logo URL', controller.websiteSettings.logoUrl, (v) => controller.websiteSettings.logoUrl = v),
                 _imagePreview(controller.websiteSettings.logoUrl),
+                _buildField('YouTube URL', controller.websiteSettings.youtubeUrl, (v) => controller.websiteSettings.youtubeUrl = v),
+                _buildField('Instagram URL', controller.websiteSettings.instagramUrl, (v) => controller.websiteSettings.instagramUrl = v),
+                _buildField('Facebook URL', controller.websiteSettings.facebookUrl, (v) => controller.websiteSettings.facebookUrl = v),
+                _buildField('WhatsApp URL', controller.websiteSettings.whatsappUrl, (v) => controller.websiteSettings.whatsappUrl = v),
 
                 _sectionHeader('2. HERO SECTION'),
                 ...List.generate(8, (index) => Column(

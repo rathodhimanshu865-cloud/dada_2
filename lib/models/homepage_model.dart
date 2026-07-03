@@ -1,10 +1,37 @@
 class WebsiteSettings {
   String name;
   String logoUrl;
-  WebsiteSettings({this.name = '', this.logoUrl = ''});
-  Map<String, dynamic> toMap() => {'name': name, 'logoUrl': logoUrl};
-  factory WebsiteSettings.fromMap(Map<String, dynamic> map) =>
-      WebsiteSettings(name: map['name'] ?? '', logoUrl: map['logoUrl'] ?? '');
+  String youtubeUrl;
+  String instagramUrl;
+  String facebookUrl;
+  String whatsappUrl;
+
+  WebsiteSettings({
+    this.name = '',
+    this.logoUrl = '',
+    this.youtubeUrl = '',
+    this.instagramUrl = '',
+    this.facebookUrl = '',
+    this.whatsappUrl = '',
+  });
+
+  Map<String, dynamic> toMap() => {
+        'name': name,
+        'logoUrl': logoUrl,
+        'youtubeUrl': youtubeUrl,
+        'instagramUrl': instagramUrl,
+        'facebookUrl': facebookUrl,
+        'whatsappUrl': whatsappUrl,
+      };
+
+  factory WebsiteSettings.fromMap(Map<String, dynamic> map) => WebsiteSettings(
+        name: map['name'] ?? '',
+        logoUrl: map['logoUrl'] ?? '',
+        youtubeUrl: map['youtubeUrl'] ?? '',
+        instagramUrl: map['instagramUrl'] ?? '',
+        facebookUrl: map['facebookUrl'] ?? '',
+        whatsappUrl: map['whatsappUrl'] ?? '',
+      );
 }
 
 class HeroSection {
