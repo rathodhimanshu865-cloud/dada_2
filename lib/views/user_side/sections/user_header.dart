@@ -38,13 +38,17 @@ class _UserHeaderState extends State<UserHeader> {
     }
   }
 
-  Widget _ramKathaDropdown() {
+  Widget _ramKathaDropdown(String currentRoute) {
+    bool isActive = currentRoute == '/about_katha' || 
+                    currentRoute == '/katha_list' || 
+                    currentRoute == '/upcoming_ram_kathas';
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: PopupMenuButton<String>(
-        offset: const Offset(0, 30),
+        offset: const Offset(0, 40),
         elevation: 10,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         color: Colors.white,
         onSelected: (value) {
           if (value == 'About Ram Katha') {
@@ -55,19 +59,33 @@ class _UserHeaderState extends State<UserHeader> {
             Navigator.pushNamed(context, '/upcoming_ram_kathas');
           }
         },
-        child: Row(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'KATHA',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF444444),
-                letterSpacing: 0.5,
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center, // Perfect vertical alignment
+              children: [
+                Text(
+                  'KATHA',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isActive ? primaryTeal : const Color(0xFF444444),
+                    letterSpacing: 1,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(Icons.keyboard_arrow_down, size: 20, color: isActive ? primaryTeal : Colors.grey),
+              ],
             ),
-            Icon(Icons.keyboard_arrow_down, size: 14, color: primaryTeal),
+            const SizedBox(height: 8),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 3,
+              width: isActive ? 30 : 0,
+              color: isActive ? primaryTeal : Colors.transparent,
+            ),
           ],
         ),
         itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -79,13 +97,16 @@ class _UserHeaderState extends State<UserHeader> {
     );
   }
 
-  Widget _galleryDropdown() {
+  Widget _galleryDropdown(String currentRoute) {
+    bool isActive = currentRoute == '/photo_gallery' || 
+                    currentRoute == '/video_gallery';
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: PopupMenuButton<String>(
-        offset: const Offset(0, 30),
+        offset: const Offset(0, 40),
         elevation: 10,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         color: Colors.white,
         onSelected: (value) {
           if (value == 'Videos') {
@@ -94,19 +115,33 @@ class _UserHeaderState extends State<UserHeader> {
             Navigator.pushNamed(context, '/photo_gallery');
           }
         },
-        child: Row(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'GALLERY',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF444444),
-                letterSpacing: 0.5,
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center, // Perfect vertical alignment
+              children: [
+                Text(
+                  'GALLERY',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isActive ? primaryTeal : const Color(0xFF444444),
+                    letterSpacing: 1,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(Icons.keyboard_arrow_down, size: 20, color: isActive ? primaryTeal : Colors.grey),
+              ],
             ),
-            Icon(Icons.keyboard_arrow_down, size: 14, color: primaryTeal),
+            const SizedBox(height: 8),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 3,
+              width: isActive ? 30 : 0,
+              color: isActive ? primaryTeal : Colors.transparent,
+            ),
           ],
         ),
         itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -124,7 +159,7 @@ class _UserHeaderState extends State<UserHeader> {
       child: Text(
         title,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: 14,
           color: isFirst ? primaryTeal : Colors.blueGrey[700],
           fontWeight: isFirst ? FontWeight.bold : FontWeight.w400,
         ),
@@ -134,10 +169,12 @@ class _UserHeaderState extends State<UserHeader> {
 
   @override
   Widget build(BuildContext context) {
+    final String currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
+
     return Container(
       width: double.infinity,
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
       child: Column(
         children: [
           Row(
@@ -146,22 +183,25 @@ class _UserHeaderState extends State<UserHeader> {
               // Left: Social Icons
               Row(
                 children: [
-                  _socialIcon(Icons.facebook, widget.controller.websiteSettings.facebookUrl, 'Facebook'),
-                  _socialIcon(Icons.camera_alt_outlined, widget.controller.websiteSettings.instagramUrl, 'Instagram'),
-                  _socialIcon(Icons.play_arrow, widget.controller.websiteSettings.youtubeUrl, 'YouTube'),
-                  _socialIcon(Icons.chat, widget.controller.websiteSettings.whatsappUrl, 'WhatsApp'),
+                  _socialIcon(Icons.facebook, widget.controller.websiteSettings.facebookUrl, 'Facebook', const Color(0xFF1877F2)),
+                  _socialIcon(Icons.camera_alt_outlined, widget.controller.websiteSettings.instagramUrl, 'Instagram', const Color(0xFFE4405F)),
+                  _socialIcon(Icons.play_arrow, widget.controller.websiteSettings.youtubeUrl, 'YouTube', const Color(0xFFCD201F)),
+                  _socialIcon(Icons.chat, widget.controller.websiteSettings.whatsappUrl, 'WhatsApp', const Color(0xFF25D366)),
                 ],
               ),
               
-              // Center: Circular Logo
+              // Center: Larger Circular Logo
               GestureDetector(
                 onTap: _handleLogoTap,
                 child: Container(
-                  width: 60,
-                  height: 60,
+                  width: 100,
+                  height: 100,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey[200]!),
+                    border: Border.all(color: primaryTeal.withOpacity(0.2), width: 2),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 15, offset: const Offset(0, 5)),
+                    ],
                     image: DecorationImage(
                       image: NetworkImage(widget.controller.websiteSettings.logoUrl),
                       fit: BoxFit.cover,
@@ -169,34 +209,43 @@ class _UserHeaderState extends State<UserHeader> {
                     ),
                   ),
                   child: widget.controller.websiteSettings.logoUrl.isEmpty 
-                    ? const Icon(Icons.person, color: Colors.grey) 
+                    ? const Icon(Icons.person, color: Colors.grey, size: 50) 
                     : null,
                 ),
               ),
               
-              // Right: Language & Search
+              // Right: Larger Language & Search
               Row(
                 children: [
                   _languageDropdown(),
-                  const SizedBox(width: 15),
-                  IconButton(
-                    icon: Icon(Icons.search, size: 22, color: primaryTeal),
-                    onPressed: () {},
+                  const SizedBox(width: 25),
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: primaryTeal.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.search, size: 28, color: primaryTeal),
+                      onPressed: () {},
+                    ),
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          // Navigation Menu (Exactly like photo)
+          const SizedBox(height: 35),
+          // Navigation Menu (Perfectly Aligned Single Line)
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start, // Align Column tops
             children: [
-              _navItem('Home', active: true, onTap: () => Navigator.pushNamed(context, '/')),
-              _ramKathaDropdown(),
-              _navItem('Stotra / Bhajan / Aarti', onTap: () => Navigator.pushNamed(context, '/stotra')),
-              _galleryDropdown(),
-              _navItem('Contact Us', onTap: () => Navigator.pushNamed(context, '/contact_us')),
+              _navItem('Home', active: currentRoute == '/', onTap: () => Navigator.pushNamed(context, '/')),
+              _ramKathaDropdown(currentRoute),
+              _navItem('Stotra / Bhajan / Aarti', active: currentRoute == '/stotra', onTap: () => Navigator.pushNamed(context, '/stotra')),
+              _galleryDropdown(currentRoute),
+              _navItem('Contact Us', active: currentRoute == '/contact_us', onTap: () => Navigator.pushNamed(context, '/contact_us')),
             ],
           ),
         ],
@@ -210,18 +259,21 @@ class _UserHeaderState extends State<UserHeader> {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
-  Widget _socialIcon(IconData icon, String url, String tooltip) {
+  Widget _socialIcon(IconData icon, String url, String tooltip, Color brandColor) {
     return Container(
-      margin: const EdgeInsets.only(right: 8),
-      width: 32,
-      height: 32,
+      margin: const EdgeInsets.only(right: 12),
+      width: 44,
+      height: 44,
       decoration: BoxDecoration(
-        color: primaryTeal,
-        shape: BoxShape.circle,
+        color: brandColor,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(color: brandColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3)),
+        ],
       ),
       child: IconButton(
         padding: EdgeInsets.zero,
-        icon: Icon(icon, size: 16, color: Colors.white),
+        icon: Icon(icon, size: 22, color: Colors.white),
         onPressed: () => _launchSocialUrl(url),
         tooltip: tooltip,
       ),
@@ -230,19 +282,20 @@ class _UserHeaderState extends State<UserHeader> {
 
   Widget _languageDropdown() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       decoration: BoxDecoration(
+        color: Colors.white,
         border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: DropdownButtonHideUnderline(
         child: SizedBox(
-          height: 28,
+          height: 34,
           child: DropdownButton<String>(
             value: selectedLanguage,
-            icon: const Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.black54),
+            icon: Icon(Icons.keyboard_arrow_down, size: 24, color: primaryTeal),
             elevation: 1,
-            style: const TextStyle(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w500),
+            style: const TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.bold),
             onChanged: (String? newValue) {
               setState(() {
                 selectedLanguage = newValue!;
@@ -263,17 +316,30 @@ class _UserHeaderState extends State<UserHeader> {
 
   Widget _navItem(String title, {bool active = false, VoidCallback? onTap}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: InkWell(
         onTap: onTap,
-        child: Text(
-          title.toUpperCase(),
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: active ? FontWeight.bold : FontWeight.w600,
-            color: active ? primaryTeal : const Color(0xFF444444),
-            letterSpacing: 0.5,
-          ),
+        hoverColor: Colors.transparent,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title.toUpperCase(),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: active ? primaryTeal : const Color(0xFF444444),
+                letterSpacing: 1.2,
+              ),
+            ),
+            const SizedBox(height: 8),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 3,
+              width: active ? 30 : 0,
+              color: active ? primaryTeal : Colors.transparent,
+            ),
+          ],
         ),
       ),
     );

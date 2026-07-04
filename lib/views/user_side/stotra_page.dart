@@ -19,6 +19,7 @@ class StotraPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const primaryTeal = Color(0xFF0F4C5C);
+    const backgroundBeige = Color(0xFFF9F3EA);
     final controller = Provider.of<HomePageController>(context);
     final section = controller.stotraSection;
 
@@ -35,105 +36,92 @@ class StotraPage extends StatelessWidget {
           children: [
             UserHeader(controller: controller),
 
-            // Top Header Image
-            if (section.topHeaderImage.isNotEmpty)
-              Image.network(
-                section.topHeaderImage,
-                width: double.infinity,
-                height: 400,
-                fit: BoxFit.cover,
-                errorBuilder: (c, e, s) => const SizedBox.shrink(),
-              ),
-
-            const SizedBox(height: 60),
-
-            // Page Title
-            Text(
-              section.pageTitle,
-              style: const TextStyle(
-                fontSize: 32,
-                fontFamily: 'serif',
-                color: primaryTeal,
-                fontWeight: FontWeight.bold,
+            // Hero Title Section (Matches All Kathas style)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 80),
+              color: backgroundBeige.withOpacity(0.5),
+              child: Column(
+                children: [
+                  Text(
+                    section.pageTitle,
+                    style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  Text('Home > Stotra / Bhajan / Aarti', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+                ],
               ),
             ),
-            const SizedBox(height: 10),
-            const Text(
-              'Home > Stotra / Bhajan / Aarti',
-              style: TextStyle(color: Colors.grey, fontSize: 12),
-            ),
 
-            const SizedBox(height: 60),
+            const SizedBox(height: 80),
 
-            // List of Stotras
+            // Table-like Structure
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 100),
               child: Column(
                 children: [
-                  const Divider(color: Color(0xFFEEEEEE), thickness: 1),
+                  // Header row
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: primaryTeal.withOpacity(0.04),
+                      border: Border(bottom: BorderSide(color: primaryTeal.withOpacity(0.15), width: 2)),
+                    ),
+                    child: Row(
+                      children: [
+                        _colHeader('ID', flex: 1),
+                        _colHeader('NAME / TITLE', flex: 5),
+                        _colHeader('ENGLISH', flex: 2, center: true),
+                        _colHeader('HINDI', flex: 2, center: true),
+                        _colHeader('GUJARATI', flex: 2, center: true),
+                      ],
+                    ),
+                  ),
+
+                  // List of Stotras
                   ...section.items.asMap().entries.map((entry) {
                     int index = entry.key;
                     final item = entry.value;
-                    return Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: Row(
-                            children: [
-                              // Numbered Circle (Teal)
-                              Container(
-                                width: 30,
-                                height: 30,
-                                decoration: const BoxDecoration(
-                                  color: primaryTeal,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '${index + 1}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-
-                              // Stotra Name
-                              Expanded(
-                                flex: 4,
-                                child: Text(
-                                  item.title,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFF444444),
-                                    fontFamily: 'serif',
-                                  ),
-                                ),
-                              ),
-
-                              const VerticalDivider(width: 40),
-
-                              _pdfLink('English', item.englishPdfUrl, primaryTeal),
-                              const VerticalDivider(width: 40),
-                              _pdfLink('Hindi', item.hindiPdfUrl, primaryTeal),
-                              const VerticalDivider(width: 40),
-                              _pdfLink('Gujarati', item.gujaratiPdfUrl, primaryTeal),
-                            ],
+                    return Container(
+                      padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 20),
+                      decoration: BoxDecoration(
+                        border: Border(bottom: BorderSide(color: Colors.grey[100]!)),
+                      ),
+                      child: Row(
+                        children: [
+                          // Numbered Circle
+                          Expanded(
+                            flex: 1,
+                            child: _circleId('${index + 1}', primaryTeal),
                           ),
-                        ),
-                        const Divider(color: Color(0xFFEEEEEE), thickness: 1),
-                      ],
+
+                          // Stotra Name
+                          Expanded(
+                            flex: 5,
+                            child: Text(
+                              item.title.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF444444),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+
+                          // PDF Links with bigger fonts
+                          _pdfLink('Download', item.englishPdfUrl, primaryTeal, flex: 2),
+                          _pdfLink('Download', item.hindiPdfUrl, primaryTeal, flex: 2),
+                          _pdfLink('Download', item.gujaratiPdfUrl, primaryTeal, flex: 2),
+                        ],
+                      ),
                     );
                   }),
                 ],
               ),
             ),
 
-            const SizedBox(height: 100),
+            const SizedBox(height: 120),
             UserFooter(controller: controller),
           ],
         ),
@@ -141,30 +129,64 @@ class StotraPage extends StatelessWidget {
     );
   }
 
-  Widget _pdfLink(String label, String url, Color color) {
+  Widget _pdfLink(String label, String url, Color color, {required int flex}) {
+    bool hasUrl = url.isNotEmpty;
     return Expanded(
-      flex: 2,
-      child: InkWell(
-        onTap: () => _launchUrl(url),
-        child: Row(
-          children: [
-            Icon(
-              Icons.picture_as_pdf_outlined,
-              size: 20,
-              color: color,
+      flex: flex,
+      child: Center(
+        child: InkWell(
+          onTap: hasUrl ? () => _launchUrl(url) : null,
+          child: Opacity(
+            opacity: hasUrl ? 1.0 : 0.2,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.picture_as_pdf_outlined, size: 24, color: color),
+                const SizedBox(width: 10),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFF444444),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 10),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF444444),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _colHeader(String title, {required int flex, bool center = false}) {
+    const primaryTeal = Color(0xFF0F4C5C);
+    return Expanded(
+      flex: flex, 
+      child: Text(
+        title, 
+        textAlign: center ? TextAlign.center : TextAlign.start,
+        style: TextStyle(
+          fontSize: 14, 
+          fontWeight: FontWeight.bold, 
+          color: primaryTeal.withOpacity(0.7), 
+          letterSpacing: 1.5
+        )
+      )
+    );
+  }
+
+  Widget _circleId(String id, Color color) {
+    return Container(
+      width: 40, height: 40,
+      decoration: BoxDecoration(
+        color: color, 
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(color: color.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 3)),
+        ]
+      ),
+      child: Center(child: Text(id, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold))),
     );
   }
 }

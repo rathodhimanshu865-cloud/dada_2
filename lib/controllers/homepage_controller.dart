@@ -24,6 +24,7 @@ class HomePageController extends ChangeNotifier {
   AboutKathaPageData aboutKathaPage = AboutKathaPageData();
   List<KathaRecord> allKathas = [];
   KathaListPageData kathaListPageData = KathaListPageData();
+  ContactPageData contactPageData = ContactPageData();
   VideoGalleryPageData videoGalleryData = VideoGalleryPageData();
   PhotoGalleryPageData photoGalleryData = PhotoGalleryPageData();
   
@@ -58,6 +59,7 @@ class HomePageController extends ChangeNotifier {
         aboutKathaPage = AboutKathaPageData.fromMap(data['aboutKathaPage'] ?? {});
         allKathas = (data['allKathas'] as List? ?? []).map((e) => KathaRecord.fromMap(e)).toList();
         kathaListPageData = KathaListPageData.fromMap(data['kathaListPageData'] ?? {});
+        contactPageData = ContactPageData.fromMap(data['contactPageData'] ?? {});
         videoGalleryData = VideoGalleryPageData.fromMap(data['videoGalleryData'] ?? {});
         photoGalleryData = PhotoGalleryPageData.fromMap(data['photoGalleryData'] ?? {});
       }
@@ -199,6 +201,7 @@ class HomePageController extends ChangeNotifier {
         'aboutKathaPage': aboutKathaPage.toMap(),
         'allKathas': allKathas.map((e) => e.toMap()).toList(),
         'kathaListPageData': kathaListPageData.toMap(),
+        'contactPageData': contactPageData.toMap(),
         'videoGalleryData': videoGalleryData.toMap(),
         'photoGalleryData': photoGalleryData.sections.isNotEmpty ? photoGalleryData.toMap() : {},
       });

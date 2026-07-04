@@ -20,6 +20,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'About Katha Page',
     'Video Gallery',
     'Photo Gallery',
+    'Contact Page',
     'Enquiries',
     'Navigation Settings'
   ];
@@ -182,9 +183,26 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 3: return _aboutKathaView(controller);
       case 4: return _videoGalleryView(controller);
       case 5: return _photoGalleryView(controller);
-      case 6: return _inquiryView(controller);
+      case 6: return _contactPageView(controller);
+      case 7: return _inquiryView(controller);
       default: return const Center(child: Text('Section not yet implemented'));
     }
+  }
+
+  Widget _contactPageView(HomePageController controller) {
+    return ListView(
+      padding: const EdgeInsets.all(40),
+      children: [
+        const Text('Contact Page Settings', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const Divider(),
+        const SizedBox(height: 20),
+        _buildImageField(
+          'Contact Page Banner Image (Horizontal)', 
+          controller.contactPageData.bannerImageUrl, 
+          (v) => controller.contactPageData.bannerImageUrl = v
+        ),
+      ],
+    );
   }
 
   Widget _inquiryView(HomePageController controller) {

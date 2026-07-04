@@ -30,8 +30,6 @@ class _ContactPageState extends State<ContactPage> {
 
   final List<String> tabTitles = [
     'Enquiries',
-    'Katha Booklets and Photos',
-    'Katha Audio and Video'
   ];
 
   @override
@@ -126,6 +124,7 @@ class _ContactPageState extends State<ContactPage> {
   @override
   Widget build(BuildContext context) {
     const primaryTeal = Color(0xFF0F4C5C);
+    const backgroundBeige = Color(0xFFF9F3EA);
     final controller = Provider.of<HomePageController>(context);
 
     return Scaffold(
@@ -134,21 +133,51 @@ class _ContactPageState extends State<ContactPage> {
         child: Column(
           children: [
             UserHeader(controller: controller),
-            const SizedBox(height: 60),
+            
+            // NEW: Contact Page Banner Image
+            if (controller.contactPageData.bannerImageUrl.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Image.network(
+                  controller.contactPageData.bannerImageUrl,
+                  width: double.infinity,
+                  height: 400,
+                  fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) => const SizedBox.shrink(),
+                ),
+              ),
+
+            const SizedBox(height: 40),
             Text(
-              'Contact us',
-              style: TextStyle(fontSize: 48, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold),
+              'Contact Us',
+              style: TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
-            const Text('Home > Contact us', style: TextStyle(color: Colors.grey, fontSize: 13)),
+            const SizedBox(height: 12),
+            Text('Home > Contact Us', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+
             const SizedBox(height: 60),
 
-            // Tabs
+            // Navigation - Only Enquiries
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(3, (index) => _buildTab(index, primaryTeal)),
+              children: [
+                Column(
+                  children: [
+                    const Text(
+                      'ENQUIRIES',
+                      style: TextStyle(
+                        fontSize: 18, 
+                        fontWeight: FontWeight.bold,
+                        color: primaryTeal,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(height: 4, width: 60, color: primaryTeal),
+                  ],
+                ),
+              ],
             ),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
             
             const SizedBox(height: 60),
 
@@ -159,46 +188,17 @@ class _ContactPageState extends State<ContactPage> {
                   const Text(
                     'This site is an informative website, therefore please fill in the form below for any technical website related queries only.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 60),
                   _buildForm(controller, primaryTeal),
                 ],
               ),
             ),
 
-            const SizedBox(height: 100),
+            const SizedBox(height: 120),
             UserFooter(controller: controller),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTab(int index, Color primaryTeal) {
-    bool isActive = activeTab == index;
-    return InkWell(
-      onTap: () => setState(() => activeTab = index),
-      child: Container(
-        width: 300,
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: isActive ? primaryTeal : Colors.transparent,
-              width: 2,
-            ),
-          ),
-        ),
-        child: Center(
-          child: Text(
-            tabTitles[index],
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-              color: isActive ? primaryTeal : Colors.black54,
-            ),
-          ),
         ),
       ),
     );
@@ -208,14 +208,13 @@ class _ContactPageState extends State<ContactPage> {
     return Form(
       key: _formKey,
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 820),
-        padding: const EdgeInsets.all(24),
+        constraints: const BoxConstraints(maxWidth: 1000),
+        padding: const EdgeInsets.all(50),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFFE9E9E9)),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
-            const BoxShadow(color: Color.fromRGBO(158, 158, 158, 0.05), blurRadius: 18, offset: Offset(0, 8)),
+            BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 40, offset: const Offset(0, 10)),
           ],
         ),
         child: Column(
@@ -224,30 +223,31 @@ class _ContactPageState extends State<ContactPage> {
             Row(
               children: [
                 Expanded(child: _formField('Name *', _nameController, primaryTeal)),
-                const SizedBox(width: 20),
+                const SizedBox(width: 40),
                 Expanded(child: _formField('Email address *', _emailController, primaryTeal)),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             Row(
               children: [
                 Expanded(child: _formField('Tel/Mobile# *', _mobileController, primaryTeal, prefix: '🇮🇳 +91')),
-                const SizedBox(width: 20),
+                const SizedBox(width: 40),
                 Expanded(child: _formField('Country *', _countryController, primaryTeal)),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             _formField('Message *', _messageController, primaryTeal, maxLines: 6),
-            const SizedBox(height: 8),
-            Text(_messageCountText, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-            const SizedBox(height: 30),
+            const SizedBox(height: 12),
+            Text(_messageCountText, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+            const SizedBox(height: 40),
+            
+            // Robot Verification
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(4),
-                color: const Color(0xFFF8F8F8),
+                borderRadius: BorderRadius.circular(8),
+                color: const Color(0xFFFBFBFB),
               ),
               child: Row(
                 children: [
@@ -259,37 +259,31 @@ class _ContactPageState extends State<ContactPage> {
                       _errorText = null;
                     }),
                   ),
-                  const Expanded(child: Text('I\'m not a robot', style: TextStyle(fontSize: 14))),
-                  const SizedBox(width: 12),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: const Icon(Icons.refresh, color: Colors.blue, size: 20),
-                  ),
+                  const Expanded(child: Text('I\'m not a robot', style: TextStyle(fontSize: 16))),
+                  const SizedBox(width: 15),
+                  const Icon(Icons.refresh, color: Colors.blue, size: 24),
                 ],
               ),
             ),
             if (_errorText != null) ...[
-              const SizedBox(height: 12),
-              Text(_errorText!, style: const TextStyle(color: Colors.red, fontSize: 13)),
+              const SizedBox(height: 15),
+              Text(_errorText!, style: const TextStyle(color: Colors.red, fontSize: 14)),
             ],
-            const SizedBox(height: 30),
+            
+            const SizedBox(height: 50),
+            
             SizedBox(
-              width: 160,
+              width: 200,
               child: ElevatedButton(
                 onPressed: _isSubmitting ? null : () => _submitForm(controller),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryTeal,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                  padding: const EdgeInsets.symmetric(vertical: 25),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 child: Text(
-                  _isSubmitting ? 'Sending...' : 'Send',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  _isSubmitting ? 'SENDING...' : 'SEND MESSAGE',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1),
                 ),
               ),
             ),
@@ -303,38 +297,33 @@ class _ContactPageState extends State<ContactPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF444444))),
-        const SizedBox(height: 8),
+        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF444444), letterSpacing: 0.5)),
+        const SizedBox(height: 12),
         TextFormField(
           controller: controller,
           maxLines: maxLines,
-          maxLength: label == 'Message *' ? 500 : null,
+          style: const TextStyle(fontSize: 16),
           validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Required';
-            }
-            if (label == 'Email address *' && !RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+$").hasMatch(value.trim())) {
-              return 'Enter a valid email';
-            }
+            if (value == null || value.trim().isEmpty) return 'Required';
+            if (label.contains('Email') && !RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+$").hasMatch(value.trim())) return 'Invalid email';
             return null;
           },
           decoration: InputDecoration(
-            counterText: '',
             prefixText: prefix != null ? '$prefix ' : null,
             filled: true,
             fillColor: const Color(0xFFF9F9F9),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            contentPadding: const EdgeInsets.all(20),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: primaryTeal, width: 1.5),
-              borderRadius: BorderRadius.circular(4),
+              borderSide: BorderSide(color: primaryTeal, width: 2),
+              borderRadius: BorderRadius.circular(8),
             ),
             border: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey[300]!),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(8),
             ),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey[300]!),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
         ),

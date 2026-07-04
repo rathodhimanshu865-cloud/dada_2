@@ -9,119 +9,169 @@ class UserVideos extends StatelessWidget {
   Future<void> _launchUrl(String url) async {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw Exception('Could not launch $url');
+      debugPrint('Could not launch $url');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    const primaryTeal = Color(0xFF0F4C5C);
+    const accentBrown = Color(0xFFC19A6B);
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 60),
       child: Column(
         children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          // Centered Header (Matches Upcoming Kathas style)
+          Column(
             children: [
-              Icon(Icons.play_circle_fill, color: Colors.red, size: 28),
-              SizedBox(width: 10),
-              Text(
-                'Videos',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.brown,
-                  fontFamily: 'serif',
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.play_circle_fill, color: Color(0xFFCD201F), size: 32),
+                  const SizedBox(width: 15),
+                  Text(
+                    'Videos',
+                    style: TextStyle(
+                      fontSize: 36, 
+                      fontFamily: 'serif', 
+                      color: primaryTeal,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Container(width: 60, height: 3, color: accentBrown),
+            ],
+          ),
+          
+          const SizedBox(height: 80),
+          
+          // Centered Video Grid (Using Wrap for perfect alignment)
+          Container(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            child: Wrap(
+              spacing: 30,
+              runSpacing: 40,
+              alignment: WrapAlignment.center,
+              children: controller.videos.take(4).map((video) {
+                return _buildVideoShortCard(video, primaryTeal);
+              }).toList(),
+            ),
+          ),
+          
+          const SizedBox(height: 80),
+          
+          // Main Action Button
+          ElevatedButton(
+            onPressed: () => Navigator.pushNamed(context, '/video_gallery'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryTeal,
+              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 25),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              elevation: 5,
+            ),
+            child: const Text(
+              'VIEW ALL VIDEOS', 
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVideoShortCard(dynamic video, Color primaryTeal) {
+    return GestureDetector(
+      onTap: () => _launchUrl(video.youtubeUrl),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          width: 250, // Perfect for Shorts/Vertical look
+          height: 450,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15), 
+                blurRadius: 25, 
+                offset: const Offset(0, 10)
+              ),
+            ],
+            image: DecorationImage(
+              image: NetworkImage(video.thumbnail),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Stack(
+            children: [
+              // Bottom Gradient Overlay for text readability
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.8),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // Play Icon Overlay
+              const Center(
+                child: Icon(
+                  Icons.play_circle_outline,
+                  color: Colors.white,
+                  size: 70,
+                ),
+              ),
+              
+              // Video Info
+              Positioned(
+                bottom: 25,
+                left: 20,
+                right: 20,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      video.title.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        letterSpacing: 0.5,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.bolt, color: Colors.yellow, size: 14),
+                        const SizedBox(width: 5),
+                        Text(
+                          'YOUTUBE SHORTS',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 50),
-          SizedBox(
-            height: 450, // Increased height for vertical Shorts look
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              itemCount: controller.videos.length,
-              itemBuilder: (context, index) {
-                final video = controller.videos[index];
-                return GestureDetector(
-                  onTap: () => _launchUrl(video.youtubeUrl),
-                  child: Container(
-                    width: 250, // Narrower width for vertical Shorts look
-                    margin: const EdgeInsets.only(right: 25),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                      image: DecorationImage(
-                        image: NetworkImage(video.thumbnail),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withValues(alpha: 0.7),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const Center(
-                          child: Icon(
-                            Icons.play_circle_outline,
-                            color: Colors.white,
-                            size: 60,
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 20,
-                          left: 15,
-                          right: 15,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                video.title,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 5),
-                              const Text(
-                                'YouTube Shorts',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
