@@ -360,6 +360,14 @@ class KathaListPageData {
       KathaListPageData(bannerImageUrl: map['bannerImageUrl'] ?? '');
 }
 
+class ContactPageData {
+  String bannerImageUrl;
+  ContactPageData({this.bannerImageUrl = ''});
+  Map<String, dynamic> toMap() => {'bannerImageUrl': bannerImageUrl};
+  factory ContactPageData.fromMap(Map<String, dynamic> map) =>
+      ContactPageData(bannerImageUrl: map['bannerImageUrl'] ?? '');
+}
+
 class VideoGalleryEntry {
   String title;
   String youtubeUrl;

@@ -48,6 +48,9 @@ class _UserHeroState extends State<UserHero> {
 
   @override
   Widget build(BuildContext context) {
+    const backgroundBeige = Color(0xFFF9F3EA);
+    const accentBrown = Color(0xFFC19A6B);
+
     // Filter out empty URLs
     final List<String> images = widget.controller.heroSection.bannerUrls
         .where((url) => url.isNotEmpty)
@@ -58,17 +61,17 @@ class _UserHeroState extends State<UserHero> {
       images.addAll(
         List.filled(
           8,
-          'https://via.placeholder.com/1200x500?text=Upload+Image+in+Admin',
+          'https://via.placeholder.com/1600x700?text=Jignesh+Dada+Official',
         ),
       );
     }
 
     return Stack(
       children: [
+        // Main Image Slider with Fixed Aspect Ratio Logic
         SizedBox(
           width: double.infinity,
-          height:
-              550, // Adjusted height to match the professional look of the photo
+          height: 650, // Increased height to prevent vertical cutting
           child: PageView.builder(
             controller: _pageController,
             onPageChanged: (int page) {
@@ -81,6 +84,7 @@ class _UserHeroState extends State<UserHero> {
               return Image.network(
                 images[index],
                 fit: BoxFit.cover,
+                alignment: Alignment.topCenter, // CRITICAL: Prioritize the top of the photo (Head/Face)
                 errorBuilder: (context, error, stackTrace) => Container(
                   color: Colors.grey[200],
                   child: const Center(
@@ -92,82 +96,64 @@ class _UserHeroState extends State<UserHero> {
           ),
         ),
 
-        // Navigation Arrows (Optional, but visible in the photo)
+        // Navigation Arrows
         Positioned.fill(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                onPressed: () {
-                  _pageController.previousPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeIn,
-                  );
-                },
-                icon: const Icon(
-                  Icons.chevron_left,
-                  color: Colors.white54,
-                  size: 40,
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  _pageController.nextPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeIn,
-                  );
-                },
-                icon: const Icon(
-                  Icons.chevron_right,
-                  color: Colors.white54,
-                  size: 40,
-                ),
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _navArrow(Icons.chevron_left, () => _pageController.previousPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeIn,
+                )),
+                _navArrow(Icons.chevron_right, () => _pageController.nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeIn,
+                )),
+              ],
+            ),
           ),
         ),
 
-        // Gradient overlay at the bottom for smooth transition (Exactly like the photo)
+        // Professional Bottom Gradient Fade
         Positioned(
           bottom: 0,
           left: 0,
           right: 0,
           child: Container(
-            height: 120, // Height of the gradient fade
+            height: 200, // Taller fade for a more professional transition
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.white.withValues(alpha: 0.0),
-                  const Color(
-                    0xFFFDF9F6,
-                  ).withValues(alpha: 0.6), // Subtle warm transition
-                  const Color(
-                    0xFFFDF9F6,
-                  ), // Matches the background color of the next sections
+                  Colors.white.withOpacity(0.0),
+                  backgroundBeige.withOpacity(0.4),
+                  backgroundBeige.withOpacity(0.8),
+                  backgroundBeige, // Perfectly matches the background color of next section
                 ],
               ),
             ),
           ),
         ),
 
-        // 8 Navigation Dots at the bottom
+        // Navigation Indicators (Sleek gold bars)
         Positioned(
-          bottom: 20,
+          bottom: 30,
           left: 0,
           right: 0,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(images.length, (index) {
-              return Container(
-                width: index == _currentPage ? 12 : 8,
-                height: 2,
+              bool isSelected = index == _currentPage;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: isSelected ? 30 : 15,
+                height: 4,
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
-                  color: index == _currentPage
-                      ? Colors.brown
-                      : Colors.white.withValues(alpha: 0.5),
+                  color: isSelected ? accentBrown : Colors.white.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(2),
                 ),
               );
@@ -175,6 +161,19 @@ class _UserHeroState extends State<UserHero> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _navArrow(IconData icon, VoidCallback onTap) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.1),
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        onPressed: onTap,
+        icon: Icon(icon, color: Colors.white70, size: 30),
+      ),
     );
   }
 }
