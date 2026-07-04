@@ -7,9 +7,13 @@ class UserLatestChaupai extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primaryTeal = Color(0xFF0F4C5C);
+    const backgroundBeige = Color(0xFFF9F3EA);
     final suvichar = controller.dailySuvichar;
 
     return Container(
+      width: double.infinity,
+      color: backgroundBeige,
       padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 20),
       child: Column(
         children: [
@@ -18,19 +22,19 @@ class UserLatestChaupai extends StatelessWidget {
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Colors.brown,
+              color: primaryTeal,
               fontFamily: 'serif',
             ),
           ),
           const SizedBox(height: 40),
           Container(
-            width: 600, // Slightly wider for professional image display
+            width: 600,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 30,
                   offset: const Offset(0, 10),
                 ),
@@ -39,11 +43,15 @@ class UserLatestChaupai extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Image Section
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(8),
+                Container(
+                  width: double.infinity,
+                  height: 10,
+                  decoration: const BoxDecoration(
+                    color: primaryTeal,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
                   ),
+                ),
+                ClipRRect(
                   child: Image.network(
                     suvichar.imageUrl,
                     width: double.infinity,
@@ -59,7 +67,6 @@ class UserLatestChaupai extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Date Section
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 20,
@@ -71,15 +78,15 @@ class UserLatestChaupai extends StatelessWidget {
                       const Icon(
                         Icons.calendar_today_outlined,
                         size: 16,
-                        color: Colors.grey,
+                        color: primaryTeal,
                       ),
                       const SizedBox(width: 10),
                       Text(
                         suvichar.date.isNotEmpty ? suvichar.date : '---',
                         style: const TextStyle(
                           fontSize: 16,
-                          color: Color(0xFF444444),
-                          fontWeight: FontWeight.w500,
+                          color: primaryTeal,
+                          fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
                         ),
                       ),

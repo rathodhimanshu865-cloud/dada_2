@@ -30,6 +30,7 @@ class HomePageController extends ChangeNotifier {
   List<ContactInquiry> inquiries = [];
 
   bool isLoading = false;
+  bool isUploading = false;
 
   HomePageController() {
     loadData();
@@ -61,13 +62,12 @@ class HomePageController extends ChangeNotifier {
         photoGalleryData = PhotoGalleryPageData.fromMap(data['photoGalleryData'] ?? {});
       }
       
-      // Load Inquiries
       final inquirySnapshot = await _firestore.collection('inquiries').orderBy('timestamp', descending: true).get();
       inquiries = inquirySnapshot.docs.map((doc) => ContactInquiry.fromMap(doc.id, doc.data())).toList();
     } catch (e) {
       debugPrint("Load error: $e");
     }
-    // Ensure default sections if empty
+    
     if (photoGalleryData.sections.isEmpty) {
       photoGalleryData.sections = [
         PhotoGallerySection(heading: 'Bapu & Ram Katha'),
@@ -90,7 +90,7 @@ class HomePageController extends ChangeNotifier {
   Future<void> submitInquiry(ContactInquiry inquiry) async {
     try {
       await _firestore.collection('inquiries').add(inquiry.toMap());
-      await loadData(); // Refresh list
+      await loadData();
     } catch (e) {
       debugPrint("Submit error: $e");
     }
@@ -129,42 +129,57 @@ class HomePageController extends ChangeNotifier {
 
   Future<String?> uploadPhotoFromFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: false);
-      if (result == null || result.files.isEmpty) return null;
+      isUploading = true;
+      notifyListeners();
+      
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image, 
+        allowMultiple: false,
+        withData: kIsWeb,
+      );
+      
+      if (result == null || result.files.isEmpty) {
+        isUploading = false;
+        notifyListeners();
+        return null;
+      }
       
       final fileName = result.files.single.name;
       final uploadName = '${DateTime.now().millisecondsSinceEpoch}_$fileName';
-      final reference = _storage.ref('photo_gallery/$uploadName');
+      final reference = _storage.ref('uploads/$uploadName');
       
       UploadTask task;
       if (kIsWeb) {
         final bytes = result.files.single.bytes;
-        if (bytes == null) return null;
-        task = reference.putData(bytes);
+        if (bytes == null) throw Exception("Failed to read file bytes");
+        task = reference.putData(bytes, SettableMetadata(contentType: 'image/${path_helper.extension(fileName).replaceFirst('.', '')}'));
       } else {
         final filePath = result.files.single.path;
-        if (filePath == null) return null;
+        if (filePath == null) throw Exception("Failed to get file path");
         final file = File(filePath);
         task = reference.putFile(file);
       }
 
       final snapshot = await task;
-      return await snapshot.ref.getDownloadURL();
+      final url = await snapshot.ref.getDownloadURL();
+      
+      isUploading = false;
+      notifyListeners();
+      return url;
     } catch (e) {
-      debugPrint("Upload error: $e");
+      isUploading = false;
+      notifyListeners();
+      debugPrint("Upload error details: $e");
       return null;
     }
   }
 
   Future<void> addPhotoToCategoryFromPicker(int catIdx) async {
-    isLoading = true;
-    notifyListeners();
     final url = await uploadPhotoFromFile();
     if (url != null && catIdx >= 0 && catIdx < photoGalleryData.sections.length) {
       photoGalleryData.sections[catIdx].photoUrls.add(url);
+      notifyListeners();
     }
-    isLoading = false;
-    notifyListeners();
   }
 
   Future<void> publish() async {
@@ -185,7 +200,7 @@ class HomePageController extends ChangeNotifier {
         'allKathas': allKathas.map((e) => e.toMap()).toList(),
         'kathaListPageData': kathaListPageData.toMap(),
         'videoGalleryData': videoGalleryData.toMap(),
-        'photoGalleryData': photoGalleryData.toMap(),
+        'photoGalleryData': photoGalleryData.sections.isNotEmpty ? photoGalleryData.toMap() : {},
       });
       await loadData();
     } catch (e) {

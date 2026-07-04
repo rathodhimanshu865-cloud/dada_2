@@ -8,6 +8,8 @@ class UserUpcomingKathas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primaryTeal = Color(0xFF0F4C5C);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 100),
       child: Column(
@@ -17,12 +19,13 @@ class UserUpcomingKathas extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                const Text(
+                Text(
                   'Upcoming Kathas',
                   style: TextStyle(
                     fontSize: 32, 
                     fontFamily: 'serif', 
-                    color: Color(0xFF444444),
+                    color: primaryTeal,
+                    fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -31,7 +34,7 @@ class UserUpcomingKathas extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.menu, size: 22, color: Color(0xFF444444)),
+                      const Icon(Icons.menu, size: 22, color: primaryTeal),
                       const SizedBox(width: 12),
                       GestureDetector(
                         onTap: () {
@@ -40,7 +43,7 @@ class UserUpcomingKathas extends StatelessWidget {
                             builder: (context) => KathaCalendarView(kathas: controller.upcomingKathas),
                           );
                         },
-                        child: const Icon(Icons.grid_on_outlined, size: 22, color: Color(0xFF444444)),
+                        child: const Icon(Icons.grid_on_outlined, size: 22, color: primaryTeal),
                       ),
                     ],
                   ),
@@ -54,56 +57,52 @@ class UserUpcomingKathas extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: constraints.maxWidth > 800 ? 2 : 1,
-                childAspectRatio: 4.5,
-                crossAxisSpacing: 80,
-                mainAxisSpacing: 40,
+                crossAxisCount: constraints.maxWidth > 800 ? 4 : 1,
+                childAspectRatio: 1.5,
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
               ),
-              itemCount: controller.upcomingKathas.length,
+              itemCount: controller.upcomingKathas.take(4).length,
               itemBuilder: (context, index) {
                 final katha = controller.upcomingKathas[index];
-                return Column(
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                return Card(
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: const BoxDecoration(color: Colors.black, shape: BoxShape.circle),
-                          child: Center(
-                            child: Text(
-                              katha.kathaNumber,
-                              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                          ),
+                        Text(
+                          katha.kathaNumber,
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: primaryTeal),
                         ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                katha.name, 
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF333333))
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                katha.dateString, 
-                                style: const TextStyle(color: Color(0xFFC19A6B), fontSize: 13, fontWeight: FontWeight.w500)
-                              ),
-                            ],
-                          ),
+                        const SizedBox(height: 10),
+                        Text(
+                          katha.name, 
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black87)
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          katha.dateString, 
+                          style: const TextStyle(color: Colors.grey, fontSize: 11)
                         ),
                       ],
                     ),
-                    const SizedBox(height: 15),
-                    const Divider(color: Color(0xFFEEEEEE), thickness: 1),
-                  ],
+                  ),
                 );
               },
             );
           }),
+          const SizedBox(height: 40),
+          ElevatedButton(
+            onPressed: () => Navigator.pushNamed(context, '/katha_list'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryTeal,
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+            ),
+            child: const Text('VIEW ALL KATHAS'),
+          ),
         ],
       ),
     );

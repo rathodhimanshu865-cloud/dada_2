@@ -31,7 +31,6 @@ class UserHomePage extends StatelessWidget {
             UserHeader(controller: controller),
             UserHero(controller: controller),
             UserUpcomingKathas(controller: controller),
-            UserAbout(controller: controller),
             UserLatestChaupai(controller: controller),
             UserVideos(controller: controller),
             UserRamKatha(controller: controller),

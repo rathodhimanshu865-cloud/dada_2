@@ -20,12 +20,19 @@ class _ContactPageState extends State<ContactPage> {
   bool _isSubmitting = false;
   String _messageCountText = '0 of 500 max characters.';
   String? _errorText;
+  int activeTab = 0;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
+
+  final List<String> tabTitles = [
+    'Enquiries',
+    'Katha Booklets and Photos',
+    'Katha Audio and Video'
+  ];
 
   @override
   void initState() {
@@ -71,7 +78,7 @@ class _ContactPageState extends State<ContactPage> {
       mobile: _mobileController.text.trim(),
       country: _countryController.text.trim(),
       message: _messageController.text.trim(),
-      type: 'Enquiries',
+      type: tabTitles[activeTab],
     );
 
     await controller.submitInquiry(inquiry);
@@ -118,6 +125,7 @@ class _ContactPageState extends State<ContactPage> {
 
   @override
   Widget build(BuildContext context) {
+    const primaryTeal = Color(0xFF0F4C5C);
     final controller = Provider.of<HomePageController>(context);
 
     return Scaffold(
@@ -127,12 +135,21 @@ class _ContactPageState extends State<ContactPage> {
           children: [
             UserHeader(controller: controller),
             const SizedBox(height: 60),
-            const Text(
+            Text(
               'Contact us',
-              style: TextStyle(fontSize: 48, fontFamily: 'serif', color: Color(0xFF444444)),
+              style: TextStyle(fontSize: 48, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text('Home > Contact us', style: TextStyle(color: Colors.grey, fontSize: 13)),
+            const SizedBox(height: 60),
+
+            // Tabs
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(3, (index) => _buildTab(index, primaryTeal)),
+            ),
+            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            
             const SizedBox(height: 60),
 
             Padding(
@@ -145,7 +162,7 @@ class _ContactPageState extends State<ContactPage> {
                     style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                   const SizedBox(height: 40),
-                  _buildForm(controller),
+                  _buildForm(controller, primaryTeal),
                 ],
               ),
             ),
@@ -158,7 +175,36 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  Widget _buildForm(HomePageController controller) {
+  Widget _buildTab(int index, Color primaryTeal) {
+    bool isActive = activeTab == index;
+    return InkWell(
+      onTap: () => setState(() => activeTab = index),
+      child: Container(
+        width: 300,
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: isActive ? primaryTeal : Colors.transparent,
+              width: 2,
+            ),
+          ),
+        ),
+        child: Center(
+          child: Text(
+            tabTitles[index],
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              color: isActive ? primaryTeal : Colors.black54,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForm(HomePageController controller, Color primaryTeal) {
     return Form(
       key: _formKey,
       child: Container(
@@ -177,21 +223,21 @@ class _ContactPageState extends State<ContactPage> {
           children: [
             Row(
               children: [
-                Expanded(child: _formField('Name *', _nameController)),
+                Expanded(child: _formField('Name *', _nameController, primaryTeal)),
                 const SizedBox(width: 20),
-                Expanded(child: _formField('Email address *', _emailController)),
+                Expanded(child: _formField('Email address *', _emailController, primaryTeal)),
               ],
             ),
             const SizedBox(height: 20),
             Row(
               children: [
-                Expanded(child: _formField('Tel/Mobile# *', _mobileController, prefix: '🇮🇳 +91')),
+                Expanded(child: _formField('Tel/Mobile# *', _mobileController, primaryTeal, prefix: '🇮🇳 +91')),
                 const SizedBox(width: 20),
-                Expanded(child: _formField('Country *', _countryController)),
+                Expanded(child: _formField('Country *', _countryController, primaryTeal)),
               ],
             ),
             const SizedBox(height: 20),
-            _formField('Message *', _messageController, maxLines: 6),
+            _formField('Message *', _messageController, primaryTeal, maxLines: 6),
             const SizedBox(height: 8),
             Text(_messageCountText, style: const TextStyle(color: Colors.grey, fontSize: 12)),
             const SizedBox(height: 30),
@@ -206,6 +252,7 @@ class _ContactPageState extends State<ContactPage> {
               child: Row(
                 children: [
                   Checkbox(
+                    activeColor: primaryTeal,
                     value: _robotChecked,
                     onChanged: (value) => setState(() {
                       _robotChecked = value ?? false;
@@ -236,7 +283,7 @@ class _ContactPageState extends State<ContactPage> {
               child: ElevatedButton(
                 onPressed: _isSubmitting ? null : () => _submitForm(controller),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFC19A6B),
+                  backgroundColor: primaryTeal,
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                 ),
@@ -252,7 +299,7 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  Widget _formField(String label, TextEditingController controller, {int maxLines = 1, String? prefix}) {
+  Widget _formField(String label, TextEditingController controller, Color primaryTeal, {int maxLines = 1, String? prefix}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -277,6 +324,10 @@ class _ContactPageState extends State<ContactPage> {
             filled: true,
             fillColor: const Color(0xFFF9F9F9),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: primaryTeal, width: 1.5),
+              borderRadius: BorderRadius.circular(4),
+            ),
             border: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey[300]!),
               borderRadius: BorderRadius.circular(4),

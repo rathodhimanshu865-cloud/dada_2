@@ -28,7 +28,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
-        key: Key(initialValue ?? ''), // Force rebuild if initial value changes from external (like picker)
+        key: Key(initialValue ?? ''), 
         initialValue: initialValue ?? '',
         maxLines: maxLines,
         decoration: InputDecoration(
@@ -38,6 +38,66 @@ class _AdminDashboardState extends State<AdminDashboard> {
           border: const OutlineInputBorder(),
         ),
         onChanged: onChanged,
+      ),
+    );
+  }
+
+  Widget _buildImageField(String label, String? initialValue, Function(String) onChanged) {
+    final controller = Provider.of<HomePageController>(context, listen: false);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  key: Key(initialValue ?? ''),
+                  initialValue: initialValue ?? '',
+                  decoration: InputDecoration(
+                    hintText: 'Paste image URL or upload file...',
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                    border: const OutlineInputBorder(),
+                  ),
+                  onChanged: onChanged,
+                ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton.icon(
+                onPressed: controller.isUploading ? null : () async {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Starting upload...')));
+                  final url = await controller.uploadPhotoFromFile();
+                  if (url != null) {
+                    onChanged(url);
+                    setState(() {});
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Upload Successful!')));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Upload Failed. Check Firebase Storage/Rules.')));
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueGrey,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                ),
+                icon: controller.isUploading 
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  : const Icon(Icons.upload_file, size: 18),
+                label: Text(controller.isUploading ? 'UPLOADING...' : 'UPLOAD'),
+              ),
+            ],
+          ),
+          if (initialValue != null && initialValue.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: _imagePreview(initialValue),
+            ),
+        ],
       ),
     );
   }
@@ -60,7 +120,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.broken_image, color: Colors.grey),
-                Text('Invalid Link', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                Text('Image loading...', style: TextStyle(fontSize: 10, color: Colors.grey)),
               ],
             ),
           ),
@@ -83,7 +143,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
         actions: [
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white),
-            onPressed: () => controller.publish(),
+            onPressed: () async {
+              await controller.publish();
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All changes published successfully!')));
+            },
             icon: controller.isLoading ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Icon(Icons.publish),
             label: const Text('PUBLISH ALL CHANGES'),
           ),
@@ -119,8 +182,27 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 3: return _aboutKathaView(controller);
       case 4: return _videoGalleryView(controller);
       case 5: return _photoGalleryView(controller);
+      case 6: return _inquiryView(controller);
       default: return const Center(child: Text('Section not yet implemented'));
     }
+  }
+
+  Widget _inquiryView(HomePageController controller) {
+    return ListView(
+      padding: const EdgeInsets.all(40),
+      children: [
+        const Text('Contact Enquiries', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const Divider(),
+        ...controller.inquiries.map((inq) => Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: ListTile(
+            title: Text('${inq.name} (${inq.type})'),
+            subtitle: Text('Email: ${inq.email} | Mobile: ${inq.mobile}\nMessage: ${inq.message}'),
+            trailing: Text(inq.timestamp.toString().split('.')[0]),
+          ),
+        )).toList(),
+      ],
+    );
   }
 
   Widget _videoGalleryView(HomePageController controller) {
@@ -129,8 +211,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       children: [
         const Text('Video Gallery Settings', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const Divider(),
-        _buildField('Header Image URL', controller.videoGalleryData.headerImageUrl, (v) => controller.videoGalleryData.headerImageUrl = v),
-        _imagePreview(controller.videoGalleryData.headerImageUrl),
+        _buildImageField('Header Image URL', controller.videoGalleryData.headerImageUrl, (v) => controller.videoGalleryData.headerImageUrl = v),
         const SizedBox(height: 20),
         const Text('Manage Video Categories', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
@@ -208,8 +289,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       children: [
         const Text('Photo Gallery Settings', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
-        _buildField('Header Image URL', controller.photoGalleryData.headerImageUrl, (v) => controller.photoGalleryData.headerImageUrl = v),
-        _imagePreview(controller.photoGalleryData.headerImageUrl),
+        _buildImageField('Header Image URL', controller.photoGalleryData.headerImageUrl, (v) => controller.photoGalleryData.headerImageUrl = v),
         _buildField('Gallery Title', controller.photoGalleryData.title, (v) => controller.photoGalleryData.title = v),
         const SizedBox(height: 20),
         const Text('Photo Gallery Headings', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -221,7 +301,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
             margin: const EdgeInsets.only(bottom: 24),
             child: ExpansionTile(
               title: Text('Heading ${sectionIdx + 1}: ${section.heading.isEmpty ? "Untitled" : section.heading}'),
-                  children: [
+              trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removePhotoCategory(sectionIdx)),
+              children: [
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -238,13 +319,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           int photoIdx = photoEntry.key;
                           final photoUrl = photoEntry.value;
                           return Container(
-                            width: 200,
+                            width: 250,
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(border: Border.all(color: Colors.grey[200]!), borderRadius: BorderRadius.circular(4)),
                             child: Column(
                               children: [
                                 _imagePreview(photoUrl),
                                 TextFormField(
+                                  key: Key(photoUrl),
                                   initialValue: photoUrl,
                                   decoration: const InputDecoration(labelText: 'Image URL'),
                                   onChanged: (v) => setState(() => section.photoUrls[photoIdx] = v),
@@ -274,7 +356,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: ElevatedButton.icon(
-                              onPressed: () => controller.addPhotoToCategoryFromPicker(sectionIdx),
+                              onPressed: () async {
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Starting upload...')));
+                                await controller.addPhotoToCategoryFromPicker(sectionIdx);
+                                setState(() {});
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Upload process finished.')));
+                              },
                               icon: const Icon(Icons.upload_file),
                               label: const Text('UPLOAD FROM PC'),
                               style: ElevatedButton.styleFrom(backgroundColor: Colors.blueGrey, foregroundColor: Colors.white),
@@ -289,6 +376,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           );
         }),
+        ElevatedButton.icon(
+          onPressed: controller.addPhotoCategory,
+          icon: const Icon(Icons.add_to_photos),
+          label: const Text('ADD NEW HEADING SECTION'),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.blueGrey, foregroundColor: Colors.white),
+        ),
         const SizedBox(height: 100),
       ],
     );
@@ -300,8 +393,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       children: [
         const Text('Katha List Settings', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 20),
-        _buildField('Katha List Page Banner Image URL', controller.kathaListPageData.bannerImageUrl, (v) => controller.kathaListPageData.bannerImageUrl = v),
-        _imagePreview(controller.kathaListPageData.bannerImageUrl),
+        _buildImageField('Katha List Page Banner Image URL', controller.kathaListPageData.bannerImageUrl, (v) => controller.kathaListPageData.bannerImageUrl = v),
         const Divider(),
         const SizedBox(height: 20),
         const Text('Manage Full Katha List Records', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -337,8 +429,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         ],
                       ),
                       _buildField('YouTube Playlist URL', k.youtubePlaylistUrl, (v) => k.youtubePlaylistUrl = v),
-                      _buildField('Image URL', k.imageUrl, (v) => setState(() => k.imageUrl = v)),
-                      _imagePreview(k.imageUrl),
+                      _buildImageField('Image URL', k.imageUrl, (v) => setState(() => k.imageUrl = v)),
                       _buildField('Description', k.description, (v) => k.description = v, maxLines: 5),
                     ],
                   ),
@@ -359,8 +450,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       children: [
                 _sectionHeader('1. BRANDING & HEADER'),
                 _buildField('Website Name', controller.websiteSettings.name, (v) => controller.websiteSettings.name = v),
-                _buildField('Logo URL', controller.websiteSettings.logoUrl, (v) => controller.websiteSettings.logoUrl = v),
-                _imagePreview(controller.websiteSettings.logoUrl),
+                _buildImageField('Logo URL', controller.websiteSettings.logoUrl, (v) => controller.websiteSettings.logoUrl = v),
                 _buildField('YouTube URL', controller.websiteSettings.youtubeUrl, (v) => controller.websiteSettings.youtubeUrl = v),
                 _buildField('Instagram URL', controller.websiteSettings.instagramUrl, (v) => controller.websiteSettings.instagramUrl = v),
                 _buildField('Facebook URL', controller.websiteSettings.facebookUrl, (v) => controller.websiteSettings.facebookUrl = v),
@@ -369,7 +459,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 _sectionHeader('2. HERO SECTION'),
                 ...List.generate(8, (index) => Column(
                   children: [
-                    _buildField(
+                    _buildImageField(
                       'Hero Image URL ${index + 1}', 
                       index < controller.heroSection.bannerUrls.length ? controller.heroSection.bannerUrls[index] : '', 
                       (v) {
@@ -384,8 +474,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         setState(() {});
                       }
                     ),
-                    if (index < controller.heroSection.bannerUrls.length)
-                      _imagePreview(controller.heroSection.bannerUrls[index]),
                   ],
                 )),
 
@@ -410,19 +498,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 ElevatedButton(onPressed: controller.addKatha, child: const Text('Add Upcoming Katha')),
 
                 _sectionHeader('4. ABOUT SECTION'),
-                _buildField('Dada Photo URL', controller.aboutSection.photoUrl, (v) {
+                _buildImageField('Dada Photo URL', controller.aboutSection.photoUrl, (v) {
                   controller.aboutSection.photoUrl = v;
                   setState(() {});
                 }),
-                _imagePreview(controller.aboutSection.photoUrl),
                 _buildField('Description', controller.aboutSection.description, (v) => controller.aboutSection.description = v, maxLines: 5),
 
                 _sectionHeader('5. DAILY SUVICHAR'),
-                _buildField('Suvichar Image URL', controller.dailySuvichar.imageUrl, (v) {
+                _buildImageField('Suvichar Image URL', controller.dailySuvichar.imageUrl, (v) {
                   controller.dailySuvichar.imageUrl = v;
                   setState(() {});
                 }),
-                _imagePreview(controller.dailySuvichar.imageUrl),
                 _buildField('Date', controller.dailySuvichar.date, (v) => controller.dailySuvichar.date = v),
 
                 _sectionHeader('6. VIDEOS'),
@@ -439,11 +525,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 _sectionHeader('7. RAM KATHA BOTTOM'),
                 _buildField('Para 1', controller.ramKatha.description1, (v) => controller.ramKatha.description1 = v, maxLines: 4),
                 _buildField('Para 2', controller.ramKatha.description2, (v) => controller.ramKatha.description2 = v, maxLines: 4),
-                _buildField('Photo URL', controller.ramKatha.photoUrl, (v) {
+                _buildImageField('Photo URL', controller.ramKatha.photoUrl, (v) {
                   controller.ramKatha.photoUrl = v;
                   setState(() {});
                 }),
-                _imagePreview(controller.ramKatha.photoUrl),
 
                 _sectionHeader('8. FOOTER'),
                 _buildField('Footer Desc', controller.footer.description, (v) => controller.footer.description = v, maxLines: 3),
@@ -459,8 +544,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         const Text('Stotra / Bhajan / Aarti Section', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const Divider(),
         _buildField('Page Title', controller.stotraSection.pageTitle, (v) => controller.stotraSection.pageTitle = v),
-        _buildField('Header Image URL', controller.stotraSection.topHeaderImage, (v) => controller.stotraSection.topHeaderImage = v),
-        _imagePreview(controller.stotraSection.topHeaderImage),
+        _buildImageField('Header Image URL', controller.stotraSection.topHeaderImage, (v) => controller.stotraSection.topHeaderImage = v),
         ...controller.stotraSection.items.asMap().entries.map((entry) => Card(
           margin: const EdgeInsets.only(bottom: 16),
           child: ExpansionTile(
@@ -491,35 +575,31 @@ class _AdminDashboardState extends State<AdminDashboard> {
       padding: const EdgeInsets.all(40),
       children: [
                 _sectionHeader('ABOUT KATHA PAGE CONTENT'),
-                _buildField('Top Header Image URL', controller.aboutKathaPage.topHeaderImage, (v) {
+                _buildImageField('Top Header Image URL', controller.aboutKathaPage.topHeaderImage, (v) {
                   controller.aboutKathaPage.topHeaderImage = v;
                   setState(() {});
                 }),
-                _imagePreview(controller.aboutKathaPage.topHeaderImage),
                 _buildField('Page Title', controller.aboutKathaPage.title, (v) => controller.aboutKathaPage.title = v),
                 _buildField('Main Description', controller.aboutKathaPage.mainItalicDesc, (v) => controller.aboutKathaPage.mainItalicDesc = v, maxLines: 5),
                 _buildField('Col 1', controller.aboutKathaPage.subDescCol1, (v) => controller.aboutKathaPage.subDescCol1 = v, maxLines: 3),
                 _buildField('Col 2', controller.aboutKathaPage.subDescCol2, (v) => controller.aboutKathaPage.subDescCol2 = v, maxLines: 3),
                 _buildField('Col 3', controller.aboutKathaPage.subDescCol3, (v) => controller.aboutKathaPage.subDescCol3 = v, maxLines: 3),
-                _buildField('Bio Image', controller.aboutKathaPage.midSectionImage, (v) {
+                _buildImageField('Bio Image', controller.aboutKathaPage.midSectionImage, (v) {
                   controller.aboutKathaPage.midSectionImage = v;
                   setState(() {});
                 }),
-                _imagePreview(controller.aboutKathaPage.midSectionImage),
                 _buildField('Bio Heading', controller.aboutKathaPage.midSectionTitle, (v) => controller.aboutKathaPage.midSectionTitle = v),
                 _buildField('Bio Paragraph', controller.aboutKathaPage.midSectionPara1, (v) => controller.aboutKathaPage.midSectionPara1 = v, maxLines: 5),
-                _buildField('Calligraphy URL', controller.aboutKathaPage.signatureImage, (v) {
+                _buildImageField('Calligraphy URL', controller.aboutKathaPage.signatureImage, (v) {
                   controller.aboutKathaPage.signatureImage = v;
                   setState(() {});
                 }),
-                _imagePreview(controller.aboutKathaPage.signatureImage),
                 _buildField('Bottom Para 1', controller.aboutKathaPage.bottomPara1, (v) => controller.aboutKathaPage.bottomPara1 = v, maxLines: 3),
                 _buildField('Bottom Para 2', controller.aboutKathaPage.bottomPara2, (v) => controller.aboutKathaPage.bottomPara2 = v, maxLines: 3),
-                _buildField('Large Bottom Image', controller.aboutKathaPage.largeBottomImage, (v) {
+                _buildImageField('Large Bottom Image', controller.aboutKathaPage.largeBottomImage, (v) {
                   controller.aboutKathaPage.largeBottomImage = v;
                   setState(() {});
                 }),
-                _imagePreview(controller.aboutKathaPage.largeBottomImage),
       ],
     );
   }

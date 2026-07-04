@@ -5,15 +5,26 @@ import '../../models/homepage_model.dart';
 import 'sections/user_header.dart';
 import 'sections/user_footer.dart';
 
-class UpcomingRamKathasPage extends StatelessWidget {
+class UpcomingRamKathasPage extends StatefulWidget {
   const UpcomingRamKathasPage({super.key});
+
+  @override
+  State<UpcomingRamKathasPage> createState() => _UpcomingRamKathasPageState();
+}
+
+class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
+  int activeTab = 1; // 0 for All Kathas, 1 for Upcoming Kathas
+  
+  final primaryTeal = const Color(0xFF0F4C5C);
+  final backgroundBeige = const Color(0xFFF9F3EA);
+  final accentBrown = const Color(0xFFC19A6B);
 
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<HomePageController>(context);
-
+    
     if (controller.isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator(color: Colors.black)));
+      return Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
     return Scaffold(
@@ -22,148 +33,223 @@ class UpcomingRamKathasPage extends StatelessWidget {
         child: Column(
           children: [
             UserHeader(controller: controller),
-            const SizedBox(height: 40),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 100),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            
+            // Hero Title Section (Exactly like All Kathas page)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 80),
+              color: backgroundBeige.withOpacity(0.5),
+              child: Column(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'Upcoming Ram Kathas',
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontFamily: 'serif',
-                          color: Color(0xFF444444),
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text('Home > Ram Katha > Upcoming Ram Kathas', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                    ],
+                  Text(
+                    'Upcoming Kathas',
+                    style: TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold),
                   ),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/katha_list'),
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF444444)),
-                    child: const Text('View All Kathas'),
-                  ),
+                  const SizedBox(height: 12),
+                  Text('Home > Ram Katha > Upcoming Kathas', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
                 ],
               ),
             ),
-            const SizedBox(height: 40),
+            
+            const SizedBox(height: 60),
+            
+            // Tab Switcher (Exactly like All Kathas page)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _tabButton('All Kathas', activeTab == 0, () => Navigator.pushNamed(context, '/katha_list')),
+                const SizedBox(width: 80),
+                _tabButton('Upcoming Kathas 2026', activeTab == 1, () {}),
+              ],
+            ),
+            
+            const SizedBox(height: 60),
+            
+            // List of Upcoming Kathas
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 100),
               child: Column(
-                children: controller.upcomingKathas.map((katha) => _UpcomingKathaCard(katha: katha)).toList(),
+                children: [
+                   // Decorative line matching the style
+                  const Divider(color: Color(0xFFEEEEEE), thickness: 1),
+                  ...controller.upcomingKathas.map((katha) => _buildUpcomingKathaRow(context, katha)).toList(),
+                ],
               ),
             ),
-            const SizedBox(height: 80),
+
+            const SizedBox(height: 100),
             UserFooter(controller: controller),
           ],
         ),
       ),
     );
   }
-}
 
-class _UpcomingKathaCard extends StatelessWidget {
-  final UpcomingKatha katha;
-  const _UpcomingKathaCard({required this.katha});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 30),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFEEEEEE)),
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.white,
-      ),
+  Widget _tabButton(String title, bool isActive, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      hoverColor: Colors.transparent,
       child: Column(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: const BoxDecoration(color: Color(0xFF9C755F), shape: BoxShape.circle),
-                child: Center(
-                  child: Text(
-                    katha.kathaNumber,
-                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 18),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      katha.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Color(0xFF333333)),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      katha.dateString,
-                      style: const TextStyle(color: Color(0xFF9C755F), fontSize: 13, fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () => _showDetails(context, katha),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF9C755F),
-                  side: const BorderSide(color: Color(0xFF9C755F)),
-                  elevation: 0,
-                ),
-                child: const Text('More Details'),
-              ),
-            ],
+          Text(
+            title.toUpperCase(),
+            style: TextStyle(
+              fontSize: 18, 
+              fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+              color: isActive ? primaryTeal : Colors.black45,
+              letterSpacing: 1.5,
+            ),
           ),
-          const SizedBox(height: 16),
-          const Divider(color: Color(0xFFEEEEEE), thickness: 1),
+          const SizedBox(height: 10),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            height: 4, 
+            width: isActive ? 60 : 0, 
+            color: primaryTeal,
+          ),
         ],
       ),
     );
   }
 
-  void _showDetails(BuildContext context, UpcomingKatha katha) {
+  Widget _buildUpcomingKathaRow(BuildContext context, UpcomingKatha katha) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+          child: Row(
+            children: [
+              // Circular ID with Label (Bigger fonts)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Katha ', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                  const SizedBox(width: 10),
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: accentBrown, 
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(color: accentBrown.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 4)),
+                      ]
+                    ),
+                    child: Center(
+                      child: Text(
+                        katha.kathaNumber,
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 60),
+              
+              // Details (Bigger fonts)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      katha.name.toUpperCase(),
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF444444), letterSpacing: 1.2),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      katha.dateString.toUpperCase(),
+                      style: const TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w600, letterSpacing: 0.5),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Action Button (Styled like All Kathas page buttons)
+              OutlinedButton(
+                onPressed: () => _showMoreDetails(context, katha),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: accentBrown,
+                  side: BorderSide(color: accentBrown.withOpacity(0.5), width: 1.5),
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                ),
+                child: const Text('More Details', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
+              ),
+            ],
+          ),
+        ),
+        const Divider(color: Color(0xFFEEEEEE)),
+      ],
+    );
+  }
+
+  void _showMoreDetails(BuildContext context, UpcomingKatha katha) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Katha ${katha.kathaNumber} - ${katha.name}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _detailRow('Katha Date', katha.dateString),
-            _detailRow('Katha Timing', katha.timing),
-            _detailRow('Katha Location', katha.location),
-            _detailRow('Katha Hosting', katha.hosting),
-          ],
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: Container(
+          width: 600,
+          padding: const EdgeInsets.all(50),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Katha ${katha.kathaNumber} - ${katha.name}',
+                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: primaryTeal, fontFamily: 'serif'),
+                    ),
+                  ),
+                  IconButton(icon: const Icon(Icons.close, size: 30), onPressed: () => Navigator.pop(context)),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Container(width: 80, height: 3, color: accentBrown),
+              const SizedBox(height: 40),
+              
+              _detailRow('Katha Date', katha.dateString),
+              _detailRow('Katha Timing', katha.timing),
+              _detailRow('Katha Location', katha.location),
+              _detailRow('Katha Hosting', katha.hosting),
+              
+              const SizedBox(height: 40),
+              Center(child: Container(width: 80, height: 1, color: Colors.grey[200])),
+              const SizedBox(height: 30),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryTeal,
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                  ),
+                  child: const Text('CLOSE', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CLOSE')),
-        ],
       ),
     );
   }
 
   Widget _detailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 120, child: Text('$label:', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-          Expanded(child: Text(value.isNotEmpty ? value : '-', style: const TextStyle(fontSize: 13))),
+          SizedBox(
+            width: 180, 
+            child: Text(
+              label, 
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: primaryTeal.withOpacity(0.8))
+            )
+          ),
+          Expanded(child: Text(value.isNotEmpty ? value : '-', style: const TextStyle(fontSize: 16, color: Colors.black87, height: 1.4))),
         ],
       ),
     );

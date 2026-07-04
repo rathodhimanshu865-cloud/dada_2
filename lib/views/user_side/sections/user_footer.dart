@@ -8,12 +8,14 @@ class UserFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primaryTeal = Color(0xFF0F4C5C);
+
     return Container(
-      color: const Color(0xFF1A1A1A),
+      color: primaryTeal,
       padding: const EdgeInsets.all(60),
       child: Column(
         children: [
-            LayoutBuilder(builder: (context, constraints) {
+          LayoutBuilder(builder: (context, constraints) {
             return Wrap(
               spacing: 60,
               runSpacing: 40,
@@ -24,34 +26,29 @@ class UserFooter extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.network(
-                        controller.websiteSettings.logoUrl,
-                        height: 50,
-                        color: Colors.white,
-                        errorBuilder: (context, error, stackTrace) => Text(
-                          controller.websiteSettings.name.isNotEmpty 
-                            ? controller.websiteSettings.name 
-                            : 'JIGNESHDADA', 
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24)
-                        ),
+                      Text(
+                        controller.websiteSettings.name.isNotEmpty 
+                          ? controller.websiteSettings.name.toUpperCase() 
+                          : 'JIGNESH DADA', 
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 1.5)
                       ),
                       const SizedBox(height: 20),
                       Text(
                         controller.footer.description,
-                        style: const TextStyle(color: Colors.grey, fontSize: 13, height: 1.5),
+                        style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.5),
                       ),
                     ],
                   ),
                 ),
                 _footerColumn(
-                  'Main',
+                  'MAIN',
                   [
                     _footerLink(context, 'Home', '/'),
                     _footerLink(context, 'Contact Us', '/contact_us'),
                   ],
                 ),
                 _footerColumn(
-                  'Katha',
+                  'KATHA',
                   [
                     _footerLink(context, 'About Kathas', '/about_katha'),
                     _footerLink(context, 'Full Katha List', '/katha_list'),
@@ -59,13 +56,13 @@ class UserFooter extends StatelessWidget {
                   ],
                 ),
                 _footerColumn(
-                  'Stotra / Bhajan / Aarti',
+                  'STOTRA / BHAJAN / AARTI',
                   [
                     _footerLink(context, 'View Page', '/stotra'),
                   ],
                 ),
                 _footerColumn(
-                  'Gallery',
+                  'GALLERY',
                   [
                     _footerLink(context, 'Photos', '/photo_gallery'),
                     _footerLink(context, 'Videos', '/video_gallery'),
@@ -75,20 +72,13 @@ class UserFooter extends StatelessWidget {
             );
           }),
           const SizedBox(height: 60),
-          const Divider(color: Colors.white12),
+          const Divider(color: Colors.white24),
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(controller.footer.copyright, style: const TextStyle(color: Colors.grey, fontSize: 11)),
-              Row(
-                children: [
-                  _socialIcon(Icons.play_circle_outline, controller.websiteSettings.youtubeUrl, 'YouTube', const Color(0xFFCD201F)),
-                  _socialIcon(Icons.camera_alt_outlined, controller.websiteSettings.instagramUrl, 'Instagram', const Color(0xFFC13584)),
-                  _socialIcon(Icons.facebook, controller.websiteSettings.facebookUrl, 'Facebook', const Color(0xFF1877F2)),
-                  _socialIcon(Icons.chat, controller.websiteSettings.whatsappUrl, 'WhatsApp', const Color(0xFF25D366)),
-                ],
-              ),
+              Text(controller.footer.copyright, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+              const SizedBox(),
             ],
           ),
           const SizedBox(height: 20),
@@ -96,7 +86,7 @@ class UserFooter extends StatelessWidget {
             onPressed: () => Navigator.pushNamed(context, '/admin_login'),
             child: const Text(
               'Admin Panel',
-              style: TextStyle(color: Colors.white70, fontSize: 12, decoration: TextDecoration.underline),
+              style: TextStyle(color: Colors.white38, fontSize: 10, decoration: TextDecoration.underline),
             ),
           ),
         ],
@@ -110,8 +100,8 @@ class UserFooter extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 16),
+          Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1)),
+          const SizedBox(height: 20),
           ...items.map((item) => Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: item,
@@ -126,7 +116,7 @@ class UserFooter extends StatelessWidget {
       onTap: () => Navigator.pushNamed(context, route),
       child: Text(
         label,
-        style: const TextStyle(color: Colors.grey, fontSize: 13),
+        style: const TextStyle(color: Colors.white70, fontSize: 13),
       ),
     );
   }
@@ -137,22 +127,22 @@ class UserFooter extends StatelessWidget {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
-  Widget _socialIcon(IconData icon, String url, String tooltip, Color backgroundColor) {
+  Widget _socialIcon(IconData icon, String url, String tooltip) {
     return Padding(
-      padding: const EdgeInsets.only(left: 15),
+      padding: const EdgeInsets.only(right: 15),
       child: Tooltip(
         message: tooltip,
         child: InkWell(
           onTap: () => _launchSocialUrl(url),
           borderRadius: BorderRadius.circular(999),
           child: Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: backgroundColor,
+            width: 32,
+            height: 32,
+            decoration: const BoxDecoration(
+              color: Colors.white10,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 14, color: Colors.white),
+            child: Icon(icon, size: 16, color: Colors.white),
           ),
         ),
       ),

@@ -18,12 +18,13 @@ class VideoGalleryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primaryTeal = Color(0xFF0F4C5C);
     final controller = Provider.of<HomePageController>(context);
     final data = controller.videoGalleryData;
 
     if (controller.isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: Colors.black)),
+        body: Center(child: CircularProgressIndicator(color: primaryTeal)),
       );
     }
 
@@ -47,12 +48,13 @@ class VideoGalleryPage extends StatelessWidget {
             const SizedBox(height: 60),
 
             // Page Title
-            const Text(
+            Text(
               'Videos',
               style: TextStyle(
                 fontSize: 42,
                 fontFamily: 'serif',
-                color: Color(0xFF444444),
+                color: primaryTeal,
+                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 10),
@@ -68,7 +70,7 @@ class VideoGalleryPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 100),
               child: Column(
                 children: data.categories
-                    .map((category) => _buildCategorySection(context, category))
+                    .map((category) => _buildCategorySection(context, category, primaryTeal))
                     .toList(),
               ),
             ),
@@ -81,16 +83,16 @@ class VideoGalleryPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCategorySection(BuildContext context, dynamic category) {
+  Widget _buildCategorySection(BuildContext context, dynamic category, Color primaryTeal) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           category.categoryTitle.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF444444),
+            color: primaryTeal,
             letterSpacing: 1,
           ),
         ),
@@ -138,7 +140,7 @@ class VideoGalleryPage extends StatelessWidget {
                     Container(
                       height: 160,
                       width: 280,
-                      color: Colors.black.withValues(alpha: 0.1),
+                      color: Colors.black.withOpacity(0.1),
                     ),
                     const Icon(
                       Icons.play_circle_outline,

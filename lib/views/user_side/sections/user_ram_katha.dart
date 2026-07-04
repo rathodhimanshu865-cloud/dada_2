@@ -7,8 +7,13 @@ class UserRamKatha extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primaryTeal = Color(0xFF0F4C5C);
+    const backgroundBeige = Color(0xFFF9F3EA);
     final ramKatha = controller.ramKatha;
+
     return Container(
+      width: double.infinity,
+      color: backgroundBeige,
       padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 40),
       child: LayoutBuilder(builder: (context, constraints) {
         bool isDesktop = constraints.maxWidth > 900;
@@ -21,18 +26,24 @@ class UserRamKatha extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    ramKatha.title,
-                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.brown),
+                    'Ram Katha',
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: primaryTeal, fontFamily: 'serif'),
                   ),
                   const SizedBox(height: 25),
                   Text(
                     ramKatha.description1,
-                    style: TextStyle(fontSize: 16, height: 1.6, color: Colors.grey[800]),
+                    style: const TextStyle(fontSize: 16, height: 1.6, color: Colors.black87),
                   ),
                   const SizedBox(height: 15),
                   Text(
                     ramKatha.description2,
-                    style: TextStyle(fontSize: 14, height: 1.6, color: Colors.grey[600]),
+                    style: const TextStyle(fontSize: 14, height: 1.6, color: Colors.black54),
+                  ),
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/about_katha'),
+                    style: ElevatedButton.styleFrom(backgroundColor: primaryTeal),
+                    child: const Text('ENTER RAM KATHA JOURNEY'),
                   ),
                 ],
               ),
@@ -47,6 +58,7 @@ class UserRamKatha extends StatelessWidget {
                     ? ramKatha.photoUrl 
                     : 'https://via.placeholder.com/400x500',
                   fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) => Container(color: Colors.white, height: 400),
                 ),
               ),
             ),

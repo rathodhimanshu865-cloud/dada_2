@@ -18,12 +18,13 @@ class StotraPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primaryTeal = Color(0xFF0F4C5C);
     final controller = Provider.of<HomePageController>(context);
     final section = controller.stotraSection;
 
     if (controller.isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: Colors.black)),
+        body: Center(child: CircularProgressIndicator(color: primaryTeal)),
       );
     }
 
@@ -52,7 +53,8 @@ class StotraPage extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 32,
                 fontFamily: 'serif',
-                color: Color(0xFF444444),
+                color: primaryTeal,
+                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 10),
@@ -78,12 +80,12 @@ class StotraPage extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 20),
                           child: Row(
                             children: [
-                              // Numbered Circle (Brown as per photo)
+                              // Numbered Circle (Teal)
                               Container(
                                 width: 30,
                                 height: 30,
                                 decoration: const BoxDecoration(
-                                  color: Color(0xFFC19A6B),
+                                  color: primaryTeal,
                                   shape: BoxShape.circle,
                                 ),
                                 child: Center(
@@ -115,20 +117,11 @@ class StotraPage extends StatelessWidget {
 
                               const VerticalDivider(width: 40),
 
-                              // English PDF
-                              _pdfLink('English', item.englishPdfUrl),
-
+                              _pdfLink('English', item.englishPdfUrl, primaryTeal),
                               const VerticalDivider(width: 40),
-
-                              // Hindi PDF
-                              _pdfLink('Hindi', item.hindiPdfUrl),
-
+                              _pdfLink('Hindi', item.hindiPdfUrl, primaryTeal),
                               const VerticalDivider(width: 40),
-
-                              // Gujarati PDF
-                              _pdfLink('Gujarati', item.gujaratiPdfUrl),
-
-                              // NO AUDIO COLUMN AS PER REQUEST
+                              _pdfLink('Gujarati', item.gujaratiPdfUrl, primaryTeal),
                             ],
                           ),
                         ),
@@ -148,17 +141,17 @@ class StotraPage extends StatelessWidget {
     );
   }
 
-  Widget _pdfLink(String label, String url) {
+  Widget _pdfLink(String label, String url, Color color) {
     return Expanded(
       flex: 2,
       child: InkWell(
         onTap: () => _launchUrl(url),
         child: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.picture_as_pdf_outlined,
               size: 20,
-              color: Colors.grey,
+              color: color,
             ),
             const SizedBox(width: 10),
             Text(
@@ -166,7 +159,7 @@ class StotraPage extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 13,
                 color: Color(0xFF444444),
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],

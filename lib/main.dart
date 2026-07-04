@@ -25,29 +25,36 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // New Color Palette based on provided home page photo
+    const primaryTeal = Color(0xFF0F4C5C); // Dark Teal from buttons/footer
+    const backgroundBeige = Color(0xFFF9F3EA); // Light Cream/Beige background
+    const accentBrown = Color(0xFFC19A6B); // Gold/Brown accent from icons
+
     return ChangeNotifierProvider(
       create: (_) => HomePageController(),
       child: MaterialApp(
-        title: 'Dada Admin & User Panel',
+        title: 'Jignesh Dada Official',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
           brightness: Brightness.light,
-          scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+          scaffoldBackgroundColor: Colors.white,
+          primaryColor: primaryTeal,
           colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.black,
-            primary: Colors.black,
-            secondary: Colors.grey[800]!,
+            seedColor: primaryTeal,
+            primary: primaryTeal,
+            secondary: accentBrown,
             surface: Colors.white,
+            background: backgroundBeige,
           ),
           appBarTheme: const AppBarTheme(
             backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
+            foregroundColor: primaryTeal,
             elevation: 0,
-            centerTitle: false,
+            centerTitle: true,
             titleTextStyle: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
+              color: primaryTeal,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
               letterSpacing: 1,
             ),
@@ -73,7 +80,7 @@ class MyApp extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(4),
-              borderSide: const BorderSide(color: Colors.black, width: 1.5),
+              borderSide: BorderSide(color: primaryTeal, width: 1.5),
             ),
             labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
             contentPadding: const EdgeInsets.symmetric(
@@ -83,13 +90,19 @@ class MyApp extends StatelessWidget {
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
+              backgroundColor: primaryTeal,
               foregroundColor: Colors.white,
               elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              textStyle: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
+            ),
+          ),
+          outlinedButtonTheme: OutlinedButtonThemeData(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: primaryTeal,
+              side: BorderSide(color: primaryTeal, width: 1.5),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
           ),
         ),
