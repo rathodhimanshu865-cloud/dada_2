@@ -43,16 +43,16 @@ class AboutKathaPage extends StatelessWidget {
                           children: [
                             Container(width: 40, height: 1, color: accentBrown),
                             const SizedBox(width: 10),
-                            const Text(
-                              'ABOUT KATHA &',
-                              style: TextStyle(color: accentBrown, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+                            Text(
+                              data.heroBadge.toUpperCase(),
+                              style: const TextStyle(color: accentBrown, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
                             ),
                           ],
                         ),
                         const SizedBox(height: 20),
-                        const Text(
-                          'PU. JIGNESH DADA\n(RADHE RADHE)',
-                          style: TextStyle(
+                        Text(
+                          data.heroTitle,
+                          style: const TextStyle(
                             fontSize: 42,
                             fontFamily: 'serif',
                             fontWeight: FontWeight.bold,
@@ -61,9 +61,9 @@ class AboutKathaPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 30),
-                        const Text(
-                          'A divine journey of knowledge, devotion\nand self-realization through\nShrimad Bhagwat Katha.',
-                          style: TextStyle(fontSize: 18, color: Colors.black54, height: 1.5, fontStyle: FontStyle.italic),
+                        Text(
+                          data.heroSubtitle,
+                          style: const TextStyle(fontSize: 18, color: Colors.black54, height: 1.5, fontStyle: FontStyle.italic),
                         ),
                       ],
                     ),
@@ -71,7 +71,7 @@ class AboutKathaPage extends StatelessWidget {
                   Expanded(
                     flex: 1,
                     child: Image.network(
-                      data.topHeaderImage.isNotEmpty ? data.topHeaderImage : 'https://via.placeholder.com/600x400',
+                      data.heroImage.isNotEmpty ? data.heroImage : 'https://via.placeholder.com/600x400',
                       fit: BoxFit.contain,
                       errorBuilder: (c,e,s) => Container(height: 400, color: Colors.white24),
                     ),
@@ -88,7 +88,7 @@ class AboutKathaPage extends StatelessWidget {
                   const Icon(Icons.wb_sunny_outlined, color: accentBrown, size: 30),
                   const SizedBox(height: 40),
                   Text(
-                    data.midSectionPara1.isNotEmpty ? data.midSectionPara1 : 'Shrimad Bhagwat Katha is one of the most sacred scriptures in Hinduism...',
+                    data.bioText.isNotEmpty ? data.bioText : 'Biography details will appear here...',
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 15, color: Colors.black87, height: 1.8, letterSpacing: 0.2),
                   ),
@@ -114,14 +114,14 @@ class AboutKathaPage extends StatelessWidget {
                         children: [
                           const Icon(Icons.format_quote, color: accentBrown, size: 50),
                           const SizedBox(height: 20),
-                          const Text(
-                            'Bhagwat Katha is not just a narration, it is a life transformation. It connects the soul with the supreme through the path of devotion.',
-                            style: TextStyle(color: Colors.white, fontSize: 24, fontFamily: 'serif', height: 1.4),
+                          Text(
+                            data.quoteText,
+                            style: const TextStyle(color: Colors.white, fontSize: 24, fontFamily: 'serif', height: 1.4),
                           ),
                           const SizedBox(height: 30),
-                          const Text(
-                            '- Jignesh Dada',
-                            style: TextStyle(color: accentBrown, fontSize: 18, fontWeight: FontWeight.bold),
+                          Text(
+                            '- ${data.quoteAuthor}',
+                            style: const TextStyle(color: accentBrown, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 10),
                           Container(width: 40, height: 1, color: accentBrown),
@@ -131,7 +131,7 @@ class AboutKathaPage extends StatelessWidget {
                   ),
                   Expanded(
                     child: Image.network(
-                      data.midSectionImage.isNotEmpty ? data.midSectionImage : 'https://via.placeholder.com/600x400',
+                      data.quoteImage.isNotEmpty ? data.quoteImage : 'https://via.placeholder.com/600x400',
                       height: 400,
                       fit: BoxFit.cover,
                       errorBuilder: (c,e,s) => Container(color: Colors.black26),
@@ -146,11 +146,11 @@ class AboutKathaPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 80),
               child: Row(
                 children: [
-                  _buildPillarCard('OUR KATHA', Icons.menu_book, 'Shrimad Bhagwat Katha is a timeless treasure that enlightens the heart...', accentBrown),
+                  _buildPillarCard(data.pillar1Title, Icons.menu_book, data.pillar1Desc, accentBrown),
                   const SizedBox(width: 30),
-                  _buildPillarCard('OUR MISSION', Icons.volunteer_activism, 'To spread the divine wisdom of Bhagwat through Katha, inspire devotion...', accentBrown),
+                  _buildPillarCard(data.pillar2Title, Icons.volunteer_activism, data.pillar2Desc, accentBrown),
                   const SizedBox(width: 30),
-                  _buildPillarCard('OUR VISION', Icons.public, 'A world filled with love, peace, compassion and righteousness where every soul...', accentBrown),
+                  _buildPillarCard(data.pillar3Title, Icons.public, data.pillar3Desc, accentBrown),
                 ],
               ),
             ),
@@ -172,18 +172,18 @@ class AboutKathaPage extends StatelessWidget {
                 children: [
                   const Icon(Icons.temple_hindu_outlined, color: Colors.white54, size: 60),
                   const SizedBox(width: 40),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Join us in this Divine Journey',
-                          style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'serif'),
+                          data.ctaTitle,
+                          style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'serif'),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Text(
-                          'Listen, reflect and experience the nectar of Bhagwat Katha. Let devotion lead your life towards peace and purpose.',
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                          data.ctaSubtitle,
+                          style: const TextStyle(color: Colors.white70, fontSize: 14),
                         ),
                       ],
                     ),
@@ -195,12 +195,12 @@ class AboutKathaPage extends StatelessWidget {
                       foregroundColor: primaryTeal,
                       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('EXPLORE KATHA', style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(width: 10),
-                        Icon(Icons.chevron_right, size: 18),
+                        Text(data.ctaButtonText, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(width: 10),
+                        const Icon(Icons.chevron_right, size: 18),
                       ],
                     ),
                   ),

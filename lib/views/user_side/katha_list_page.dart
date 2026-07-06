@@ -133,7 +133,7 @@ class _KathaListPageState extends State<KathaListPage> {
             title.toUpperCase(),
             style: TextStyle(
               fontSize: 18, 
-              fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+              fontWeight: FontWeight.bold,
               color: isActive ? primaryTeal : Colors.black45,
               letterSpacing: 1.5,
             ),

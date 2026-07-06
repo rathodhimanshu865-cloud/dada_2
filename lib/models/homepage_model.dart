@@ -1,36 +1,20 @@
 class WebsiteSettings {
   String name;
   String logoUrl;
-  String youtubeUrl;
-  String instagramUrl;
-  String facebookUrl;
-  String whatsappUrl;
 
   WebsiteSettings({
     this.name = '',
     this.logoUrl = '',
-    this.youtubeUrl = '',
-    this.instagramUrl = '',
-    this.facebookUrl = '',
-    this.whatsappUrl = '',
   });
 
   Map<String, dynamic> toMap() => {
         'name': name,
         'logoUrl': logoUrl,
-        'youtubeUrl': youtubeUrl,
-        'instagramUrl': instagramUrl,
-        'facebookUrl': facebookUrl,
-        'whatsappUrl': whatsappUrl,
       };
 
   factory WebsiteSettings.fromMap(Map<String, dynamic> map) => WebsiteSettings(
         name: map['name'] ?? '',
         logoUrl: map['logoUrl'] ?? '',
-        youtubeUrl: map['youtubeUrl'] ?? '',
-        instagramUrl: map['instagramUrl'] ?? '',
-        facebookUrl: map['facebookUrl'] ?? '',
-        whatsappUrl: map['whatsappUrl'] ?? '',
       );
 }
 
@@ -170,14 +154,36 @@ class RamKathaSection {
 class FooterData {
   String description;
   String copyright;
-  FooterData({this.description = '', this.copyright = ''});
+  String youtubeUrl;
+  String instagramUrl;
+  String facebookUrl;
+  String whatsappUrl;
+
+  FooterData({
+    this.description = '', 
+    this.copyright = '',
+    this.youtubeUrl = '',
+    this.instagramUrl = '',
+    this.facebookUrl = '',
+    this.whatsappUrl = '',
+  });
+
   Map<String, dynamic> toMap() => {
     'description': description,
     'copyright': copyright,
+    'youtubeUrl': youtubeUrl,
+    'instagramUrl': instagramUrl,
+    'facebookUrl': facebookUrl,
+    'whatsappUrl': whatsappUrl,
   };
+
   factory FooterData.fromMap(Map<String, dynamic> map) => FooterData(
     description: map['description'] ?? '',
     copyright: map['copyright'] ?? '',
+    youtubeUrl: map['youtubeUrl'] ?? '',
+    instagramUrl: map['instagramUrl'] ?? '',
+    facebookUrl: map['facebookUrl'] ?? '',
+    whatsappUrl: map['whatsappUrl'] ?? '',
   );
 }
 
@@ -288,68 +294,87 @@ class StotraSection {
 }
 
 class AboutKathaPageData {
-  String topHeaderImage;
-  String title;
-  String mainItalicDesc;
-  String subDescCol1;
-  String subDescCol2;
-  String subDescCol3;
-  String midSectionImage;
-  String midSectionTitle;
-  String midSectionPara1;
-  String signatureImage;
-  String bottomPara1;
-  String bottomPara2;
-  String largeBottomImage;
+  String heroBadge;
+  String heroTitle;
+  String heroSubtitle;
+  String heroImage;
+  
+  String bioText;
+  
+  String quoteText;
+  String quoteAuthor;
+  String quoteImage;
+  
+  String pillar1Title;
+  String pillar1Desc;
+  String pillar2Title;
+  String pillar2Desc;
+  String pillar3Title;
+  String pillar3Desc;
+  
+  String ctaTitle;
+  String ctaSubtitle;
+  String ctaButtonText;
 
   AboutKathaPageData({
-    this.topHeaderImage = '',
-    this.title = 'About Ram Katha & Morari Bapu',
-    this.mainItalicDesc = '',
-    this.subDescCol1 = '',
-    this.subDescCol2 = '',
-    this.subDescCol3 = '',
-    this.midSectionImage = '',
-    this.midSectionTitle = '',
-    this.midSectionPara1 = '',
-    this.signatureImage = '',
-    this.bottomPara1 = '',
-    this.bottomPara2 = '',
-    this.largeBottomImage = '',
+    this.heroBadge = 'ABOUT KATHA &',
+    this.heroTitle = 'PU. JIGNESH DADA (RADHE RADHE)',
+    this.heroSubtitle = 'A divine journey of knowledge, devotion and self-realization through Shrimad Bhagwat Katha.',
+    this.heroImage = '',
+    this.bioText = '',
+    this.quoteText = 'Bhagwat Katha is not just a narration, it is a life transformation. It connects the soul with the supreme through the path of devotion.',
+    this.quoteAuthor = 'Jignesh Dada',
+    this.quoteImage = '',
+    this.pillar1Title = 'OUR KATHA',
+    this.pillar1Desc = 'Shrimad Bhagwat Katha is a timeless treasure that enlightens the heart, removes darkness and shows us the path of truth, devotion and righteous living.',
+    this.pillar2Title = 'OUR MISSION',
+    this.pillar2Desc = 'To spread the divine wisdom of Bhagwat through Katha, inspire devotion, nurture values and bring positive change in society.',
+    this.pillar3Title = 'OUR VISION',
+    this.pillar3Desc = 'A world filled with love, peace, compassion and righteousness where every soul walks the path of spirituality and service.',
+    this.ctaTitle = 'Join us in this Divine Journey',
+    this.ctaSubtitle = 'Listen, reflect and experience the nectar of Bhagwat Katha. Let devotion lead your life towards peace and purpose.',
+    this.ctaButtonText = 'EXPLORE KATHA',
   });
 
   Map<String, dynamic> toMap() => {
-    'topHeaderImage': topHeaderImage,
-    'title': title,
-    'mainItalicDesc': mainItalicDesc,
-    'subDescCol1': subDescCol1,
-    'subDescCol2': subDescCol2,
-    'subDescCol3': subDescCol3,
-    'midSectionImage': midSectionImage,
-    'midSectionTitle': midSectionTitle,
-    'midSectionPara1': midSectionPara1,
-    'signatureImage': signatureImage,
-    'bottomPara1': bottomPara1,
-    'bottomPara2': bottomPara2,
-    'largeBottomImage': largeBottomImage,
+    'heroBadge': heroBadge,
+    'heroTitle': heroTitle,
+    'heroSubtitle': heroSubtitle,
+    'heroImage': heroImage,
+    'bioText': bioText,
+    'quoteText': quoteText,
+    'quoteAuthor': quoteAuthor,
+    'quoteImage': quoteImage,
+    'pillar1Title': pillar1Title,
+    'pillar1Desc': pillar1Desc,
+    'pillar2Title': pillar2Title,
+    'pillar2Desc': pillar2Desc,
+    'pillar3Title': pillar3Title,
+    'pillar3Desc': pillar3Desc,
+    'ctaTitle': ctaTitle,
+    'ctaSubtitle': ctaSubtitle,
+    'ctaButtonText': ctaButtonText,
   };
 
-  factory AboutKathaPageData.fromMap(Map<String, dynamic> map) =>
-      AboutKathaPageData(
-        topHeaderImage: map['topHeaderImage'] ?? '',
-        title: map['title'] ?? 'About Ram Katha & Morari Bapu',
-        mainItalicDesc: map['mainItalicDesc'] ?? '',
-        subDescCol1: map['subDescCol1'] ?? '',
-        subDescCol2: map['subDescCol2'] ?? '',
-        subDescCol3: map['subDescCol3'] ?? '',
-        midSectionImage: map['midSectionImage'] ?? '',
-        midSectionTitle: map['midSectionTitle'] ?? '',
-        midSectionPara1: map['midSectionPara1'] ?? '',
-        signatureImage: map['signatureImage'] ?? '',
-        bottomPara1: map['bottomPara1'] ?? '',
-        bottomPara2: map['bottomPara2'] ?? '',
-        largeBottomImage: map['largeBottomImage'] ?? '',
-      );
+  factory AboutKathaPageData.fromMap(Map<String, dynamic> map) => AboutKathaPageData(
+    heroBadge: map['heroBadge'] ?? 'ABOUT KATHA &',
+    heroTitle: map['heroTitle'] ?? 'PU. JIGNESH DADA (RADHE RADHE)',
+    heroSubtitle: map['heroSubtitle'] ?? 'A divine journey of knowledge, devotion and self-realization through Shrimad Bhagwat Katha.',
+    heroImage: map['heroImage'] ?? map['topHeaderImage'] ?? '',
+    bioText: map['bioText'] ?? map['midSectionPara1'] ?? '',
+    quoteText: map['quoteText'] ?? 'Bhagwat Katha is not just a narration, it is a life transformation. It connects the soul with the supreme through the path of devotion.',
+    quoteAuthor: map['quoteAuthor'] ?? 'Jignesh Dada',
+    quoteImage: map['quoteImage'] ?? map['midSectionImage'] ?? '',
+    pillar1Title: map['pillar1Title'] ?? 'OUR KATHA',
+    pillar1Desc: map['pillar1Desc'] ?? 'Shrimad Bhagwat Katha is a timeless treasure that enlightens the heart, removes darkness and shows us the path of truth, devotion and righteous living.',
+    pillar2Title: map['pillar2Title'] ?? 'OUR MISSION',
+    pillar2Desc: map['pillar2Desc'] ?? 'To spread the divine wisdom of Bhagwat through Katha, inspire devotion, nurture values and bring positive change in society.',
+    pillar3Title: map['pillar3Title'] ?? 'OUR VISION',
+    pillar3Desc: map['pillar3Desc'] ?? 'A world filled with love, peace, compassion and righteousness where every soul walks the path of spirituality and service.',
+    ctaTitle: map['ctaTitle'] ?? 'Join us in this Divine Journey',
+    ctaSubtitle: map['ctaSubtitle'] ?? 'Listen, reflect and experience the nectar of Bhagwat Katha. Let devotion lead your life towards peace and purpose.',
+    ctaButtonText: map['ctaButtonText'] ?? 'EXPLORE KATHA',
+  );
 }
 
 class KathaListPageData {

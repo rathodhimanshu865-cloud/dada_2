@@ -34,7 +34,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
           children: [
             UserHeader(controller: controller),
             
-            // Hero Title Section (Exactly like All Kathas page)
+            // Hero Title Section
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 80),
@@ -46,14 +46,14 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
                     style: TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
-                  Text('Home > Ram Katha > Upcoming Kathas', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+                  Text('Home > Kathas > Upcoming Kathas', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
                 ],
               ),
             ),
             
             const SizedBox(height: 60),
             
-            // Tab Switcher (Exactly like All Kathas page)
+            // Tab Switcher
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -70,7 +70,6 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
               padding: const EdgeInsets.symmetric(horizontal: 100),
               child: Column(
                 children: [
-                   // Decorative line matching the style
                   const Divider(color: Color(0xFFEEEEEE), thickness: 1),
                   ...controller.upcomingKathas.map((katha) => _buildUpcomingKathaRow(context, katha)).toList(),
                 ],
@@ -95,7 +94,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
             title.toUpperCase(),
             style: TextStyle(
               fontSize: 18, 
-              fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+              fontWeight: FontWeight.bold,
               color: isActive ? primaryTeal : Colors.black45,
               letterSpacing: 1.5,
             ),
@@ -119,7 +118,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
           padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
           child: Row(
             children: [
-              // Circular ID with Label (Bigger fonts)
+              // Circular ID with Label
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -146,7 +145,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
               ),
               const SizedBox(width: 60),
               
-              // Details (Bigger fonts)
+              // Details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,7 +163,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
                 ),
               ),
 
-              // Action Button (Styled like All Kathas page buttons)
+              // Action Button
               OutlinedButton(
                 onPressed: () => _showMoreDetails(context, katha),
                 style: OutlinedButton.styleFrom(

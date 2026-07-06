@@ -469,10 +469,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 _sectionHeader('1. BRANDING & HEADER'),
                 _buildField('Website Name', controller.websiteSettings.name, (v) => controller.websiteSettings.name = v),
                 _buildImageField('Logo URL', controller.websiteSettings.logoUrl, (v) => controller.websiteSettings.logoUrl = v),
-                _buildField('YouTube URL', controller.websiteSettings.youtubeUrl, (v) => controller.websiteSettings.youtubeUrl = v),
-                _buildField('Instagram URL', controller.websiteSettings.instagramUrl, (v) => controller.websiteSettings.instagramUrl = v),
-                _buildField('Facebook URL', controller.websiteSettings.facebookUrl, (v) => controller.websiteSettings.facebookUrl = v),
-                _buildField('WhatsApp URL', controller.websiteSettings.whatsappUrl, (v) => controller.websiteSettings.whatsappUrl = v),
 
                 _sectionHeader('2. HERO SECTION'),
                 ...List.generate(8, (index) => Column(
@@ -551,6 +547,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 _sectionHeader('8. FOOTER'),
                 _buildField('Footer Desc', controller.footer.description, (v) => controller.footer.description = v, maxLines: 3),
                 _buildField('Copyright', controller.footer.copyright, (v) => controller.footer.copyright = v),
+                _buildField('Facebook URL', controller.footer.facebookUrl, (v) => controller.footer.facebookUrl = v),
+                _buildField('Instagram URL', controller.footer.instagramUrl, (v) => controller.footer.instagramUrl = v),
+                _buildField('YouTube URL', controller.footer.youtubeUrl, (v) => controller.footer.youtubeUrl = v),
+                _buildField('WhatsApp URL', controller.footer.whatsappUrl, (v) => controller.footer.whatsappUrl = v),
       ],
     );
   }
@@ -592,32 +592,45 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return ListView(
       padding: const EdgeInsets.all(40),
       children: [
-                _sectionHeader('ABOUT KATHA PAGE CONTENT'),
-                _buildImageField('Top Header Image URL', controller.aboutKathaPage.topHeaderImage, (v) {
-                  controller.aboutKathaPage.topHeaderImage = v;
-                  setState(() {});
-                }),
-                _buildField('Page Title', controller.aboutKathaPage.title, (v) => controller.aboutKathaPage.title = v),
-                _buildField('Main Description', controller.aboutKathaPage.mainItalicDesc, (v) => controller.aboutKathaPage.mainItalicDesc = v, maxLines: 5),
-                _buildField('Col 1', controller.aboutKathaPage.subDescCol1, (v) => controller.aboutKathaPage.subDescCol1 = v, maxLines: 3),
-                _buildField('Col 2', controller.aboutKathaPage.subDescCol2, (v) => controller.aboutKathaPage.subDescCol2 = v, maxLines: 3),
-                _buildField('Col 3', controller.aboutKathaPage.subDescCol3, (v) => controller.aboutKathaPage.subDescCol3 = v, maxLines: 3),
-                _buildImageField('Bio Image', controller.aboutKathaPage.midSectionImage, (v) {
-                  controller.aboutKathaPage.midSectionImage = v;
-                  setState(() {});
-                }),
-                _buildField('Bio Heading', controller.aboutKathaPage.midSectionTitle, (v) => controller.aboutKathaPage.midSectionTitle = v),
-                _buildField('Bio Paragraph', controller.aboutKathaPage.midSectionPara1, (v) => controller.aboutKathaPage.midSectionPara1 = v, maxLines: 5),
-                _buildImageField('Calligraphy URL', controller.aboutKathaPage.signatureImage, (v) {
-                  controller.aboutKathaPage.signatureImage = v;
-                  setState(() {});
-                }),
-                _buildField('Bottom Para 1', controller.aboutKathaPage.bottomPara1, (v) => controller.aboutKathaPage.bottomPara1 = v, maxLines: 3),
-                _buildField('Bottom Para 2', controller.aboutKathaPage.bottomPara2, (v) => controller.aboutKathaPage.bottomPara2 = v, maxLines: 3),
-                _buildImageField('Large Bottom Image', controller.aboutKathaPage.largeBottomImage, (v) {
-                  controller.aboutKathaPage.largeBottomImage = v;
-                  setState(() {});
-                }),
+        const Text('Section 1: Hero Content', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Divider(),
+        _buildField('Badge Text (e.g. ABOUT KATHA &)', controller.aboutKathaPage.heroBadge, (v) => controller.aboutKathaPage.heroBadge = v),
+        _buildField('Main Title', controller.aboutKathaPage.heroTitle, (v) => controller.aboutKathaPage.heroTitle = v),
+        _buildField('Subtitle', controller.aboutKathaPage.heroSubtitle, (v) => controller.aboutKathaPage.heroSubtitle = v, maxLines: 3),
+        _buildImageField('Hero Image', controller.aboutKathaPage.heroImage, (v) => controller.aboutKathaPage.heroImage = v),
+        
+        const SizedBox(height: 40),
+        const Text('Section 2: Biography', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Divider(),
+        _buildField('Full Biography Text', controller.aboutKathaPage.bioText, (v) => controller.aboutKathaPage.bioText = v, maxLines: 10),
+        
+        const SizedBox(height: 40),
+        const Text('Section 3: Quote Section', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Divider(),
+        _buildField('Quote Text', controller.aboutKathaPage.quoteText, (v) => controller.aboutKathaPage.quoteText = v, maxLines: 4),
+        _buildField('Quote Author', controller.aboutKathaPage.quoteAuthor, (v) => controller.aboutKathaPage.quoteAuthor = v),
+        _buildImageField('Quote Image', controller.aboutKathaPage.quoteImage, (v) => controller.aboutKathaPage.quoteImage = v),
+        
+        const SizedBox(height: 40),
+        const Text('Section 4: The Three Pillars', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Divider(),
+        _buildField('Pillar 1 Title', controller.aboutKathaPage.pillar1Title, (v) => controller.aboutKathaPage.pillar1Title = v),
+        _buildField('Pillar 1 Description', controller.aboutKathaPage.pillar1Desc, (v) => controller.aboutKathaPage.pillar1Desc = v, maxLines: 3),
+        const SizedBox(height: 10),
+        _buildField('Pillar 2 Title', controller.aboutKathaPage.pillar2Title, (v) => controller.aboutKathaPage.pillar2Title = v),
+        _buildField('Pillar 2 Description', controller.aboutKathaPage.pillar2Desc, (v) => controller.aboutKathaPage.pillar2Desc = v, maxLines: 3),
+        const SizedBox(height: 10),
+        _buildField('Pillar 3 Title', controller.aboutKathaPage.pillar3Title, (v) => controller.aboutKathaPage.pillar3Title = v),
+        _buildField('Pillar 3 Description', controller.aboutKathaPage.pillar3Desc, (v) => controller.aboutKathaPage.pillar3Desc = v, maxLines: 3),
+        
+        const SizedBox(height: 40),
+        const Text('Section 5: Call to Action Banner', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Divider(),
+        _buildField('CTA Title', controller.aboutKathaPage.ctaTitle, (v) => controller.aboutKathaPage.ctaTitle = v),
+        _buildField('CTA Subtitle', controller.aboutKathaPage.ctaSubtitle, (v) => controller.aboutKathaPage.ctaSubtitle = v, maxLines: 2),
+        _buildField('CTA Button Text', controller.aboutKathaPage.ctaButtonText, (v) => controller.aboutKathaPage.ctaButtonText = v),
+        
+        const SizedBox(height: 100),
       ],
     );
   }

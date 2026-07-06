@@ -50,7 +50,7 @@ class UserFooter extends StatelessWidget {
                 _footerColumn(
                   'KATHA',
                   [
-                    _footerLink(context, 'About Kathas', '/about_katha'),
+                    _footerLink(context, 'About Katha', '/about_katha'),
                     _footerLink(context, 'Full Katha List', '/katha_list'),
                     _footerLink(context, 'Upcoming Kathas', '/upcoming_ram_kathas'),
                   ],
@@ -78,7 +78,16 @@ class UserFooter extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(controller.footer.copyright, style: const TextStyle(color: Colors.white54, fontSize: 11)),
-              const SizedBox(),
+              
+              // Social Icons moved to the Right Side corner of Footer
+              Row(
+                children: [
+                  _socialCircleIcon(Icons.facebook, controller.footer.facebookUrl, 'Facebook'),
+                  _socialCircleIcon(Icons.camera_alt_outlined, controller.footer.instagramUrl, 'Instagram'),
+                  _socialCircleIcon(Icons.play_arrow, controller.footer.youtubeUrl, 'YouTube'),
+                  _socialCircleIcon(Icons.chat, controller.footer.whatsappUrl, 'WhatsApp'),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -127,22 +136,23 @@ class UserFooter extends StatelessWidget {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
-  Widget _socialIcon(IconData icon, String url, String tooltip) {
+  Widget _socialCircleIcon(IconData icon, String url, String tooltip) {
     return Padding(
-      padding: const EdgeInsets.only(right: 15),
+      padding: const EdgeInsets.only(left: 15),
       child: Tooltip(
         message: tooltip,
         child: InkWell(
           onTap: () => _launchSocialUrl(url),
           borderRadius: BorderRadius.circular(999),
           child: Container(
-            width: 32,
-            height: 32,
-            decoration: const BoxDecoration(
-              color: Colors.white10,
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
               shape: BoxShape.circle,
+              border: Border.all(color: Colors.white30),
             ),
-            child: Icon(icon, size: 16, color: Colors.white),
+            child: Icon(icon, size: 18, color: Colors.white),
           ),
         ),
       ),

@@ -26,7 +26,7 @@ class UserRamKatha extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Ram Katha',
+                    'Spiritual Kathas',
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: primaryTeal, fontFamily: 'serif'),
                   ),
                   const SizedBox(height: 25),
@@ -43,7 +43,7 @@ class UserRamKatha extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () => Navigator.pushNamed(context, '/about_katha'),
                     style: ElevatedButton.styleFrom(backgroundColor: primaryTeal),
-                    child: const Text('ENTER RAM KATHA JOURNEY'),
+                    child: const Text('ENTER KATHA JOURNEY'),
                   ),
                 ],
               ),

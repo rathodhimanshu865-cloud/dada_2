@@ -5,6 +5,8 @@ import 'firebase_options.dart';
 import 'controllers/homepage_controller.dart';
 import 'views/user_side/user_homepage.dart';
 import 'views/user_side/about_katha_page.dart';
+import 'views/user_side/about_devi_page.dart';
+import 'views/user_side/about_shiv_page.dart';
 import 'views/user_side/katha_list_page.dart';
 import 'views/user_side/photo_gallery_page.dart';
 import 'views/user_side/stotra_page.dart';
@@ -110,6 +112,8 @@ class MyApp extends StatelessWidget {
         routes: {
           '/': (context) => const UserHomePage(),
           '/about_katha': (context) => const AboutKathaPage(),
+          '/about_devi_katha': (context) => const AboutDeviPage(),
+          '/about_shiv_katha': (context) => const AboutShivPage(),
           '/katha_list': (context) => const KathaListPage(),
           '/photo_gallery': (context) => const PhotoGalleryPage(),
           '/stotra': (context) => const StotraPage(),

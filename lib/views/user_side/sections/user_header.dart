@@ -40,6 +40,8 @@ class _UserHeaderState extends State<UserHeader> {
 
   Widget _ramKathaDropdown(String currentRoute) {
     bool isActive = currentRoute == '/about_katha' || 
+                    currentRoute == '/about_devi_katha' || 
+                    currentRoute == '/about_shiv_katha' || 
                     currentRoute == '/katha_list' || 
                     currentRoute == '/upcoming_ram_kathas';
 
@@ -51,11 +53,15 @@ class _UserHeaderState extends State<UserHeader> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         color: Colors.white,
         onSelected: (value) {
-          if (value == 'About Ram Katha') {
+          if (value == 'About Shreemad Bhagvat Katha') {
             Navigator.pushNamed(context, '/about_katha');
+          } else if (value == 'Shreemad Devi Bhagvat Katha') {
+            Navigator.pushNamed(context, '/about_devi_katha');
+          } else if (value == 'Shree Shivmahapuran Katha') {
+            Navigator.pushNamed(context, '/about_shiv_katha');
           } else if (value == 'Full Katha List') {
             Navigator.pushNamed(context, '/katha_list');
-          } else if (value == 'Upcoming Ram Kathas') {
+          } else if (value == 'Upcoming Kathas') {
             Navigator.pushNamed(context, '/upcoming_ram_kathas');
           }
         },
@@ -64,7 +70,7 @@ class _UserHeaderState extends State<UserHeader> {
           children: [
             Row(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center, // Perfect vertical alignment
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   'KATHA',
@@ -89,9 +95,12 @@ class _UserHeaderState extends State<UserHeader> {
           ],
         ),
         itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-          _dropdownItem('About Ram Katha', isFirst: true),
+          _dropdownItem('About Shreemad Bhagvat Katha', isFirst: true),
+          _dropdownItem('Shreemad Devi Bhagvat Katha'),
+          _dropdownItem('Shree Shivmahapuran Katha'),
+          const PopupMenuDivider(),
           _dropdownItem('Full Katha List'),
-          _dropdownItem('Upcoming Ram Kathas'),
+          _dropdownItem('Upcoming Kathas'),
         ],
       ),
     );
@@ -120,7 +129,6 @@ class _UserHeaderState extends State<UserHeader> {
           children: [
             Row(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center, // Perfect vertical alignment
               children: [
                 Text(
                   'GALLERY',
@@ -183,22 +191,22 @@ class _UserHeaderState extends State<UserHeader> {
               // Left: Social Icons
               Row(
                 children: [
-                  _socialIcon(Icons.facebook, widget.controller.websiteSettings.facebookUrl, 'Facebook', const Color(0xFF1877F2)),
-                  _socialIcon(Icons.camera_alt_outlined, widget.controller.websiteSettings.instagramUrl, 'Instagram', const Color(0xFFE4405F)),
-                  _socialIcon(Icons.play_arrow, widget.controller.websiteSettings.youtubeUrl, 'YouTube', const Color(0xFFCD201F)),
-                  _socialIcon(Icons.chat, widget.controller.websiteSettings.whatsappUrl, 'WhatsApp', const Color(0xFF25D366)),
+                  _socialCircleIcon(Icons.facebook, widget.controller.footer.facebookUrl, 'Facebook'),
+                  _socialCircleIcon(Icons.camera_alt_outlined, widget.controller.footer.instagramUrl, 'Instagram'),
+                  _socialCircleIcon(Icons.play_arrow, widget.controller.footer.youtubeUrl, 'YouTube'),
+                  _socialCircleIcon(Icons.chat, widget.controller.footer.whatsappUrl, 'WhatsApp'),
                 ],
               ),
               
-              // Center: Larger Circular Logo
+              // Center: Logo
               GestureDetector(
                 onTap: _handleLogoTap,
                 child: Container(
-                  width: 100,
-                  height: 100,
+                  width: 110,
+                  height: 110,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: primaryTeal.withOpacity(0.2), width: 2),
+                    border: Border.all(color: primaryTeal.withOpacity(0.15), width: 2),
                     boxShadow: [
                       BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 15, offset: const Offset(0, 5)),
                     ],
@@ -214,7 +222,7 @@ class _UserHeaderState extends State<UserHeader> {
                 ),
               ),
               
-              // Right: Larger Language & Search
+              // Right: Language & Search
               Row(
                 children: [
                   _languageDropdown(),
@@ -236,10 +244,10 @@ class _UserHeaderState extends State<UserHeader> {
             ],
           ),
           const SizedBox(height: 35),
-          // Navigation Menu (Perfectly Aligned Single Line)
+          // Navigation Menu
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start, // Align Column tops
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _navItem('Home', active: currentRoute == '/', onTap: () => Navigator.pushNamed(context, '/')),
               _ramKathaDropdown(currentRoute),
@@ -259,23 +267,27 @@ class _UserHeaderState extends State<UserHeader> {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
-  Widget _socialIcon(IconData icon, String url, String tooltip, Color brandColor) {
-    return Container(
-      margin: const EdgeInsets.only(right: 12),
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        color: brandColor,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(color: brandColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3)),
-        ],
-      ),
-      child: IconButton(
-        padding: EdgeInsets.zero,
-        icon: Icon(icon, size: 22, color: Colors.white),
-        onPressed: () => _launchSocialUrl(url),
-        tooltip: tooltip,
+  Widget _socialCircleIcon(IconData icon, String url, String tooltip) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: Tooltip(
+        message: tooltip,
+        child: InkWell(
+          onTap: () => _launchSocialUrl(url),
+          borderRadius: BorderRadius.circular(999),
+          child: Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: primaryTeal,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(color: primaryTeal.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3)),
+              ],
+            ),
+            child: Icon(icon, size: 20, color: Colors.white),
+          ),
+        ),
       ),
     );
   }

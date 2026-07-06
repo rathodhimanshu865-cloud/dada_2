@@ -4,7 +4,7 @@ import '../../controllers/homepage_controller.dart';
 import 'sections/user_header.dart';
 import 'sections/user_hero.dart';
 import 'sections/user_upcoming_kathas.dart';
-import 'sections/user_about.dart';
+import 'sections/user_about_unique.dart';
 import 'sections/user_latest_chaupai.dart';
 import 'sections/user_videos.dart';
 import 'sections/user_ram_katha.dart';
@@ -31,6 +31,7 @@ class UserHomePage extends StatelessWidget {
             UserHeader(controller: controller),
             UserHero(controller: controller),
             UserUpcomingKathas(controller: controller),
+            UserAboutUnique(controller: controller),
             UserLatestChaupai(controller: controller),
             UserVideos(controller: controller),
             UserRamKatha(controller: controller),
