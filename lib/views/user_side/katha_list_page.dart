@@ -83,7 +83,7 @@ class _KathaListPageState extends State<KathaListPage> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 80),
-              color: backgroundBeige.withOpacity(0.5),
+              color: backgroundBeige.withValues(alpha: 0.5),
               child: Column(
                 children: [
                   Text(
@@ -91,7 +91,7 @@ class _KathaListPageState extends State<KathaListPage> {
                     style: TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
-                  Text('Home > Kathas List', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+                  Text('Home > Kathas List', style: TextStyle(color: primaryTeal.withValues(alpha: 0.6), fontSize: 16, letterSpacing: 0.5)),
                 ],
               ),
             ),
@@ -162,13 +162,13 @@ class _KathaListPageState extends State<KathaListPage> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 30, offset: const Offset(0, 10)),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 30, offset: const Offset(0, 10)),
               ],
             ),
             child: Row(
               children: [
                 const SizedBox(width: 30),
-                Icon(Icons.search, size: 28, color: primaryTeal.withOpacity(0.5)),
+                Icon(Icons.search, size: 28, color: primaryTeal.withValues(alpha: 0.5)),
                 const SizedBox(width: 20),
                 Expanded(
                   child: TextField(
@@ -221,12 +221,12 @@ class _KathaListPageState extends State<KathaListPage> {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 20),
             decoration: BoxDecoration(
-              color: primaryTeal.withOpacity(0.04),
-              border: Border(bottom: BorderSide(color: primaryTeal.withOpacity(0.15), width: 2)),
+              color: primaryTeal.withValues(alpha: 0.04),
+              border: Border(bottom: BorderSide(color: primaryTeal.withValues(alpha: 0.15), width: 2)),
             ),
             child: Row(
               children: [
-                _colHeader('ID', flex: 1),
+                _colHeader('ID', flex: 1, center: true),
                 _colHeader('YEAR', flex: 1),
                 _colHeader('DATES', flex: 2),
                 _colHeader('TOPIC / HEADING', flex: 4),
@@ -258,17 +258,17 @@ class _KathaListPageState extends State<KathaListPage> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 20),
                     decoration: BoxDecoration(
-                      color: isExpanded ? primaryTeal.withOpacity(0.02) : Colors.transparent,
+                      color: isExpanded ? primaryTeal.withValues(alpha: 0.02) : Colors.transparent,
                       border: Border(bottom: BorderSide(color: Colors.grey[100]!)),
                     ),
                     child: Row(
                       children: [
-                        Expanded(flex: 1, child: _circleId(katha.kathaNumber)),
+                        Expanded(flex: 1, child: Center(child: _circleId(katha.kathaNumber))),
                         Expanded(flex: 1, child: Text(katha.year, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600))),
                         Expanded(flex: 2, child: Text(katha.dates, style: TextStyle(fontSize: 15, color: accentBrown, fontWeight: FontWeight.bold))),
                         Expanded(flex: 4, child: Text(katha.topic.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 0.5))),
-                        Expanded(flex: 3, child: Row(children: [Icon(Icons.location_on, size: 18, color: primaryTeal.withOpacity(0.5)), const SizedBox(width: 8), Flexible(child: Text(katha.location, style: const TextStyle(fontSize: 16, color: Colors.black87)))])),
-                        Expanded(flex: 2, child: Row(children: [Icon(Icons.public, size: 18, color: Colors.green.withOpacity(0.5)), const SizedBox(width: 8), Text(katha.country, style: const TextStyle(fontSize: 16))])),
+                        Expanded(flex: 3, child: Row(children: [Icon(Icons.location_on, size: 18, color: primaryTeal.withValues(alpha: 0.5)), const SizedBox(width: 8), Flexible(child: Text(katha.location, style: const TextStyle(fontSize: 16, color: Colors.black87)))])),
+                        Expanded(flex: 2, child: Row(children: [Icon(Icons.public, size: 18, color: Colors.green.withValues(alpha: 0.5)), const SizedBox(width: 8), Text(katha.country, style: const TextStyle(fontSize: 16))])),
                         Expanded(flex: 1, child: Text(katha.language.toUpperCase(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blueGrey))),
                         Expanded(
                           flex: 1, 
@@ -297,7 +297,7 @@ class _KathaListPageState extends State<KathaListPage> {
                 if (isExpanded) _buildExpandedDetails(katha),
               ],
             );
-          }).toList(),
+          }),
 
           const SizedBox(height: 80),
           if (totalItems > 0) _buildPagination(totalPages),
@@ -312,7 +312,7 @@ class _KathaListPageState extends State<KathaListPage> {
       margin: const EdgeInsets.symmetric(vertical: 2),
       padding: const EdgeInsets.all(60),
       decoration: BoxDecoration(
-        color: backgroundBeige.withOpacity(0.3),
+        color: backgroundBeige.withValues(alpha: 0.3),
         border: Border(left: BorderSide(color: primaryTeal, width: 6)),
       ),
       child: Row(
@@ -456,7 +456,7 @@ class _KathaListPageState extends State<KathaListPage> {
         style: TextStyle(
           fontSize: 14, 
           fontWeight: FontWeight.bold, 
-          color: primaryTeal.withOpacity(0.7), 
+          color: primaryTeal.withValues(alpha: 0.7), 
           letterSpacing: 1.5
         )
       )
@@ -470,7 +470,7 @@ class _KathaListPageState extends State<KathaListPage> {
         color: primaryTeal, 
         shape: BoxShape.circle,
         boxShadow: [
-          BoxShadow(color: primaryTeal.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 3)),
+          BoxShadow(color: primaryTeal.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 3)),
         ]
       ),
       child: Center(child: Text(id, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold))),

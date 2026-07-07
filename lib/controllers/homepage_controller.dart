@@ -21,7 +21,11 @@ class HomePageController extends ChangeNotifier {
   RamKathaSection ramKatha = RamKathaSection();
   StotraSection stotraSection = StotraSection();
   FooterData footer = FooterData();
-  AboutKathaPageData aboutKathaPage = AboutKathaPageData();
+  
+  KathaAboutPageData bhagvatKathaPage = KathaAboutPageData(heroBadge: 'ABOUT KATHA &', heroTitle: 'PU. JIGNESH DADA (RADHE RADHE)');
+  KathaAboutPageData deviKathaPage = KathaAboutPageData(heroBadge: 'DIVINE GRACE', heroTitle: 'SHREEMAD DEVI BHAGVAT');
+  KathaAboutPageData shivKathaPage = KathaAboutPageData(heroBadge: 'ETERNAL WISDOM', heroTitle: 'SHREE SHIVMAHAPURAN');
+
   List<KathaRecord> allKathas = [];
   KathaListPageData kathaListPageData = KathaListPageData();
   ContactPageData contactPageData = ContactPageData();
@@ -56,7 +60,11 @@ class HomePageController extends ChangeNotifier {
         ramKatha = RamKathaSection.fromMap(data['ramKatha'] ?? {});
         stotraSection = StotraSection.fromMap(data['stotraSection'] ?? {});
         footer = FooterData.fromMap(data['footer'] ?? {});
-        aboutKathaPage = AboutKathaPageData.fromMap(data['aboutKathaPage'] ?? {});
+        
+        bhagvatKathaPage = KathaAboutPageData.fromMap(data['bhagvatKathaPage'] ?? {});
+        deviKathaPage = KathaAboutPageData.fromMap(data['deviKathaPage'] ?? {});
+        shivKathaPage = KathaAboutPageData.fromMap(data['shivKathaPage'] ?? {});
+
         allKathas = (data['allKathas'] as List? ?? []).map((e) => KathaRecord.fromMap(e)).toList();
         kathaListPageData = KathaListPageData.fromMap(data['kathaListPageData'] ?? {});
         contactPageData = ContactPageData.fromMap(data['contactPageData'] ?? {});
@@ -198,7 +206,9 @@ class HomePageController extends ChangeNotifier {
         'ramKatha': ramKatha.toMap(),
         'stotraSection': stotraSection.toMap(),
         'footer': footer.toMap(),
-        'aboutKathaPage': aboutKathaPage.toMap(),
+        'bhagvatKathaPage': bhagvatKathaPage.toMap(),
+        'deviKathaPage': deviKathaPage.toMap(),
+        'shivKathaPage': shivKathaPage.toMap(),
         'allKathas': allKathas.map((e) => e.toMap()).toList(),
         'kathaListPageData': kathaListPageData.toMap(),
         'contactPageData': contactPageData.toMap(),

@@ -122,7 +122,7 @@ class VideoItem {
     }
     return videoId.isNotEmpty
         ? 'https://img.youtube.com/vi/$videoId/hqdefault.jpg'
-        : 'https://via.placeholder.com/300x500';
+        : 'https://via.placeholder.com/300x200';
   }
 }
 
@@ -293,87 +293,87 @@ class StotraSection {
   );
 }
 
-class AboutKathaPageData {
+class KathaAboutPageData {
   String heroBadge;
   String heroTitle;
-  String heroSubtitle;
+  String heroDesc1;
+  String heroDesc2;
   String heroImage;
-  
   String bioText;
-  
   String quoteText;
   String quoteAuthor;
   String quoteImage;
-  
-  String pillar1Title;
-  String pillar1Desc;
-  String pillar2Title;
-  String pillar2Desc;
-  String pillar3Title;
-  String pillar3Desc;
-  
+  String highlight1Title;
+  String highlight1Desc;
+  String highlight2Title;
+  String highlight2Desc;
+  String highlight3Title;
+  String highlight3Desc;
   String ctaTitle;
   String ctaSubtitle;
   String ctaButtonText;
 
-  AboutKathaPageData({
-    this.heroBadge = 'ABOUT KATHA &',
-    this.heroTitle = 'PU. JIGNESH DADA (RADHE RADHE)',
-    this.heroSubtitle = 'A divine journey of knowledge, devotion and self-realization through Shrimad Bhagwat Katha.',
+  KathaAboutPageData({
+    this.heroBadge = 'KATHA OVERVIEW',
+    this.heroTitle = 'PU. JIGNESH DADA',
+    this.heroDesc1 = 'A divine journey through ancient wisdom.',
+    this.heroDesc2 = 'Exploring the path of devotion and spirituality.',
     this.heroImage = '',
     this.bioText = '',
-    this.quoteText = 'Bhagwat Katha is not just a narration, it is a life transformation. It connects the soul with the supreme through the path of devotion.',
+    this.quoteText = '',
     this.quoteAuthor = 'Jignesh Dada',
     this.quoteImage = '',
-    this.pillar1Title = 'OUR KATHA',
-    this.pillar1Desc = 'Shrimad Bhagwat Katha is a timeless treasure that enlightens the heart, removes darkness and shows us the path of truth, devotion and righteous living.',
-    this.pillar2Title = 'OUR MISSION',
-    this.pillar2Desc = 'To spread the divine wisdom of Bhagwat through Katha, inspire devotion, nurture values and bring positive change in society.',
-    this.pillar3Title = 'OUR VISION',
-    this.pillar3Desc = 'A world filled with love, peace, compassion and righteousness where every soul walks the path of spirituality and service.',
-    this.ctaTitle = 'Join us in this Divine Journey',
-    this.ctaSubtitle = 'Listen, reflect and experience the nectar of Bhagwat Katha. Let devotion lead your life towards peace and purpose.',
-    this.ctaButtonText = 'EXPLORE KATHA',
+    this.highlight1Title = 'CORE HIGHLIGHT 1',
+    this.highlight1Desc = 'Detailed description of spiritual significance.',
+    this.highlight2Title = 'CORE HIGHLIGHT 2',
+    this.highlight2Desc = 'Detailed description of cultural impact.',
+    this.highlight3Title = 'CORE HIGHLIGHT 3',
+    this.highlight3Desc = 'Detailed description of personal transformation.',
+    this.ctaTitle = 'Join the Journey',
+    this.ctaSubtitle = 'Experience the divinity.',
+    this.ctaButtonText = 'EXPLORE MORE',
   });
 
   Map<String, dynamic> toMap() => {
     'heroBadge': heroBadge,
     'heroTitle': heroTitle,
-    'heroSubtitle': heroSubtitle,
+    'heroDesc1': heroDesc1,
+    'heroDesc2': heroDesc2,
     'heroImage': heroImage,
     'bioText': bioText,
     'quoteText': quoteText,
     'quoteAuthor': quoteAuthor,
     'quoteImage': quoteImage,
-    'pillar1Title': pillar1Title,
-    'pillar1Desc': pillar1Desc,
-    'pillar2Title': pillar2Title,
-    'pillar2Desc': pillar2Desc,
-    'pillar3Title': pillar3Title,
-    'pillar3Desc': pillar3Desc,
+    'highlight1Title': highlight1Title,
+    'highlight1Desc': highlight1Desc,
+    'highlight2Title': highlight2Title,
+    'highlight2Desc': highlight2Desc,
+    'highlight3Title': highlight3Title,
+    'highlight3Desc': highlight3Desc,
     'ctaTitle': ctaTitle,
     'ctaSubtitle': ctaSubtitle,
     'ctaButtonText': ctaButtonText,
   };
 
-  factory AboutKathaPageData.fromMap(Map<String, dynamic> map) => AboutKathaPageData(
-    heroBadge: map['heroBadge'] ?? 'ABOUT KATHA &',
-    heroTitle: map['heroTitle'] ?? 'PU. JIGNESH DADA (RADHE RADHE)',
-    heroSubtitle: map['heroSubtitle'] ?? 'A divine journey of knowledge, devotion and self-realization through Shrimad Bhagwat Katha.',
-    heroImage: map['heroImage'] ?? map['topHeaderImage'] ?? '',
-    bioText: map['bioText'] ?? map['midSectionPara1'] ?? '',
-    quoteText: map['quoteText'] ?? 'Bhagwat Katha is not just a narration, it is a life transformation. It connects the soul with the supreme through the path of devotion.',
-    quoteAuthor: map['quoteAuthor'] ?? 'Jignesh Dada',
-    quoteImage: map['quoteImage'] ?? map['midSectionImage'] ?? '',
-    pillar1Title: map['pillar1Title'] ?? 'OUR KATHA',
-    pillar1Desc: map['pillar1Desc'] ?? 'Shrimad Bhagwat Katha is a timeless treasure that enlightens the heart, removes darkness and shows us the path of truth, devotion and righteous living.',
-    pillar2Title: map['pillar2Title'] ?? 'OUR MISSION',
-    pillar2Desc: map['pillar2Desc'] ?? 'To spread the divine wisdom of Bhagwat through Katha, inspire devotion, nurture values and bring positive change in society.',
-    pillar3Title: map['pillar3Title'] ?? 'OUR VISION',
-    pillar3Desc: map['pillar3Desc'] ?? 'A world filled with love, peace, compassion and righteousness where every soul walks the path of spirituality and service.',
-    ctaTitle: map['ctaTitle'] ?? 'Join us in this Divine Journey',
-    ctaSubtitle: map['ctaSubtitle'] ?? 'Listen, reflect and experience the nectar of Bhagwat Katha. Let devotion lead your life towards peace and purpose.',
-    ctaButtonText: map['ctaButtonText'] ?? 'EXPLORE KATHA',
+  factory KathaAboutPageData.fromMap(Map<String, dynamic> map) => KathaAboutPageData(
+    heroBadge: map['heroBadge'] ?? '',
+    heroTitle: map['heroTitle'] ?? '',
+    heroDesc1: map['heroDesc1'] ?? map['heroSubtitle'] ?? '',
+    heroDesc2: map['heroDesc2'] ?? '',
+    heroImage: map['heroImage'] ?? '',
+    bioText: map['bioText'] ?? '',
+    quoteText: map['quoteText'] ?? '',
+    quoteAuthor: map['quoteAuthor'] ?? '',
+    quoteImage: map['quoteImage'] ?? '',
+    highlight1Title: map['highlight1Title'] ?? '',
+    highlight1Desc: map['highlight1Desc'] ?? '',
+    highlight2Title: map['highlight2Title'] ?? '',
+    highlight2Desc: map['highlight2Desc'] ?? '',
+    highlight3Title: map['highlight3Title'] ?? '',
+    highlight3Desc: map['highlight3Desc'] ?? '',
+    ctaTitle: map['ctaTitle'] ?? '',
+    ctaSubtitle: map['ctaSubtitle'] ?? '',
+    ctaButtonText: map['ctaButtonText'] ?? '',
   );
 }
 

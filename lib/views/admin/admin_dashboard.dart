@@ -17,7 +17,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'Homepage Sections',
     'Stotra Section',
     'Full Katha List',
-    'About Katha Page',
+    'Bhagvat Katha Page',
+    'Devi Bhagvat Page',
+    'Shivmahapuran Page',
     'Video Gallery',
     'Photo Gallery',
     'Contact Page',
@@ -180,13 +182,57 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 0: return _homepageView(controller);
       case 1: return _stotraView(controller);
       case 2: return _kathaListView(controller);
-      case 3: return _aboutKathaView(controller);
-      case 4: return _videoGalleryView(controller);
-      case 5: return _photoGalleryView(controller);
-      case 6: return _contactPageView(controller);
-      case 7: return _inquiryView(controller);
+      case 3: return _genericAboutView(controller.bhagvatKathaPage, "Bhagvat Katha");
+      case 4: return _genericAboutView(controller.deviKathaPage, "Devi Bhagvat");
+      case 5: return _genericAboutView(controller.shivKathaPage, "Shivmahapuran");
+      case 6: return _videoGalleryView(controller);
+      case 7: return _photoGalleryView(controller);
+      case 8: return _contactPageView(controller);
+      case 9: return _inquiryView(controller);
       default: return const Center(child: Text('Section not yet implemented'));
     }
+  }
+
+  Widget _genericAboutView(KathaAboutPageData data, String title) {
+    return ListView(
+      padding: const EdgeInsets.all(40),
+      children: [
+        Text('$title Page Settings', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const Divider(),
+        const SizedBox(height: 20),
+        const Text('1. Hero Content', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        _buildField('Badge Text', data.heroBadge, (v) => data.heroBadge = v),
+        _buildField('Main Title', data.heroTitle, (v) => data.heroTitle = v),
+        _buildField('Subtitle', data.heroDesc1, (v) => data.heroDesc1 = v, maxLines: 3),
+        _buildImageField('Hero Image', data.heroImage, (v) => data.heroImage = v),
+        
+        const SizedBox(height: 30),
+        const Text('2. Biography', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        _buildField('Bio Description', data.bioText, (v) => data.bioText = v, maxLines: 8),
+        
+        const SizedBox(height: 30),
+        const Text('3. Quote', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        _buildField('Quote Text', data.quoteText, (v) => data.quoteText = v, maxLines: 4),
+        _buildField('Quote Author', data.quoteAuthor, (v) => data.quoteAuthor = v),
+        _buildImageField('Quote Side Image', data.quoteImage, (v) => data.quoteImage = v),
+
+        const SizedBox(height: 30),
+        const Text('4. Highlights', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        _buildField('Highlight 1 Title', data.highlight1Title, (v) => data.highlight1Title = v),
+        _buildField('Highlight 1 Desc', data.highlight1Desc, (v) => data.highlight1Desc = v, maxLines: 3),
+        _buildField('Highlight 2 Title', data.highlight2Title, (v) => data.highlight2Title = v),
+        _buildField('Highlight 2 Desc', data.highlight2Desc, (v) => data.highlight2Desc = v, maxLines: 3),
+        _buildField('Highlight 3 Title', data.highlight3Title, (v) => data.highlight3Title = v),
+        _buildField('Highlight 3 Desc', data.highlight3Desc, (v) => data.highlight3Desc = v, maxLines: 3),
+
+        const SizedBox(height: 30),
+        const Text('5. Bottom CTA', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        _buildField('CTA Title', data.ctaTitle, (v) => data.ctaTitle = v),
+        _buildField('CTA Subtitle', data.ctaSubtitle, (v) => data.ctaSubtitle = v),
+        _buildField('CTA Button Text', data.ctaButtonText, (v) => data.ctaButtonText = v),
+        const SizedBox(height: 100),
+      ],
+    );
   }
 
   Widget _contactPageView(HomePageController controller) {
@@ -584,53 +630,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
         )),
         ElevatedButton(onPressed: controller.addStotraItem, child: const Text('Add New Item')),
-      ],
-    );
-  }
-
-  Widget _aboutKathaView(HomePageController controller) {
-    return ListView(
-      padding: const EdgeInsets.all(40),
-      children: [
-        const Text('Section 1: Hero Content', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const Divider(),
-        _buildField('Badge Text (e.g. ABOUT KATHA &)', controller.aboutKathaPage.heroBadge, (v) => controller.aboutKathaPage.heroBadge = v),
-        _buildField('Main Title', controller.aboutKathaPage.heroTitle, (v) => controller.aboutKathaPage.heroTitle = v),
-        _buildField('Subtitle', controller.aboutKathaPage.heroSubtitle, (v) => controller.aboutKathaPage.heroSubtitle = v, maxLines: 3),
-        _buildImageField('Hero Image', controller.aboutKathaPage.heroImage, (v) => controller.aboutKathaPage.heroImage = v),
-        
-        const SizedBox(height: 40),
-        const Text('Section 2: Biography', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const Divider(),
-        _buildField('Full Biography Text', controller.aboutKathaPage.bioText, (v) => controller.aboutKathaPage.bioText = v, maxLines: 10),
-        
-        const SizedBox(height: 40),
-        const Text('Section 3: Quote Section', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const Divider(),
-        _buildField('Quote Text', controller.aboutKathaPage.quoteText, (v) => controller.aboutKathaPage.quoteText = v, maxLines: 4),
-        _buildField('Quote Author', controller.aboutKathaPage.quoteAuthor, (v) => controller.aboutKathaPage.quoteAuthor = v),
-        _buildImageField('Quote Image', controller.aboutKathaPage.quoteImage, (v) => controller.aboutKathaPage.quoteImage = v),
-        
-        const SizedBox(height: 40),
-        const Text('Section 4: The Three Pillars', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const Divider(),
-        _buildField('Pillar 1 Title', controller.aboutKathaPage.pillar1Title, (v) => controller.aboutKathaPage.pillar1Title = v),
-        _buildField('Pillar 1 Description', controller.aboutKathaPage.pillar1Desc, (v) => controller.aboutKathaPage.pillar1Desc = v, maxLines: 3),
-        const SizedBox(height: 10),
-        _buildField('Pillar 2 Title', controller.aboutKathaPage.pillar2Title, (v) => controller.aboutKathaPage.pillar2Title = v),
-        _buildField('Pillar 2 Description', controller.aboutKathaPage.pillar2Desc, (v) => controller.aboutKathaPage.pillar2Desc = v, maxLines: 3),
-        const SizedBox(height: 10),
-        _buildField('Pillar 3 Title', controller.aboutKathaPage.pillar3Title, (v) => controller.aboutKathaPage.pillar3Title = v),
-        _buildField('Pillar 3 Description', controller.aboutKathaPage.pillar3Desc, (v) => controller.aboutKathaPage.pillar3Desc = v, maxLines: 3),
-        
-        const SizedBox(height: 40),
-        const Text('Section 5: Call to Action Banner', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const Divider(),
-        _buildField('CTA Title', controller.aboutKathaPage.ctaTitle, (v) => controller.aboutKathaPage.ctaTitle = v),
-        _buildField('CTA Subtitle', controller.aboutKathaPage.ctaSubtitle, (v) => controller.aboutKathaPage.ctaSubtitle = v, maxLines: 2),
-        _buildField('CTA Button Text', controller.aboutKathaPage.ctaButtonText, (v) => controller.aboutKathaPage.ctaButtonText = v),
-        
-        const SizedBox(height: 100),
       ],
     );
   }

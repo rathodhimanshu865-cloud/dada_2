@@ -102,7 +102,7 @@ class UserAboutUnique extends StatelessWidget {
                       ),
                       const SizedBox(height: 25),
                       Text(
-                        'A Journey of Bhakti & Seva',
+                        'The Divine Voice of Radhe Radhe',
                         textAlign: isDesktop ? TextAlign.start : TextAlign.center,
                         style: TextStyle(
                           fontSize: 42,
@@ -116,7 +116,7 @@ class UserAboutUnique extends StatelessWidget {
                       Text(
                         about.description.isNotEmpty 
                           ? about.description 
-                          : 'Description text will appear here from the admin panel settings...',
+                          : "Shri Jigneshdada, affectionately known as 'Radhe Radhe' among millions of devotees, is a globally renowned spiritual leader and Bhagwat Katha orator. With a mission to nurture values in the younger generation and uplift society through the profound wisdom of Shrimad Bhagwat, he has dedicated his life to spiritual awakening and humanitarian service. His discourses serve as a guiding light, bridging the gap between ancient traditions and modern living.",
                         textAlign: isDesktop ? TextAlign.start : TextAlign.center,
                         style: const TextStyle(
                           fontSize: 18,
@@ -124,7 +124,7 @@ class UserAboutUnique extends StatelessWidget {
                           color: Color(0xFF444444),
                           letterSpacing: 0.2,
                         ),
-                        maxLines: 6,
+                        maxLines: 8,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 50),
