@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../models/homepage_model.dart';
+import '../../utils/image_url_helper.dart';
 import 'sections/user_header.dart';
 import 'sections/user_footer.dart';
 
@@ -358,20 +359,47 @@ class _KathaListPageState extends State<KathaListPage> {
               borderRadius: BorderRadius.circular(12),
               child: AspectRatio(
                 aspectRatio: 16/9,
-                child: Image.network(
-                  katha.imageUrl, 
-                  fit: BoxFit.cover, 
-                  errorBuilder: (c,e,s) => Container(
-                    color: Colors.grey[200], 
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.image_outlined, color: Colors.grey[400], size: 60),
-                        const SizedBox(height: 15),
-                        Text('No Preview Available', style: TextStyle(color: Colors.grey[400], fontSize: 16)),
-                      ],
-                    ),
-                  )
+                child: Builder(
+                  builder: (context) {
+                    final imageUrl = normalizeImageUrl(katha.imageUrl);
+                    if (imageUrl.isEmpty) {
+                      return Container(
+                        color: Colors.grey[200],
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.image_outlined, color: Colors.grey[400], size: 60),
+                            const SizedBox(height: 15),
+                            Text('No Preview Available', style: TextStyle(color: Colors.grey[400], fontSize: 16)),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: Colors.grey[100],
+                          alignment: Alignment.center,
+                          child: const CircularProgressIndicator(),
+                        );
+                      },
+                      errorBuilder: (c, e, s) => Container(
+                        color: Colors.grey[200],
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.broken_image_outlined, color: Colors.grey[400], size: 60),
+                            const SizedBox(height: 15),
+                            Text('Image could not be loaded', style: TextStyle(color: Colors.grey[400], fontSize: 16)),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
