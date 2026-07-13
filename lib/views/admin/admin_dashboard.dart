@@ -14,17 +14,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
   int currentMenuIndex = 0;
 
   final List<String> menuItems = [
-    'Homepage Sections',
-    'Stotra Section',
+    'Branding & Hero Slider',
+    'Biography (About Dada)',
+    'About Katha (Bhagwat)',
+    'Upcoming Kathas',
+    'Featured Quote',
+    'Daily Suvichar',
+    'Latest Videos',
+    'Latest News',
     'Full Katha List',
-    'Bhagvat Katha Page',
-    'Devi Bhagvat Page',
-    'Shivmahapuran Page',
-    'Video Gallery',
     'Photo Gallery',
-    'Contact Page',
+    'Video Gallery',
     'Enquiries',
-    'Navigation Settings'
+    'Footer Settings'
   ];
 
   Widget _buildField(String label, String? initialValue, Function(String) onChanged, {int maxLines = 1}) {
@@ -159,15 +161,29 @@ class _AdminDashboardState extends State<AdminDashboard> {
       drawer: Drawer(
         child: Column(
           children: [
-            const DrawerHeader(child: Center(child: Text('DADA PANEL', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)))),
-            ...menuItems.asMap().entries.map((e) => ListTile(
-              title: Text(e.value),
-              selected: currentMenuIndex == e.key,
-              onTap: () {
-                setState(() => currentMenuIndex = e.key);
-                Navigator.pop(context);
-              },
-            )),
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Colors.black),
+              child: Center(child: Text('DADA PANEL', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.white))),
+            ),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.only(bottom: 50), // Prevent cutoff
+                itemCount: menuItems.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+                    title: Text(menuItems[index], style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    selected: currentMenuIndex == index,
+                    selectedTileColor: Colors.grey[200],
+                    selectedColor: Colors.black,
+                    onTap: () {
+                      setState(() => currentMenuIndex = index);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -179,258 +195,55 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _buildCurrentView(HomePageController controller) {
     switch (currentMenuIndex) {
-      case 0: return _homepageView(controller);
-      case 1: return _stotraView(controller);
-      case 2: return _kathaListView(controller);
-      case 3: return _genericAboutView(controller.bhagvatKathaPage, "Bhagvat Katha");
-      case 4: return _genericAboutView(controller.deviKathaPage, "Devi Bhagvat");
-      case 5: return _genericAboutView(controller.shivKathaPage, "Shivmahapuran");
-      case 6: return _videoGalleryView(controller);
-      case 7: return _photoGalleryView(controller);
-      case 8: return _contactPageView(controller);
-      case 9: return _inquiryView(controller);
+      case 0: return _heroSliderView(controller);
+      case 1: return _aboutDadaView(controller);
+      case 2: return _ramKathaView(controller);
+      case 3: return _upcomingKathasView(controller);
+      case 4: return _featuredQuoteView(controller);
+      case 5: return _suvicharView(controller);
+      case 6: return _latestVideosView(controller);
+      case 7: return _newsView(controller);
+      case 8: return _kathaListView(controller);
+      case 9: return _photoGalleryView(controller);
+      case 10: return _videoGalleryView(controller);
+      case 11: return _inquiryView(controller);
+      case 12: return _footerSettingsView(controller);
       default: return const Center(child: Text('Section not yet implemented'));
     }
   }
 
-  Widget _genericAboutView(KathaAboutPageData data, String title) {
+  Widget _heroSliderView(HomePageController controller) {
     return ListView(
-      padding: const EdgeInsets.all(40),
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
       children: [
-        Text('$title Page Settings', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const Divider(),
-        const SizedBox(height: 20),
-        const Text('1. Hero Content', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        _buildField('Badge Text', data.heroBadge, (v) => data.heroBadge = v),
-        _buildField('Main Title', data.heroTitle, (v) => data.heroTitle = v),
-        _buildField('Subtitle', data.heroDesc1, (v) => data.heroDesc1 = v, maxLines: 3),
-        _buildImageField('Hero Image', data.heroImage, (v) => data.heroImage = v),
+        _sectionHeader('HEADER & BRANDING'),
+        _buildField('Website Name', controller.websiteSettings.name, (v) => controller.websiteSettings.name = v),
+        _buildImageField('Logo URL', controller.websiteSettings.logoUrl, (v) => controller.websiteSettings.logoUrl = v),
         
-        const SizedBox(height: 30),
-        const Text('2. Biography', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        _buildField('Bio Description', data.bioText, (v) => data.bioText = v, maxLines: 8),
-        
-        const SizedBox(height: 30),
-        const Text('3. Quote', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        _buildField('Quote Text', data.quoteText, (v) => data.quoteText = v, maxLines: 4),
-        _buildField('Quote Author', data.quoteAuthor, (v) => data.quoteAuthor = v),
-        _buildImageField('Quote Side Image', data.quoteImage, (v) => data.quoteImage = v),
-
-        const SizedBox(height: 30),
-        const Text('4. Highlights', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        _buildField('Highlight 1 Title', data.highlight1Title, (v) => data.highlight1Title = v),
-        _buildField('Highlight 1 Desc', data.highlight1Desc, (v) => data.highlight1Desc = v, maxLines: 3),
-        _buildField('Highlight 2 Title', data.highlight2Title, (v) => data.highlight2Title = v),
-        _buildField('Highlight 2 Desc', data.highlight2Desc, (v) => data.highlight2Desc = v, maxLines: 3),
-        _buildField('Highlight 3 Title', data.highlight3Title, (v) => data.highlight3Title = v),
-        _buildField('Highlight 3 Desc', data.highlight3Desc, (v) => data.highlight3Desc = v, maxLines: 3),
-
-        const SizedBox(height: 30),
-        const Text('5. Bottom CTA', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        _buildField('CTA Title', data.ctaTitle, (v) => data.ctaTitle = v),
-        _buildField('CTA Subtitle', data.ctaSubtitle, (v) => data.ctaSubtitle = v),
-        _buildField('CTA Button Text', data.ctaButtonText, (v) => data.ctaButtonText = v),
-        const SizedBox(height: 100),
-      ],
-    );
-  }
-
-  Widget _contactPageView(HomePageController controller) {
-    return ListView(
-      padding: const EdgeInsets.all(40),
-      children: [
-        const Text('Contact Page Settings', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const Divider(),
-        const SizedBox(height: 20),
-        _buildImageField(
-          'Contact Page Banner Image (Horizontal)', 
-          controller.contactPageData.bannerImageUrl, 
-          (v) => controller.contactPageData.bannerImageUrl = v
-        ),
-      ],
-    );
-  }
-
-  Widget _inquiryView(HomePageController controller) {
-    return ListView(
-      padding: const EdgeInsets.all(40),
-      children: [
-        const Text('Contact Enquiries', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const Divider(),
-        ...controller.inquiries.map((inq) => Card(
-          margin: const EdgeInsets.only(bottom: 16),
-          child: ListTile(
-            title: Text('${inq.name} (${inq.type})'),
-            subtitle: Text('Email: ${inq.email} | Mobile: ${inq.mobile}\nMessage: ${inq.message}'),
-            trailing: Text(inq.timestamp.toString().split('.')[0]),
-          ),
-        )).toList(),
-      ],
-    );
-  }
-
-  Widget _videoGalleryView(HomePageController controller) {
-    return ListView(
-      padding: const EdgeInsets.all(40),
-      children: [
-        const Text('Video Gallery Settings', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const Divider(),
-        _buildImageField('Header Image URL', controller.videoGalleryData.headerImageUrl, (v) => controller.videoGalleryData.headerImageUrl = v),
-        const SizedBox(height: 20),
-        const Text('Manage Video Categories', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
-        ...controller.videoGalleryData.categories.asMap().entries.map((catEntry) {
-          int catIdx = catEntry.key;
-          VideoCategory cat = catEntry.value;
+        _sectionHeader('HERO SLIDER MANAGEMENT'),
+        ...controller.heroSection.slides.asMap().entries.map((entry) {
+          int i = entry.key;
+          HeroSlide s = entry.value;
           return Card(
-            margin: const EdgeInsets.only(bottom: 24),
+            margin: const EdgeInsets.only(bottom: 30),
             child: ExpansionTile(
-              title: Text('Category: ${cat.categoryTitle.isEmpty ? "New Category" : cat.categoryTitle}'),
-              trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeVideoCategory(catIdx)),
+              title: Text('Slide ${i + 1}: ${s.heading.isEmpty ? "New Slide" : s.heading}'),
+              trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeHeroSlide(i)),
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     children: [
-                      _buildField('Category Title', cat.categoryTitle, (v) => setState(() => cat.categoryTitle = v)),
-                      const SizedBox(height: 10),
-                      const Text('Videos in this category', style: TextStyle(fontWeight: FontWeight.bold)),
-                      const Divider(),
-                      ...cat.videos.asMap().entries.map((vidEntry) {
-                        int vidIdx = vidEntry.key;
-                        VideoGalleryEntry vid = vidEntry.value;
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(border: Border.all(color: Colors.grey[200]!), borderRadius: BorderRadius.circular(4)),
-                          child: Column(
-                            children: [
-                              _buildField('Video Title', vid.title, (v) => vid.title = v),
-                              _buildField('YouTube URL', vid.youtubeUrl, (v) => setState(() => vid.youtubeUrl = v.trim())),
-                              if (vid.youtubeUrl.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: Image.network(vid.thumbnail, height: 60, errorBuilder: (c,e,s) => const Icon(Icons.broken_image)),
-                                ),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: TextButton.icon(
-                                  onPressed: () => controller.removeVideoFromCategory(catIdx, vidIdx),
-                                  icon: const Icon(Icons.remove_circle_outline, color: Colors.red, size: 16),
-                                  label: const Text('Remove Video', style: TextStyle(color: Colors.red, fontSize: 12)),
-                                ),
-                              )
-                            ],
-                          ),
-                        );
-                      }),
-                      ElevatedButton.icon(
-                        onPressed: () => controller.addVideoToCategory(catIdx),
-                        icon: const Icon(Icons.add),
-                        label: const Text('ADD VIDEO TO CATEGORY'),
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          );
-        }),
-        ElevatedButton.icon(
-          onPressed: controller.addVideoCategory,
-          icon: const Icon(Icons.create_new_folder),
-          label: const Text('CREATE NEW VIDEO CATEGORY'),
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.blueGrey, foregroundColor: Colors.white),
-        ),
-        const SizedBox(height: 100),
-      ],
-    );
-  }
-
-  Widget _photoGalleryView(HomePageController controller) {
-    return ListView(
-      padding: const EdgeInsets.all(40),
-      children: [
-        const Text('Photo Gallery Settings', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 16),
-        _buildImageField('Header Image URL', controller.photoGalleryData.headerImageUrl, (v) => controller.photoGalleryData.headerImageUrl = v),
-        _buildField('Gallery Title', controller.photoGalleryData.title, (v) => controller.photoGalleryData.title = v),
-        const SizedBox(height: 20),
-        const Text('Photo Gallery Headings', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
-        ...controller.photoGalleryData.sections.asMap().entries.map((sectionEntry) {
-          int sectionIdx = sectionEntry.key;
-          final section = sectionEntry.value;
-          return Card(
-            margin: const EdgeInsets.only(bottom: 24),
-            child: ExpansionTile(
-              title: Text('Heading ${sectionIdx + 1}: ${section.heading.isEmpty ? "Untitled" : section.heading}'),
-              trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removePhotoCategory(sectionIdx)),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      _buildField('Heading Text', section.heading, (v) => setState(() => section.heading = v)),
-                      const SizedBox(height: 10),
-                      const Text('Images in this section', style: TextStyle(fontWeight: FontWeight.bold)),
-                      const Divider(),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: section.photoUrls.asMap().entries.map((photoEntry) {
-                          int photoIdx = photoEntry.key;
-                          final photoUrl = photoEntry.value;
-                          return Container(
-                            width: 250,
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(border: Border.all(color: Colors.grey[200]!), borderRadius: BorderRadius.circular(4)),
-                            child: Column(
-                              children: [
-                                _imagePreview(photoUrl),
-                                TextFormField(
-                                  key: Key(photoUrl),
-                                  initialValue: photoUrl,
-                                  decoration: const InputDecoration(labelText: 'Image URL'),
-                                  onChanged: (v) => setState(() => section.photoUrls[photoIdx] = v),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.delete, color: Colors.red, size: 16),
-                                    onPressed: () => controller.removePhotoFromCategory(sectionIdx, photoIdx),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 20),
+                      _buildImageField('Background Image', s.image, (v) => setState(() => s.image = v)),
+                      _buildField('Badge (Overhead)', s.badge, (v) => s.badge = v),
+                      _buildField('Main Heading', s.heading, (v) => s.heading = v),
+                      _buildField('Subtitle', s.subtitle, (v) => s.subtitle = v),
+                      _buildField('Short Description', s.description, (v) => s.description = v, maxLines: 3),
                       Row(
                         children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () => controller.addPhotoUrlToSection(sectionIdx),
-                              icon: const Icon(Icons.link),
-                              label: const Text('ADD IMAGE LINK'),
-                            ),
-                          ),
+                          Expanded(child: _buildField('Primary CTA Text', s.primaryCtaText, (v) => s.primaryCtaText = v)),
                           const SizedBox(width: 10),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () async {
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Starting upload...')));
-                                await controller.addPhotoToCategoryFromPicker(sectionIdx);
-                                setState(() {});
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Upload process finished.')));
-                              },
-                              icon: const Icon(Icons.upload_file),
-                              label: const Text('UPLOAD FROM PC'),
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.blueGrey, foregroundColor: Colors.white),
-                            ),
-                          ),
+                          Expanded(child: _buildField('Primary CTA URL', s.primaryCtaUrl, (v) => s.primaryCtaUrl = v)),
                         ],
                       ),
                     ],
@@ -440,27 +253,222 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           );
         }),
-        ElevatedButton.icon(
-          onPressed: controller.addPhotoCategory,
-          icon: const Icon(Icons.add_to_photos),
-          label: const Text('ADD NEW HEADING SECTION'),
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.blueGrey, foregroundColor: Colors.white),
+        ElevatedButton.icon(onPressed: controller.addHeroSlide, icon: const Icon(Icons.add), label: const Text('ADD NEW HERO SLIDE')),
+      ],
+    );
+  }
+
+  Widget _aboutDadaView(HomePageController controller) {
+    final data = controller.aboutDadaPage;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        const Text('Biography Page Management', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+        const Divider(),
+        const SizedBox(height: 30),
+        
+        _sectionHeader('1. HERO CANVAS SETTINGS'),
+        _buildField('Hero Title (Banner Name)', data.heroTitle, (v) => data.heroTitle = v),
+        _buildField('Main Designation / Subtitle', data.heroSubtitle, (v) => data.heroSubtitle = v),
+        _buildImageField('Main Spotlight Portrait', data.heroImage, (v) => setState(() => data.heroImage = v)),
+        
+        const SizedBox(height: 50),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _sectionHeader('2. BIOGRAPHY CHAPTERS'),
+            ElevatedButton.icon(
+              onPressed: () => setState(() => controller.addBiographyPhase()),
+              icon: const Icon(Icons.add_circle_outline),
+              label: const Text('ADD NEW CHAPTER'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15)),
+            ),
+          ],
         ),
-        const SizedBox(height: 100),
+        const SizedBox(height: 20),
+        
+        ...data.phases.asMap().entries.map((entry) {
+          int phaseIdx = entry.key;
+          BiographyPhase phase = entry.value;
+          return Card(
+            margin: const EdgeInsets.only(bottom: 30),
+            elevation: 0,
+            shape: RoundedRectangleBorder(side: BorderSide(color: Colors.grey[200]!), borderRadius: BorderRadius.circular(12)),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(color: Colors.grey[50], borderRadius: const BorderRadius.vertical(top: Radius.circular(12))),
+                  child: Row(
+                    children: [
+                      CircleAvatar(backgroundColor: Colors.black, radius: 14, child: Text('${phaseIdx + 1}', style: const TextStyle(color: Colors.white, fontSize: 12))),
+                      const SizedBox(width: 15),
+                      Text('CHAPTER ${phaseIdx + 1}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1)),
+                      const Spacer(),
+                      IconButton(icon: const Icon(Icons.delete_outline, color: Colors.redAccent), onPressed: () => setState(() => controller.removeBiographyPhase(phaseIdx))),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildField('Chapter Title', phase.title, (v) => setState(() => phase.title = v)),
+                      _buildField('Chapter Subtitle (Optional)', phase.subtitle, (v) => setState(() => phase.subtitle = v)),
+                      _buildField('Chapter Narrative Content', phase.content, (v) => phase.content = v, maxLines: 15),
+                      const SizedBox(height: 20),
+                      const Text('MEDIA STREAM GALLERY', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.blueGrey, letterSpacing: 1)),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 12, runSpacing: 12,
+                        children: [
+                          ...phase.images.asMap().entries.map((imgEntry) => Stack(
+                            children: [
+                              Container(width: 140, height: 140, decoration: BoxDecoration(border: Border.all(color: Colors.grey[200]!), borderRadius: BorderRadius.circular(8)), child: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(imgEntry.value, fit: BoxFit.cover))),
+                              Positioned(top: 5, right: 5, child: CircleAvatar(backgroundColor: Colors.white, radius: 14, child: IconButton(icon: const Icon(Icons.close, color: Colors.red, size: 14), onPressed: () => setState(() => controller.removeImageFromPhase(phaseIdx, imgEntry.key))))),
+                            ],
+                          )),
+                          InkWell(
+                            onTap: () async {
+                              final url = await controller.uploadPhotoFromFile();
+                              if (url != null) setState(() => controller.addImageToPhase(phaseIdx, url));
+                            },
+                            child: Container(width: 140, height: 140, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey[300]!, style: BorderStyle.solid)), child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.add_photo_alternate_outlined, color: Colors.grey, size: 30), SizedBox(height: 8), Text('ADD PHOTO', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold))])),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _ramKathaView(HomePageController controller) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        _sectionHeader('ABOUT KATHA PREVIEW (HOMEPAGE)'),
+        _buildField('Short Description', controller.ramKatha.description1, (v) => controller.ramKatha.description1 = v, maxLines: 6),
+        _buildField('Secondary Description', controller.ramKatha.description2, (v) => controller.ramKatha.description2 = v, maxLines: 6),
+        _buildImageField('Katha Section Image', controller.ramKatha.photoUrl, (v) => setState(() => controller.ramKatha.photoUrl = v)),
+      ],
+    );
+  }
+
+  Widget _suvicharView(HomePageController controller) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        _sectionHeader('DAILY SUVICHAR'),
+        _buildField('Display Date', controller.dailySuvichar.date, (v) => controller.dailySuvichar.date = v),
+        _buildImageField('Suvichar Image', controller.dailySuvichar.imageUrl, (v) => setState(() => controller.dailySuvichar.imageUrl = v)),
+      ],
+    );
+  }
+
+  Widget _latestVideosView(HomePageController controller) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        _sectionHeader('LATEST VIDEOS MANAGEMENT'),
+        ...controller.videos.asMap().entries.map((entry) => Column(
+          children: [
+            _buildField('Video Title', entry.value.title, (v) => entry.value.title = v),
+            _buildField('YouTube URL', entry.value.youtubeUrl, (v) => entry.value.youtubeUrl = v),
+            IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeVideo(entry.key)),
+            const Divider(),
+          ],
+        )),
+        ElevatedButton(onPressed: controller.addVideo, child: const Text('Add Video')),
+      ],
+    );
+  }
+
+  Widget _featuredQuoteView(HomePageController controller) {
+    final q = controller.homepageData.featuredQuote;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        _sectionHeader('FEATURED HOMEPAGE QUOTE'),
+        _buildField('The Quote', q.quote, (v) => q.quote = v, maxLines: 5),
+        _buildField('Author Name', q.author, (v) => q.author = v),
+        _buildImageField('Portrait Image (Optional)', q.portrait, (v) => setState(() => q.portrait = v)),
+      ],
+    );
+  }
+
+  Widget _newsView(HomePageController controller) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        _sectionHeader('LATEST NEWS & UPDATES'),
+        ...controller.homepageData.news.asMap().entries.map((entry) {
+          int i = entry.key;
+          NewsItem n = entry.value;
+          return Card(
+            margin: const EdgeInsets.only(bottom: 20),
+            child: ExpansionTile(
+              title: Text('News: ${n.title}'),
+              trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () {
+                setState(() => controller.homepageData.news.removeAt(i));
+              }),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      _buildField('Title', n.title, (v) => n.title = v),
+                      _buildField('Category', n.category, (v) => n.category = v),
+                      _buildField('Date', n.date, (v) => n.date = v),
+                      _buildImageField('News Image', n.image, (v) => setState(() => n.image = v)),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        }),
+        ElevatedButton.icon(onPressed: () => setState(() => controller.homepageData.news.add(NewsItem())), icon: const Icon(Icons.add), label: const Text('ADD NEWS ITEM')),
+      ],
+    );
+  }
+
+  Widget _upcomingKathasView(HomePageController controller) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        _sectionHeader('UPCOMING KATHAS CALENDAR'),
+        ...controller.upcomingKathas.asMap().entries.map((entry) => Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                _buildField('Katha Number', entry.value.kathaNumber, (v) => entry.value.kathaNumber = v),
+                _buildField('Katha Name', entry.value.name, (v) => entry.value.name = v),
+                _buildField('Katha Date', entry.value.dateString, (v) => entry.value.dateString = v),
+                _buildField('Location', entry.value.location, (v) => entry.value.location = v),
+                IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeKatha(entry.key)),
+              ],
+            ),
+          ),
+        )),
+        ElevatedButton(onPressed: controller.addKatha, child: const Text('Add Upcoming Katha')),
       ],
     );
   }
 
   Widget _kathaListView(HomePageController controller) {
     return ListView(
-      padding: const EdgeInsets.all(40),
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
       children: [
-        const Text('Katha List Settings', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 20),
-        _buildImageField('Katha List Page Banner Image URL', controller.kathaListPageData.bannerImageUrl, (v) => controller.kathaListPageData.bannerImageUrl = v),
-        const Divider(),
-        const SizedBox(height: 20),
-        const Text('Manage Full Katha List Records', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const Text('Full Katha List Management', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const Divider(),
         ...controller.allKathas.asMap().entries.map((entry) {
           int index = entry.key;
@@ -475,26 +483,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(child: _buildField('Katha #', k.kathaNumber, (v) => k.kathaNumber = v)),
-                          const SizedBox(width: 10),
-                          Expanded(child: _buildField('Year', k.year, (v) => k.year = v)),
-                        ],
-                      ),
+                      Row(children: [Expanded(child: _buildField('Katha #', k.kathaNumber, (v) => k.kathaNumber = v)), const SizedBox(width: 10), Expanded(child: _buildField('Year', k.year, (v) => k.year = v))]),
                       _buildField('Display Dates', k.dates, (v) => k.dates = v),
                       _buildField('Katha Topic / Heading', k.topic, (v) => k.topic = v),
                       _buildField('Location', k.location, (v) => k.location = v),
-                      Row(
-                        children: [
-                          Expanded(child: _buildField('Country', k.country, (v) => k.country = v)),
-                          const SizedBox(width: 10),
-                          Expanded(child: _buildField('Language', k.language, (v) => k.language = v)),
-                        ],
-                      ),
                       _buildField('YouTube Playlist URL', k.youtubePlaylistUrl, (v) => k.youtubePlaylistUrl = v),
                       _buildImageField('Image URL', k.imageUrl, (v) => setState(() => k.imageUrl = v)),
-                      _buildField('Description', k.description, (v) => k.description = v, maxLines: 5),
                     ],
                   ),
                 )
@@ -502,134 +496,124 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           );
         }),
-        const SizedBox(height: 20),
         ElevatedButton.icon(onPressed: controller.addKathaRecord, icon: const Icon(Icons.add), label: const Text('ADD NEW KATHA RECORD')),
       ],
     );
   }
 
-  Widget _homepageView(HomePageController controller) {
+  Widget _kathaPagesView(HomePageController controller) {
     return ListView(
-      padding: const EdgeInsets.all(40),
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
       children: [
-                _sectionHeader('1. BRANDING & HEADER'),
-                _buildField('Website Name', controller.websiteSettings.name, (v) => controller.websiteSettings.name = v),
-                _buildImageField('Logo URL', controller.websiteSettings.logoUrl, (v) => controller.websiteSettings.logoUrl = v),
-
-                _sectionHeader('2. HERO SECTION'),
-                ...List.generate(8, (index) => Column(
-                  children: [
-                    _buildImageField(
-                      'Hero Image URL ${index + 1}', 
-                      index < controller.heroSection.bannerUrls.length ? controller.heroSection.bannerUrls[index] : '', 
-                      (v) {
-                        if (index < controller.heroSection.bannerUrls.length) {
-                          controller.heroSection.bannerUrls[index] = v;
-                        } else {
-                          while (controller.heroSection.bannerUrls.length <= index) {
-                            controller.heroSection.bannerUrls.add('');
-                          }
-                          controller.heroSection.bannerUrls[index] = v;
-                        }
-                        setState(() {});
-                      }
-                    ),
-                  ],
-                )),
-
-                _sectionHeader('3. UPCOMING KATHAS'),
-                ...controller.upcomingKathas.asMap().entries.map((entry) => Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        _buildField('Katha Number', entry.value.kathaNumber, (v) => entry.value.kathaNumber = v),
-                        _buildField('Katha Name', entry.value.name, (v) => entry.value.name = v),
-                        _buildField('Katha Date', entry.value.dateString, (v) => entry.value.dateString = v),
-                        _buildField('Timing', entry.value.timing, (v) => entry.value.timing = v),
-                        _buildField('Location', entry.value.location, (v) => entry.value.location = v),
-                        _buildField('Hosting', entry.value.hosting, (v) => entry.value.hosting = v),
-                        IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeKatha(entry.key)),
-                      ],
-                    ),
-                  ),
-                )),
-                ElevatedButton(onPressed: controller.addKatha, child: const Text('Add Upcoming Katha')),
-
-                _sectionHeader('4. ABOUT SECTION'),
-                _buildImageField('Dada Photo URL', controller.aboutSection.photoUrl, (v) {
-                  controller.aboutSection.photoUrl = v;
-                  setState(() {});
-                }),
-                _buildField('Description', controller.aboutSection.description, (v) => controller.aboutSection.description = v, maxLines: 5),
-
-                _sectionHeader('5. DAILY SUVICHAR'),
-                _buildImageField('Suvichar Image URL', controller.dailySuvichar.imageUrl, (v) {
-                  controller.dailySuvichar.imageUrl = v;
-                  setState(() {});
-                }),
-                _buildField('Date', controller.dailySuvichar.date, (v) => controller.dailySuvichar.date = v),
-
-                _sectionHeader('6. VIDEOS'),
-                ...controller.videos.asMap().entries.map((entry) => Column(
-                  children: [
-                    _buildField('Video Title', entry.value.title, (v) => entry.value.title = v),
-                    _buildField('YouTube URL', entry.value.youtubeUrl, (v) => entry.value.youtubeUrl = v),
-                    IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeVideo(entry.key)),
-                    const Divider(),
-                  ],
-                )),
-                ElevatedButton(onPressed: controller.addVideo, child: const Text('Add Video')),
-
-                _sectionHeader('7. RAM KATHA BOTTOM'),
-                _buildField('Para 1', controller.ramKatha.description1, (v) => controller.ramKatha.description1 = v, maxLines: 4),
-                _buildField('Para 2', controller.ramKatha.description2, (v) => controller.ramKatha.description2 = v, maxLines: 4),
-                _buildImageField('Photo URL', controller.ramKatha.photoUrl, (v) {
-                  controller.ramKatha.photoUrl = v;
-                  setState(() {});
-                }),
-
-                _sectionHeader('8. FOOTER'),
-                _buildField('Footer Desc', controller.footer.description, (v) => controller.footer.description = v, maxLines: 3),
-                _buildField('Copyright', controller.footer.copyright, (v) => controller.footer.copyright = v),
-                _buildField('Facebook URL', controller.footer.facebookUrl, (v) => controller.footer.facebookUrl = v),
-                _buildField('Instagram URL', controller.footer.instagramUrl, (v) => controller.footer.instagramUrl = v),
-                _buildField('YouTube URL', controller.footer.youtubeUrl, (v) => controller.footer.youtubeUrl = v),
-                _buildField('WhatsApp URL', controller.footer.whatsappUrl, (v) => controller.footer.whatsappUrl = v),
+        _sectionHeader('INDIVIDUAL KATHA PAGES'),
+        ListTile(title: const Text('Shrimad Bhagvat Katha'), trailing: const Icon(Icons.arrow_forward_ios), onTap: () => _showGenericAboutDialog(controller.bhagvatKathaPage, "Bhagvat Katha")),
+        ListTile(title: const Text('Devi Bhagvat Katha'), trailing: const Icon(Icons.arrow_forward_ios), onTap: () => _showGenericAboutDialog(controller.deviKathaPage, "Devi Bhagvat")),
+        ListTile(title: const Text('Shivmahapuran Katha'), trailing: const Icon(Icons.arrow_forward_ios), onTap: () => _showGenericAboutDialog(controller.shivKathaPage, "Shivmahapuran")),
       ],
     );
   }
 
-  Widget _stotraView(HomePageController controller) {
+  void _showGenericAboutDialog(KathaAboutPageData data, String title) {
+    showDialog(context: context, builder: (context) => Dialog(child: Container(width: 800, padding: const EdgeInsets.all(20), child: _genericAboutView(data, title))));
+  }
+
+  Widget _photoGalleryView(HomePageController controller) {
     return ListView(
-      padding: const EdgeInsets.all(40),
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
       children: [
-        const Text('Stotra / Bhajan / Aarti Section', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const Divider(),
-        _buildField('Page Title', controller.stotraSection.pageTitle, (v) => controller.stotraSection.pageTitle = v),
-        _buildImageField('Header Image URL', controller.stotraSection.topHeaderImage, (v) => controller.stotraSection.topHeaderImage = v),
-        ...controller.stotraSection.items.asMap().entries.map((entry) => Card(
-          margin: const EdgeInsets.only(bottom: 16),
-          child: ExpansionTile(
-            title: Text(entry.value.title.isEmpty ? 'New Item' : entry.value.title),
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    _buildField('Title', entry.value.title, (v) => entry.value.title = v),
-                    _buildField('English PDF URL', entry.value.englishPdfUrl, (v) => entry.value.englishPdfUrl = v),
-                    _buildField('Hindi PDF URL', entry.value.hindiPdfUrl, (v) => entry.value.hindiPdfUrl = v),
-                    _buildField('Gujarati PDF URL', entry.value.gujaratiPdfUrl, (v) => entry.value.gujaratiPdfUrl = v),
-                    IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeStotraItem(entry.key)),
-                  ],
-                ),
-              )
-            ],
-          ),
-        )),
-        ElevatedButton(onPressed: controller.addStotraItem, child: const Text('Add New Item')),
+        _sectionHeader('PHOTO GALLERY HEADINGS'),
+        ...controller.photoGalleryData.sections.asMap().entries.map((sectionEntry) {
+          int sectionIdx = sectionEntry.key;
+          final section = sectionEntry.value;
+          return Card(
+            margin: const EdgeInsets.only(bottom: 24),
+            child: ExpansionTile(
+              title: Text('Heading: ${section.heading}'),
+              trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removePhotoCategory(sectionIdx)),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _buildField('Heading Text', section.heading, (v) => setState(() => section.heading = v)),
+                      Wrap(
+                        spacing: 10, runSpacing: 10,
+                        children: section.photoUrls.asMap().entries.map((photoEntry) {
+                          int photoIdx = photoEntry.key;
+                          return Container(
+                            width: 120, height: 120,
+                            decoration: BoxDecoration(border: Border.all(color: Colors.grey[200]!)),
+                            child: Stack(children: [Image.network(photoEntry.value, fit: BoxFit.cover), Positioned(right: 0, child: IconButton(icon: const Icon(Icons.delete, color: Colors.red, size: 16), onPressed: () => controller.removePhotoFromCategory(sectionIdx, photoIdx)))]),
+                          );
+                        }).toList(),
+                      ),
+                      ElevatedButton(onPressed: () => controller.addPhotoToCategoryFromPicker(sectionIdx), child: const Text('ADD PHOTO')),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        }),
+        ElevatedButton(onPressed: controller.addPhotoCategory, child: const Text('ADD NEW HEADING')),
+      ],
+    );
+  }
+
+  Widget _videoGalleryView(HomePageController controller) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        _sectionHeader('VIDEO GALLERY CATEGORIES'),
+        ...controller.videoGalleryData.categories.asMap().entries.map((catEntry) {
+          int catIdx = catEntry.key;
+          VideoCategory cat = catEntry.value;
+          return Card(
+            margin: const EdgeInsets.only(bottom: 24),
+            child: ExpansionTile(
+              title: Text('Category: ${cat.categoryTitle}'),
+              trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeVideoCategory(catIdx)),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _buildField('Category Title', cat.categoryTitle, (v) => setState(() => cat.categoryTitle = v)),
+                      ...cat.videos.asMap().entries.map((vidEntry) => ListTile(title: Text(vidEntry.value.title), trailing: IconButton(icon: const Icon(Icons.delete), onPressed: () => controller.removeVideoFromCategory(catIdx, vidEntry.key)))),
+                      ElevatedButton(onPressed: () => controller.addVideoToCategory(catIdx), child: const Text('ADD VIDEO')),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        }),
+        ElevatedButton(onPressed: controller.addVideoCategory, child: const Text('CREATE NEW CATEGORY')),
+      ],
+    );
+  }
+
+  Widget _inquiryView(HomePageController controller) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        _sectionHeader('CONTACT ENQUIRIES'),
+        ...controller.inquiries.map((inq) => Card(margin: const EdgeInsets.only(bottom: 16), child: ListTile(title: Text('${inq.name} (${inq.type})'), subtitle: Text(inq.message)))),
+      ],
+    );
+  }
+
+  Widget _footerSettingsView(HomePageController controller) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        _sectionHeader('FOOTER CONFIGURATION'),
+        _buildField('Footer Description', controller.footer.description, (v) => controller.footer.description = v, maxLines: 4),
+        _buildField('Copyright Text', controller.footer.copyright, (v) => controller.footer.copyright = v),
+        _buildField('Facebook URL', controller.footer.facebookUrl, (v) => controller.footer.facebookUrl = v),
+        _buildField('Instagram URL', controller.footer.instagramUrl, (v) => controller.footer.instagramUrl = v),
+        _buildField('YouTube URL', controller.footer.youtubeUrl, (v) => controller.footer.youtubeUrl = v),
+        _buildField('WhatsApp URL', controller.footer.whatsappUrl, (v) => controller.footer.whatsappUrl = v),
       ],
     );
   }
@@ -644,6 +628,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
           const Divider(thickness: 2, color: Colors.black),
         ],
       ),
+    );
+  }
+
+  Widget _genericAboutView(KathaAboutPageData data, String title) {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        _buildField('Badge', data.heroBadge, (v) => data.heroBadge = v),
+        _buildField('Title', data.heroTitle, (v) => data.heroTitle = v),
+        _buildField('Description 1', data.heroDesc1, (v) => data.heroDesc1 = v, maxLines: 3),
+        _buildImageField('Hero Image', data.heroImage, (v) => setState(() => data.heroImage = v)),
+        _buildField('Biography', data.bioText, (v) => data.bioText = v, maxLines: 10),
+      ],
     );
   }
 }

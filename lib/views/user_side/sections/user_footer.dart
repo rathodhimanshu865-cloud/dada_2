@@ -6,96 +6,127 @@ class UserFooter extends StatelessWidget {
   final HomePageController controller;
   const UserFooter({super.key, required this.controller});
 
+  Future<void> _launchUrl(String url) async {
+    if (url.isEmpty) return;
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      debugPrint('Could not launch $url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    const primaryTeal = Color(0xFF0F4C5C);
+    const accentGold = Color(0xFFC89A5B);
 
     return Container(
-      color: primaryTeal,
-      padding: const EdgeInsets.all(60),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A303B), // Deep Peacock Blue
+        image: DecorationImage(
+          image: const NetworkImage('https://www.transparenttextures.com/patterns/dark-matter.png'), // Luxury pattern
+          opacity: 0.15,
+          colorFilter: ColorFilter.mode(accentGold.withOpacity(0.05), BlendMode.srcATop),
+          repeat: ImageRepeat.repeat,
+        ),
+      ),
       child: Column(
         children: [
-          LayoutBuilder(builder: (context, constraints) {
-            return Wrap(
-              spacing: 60,
-              runSpacing: 40,
-              alignment: WrapAlignment.center,
+          // Golden texture bar at the top
+          Container(
+            height: 4,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.transparent, accentGold, Colors.transparent],
+              ),
+            ),
+          ),
+          
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 80),
+            child: Column(
               children: [
-                SizedBox(
-                  width: 250,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        controller.websiteSettings.name.isNotEmpty 
-                          ? controller.websiteSettings.name.toUpperCase() 
-                          : 'JIGNESH DADA', 
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 1.5)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Branding
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            controller.websiteSettings.name.toUpperCase(),
+                            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: 2, fontFamily: 'serif'),
+                          ),
+                          const SizedBox(height: 30),
+                          SizedBox(
+                            width: 400,
+                            child: Text(
+                              controller.footer.description,
+                              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 15, height: 1.8),
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                          Row(
+                            children: [
+                              _buildSocialIcon(Icons.facebook, controller.footer.facebookUrl),
+                              _buildSocialIcon(Icons.camera_alt_outlined, controller.footer.instagramUrl),
+                              _buildSocialIcon(Icons.play_arrow_rounded, controller.footer.youtubeUrl),
+                              _buildSocialIcon(Icons.chat_bubble_outline, controller.footer.whatsappUrl),
+                            ],
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 20),
-                      Text(
-                        controller.footer.description,
-                        style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.5),
-                      ),
-                    ],
-                  ),
-                ),
-                _footerColumn(
-                  'MAIN',
-                  [
-                    _footerLink(context, 'Home', '/'),
-                    _footerLink(context, 'Contact Us', '/contact_us'),
+                    ),
+                    
+                    // Links
+                    _buildFooterColumn(context, "ORGANIZATION", [
+                      {"label": "Home", "route": "/"},
+                      {"label": "About Dada", "route": "/about_dada"},
+                      {"label": "Mission", "route": "/about_dada"},
+                      {"label": "Contact Us", "route": "/contact_us"},
+                    ]),
+                    
+                    _buildFooterColumn(context, "KATHA", [
+                      {"label": "Upcoming Kathas", "route": "/upcoming_ram_kathas"},
+                      {"label": "Full Katha List", "route": "/katha_list"},
+                      {"label": "Bhagvat Katha", "route": "/about_katha"},
+                      {"label": "Shivmahapuran", "route": "/about_shiv_katha"},
+                    ]),
+                    
+                    _buildFooterColumn(context, "RESOURCES", [
+                      {"label": "Stotra / Bhajan", "route": "/stotra"},
+                      {"label": "Photo Gallery", "route": "/photo_gallery"},
+                      {"label": "Video Gallery", "route": "/video_gallery"},
+                      {"label": "Admin Panel", "route": "/admin_login"},
+                    ]),
                   ],
                 ),
-                _footerColumn(
-                  'KATHA',
-                  [
-                    _footerLink(context, 'About Katha', '/about_katha'),
-                    _footerLink(context, 'Full Katha List', '/katha_list'),
-                    _footerLink(context, 'Upcoming Kathas', '/upcoming_ram_kathas'),
-                  ],
-                ),
-                _footerColumn(
-                  'STOTRA / BHAJAN / AARTI',
-                  [
-                    _footerLink(context, 'View Page', '/stotra'),
-                  ],
-                ),
-                _footerColumn(
-                  'GALLERY',
-                  [
-                    _footerLink(context, 'Photos', '/photo_gallery'),
-                    _footerLink(context, 'Videos', '/video_gallery'),
+                
+                const SizedBox(height: 100),
+                const Divider(color: Colors.white10),
+                const SizedBox(height: 40),
+                
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      controller.footer.copyright,
+                      style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13),
+                    ),
+                    Row(
+                      children: [
+                        _buildBottomLink("Privacy Policy"),
+                        const SizedBox(width: 30),
+                        _buildBottomLink("Terms of Service"),
+                        const SizedBox(width: 30),
+                        _buildBottomLink("Cookie Policy"),
+                      ],
+                    ),
                   ],
                 ),
               ],
-            );
-          }),
-          const SizedBox(height: 60),
-          const Divider(color: Colors.white24),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(controller.footer.copyright, style: const TextStyle(color: Colors.white54, fontSize: 11)),
-              
-              // Social Icons moved to the Right Side corner of Footer
-              Row(
-                children: [
-                  _socialCircleIcon(Icons.facebook, controller.footer.facebookUrl, 'Facebook'),
-                  _socialCircleIcon(Icons.camera_alt_outlined, controller.footer.instagramUrl, 'Instagram'),
-                  _socialCircleIcon(Icons.play_arrow, controller.footer.youtubeUrl, 'YouTube'),
-                  _socialCircleIcon(Icons.chat, controller.footer.whatsappUrl, 'WhatsApp'),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          TextButton(
-            onPressed: () => Navigator.pushNamed(context, '/admin_login'),
-            child: const Text(
-              'Admin Panel',
-              style: TextStyle(color: Colors.white38, fontSize: 10, decoration: TextDecoration.underline),
             ),
           ),
         ],
@@ -103,59 +134,46 @@ class UserFooter extends StatelessWidget {
     );
   }
 
-  Widget _footerColumn(String title, List<Widget> items) {
-    return SizedBox(
-      width: 180,
+  Widget _buildFooterColumn(BuildContext context, String title, List<Map<String, String>> links) {
+    return Expanded(
+      flex: 2,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1)),
-          const SizedBox(height: 20),
-          ...items.map((item) => Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: item,
+          Text(
+            title,
+            style: const TextStyle(color: Color(0xFFC89A5B), fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 2),
+          ),
+          const SizedBox(height: 35),
+          ...links.map((link) => Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: InkWell(
+              onTap: () => Navigator.pushNamed(context, link['route']!),
+              child: Text(
+                link['label']!,
+                style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15, fontWeight: FontWeight.w300),
+              ),
+            ),
           )),
         ],
       ),
     );
   }
 
-  Widget _footerLink(BuildContext context, String label, String route) {
-    return InkWell(
-      onTap: () => Navigator.pushNamed(context, route),
-      child: Text(
-        label,
-        style: const TextStyle(color: Colors.white70, fontSize: 13),
+  Widget _buildSocialIcon(IconData icon, String url) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 25),
+      child: InkWell(
+        onTap: () => _launchUrl(url),
+        child: Icon(icon, color: Colors.white.withOpacity(0.4), size: 22),
       ),
     );
   }
 
-  Future<void> _launchSocialUrl(String url) async {
-    final uri = Uri.tryParse(url);
-    if (uri == null || !uri.hasScheme) return;
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-  }
-
-  Widget _socialCircleIcon(IconData icon, String url, String tooltip) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 15),
-      child: Tooltip(
-        message: tooltip,
-        child: InkWell(
-          onTap: () => _launchSocialUrl(url),
-          borderRadius: BorderRadius.circular(999),
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white30),
-            ),
-            child: Icon(icon, size: 18, color: Colors.white),
-          ),
-        ),
-      ),
+  Widget _buildBottomLink(String text) {
+    return Text(
+      text,
+      style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13),
     );
   }
 }

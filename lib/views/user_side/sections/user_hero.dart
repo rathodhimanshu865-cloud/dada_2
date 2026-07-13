@@ -23,7 +23,12 @@ class _UserHeroState extends State<UserHero> {
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
-      if (_currentPage < 7) {
+      final images = widget.controller.heroSection.bannerUrls
+          .where((url) => url.isNotEmpty)
+          .toList();
+      int total = images.isEmpty ? 8 : images.length;
+      
+      if (_currentPage < total - 1) {
         _currentPage++;
       } else {
         _currentPage = 0;
@@ -48,131 +53,137 @@ class _UserHeroState extends State<UserHero> {
 
   @override
   Widget build(BuildContext context) {
-    const backgroundBeige = Color(0xFFF9F3EA);
     const accentBrown = Color(0xFFC19A6B);
+    const backgroundBeige = Color(0xFFF9F3EA);
 
-    // Filter out empty URLs
     final List<String> images = widget.controller.heroSection.bannerUrls
         .where((url) => url.isNotEmpty)
         .toList();
 
-    // If no images are uploaded, show placeholders
     if (images.isEmpty) {
       images.addAll(
         List.filled(
           8,
-          'https://via.placeholder.com/1600x700?text=Jignesh+Dada+Official',
+          'https://via.placeholder.com/1920x800?text=Jignesh+Dada+Official',
         ),
       );
     }
 
-    return Stack(
-      children: [
-        // Main Image Slider with Fixed Aspect Ratio Logic
-        SizedBox(
-          width: double.infinity,
-          height: 650, // Increased height to prevent vertical cutting
-          child: PageView.builder(
-            controller: _pageController,
-            onPageChanged: (int page) {
-              setState(() {
-                _currentPage = page;
-              });
-            },
-            itemCount: images.length,
-            itemBuilder: (context, index) {
-              return Image.network(
-                images[index],
-                fit: BoxFit.cover,
-                alignment: Alignment.topCenter, // CRITICAL: Prioritize the top of the photo (Head/Face)
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: Colors.grey[200],
-                  child: const Center(
-                    child: Icon(Icons.image, size: 50, color: Colors.grey),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // High-end edge-to-edge height
+        double sliderHeight = 650; 
 
-        // Navigation Arrows
-        Positioned.fill(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _navArrow(Icons.chevron_left, () => _pageController.previousPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeIn,
-                )),
-                _navArrow(Icons.chevron_right, () => _pageController.nextPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeIn,
-                )),
-              ],
-            ),
-          ),
-        ),
-
-        // Professional Bottom Gradient Fade
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            height: 200, // Taller fade for a more professional transition
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white.withOpacity(0.0),
-                  backgroundBeige.withOpacity(0.4),
-                  backgroundBeige.withOpacity(0.8),
-                  backgroundBeige, // Perfectly matches the background color of next section
-                ],
+        return Stack(
+          children: [
+            // Main Image Slider (FULL EDGE-TO-EDGE)
+            SizedBox(
+              width: double.infinity,
+              height: sliderHeight,
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (int page) {
+                  setState(() {
+                    _currentPage = page;
+                  });
+                },
+                itemCount: images.length,
+                itemBuilder: (context, index) {
+                  return Image.network(
+                    images[index],
+                    fit: BoxFit.cover, 
+                    alignment: const Alignment(0, -0.4), 
+                    width: double.infinity,
+                    height: double.infinity,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey[200],
+                      child: const Center(
+                        child: Icon(Icons.image, size: 50, color: Colors.grey),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
-          ),
-        ),
 
-        // Navigation Indicators (Sleek gold bars)
-        Positioned(
-          bottom: 30,
-          left: 0,
-          right: 0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(images.length, (index) {
-              bool isSelected = index == _currentPage;
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                width: isSelected ? 30 : 15,
-                height: 4,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(
-                  color: isSelected ? accentBrown : Colors.white.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(2),
+            // Navigation Arrows
+            Positioned.fill(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _navArrow(Icons.chevron_left, () => _pageController.previousPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeIn,
+                    )),
+                    _navArrow(Icons.chevron_right, () => _pageController.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeIn,
+                    )),
+                  ],
                 ),
-              );
-            }),
-          ),
-        ),
-      ],
+              ),
+            ),
+
+            // Proper Bottom Gradient Fade
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 150, // Height of the gradient fade
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      backgroundBeige.withOpacity(0.5),
+                      backgroundBeige,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Navigation Indicators
+            Positioned(
+              bottom: 25,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(images.length, (index) {
+                  bool isSelected = index == _currentPage;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    width: isSelected ? 30 : 15,
+                    height: 4,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      color: isSelected ? accentBrown : Colors.white.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
   Widget _navArrow(IconData icon, VoidCallback onTap) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.1),
+        color: Colors.black.withOpacity(0.2), 
         shape: BoxShape.circle,
       ),
       child: IconButton(
         onPressed: onTap,
-        icon: Icon(icon, color: Colors.white70, size: 30),
+        icon: Icon(icon, color: Colors.white, size: 30),
       ),
     );
   }

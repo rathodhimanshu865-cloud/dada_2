@@ -1,31 +1,238 @@
+import 'package:flutter/material.dart';
+
+class HeaderSettings {
+  bool stickyHeaderEnabled;
+  bool searchVisibility;
+  bool donateButtonEnabled;
+  String donateButtonText;
+  String donateButtonUrl;
+  String announcementBarText;
+  String headerBackgroundColor;
+  List<String> languageOptions;
+
+  HeaderSettings({
+    this.stickyHeaderEnabled = true,
+    this.searchVisibility = true,
+    this.donateButtonEnabled = true,
+    this.donateButtonText = 'DONATE',
+    this.donateButtonUrl = '',
+    this.announcementBarText = '',
+    this.headerBackgroundColor = '#FAF8F4',
+    this.languageOptions = const ['English', 'Gujarati', 'Hindi'],
+  });
+
+  Map<String, dynamic> toMap() => {
+    'stickyHeaderEnabled': stickyHeaderEnabled,
+    'searchVisibility': searchVisibility,
+    'donateButtonEnabled': donateButtonEnabled,
+    'donateButtonText': donateButtonText,
+    'donateButtonUrl': donateButtonUrl,
+    'announcementBarText': announcementBarText,
+    'headerBackgroundColor': headerBackgroundColor,
+    'languageOptions': languageOptions,
+  };
+
+  factory HeaderSettings.fromMap(Map<String, dynamic> map) => HeaderSettings(
+    stickyHeaderEnabled: map['stickyHeaderEnabled'] ?? true,
+    searchVisibility: map['searchVisibility'] ?? true,
+    donateButtonEnabled: map['donateButtonEnabled'] ?? true,
+    donateButtonText: map['donateButtonText'] ?? 'DONATE',
+    donateButtonUrl: map['donateButtonUrl'] ?? '',
+    announcementBarText: map['announcementBarText'] ?? '',
+    headerBackgroundColor: map['headerBackgroundColor'] ?? '#FAF8F4',
+    languageOptions: List<String>.from(map['languageOptions'] ?? ['English', 'Gujarati', 'Hindi']),
+  );
+}
+
 class WebsiteSettings {
   String name;
   String logoUrl;
+  HeaderSettings headerSettings;
 
   WebsiteSettings({
     this.name = '',
     this.logoUrl = '',
-  });
+    HeaderSettings? headerSettings,
+  }) : headerSettings = headerSettings ?? HeaderSettings();
 
   Map<String, dynamic> toMap() => {
         'name': name,
         'logoUrl': logoUrl,
+        'headerSettings': headerSettings.toMap(),
       };
 
   factory WebsiteSettings.fromMap(Map<String, dynamic> map) => WebsiteSettings(
         name: map['name'] ?? '',
         logoUrl: map['logoUrl'] ?? '',
+        headerSettings: map['headerSettings'] != null 
+          ? HeaderSettings.fromMap(map['headerSettings']) 
+          : HeaderSettings(),
       );
 }
 
-class HeroSection {
-  List<String> bannerUrls;
-  HeroSection({List<String>? bannerUrls})
-    : bannerUrls = bannerUrls ?? List.filled(8, '');
-  Map<String, dynamic> toMap() => {'bannerUrls': bannerUrls};
-  factory HeroSection.fromMap(Map<String, dynamic> map) =>
-      HeroSection(bannerUrls: List<String>.from(map['bannerUrls'] ?? []));
+class HeroSlide {
+  String image;
+  String badge;
+  String heading;
+  String subtitle;
+  String description;
+  String primaryCtaText;
+  String primaryCtaUrl;
+  String secondaryCtaText;
+  String secondaryCtaUrl;
+
+  HeroSlide({
+    this.image = '',
+    this.badge = '',
+    this.heading = '',
+    this.subtitle = '',
+    this.description = '',
+    this.primaryCtaText = '',
+    this.primaryCtaUrl = '',
+    this.secondaryCtaText = '',
+    this.secondaryCtaUrl = '',
+  });
+
+  Map<String, dynamic> toMap() => {
+    'image': image,
+    'badge': badge,
+    'heading': heading,
+    'subtitle': subtitle,
+    'description': description,
+    'primaryCtaText': primaryCtaText,
+    'primaryCtaUrl': primaryCtaUrl,
+    'secondaryCtaText': secondaryCtaText,
+    'secondaryCtaUrl': secondaryCtaUrl,
+  };
+
+  factory HeroSlide.fromMap(Map<String, dynamic> map) => HeroSlide(
+    image: map['image'] ?? '',
+    badge: map['badge'] ?? '',
+    heading: map['heading'] ?? '',
+    subtitle: map['subtitle'] ?? '',
+    description: map['description'] ?? '',
+    primaryCtaText: map['primaryCtaText'] ?? '',
+    primaryCtaUrl: map['primaryCtaUrl'] ?? '',
+    secondaryCtaText: map['secondaryCtaText'] ?? '',
+    secondaryCtaUrl: map['secondaryCtaUrl'] ?? '',
+  );
 }
+
+class HeroSection {
+  List<HeroSlide> slides;
+  HeroSection({List<HeroSlide>? slides}) : slides = slides ?? [];
+  Map<String, dynamic> toMap() => {'slides': slides.map((e) => e.toMap()).toList()};
+  factory HeroSection.fromMap(Map<String, dynamic> map) =>
+      HeroSection(slides: (map['slides'] as List? ?? []).map((e) => HeroSlide.fromMap(e)).toList());
+      
+  // Backwards compatibility for the old bannerUrls if needed during migration
+  List<String> get bannerUrls => slides.map((e) => e.image).toList();
+}
+
+class FeaturedQuote {
+  String quote;
+  String author;
+  String portrait;
+  String background;
+
+  FeaturedQuote({this.quote = '', this.author = '', this.portrait = '', this.background = ''});
+
+  Map<String, dynamic> toMap() => {'quote': quote, 'author': author, 'portrait': portrait, 'background': background};
+  factory FeaturedQuote.fromMap(Map<String, dynamic> map) => FeaturedQuote(
+    quote: map['quote'] ?? '',
+    author: map['author'] ?? '',
+    portrait: map['portrait'] ?? '',
+    background: map['background'] ?? '',
+  );
+}
+
+class TeachingCard {
+  String title;
+  String subtitle;
+  String description;
+  String image;
+  String icon;
+
+  TeachingCard({this.title = '', this.subtitle = '', this.description = '', this.image = '', this.icon = ''});
+
+  Map<String, dynamic> toMap() => {'title': title, 'subtitle': subtitle, 'description': description, 'image': image, 'icon': icon};
+  factory TeachingCard.fromMap(Map<String, dynamic> map) => TeachingCard(
+    title: map['title'] ?? '',
+    subtitle: map['subtitle'] ?? '',
+    description: map['description'] ?? '',
+    image: map['image'] ?? '',
+    icon: map['icon'] ?? '',
+  );
+}
+
+class Testimonial {
+  String name;
+  String location;
+  String feedback;
+  String photo;
+
+  Testimonial({this.name = '', this.location = '', this.feedback = '', this.photo = ''});
+
+  Map<String, dynamic> toMap() => {'name': name, 'location': location, 'feedback': feedback, 'photo': photo};
+  factory Testimonial.fromMap(Map<String, dynamic> map) => Testimonial(
+    name: map['name'] ?? '',
+    location: map['location'] ?? '',
+    feedback: map['feedback'] ?? '',
+    photo: map['photo'] ?? '',
+  );
+}
+
+class NewsItem {
+  String title;
+  String category;
+  String date;
+  String image;
+  String url;
+
+  NewsItem({this.title = '', this.category = '', this.date = '', this.image = '', this.url = ''});
+
+  Map<String, dynamic> toMap() => {'title': title, 'category': category, 'date': date, 'image': image, 'url': url};
+  factory NewsItem.fromMap(Map<String, dynamic> map) => NewsItem(
+    title: map['title'] ?? '',
+    category: map['category'] ?? '',
+    date: map['date'] ?? '',
+    image: map['image'] ?? '',
+    url: map['url'] ?? '',
+  );
+}
+
+class HomepageData {
+  FeaturedQuote featuredQuote;
+  List<TeachingCard> teachings;
+  List<Testimonial> testimonials;
+  List<NewsItem> news;
+
+  HomepageData({
+    FeaturedQuote? featuredQuote,
+    List<TeachingCard>? teachings,
+    List<Testimonial>? testimonials,
+    List<NewsItem>? news,
+  }) : featuredQuote = featuredQuote ?? FeaturedQuote(),
+       teachings = teachings ?? [],
+       testimonials = testimonials ?? [],
+       news = news ?? [];
+
+  Map<String, dynamic> toMap() => {
+    'featuredQuote': featuredQuote.toMap(),
+    'teachings': teachings.map((e) => e.toMap()).toList(),
+    'testimonials': testimonials.map((e) => e.toMap()).toList(),
+    'news': news.map((e) => e.toMap()).toList(),
+  };
+
+  factory HomepageData.fromMap(Map<String, dynamic> map) => HomepageData(
+    featuredQuote: FeaturedQuote.fromMap(map['featuredQuote'] ?? {}),
+    teachings: (map['teachings'] as List? ?? []).map((e) => TeachingCard.fromMap(e)).toList(),
+    testimonials: (map['testimonials'] as List? ?? []).map((e) => Testimonial.fromMap(e)).toList(),
+    news: (map['news'] as List? ?? []).map((e) => NewsItem.fromMap(e)).toList(),
+  );
+}
+
+// ... Rest of existing models enhanced ...
 
 class UpcomingKatha {
   String kathaNumber;
@@ -66,9 +273,7 @@ class UpcomingKatha {
     timing: map['timing'] ?? '',
     location: map['location'] ?? '',
     hosting: map['hosting'] ?? '',
-    startDate: map['startDate'] != null
-        ? DateTime.tryParse(map['startDate'])
-        : null,
+    startDate: map['startDate'] != null ? DateTime.tryParse(map['startDate']) : null,
     endDate: map['endDate'] != null ? DateTime.tryParse(map['endDate']) : null,
   );
 }
@@ -76,15 +281,63 @@ class UpcomingKatha {
 class AboutSection {
   String photoUrl;
   String description;
-  AboutSection({this.photoUrl = '', this.description = ''});
+  String title;
+  String tagline;
+  String quote;
+  List<String> paragraphs;
+  List<String> galleryImages;
+
+  AboutSection({
+    this.photoUrl = '',
+    this.description = '',
+    this.title = 'Pu. Jignesh Dada',
+    this.tagline = 'A divine voice of compassion, wisdom, and service',
+    this.quote = 'Radhe Radhe is not just a greeting; it is a resonance of the soul.',
+    List<String>? paragraphs,
+    List<String>? galleryImages,
+  })  : paragraphs = paragraphs ?? [],
+        galleryImages = galleryImages ?? [];
+
   Map<String, dynamic> toMap() => {
     'photoUrl': photoUrl,
     'description': description,
+    'title': title,
+    'tagline': tagline,
+    'quote': quote,
+    'paragraphs': paragraphs,
+    'galleryImages': galleryImages,
   };
-  factory AboutSection.fromMap(Map<String, dynamic> map) => AboutSection(
-    photoUrl: map['photoUrl'] ?? '',
-    description: map['description'] ?? '',
-  );
+
+  factory AboutSection.fromMap(Map<String, dynamic> map) {
+    final storedParagraphs = map['paragraphs'];
+    final parsedParagraphs = storedParagraphs is List ? storedParagraphs.map((item) => item.toString()).toList() : <String>[];
+    final storedGalleryImages = map['galleryImages'];
+    final parsedGalleryImages = storedGalleryImages is List ? storedGalleryImages.map((item) => item.toString()).toList() : <String>[];
+
+    return AboutSection(
+      photoUrl: map['photoUrl'] ?? '',
+      description: map['description'] ?? '',
+      title: map['title'] ?? 'Pu. Jignesh Dada',
+      tagline: map['tagline'] ?? 'A divine voice of compassion, wisdom, and service',
+      quote: map['quote'] ?? 'Radhe Radhe is not just a greeting; it is a resonance of the soul.',
+      paragraphs: parsedParagraphs.isNotEmpty ? parsedParagraphs : (map['description']?.toString().trim().isNotEmpty ?? false) ? [map['description'].toString()] : <String>[],
+      galleryImages: parsedGalleryImages,
+    );
+  }
+
+  List<String> get visibleParagraphs {
+    final cleanParagraphs = paragraphs.where((item) => item.trim().isNotEmpty).toList();
+    if (cleanParagraphs.isNotEmpty) return cleanParagraphs;
+    if (description.trim().isEmpty) return [];
+    return description.split(RegExp(r'\n\s*\n')).map((item) => item.trim()).where((item) => item.isNotEmpty).toList();
+  }
+
+  List<String> get visibleGalleryImages {
+    final cleanImages = galleryImages.where((item) => item.trim().isNotEmpty).toList();
+    if (cleanImages.isNotEmpty) return cleanImages;
+    if (photoUrl.trim().isNotEmpty) return [photoUrl];
+    return [];
+  }
 }
 
 class DailySuvichar {
@@ -122,7 +375,7 @@ class VideoItem {
     }
     return videoId.isNotEmpty
         ? 'https://img.youtube.com/vi/$videoId/hqdefault.jpg'
-        : 'https://via.placeholder.com/300x200';
+        : 'https://via.placeholder.com/300x500';
   }
 }
 
@@ -239,6 +492,66 @@ class KathaRecord {
   );
 }
 
+class BiographyPhase {
+  String title;
+  String subtitle;
+  String content;
+  List<String> images;
+  String layoutType; // 'standard', 'reversed', 'centered', 'highlight'
+
+  BiographyPhase({
+    this.title = '',
+    this.subtitle = '',
+    this.content = '',
+    List<String>? images,
+    this.layoutType = 'standard',
+  }) : images = images ?? [];
+
+  Map<String, dynamic> toMap() => {
+        'title': title,
+        'subtitle': subtitle,
+        'content': content,
+        'images': images,
+        'layoutType': layoutType,
+      };
+
+  factory BiographyPhase.fromMap(Map<String, dynamic> map) => BiographyPhase(
+        title: map['title'] ?? '',
+        subtitle: map['subtitle'] ?? '',
+        content: map['content'] ?? '',
+        images: List<String>.from(map['images'] ?? []),
+        layoutType: map['layoutType'] ?? 'standard',
+      );
+}
+
+class AboutDadaPageData {
+  String heroTitle;
+  String heroSubtitle;
+  String heroImage;
+  List<BiographyPhase> phases;
+
+  AboutDadaPageData({
+    this.heroTitle = '',
+    this.heroSubtitle = '',
+    this.heroImage = '',
+    List<BiographyPhase>? phases,
+  }) : phases = phases ?? [];
+
+  Map<String, dynamic> toMap() => {
+        'heroTitle': heroTitle,
+        'heroSubtitle': heroSubtitle,
+        'heroImage': heroImage,
+        'phases': phases.map((p) => p.toMap()).toList(),
+      };
+
+  factory AboutDadaPageData.fromMap(Map<String, dynamic> map) => AboutDadaPageData(
+        heroTitle: map['heroTitle'] ?? '',
+        heroSubtitle: map['heroSubtitle'] ?? '',
+        heroImage: map['heroImage'] ?? '',
+        phases: (map['phases'] as List? ?? []).map((p) => BiographyPhase.fromMap(p)).toList(),
+      );
+}
+
 class StotraItem {
   String title;
   String englishPdfUrl;
@@ -287,9 +600,7 @@ class StotraSection {
   factory StotraSection.fromMap(Map<String, dynamic> map) => StotraSection(
     pageTitle: map['pageTitle'] ?? 'Stotra / Bhajan / Aarti',
     topHeaderImage: map['topHeaderImage'] ?? '',
-    items: (map['items'] as List? ?? [])
-        .map((e) => StotraItem.fromMap(e))
-        .toList(),
+    items: (map['items'] as List? ?? []).map((e) => StotraItem.fromMap(e)).toList(),
   );
 }
 
@@ -314,24 +625,24 @@ class KathaAboutPageData {
   String ctaButtonText;
 
   KathaAboutPageData({
-    this.heroBadge = 'KATHA OVERVIEW',
-    this.heroTitle = 'PU. JIGNESH DADA',
-    this.heroDesc1 = 'A divine journey through ancient wisdom.',
-    this.heroDesc2 = 'Exploring the path of devotion and spirituality.',
+    this.heroBadge = 'ABOUT KATHA &',
+    this.heroTitle = 'PU. JIGNESH DADA (RADHE RADHE)',
+    this.heroDesc1 = 'A divine journey of knowledge, devotion and self-realization through Shrimad Bhagwat Katha.',
+    this.heroDesc2 = '',
     this.heroImage = '',
     this.bioText = '',
-    this.quoteText = '',
+    this.quoteText = 'Bhagwat Katha is not just a narration, it is a life transformation. It connects the soul with the supreme through the path of devotion.',
     this.quoteAuthor = 'Jignesh Dada',
     this.quoteImage = '',
-    this.highlight1Title = 'CORE HIGHLIGHT 1',
-    this.highlight1Desc = 'Detailed description of spiritual significance.',
-    this.highlight2Title = 'CORE HIGHLIGHT 2',
-    this.highlight2Desc = 'Detailed description of cultural impact.',
-    this.highlight3Title = 'CORE HIGHLIGHT 3',
-    this.highlight3Desc = 'Detailed description of personal transformation.',
-    this.ctaTitle = 'Join the Journey',
-    this.ctaSubtitle = 'Experience the divinity.',
-    this.ctaButtonText = 'EXPLORE MORE',
+    this.highlight1Title = 'OUR KATHA',
+    this.highlight1Desc = 'Shrimad Bhagwat Katha is a timeless treasure that enlightens the heart, removes darkness and shows us the path of truth, devotion and righteous living.',
+    this.highlight2Title = 'OUR MISSION',
+    this.highlight2Desc = 'To spread the divine wisdom of Bhagwat through Katha, inspire devotion, nurture values and bring positive change in society.',
+    this.highlight3Title = 'OUR VISION',
+    this.highlight3Desc = 'A world filled with love, peace, compassion and righteousness where every soul walks the path of spirituality and service.',
+    this.ctaTitle = 'Join us in this Divine Journey',
+    this.ctaSubtitle = 'Listen, reflect and experience the nectar of Bhagwat Katha. Let devotion lead your life towards peace and purpose.',
+    this.ctaButtonText = 'EXPLORE KATHA',
   });
 
   Map<String, dynamic> toMap() => {
@@ -358,7 +669,7 @@ class KathaAboutPageData {
   factory KathaAboutPageData.fromMap(Map<String, dynamic> map) => KathaAboutPageData(
     heroBadge: map['heroBadge'] ?? '',
     heroTitle: map['heroTitle'] ?? '',
-    heroDesc1: map['heroDesc1'] ?? map['heroSubtitle'] ?? '',
+    heroDesc1: map['heroDesc1'] ?? '',
     heroDesc2: map['heroDesc2'] ?? '',
     heroImage: map['heroImage'] ?? '',
     bioText: map['bioText'] ?? '',
@@ -393,17 +704,23 @@ class ContactPageData {
       ContactPageData(bannerImageUrl: map['bannerImageUrl'] ?? '');
 }
 
+class VideoCategory {
+  String categoryTitle;
+  List<VideoGalleryEntry> videos;
+  VideoCategory({this.categoryTitle = '', List<VideoGalleryEntry>? videos}) : videos = videos ?? [];
+  Map<String, dynamic> toMap() => {'categoryTitle': categoryTitle, 'videos': videos.map((v) => v.toMap()).toList()};
+  factory VideoCategory.fromMap(Map<String, dynamic> map) => VideoCategory(
+    categoryTitle: map['categoryTitle'] ?? '',
+    videos: (map['videos'] as List? ?? []).map((v) => VideoGalleryEntry.fromMap(v)).toList(),
+  );
+}
+
 class VideoGalleryEntry {
   String title;
   String youtubeUrl;
   VideoGalleryEntry({this.title = '', this.youtubeUrl = ''});
   Map<String, dynamic> toMap() => {'title': title, 'youtubeUrl': youtubeUrl};
-  factory VideoGalleryEntry.fromMap(Map<String, dynamic> map) =>
-      VideoGalleryEntry(
-        title: map['title'] ?? '',
-        youtubeUrl: map['youtubeUrl'] ?? '',
-      );
-
+  factory VideoGalleryEntry.fromMap(Map<String, dynamic> map) => VideoGalleryEntry(title: map['title'] ?? '', youtubeUrl: map['youtubeUrl'] ?? '');
   String get thumbnail {
     if (youtubeUrl.isEmpty) return 'https://via.placeholder.com/300x200';
     String videoId = '';
@@ -414,98 +731,33 @@ class VideoGalleryEntry {
     } else if (youtubeUrl.contains('youtu.be/')) {
       videoId = youtubeUrl.split('youtu.be/')[1].split('?')[0];
     }
-    return videoId.isNotEmpty
-        ? 'https://img.youtube.com/vi/$videoId/hqdefault.jpg'
-        : 'https://via.placeholder.com/300x200';
+    return videoId.isNotEmpty ? 'https://img.youtube.com/vi/$videoId/hqdefault.jpg' : 'https://via.placeholder.com/300x200';
   }
-}
-
-class VideoCategory {
-  String categoryTitle;
-  List<VideoGalleryEntry> videos;
-  VideoCategory({this.categoryTitle = '', List<VideoGalleryEntry>? videos})
-    : videos = videos ?? [];
-
-  Map<String, dynamic> toMap() => {
-    'categoryTitle': categoryTitle,
-    'videos': videos.map((v) => v.toMap()).toList(),
-  };
-
-  factory VideoCategory.fromMap(Map<String, dynamic> map) => VideoCategory(
-    categoryTitle: map['categoryTitle'] ?? '',
-    videos: (map['videos'] as List? ?? [])
-        .map((v) => VideoGalleryEntry.fromMap(v))
-        .toList(),
-  );
 }
 
 class VideoGalleryPageData {
   String headerImageUrl;
   List<VideoCategory> categories;
-  VideoGalleryPageData({
-    this.headerImageUrl = '',
-    List<VideoCategory>? categories,
-  }) : categories = categories ?? [];
-
-  Map<String, dynamic> toMap() => {
-    'headerImageUrl': headerImageUrl,
-    'categories': categories.map((c) => c.toMap()).toList(),
-  };
-
+  VideoGalleryPageData({this.headerImageUrl = '', List<VideoCategory>? categories}) : categories = categories ?? [];
+  Map<String, dynamic> toMap() => {'headerImageUrl': headerImageUrl, 'categories': categories.map((c) => c.toMap()).toList()};
   factory VideoGalleryPageData.fromMap(Map<String, dynamic> map) =>
-      VideoGalleryPageData(
-        headerImageUrl: map['headerImageUrl'] ?? '',
-        categories: (map['categories'] as List? ?? [])
-            .map((c) => VideoCategory.fromMap(c))
-            .toList(),
-      );
+      VideoGalleryPageData(headerImageUrl: map['headerImageUrl'] ?? '', categories: (map['categories'] as List? ?? []).map((c) => VideoCategory.fromMap(c)).toList());
 }
 
 class PhotoGallerySection {
   String heading;
   List<String> photoUrls;
-
-  PhotoGallerySection({this.heading = '', List<String>? photoUrls})
-      : photoUrls = photoUrls ?? [];
-
-  Map<String, dynamic> toMap() => {
-        'heading': heading,
-        'photoUrls': photoUrls,
-      };
-
-  factory PhotoGallerySection.fromMap(Map<String, dynamic> map) =>
-      PhotoGallerySection(
-        heading: map['heading'] ?? '',
-        photoUrls: List<String>.from(map['photoUrls'] ?? []),
-      );
+  PhotoGallerySection({this.heading = '', List<String>? photoUrls}) : photoUrls = photoUrls ?? [];
+  Map<String, dynamic> toMap() => {'heading': heading, 'photoUrls': photoUrls};
+  factory PhotoGallerySection.fromMap(Map<String, dynamic> map) => PhotoGallerySection(heading: map['heading'] ?? '', photoUrls: List<String>.from(map['photoUrls'] ?? []));
 }
 
 class PhotoGalleryPageData {
   String title;
   String headerImageUrl;
   List<PhotoGallerySection> sections;
-
-  PhotoGalleryPageData({
-    this.title = 'Gallery',
-    this.headerImageUrl = '',
-    List<PhotoGallerySection>? sections,
-  }) : sections = sections ?? [
-          PhotoGallerySection(heading: 'Bapu & Ram Katha'),
-          PhotoGallerySection(heading: 'Temples in Taljagrda'),
-        ];
-
-  Map<String, dynamic> toMap() => {
-        'title': title,
-        'headerImageUrl': headerImageUrl,
-        'sections': sections.map((c) => c.toMap()).toList(),
-      };
-
+  PhotoGalleryPageData({this.title = 'Gallery', this.headerImageUrl = '', List<PhotoGallerySection>? sections}) : sections = sections ?? [];
+  Map<String, dynamic> toMap() => {'title': title, 'headerImageUrl': headerImageUrl, 'sections': sections.map((c) => c.toMap()).toList()};
   factory PhotoGalleryPageData.fromMap(Map<String, dynamic> map) =>
-      PhotoGalleryPageData(
-        title: map['title'] ?? 'Gallery',
-        headerImageUrl: map['headerImageUrl'] ?? '',
-        sections: (map['sections'] as List? ?? map['categories'] as List? ?? [])
-            .map((c) => PhotoGallerySection.fromMap(c))
-            .toList(),
-      );
+      PhotoGalleryPageData(title: map['title'] ?? 'Gallery', headerImageUrl: map['headerImageUrl'] ?? '', sections: (map['sections'] as List? ?? []).map((c) => PhotoGallerySection.fromMap(c)).toList());
 }

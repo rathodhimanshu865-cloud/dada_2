@@ -8,63 +8,92 @@ class UserRamKatha extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const primaryTeal = Color(0xFF0F4C5C);
-    const backgroundBeige = Color(0xFFF9F3EA);
-    final ramKatha = controller.ramKatha;
+    const backgroundBeige = Color(0xFFFAF8F4);
+    const accentGold = Color(0xFFC89A5B);
+    final kathaData = controller.ramKatha;
+    
+    final isMobile = MediaQuery.of(context).size.width < 900;
 
     return Container(
       width: double.infinity,
       color: backgroundBeige,
-      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 40),
-      child: LayoutBuilder(builder: (context, constraints) {
-        bool isDesktop = constraints.maxWidth > 900;
-        return Flex(
-          direction: isDesktop ? Axis.horizontal : Axis.vertical,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Spiritual Kathas',
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: primaryTeal, fontFamily: 'serif'),
-                  ),
-                  const SizedBox(height: 25),
-                  Text(
-                    ramKatha.description1,
-                    style: const TextStyle(fontSize: 16, height: 1.6, color: Colors.black87),
-                  ),
-                  const SizedBox(height: 15),
-                  Text(
-                    ramKatha.description2,
-                    style: const TextStyle(fontSize: 14, height: 1.6, color: Colors.black54),
-                  ),
-                  const SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/about_katha'),
-                    style: ElevatedButton.styleFrom(backgroundColor: primaryTeal),
-                    child: const Text('ENTER KATHA JOURNEY'),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 60, height: 40),
-            Expanded(
-              flex: 1,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  ramKatha.photoUrl.isNotEmpty 
-                    ? ramKatha.photoUrl 
-                    : 'https://via.placeholder.com/400x500',
-                  fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) => Container(color: Colors.white, height: 400),
+      padding: const EdgeInsets.symmetric(vertical: 120, horizontal: 40),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Flex(
+            direction: isMobile ? Axis.vertical : Axis.horizontal,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Left: Narrative Content
+              Expanded(
+                flex: 6,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "DIVINE DISCOURSES",
+                      style: TextStyle(color: accentGold, letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                    const SizedBox(height: 25),
+                    const Text(
+                      "Shreemad Bhagwat Katha",
+                      style: TextStyle(fontSize: 48, fontFamily: 'serif', fontWeight: FontWeight.w900, color: primaryTeal, height: 1.1),
+                    ),
+                    const SizedBox(height: 40),
+                    Text(
+                      kathaData.description1,
+                      style: const TextStyle(fontSize: 18, height: 1.8, color: Color(0xFF2B2B2B), letterSpacing: 0.2),
+                    ),
+                    if (kathaData.description2.isNotEmpty) ...[
+                      const SizedBox(height: 25),
+                      Text(
+                        kathaData.description2,
+                        style: const TextStyle(fontSize: 16, height: 1.7, color: Color(0xFF6D6D6D)),
+                      ),
+                    ],
+                    const SizedBox(height: 50),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pushNamed(context, '/about_katha'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryTeal,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                      ),
+                      child: const Text('EXPLORE KATHA JOURNEY', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
-        );
-      }),
+              
+              if (!isMobile) const SizedBox(width: 80),
+              if (isMobile) const SizedBox(height: 60),
+
+              // Right: Image Canvas
+              Expanded(
+                flex: 5,
+                child: Container(
+                  height: 500,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 40, offset: const Offset(0, 20)),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: kathaData.photoUrl.isNotEmpty
+                        ? Image.network(kathaData.photoUrl, fit: BoxFit.cover)
+                        : const Icon(Icons.temple_hindu_outlined, size: 80, color: Color(0xFFEEEEEE)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

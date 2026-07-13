@@ -22,6 +22,9 @@ class HomePageController extends ChangeNotifier {
   StotraSection stotraSection = StotraSection();
   FooterData footer = FooterData();
   
+  AboutDadaPageData aboutDadaPage = AboutDadaPageData();
+  HomepageData homepageData = HomepageData();
+
   KathaAboutPageData bhagvatKathaPage = KathaAboutPageData(heroBadge: 'ABOUT KATHA &', heroTitle: 'PU. JIGNESH DADA (RADHE RADHE)');
   KathaAboutPageData deviKathaPage = KathaAboutPageData(heroBadge: 'DIVINE GRACE', heroTitle: 'SHREEMAD DEVI BHAGVAT');
   KathaAboutPageData shivKathaPage = KathaAboutPageData(heroBadge: 'ETERNAL WISDOM', heroTitle: 'SHREE SHIVMAHAPURAN');
@@ -50,9 +53,12 @@ class HomePageController extends ChangeNotifier {
         final data = doc.data()!;
         websiteSettings = WebsiteSettings.fromMap(data['websiteSettings'] ?? {});
         heroSection = HeroSection.fromMap(data['heroSection'] ?? {});
-        while (heroSection.bannerUrls.length < 8) {
-          heroSection.bannerUrls.add('');
+        
+        // Ensure at least one slide for new hero system
+        if (heroSection.slides.isEmpty) {
+          heroSection.slides = [HeroSlide(image: 'https://via.placeholder.com/1920x800?text=Jignesh+Dada+Official')];
         }
+
         upcomingKathas = (data['upcomingKathas'] as List? ?? []).map((e) => UpcomingKatha.fromMap(e)).toList();
         aboutSection = AboutSection.fromMap(data['aboutSection'] ?? {});
         dailySuvichar = DailySuvichar.fromMap(data['dailySuvichar'] ?? {});
@@ -60,6 +66,9 @@ class HomePageController extends ChangeNotifier {
         ramKatha = RamKathaSection.fromMap(data['ramKatha'] ?? {});
         stotraSection = StotraSection.fromMap(data['stotraSection'] ?? {});
         footer = FooterData.fromMap(data['footer'] ?? {});
+        
+        aboutDadaPage = AboutDadaPageData.fromMap(data['aboutDadaPage'] ?? {});
+        homepageData = HomepageData.fromMap(data['homepageData'] ?? {});
         
         bhagvatKathaPage = KathaAboutPageData.fromMap(data['bhagvatKathaPage'] ?? {});
         deviKathaPage = KathaAboutPageData.fromMap(data['deviKathaPage'] ?? {});
@@ -78,20 +87,21 @@ class HomePageController extends ChangeNotifier {
       debugPrint("Load error: $e");
     }
     
-    if (photoGalleryData.sections.isEmpty) {
-      photoGalleryData.sections = [
-        PhotoGallerySection(heading: 'Bapu & Ram Katha'),
-        PhotoGallerySection(heading: 'Temples in Taljagrda'),
-      ];
-    }
     isLoading = false;
     notifyListeners();
   }
 
+  // Management functions
+  void addHeroSlide() { heroSection.slides.add(HeroSlide()); notifyListeners(); }
+  void removeHeroSlide(int i) { heroSection.slides.removeAt(i); notifyListeners(); }
   void addKatha() { upcomingKathas.add(UpcomingKatha()); notifyListeners(); }
   void removeKatha(int i) { upcomingKathas.removeAt(i); notifyListeners(); }
   void addVideo() { videos.add(VideoItem()); notifyListeners(); }
   void removeVideo(int i) { videos.removeAt(i); notifyListeners(); }
+  void addTeaching() { homepageData.teachings.add(TeachingCard()); notifyListeners(); }
+  void removeTeaching(int i) { homepageData.teachings.removeAt(i); notifyListeners(); }
+  void addTestimonial() { homepageData.testimonials.add(Testimonial()); notifyListeners(); }
+  void removeTestimonial(int i) { homepageData.testimonials.removeAt(i); notifyListeners(); }
   void addKathaRecord() { allKathas.add(KathaRecord()); notifyListeners(); }
   void removeKathaRecord(int i) { allKathas.removeAt(i); notifyListeners(); }
   void addStotraItem() { stotraSection.items.add(StotraItem()); notifyListeners(); }
@@ -106,58 +116,15 @@ class HomePageController extends ChangeNotifier {
     }
   }
 
-  void addVideoCategory() { videoGalleryData.categories.add(VideoCategory()); notifyListeners(); }
-  void removeVideoCategory(int i) { videoGalleryData.categories.removeAt(i); notifyListeners(); }
-  void addVideoToCategory(int catIdx) { videoGalleryData.categories[catIdx].videos.add(VideoGalleryEntry()); notifyListeners(); }
-  void removeVideoFromCategory(int catIdx, int vidIdx) { videoGalleryData.categories[catIdx].videos.removeAt(vidIdx); notifyListeners(); }
-
-  void addPhotoCategory() {
-    photoGalleryData.sections.add(PhotoGallerySection(heading: 'New Heading'));
-    notifyListeners();
-  }
-
-  void removePhotoCategory(int i) {
-    if (i >= 0 && i < photoGalleryData.sections.length) {
-      photoGalleryData.sections.removeAt(i);
-      notifyListeners();
-    }
-  }
-
-  void removePhotoFromCategory(int catIdx, int photoIdx) {
-    if (catIdx >= 0 && catIdx < photoGalleryData.sections.length) {
-      photoGalleryData.sections[catIdx].photoUrls.removeAt(photoIdx);
-      notifyListeners();
-    }
-  }
-
-  void addPhotoUrlToSection(int sectionIndex) {
-    if (sectionIndex >= 0 && sectionIndex < photoGalleryData.sections.length) {
-      photoGalleryData.sections[sectionIndex].photoUrls.add('');
-      notifyListeners();
-    }
-  }
-
   Future<String?> uploadPhotoFromFile() async {
     try {
       isUploading = true;
       notifyListeners();
-      
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.image, 
-        allowMultiple: false,
-        withData: kIsWeb,
-      );
-      
-      if (result == null || result.files.isEmpty) {
-        isUploading = false;
-        notifyListeners();
-        return null;
-      }
-      
+      final result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: false, withData: kIsWeb);
+      if (result == null || result.files.isEmpty) { isUploading = false; notifyListeners(); return null; }
       final fileName = result.files.single.name;
       final uploadName = '${DateTime.now().millisecondsSinceEpoch}_$fileName';
       final reference = _storage.ref('uploads/$uploadName');
-      
       UploadTask task;
       if (kIsWeb) {
         final bytes = result.files.single.bytes;
@@ -169,20 +136,28 @@ class HomePageController extends ChangeNotifier {
         final file = File(filePath);
         task = reference.putFile(file);
       }
-
       final snapshot = await task;
       final url = await snapshot.ref.getDownloadURL();
-      
       isUploading = false;
       notifyListeners();
       return url;
-    } catch (e) {
-      isUploading = false;
-      notifyListeners();
-      debugPrint("Upload error details: $e");
-      return null;
-    }
+    } catch (e) { isUploading = false; notifyListeners(); return null; }
   }
+
+  void addBiographyPhase() { aboutDadaPage.phases.add(BiographyPhase()); notifyListeners(); }
+  void removeBiographyPhase(int i) { aboutDadaPage.phases.removeAt(i); notifyListeners(); }
+  void addImageToPhase(int phaseIdx, String url) { aboutDadaPage.phases[phaseIdx].images.add(url); notifyListeners(); }
+  void removeImageFromPhase(int phaseIdx, int imgIdx) { aboutDadaPage.phases[phaseIdx].images.removeAt(imgIdx); notifyListeners(); }
+
+  void addVideoCategory() { videoGalleryData.categories.add(VideoCategory()); notifyListeners(); }
+  void removeVideoCategory(int i) { videoGalleryData.categories.removeAt(i); notifyListeners(); }
+  void addVideoToCategory(int catIdx) { videoGalleryData.categories[catIdx].videos.add(VideoGalleryEntry()); notifyListeners(); }
+  void removeVideoFromCategory(int catIdx, int vidIdx) { videoGalleryData.categories[catIdx].videos.removeAt(vidIdx); notifyListeners(); }
+
+  void addPhotoCategory() { photoGalleryData.sections.add(PhotoGallerySection(heading: 'New Heading')); notifyListeners(); }
+  void removePhotoCategory(int i) { photoGalleryData.sections.removeAt(i); notifyListeners(); }
+  void removePhotoFromCategory(int catIdx, int photoIdx) { photoGalleryData.sections[catIdx].photoUrls.removeAt(photoIdx); notifyListeners(); }
+  void addPhotoUrlToSection(int sectionIndex) { photoGalleryData.sections[sectionIndex].photoUrls.add(''); notifyListeners(); }
 
   Future<void> addPhotoToCategoryFromPicker(int catIdx) async {
     final url = await uploadPhotoFromFile();
@@ -209,6 +184,8 @@ class HomePageController extends ChangeNotifier {
         'bhagvatKathaPage': bhagvatKathaPage.toMap(),
         'deviKathaPage': deviKathaPage.toMap(),
         'shivKathaPage': shivKathaPage.toMap(),
+        'aboutDadaPage': aboutDadaPage.toMap(),
+        'homepageData': homepageData.toMap(),
         'allKathas': allKathas.map((e) => e.toMap()).toList(),
         'kathaListPageData': kathaListPageData.toMap(),
         'contactPageData': contactPageData.toMap(),

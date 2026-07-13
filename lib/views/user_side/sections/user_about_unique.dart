@@ -89,7 +89,7 @@ class UserAboutUnique extends StatelessWidget {
                         children: [
                           Container(width: 40, height: 2, color: accentBrown),
                           const SizedBox(width: 15),
-                          Text(
+                          const Text(
                             'MEET JIGNESH DADA',
                             style: TextStyle(
                               color: accentBrown,
@@ -116,7 +116,7 @@ class UserAboutUnique extends StatelessWidget {
                       Text(
                         about.description.isNotEmpty 
                           ? about.description 
-                          : "Shri Jigneshdada, affectionately known as 'Radhe Radhe' among millions of devotees, is a globally renowned spiritual leader and Bhagwat Katha orator. With a mission to nurture values in the younger generation and uplift society through the profound wisdom of Shrimad Bhagwat, he has dedicated his life to spiritual awakening and humanitarian service. His discourses serve as a guiding light, bridging the gap between ancient traditions and modern living.",
+                          : "Shri Jigneshdada, affectionately known as 'Radhe Radhe' among millions of devotees, is a globally renowned spiritual leader and Bhagwat Katha orator.",
                         textAlign: isDesktop ? TextAlign.start : TextAlign.center,
                         style: const TextStyle(
                           fontSize: 18,
@@ -124,12 +124,12 @@ class UserAboutUnique extends StatelessWidget {
                           color: Color(0xFF444444),
                           letterSpacing: 0.2,
                         ),
-                        maxLines: 8,
+                        maxLines: 6,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 50),
                       ElevatedButton(
-                        onPressed: () => Navigator.pushNamed(context, '/about_katha'),
+                        onPressed: () => Navigator.pushNamed(context, '/about_dada'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryTeal,
                           foregroundColor: Colors.white,

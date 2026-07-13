@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../controllers/homepage_controller.dart';
-import 'katha_calendar_view.dart';
+import '../../../models/homepage_model.dart';
 
 class UserUpcomingKathas extends StatelessWidget {
   final HomePageController controller;
@@ -8,71 +8,38 @@ class UserUpcomingKathas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const primaryTeal = Color(0xFF0F4C5C);
-    const accentBrown = Color(0xFFC19A6B);
+    if (controller.upcomingKathas.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 60),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 40),
+      color: const Color(0xFFF3EEE6),
       child: Column(
         children: [
-          // Section Header with View Switchers
-          Container(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(width: 100), // Spacer for balance
-                Column(
-                  children: [
-                    const Text(
-                      'Upcoming Kathas',
-                      style: TextStyle(
-                        fontSize: 36, 
-                        fontFamily: 'serif', 
-                        color: primaryTeal,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Container(width: 60, height: 3, color: accentBrown),
-                  ],
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.list_alt_rounded, size: 28),
-                      color: primaryTeal.withOpacity(0.5),
-                      onPressed: () => Navigator.pushNamed(context, '/upcoming_ram_kathas'),
-                      tooltip: 'List View',
-                    ),
-                    const SizedBox(width: 10),
-                    IconButton(
-                      icon: const Icon(Icons.grid_view_rounded, size: 28),
-                      color: primaryTeal,
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => KathaCalendarView(kathas: controller.upcomingKathas),
-                        );
-                      },
-                      tooltip: 'Calendar View',
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          // Section Header
+          Column(
+            children: [
+              const Text(
+                "SPIRITUAL CALENDAR",
+                style: TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Upcoming Kathas",
+                style: TextStyle(fontSize: 42, fontFamily: 'serif', fontWeight: FontWeight.w900, color: Color(0xFF0F4C5C)),
+              ),
+              const SizedBox(height: 30),
+              Container(height: 1, width: 80, color: const Color(0xFFC89A5B)),
+            ],
           ),
           
           const SizedBox(height: 80),
-          
-          // Responsive Grid of Katha Cards
+
+          // Well-arranged Grid of Cards
           Container(
-            constraints: const BoxConstraints(maxWidth: 1300),
+            constraints: const BoxConstraints(maxWidth: 1100),
             child: LayoutBuilder(builder: (context, constraints) {
-              int crossAxisCount = constraints.maxWidth > 1100 ? 4 : (constraints.maxWidth > 700 ? 2 : 1);
-              
+              int crossAxisCount = constraints.maxWidth > 1000 ? 3 : (constraints.maxWidth > 700 ? 2 : 1);
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -80,110 +47,86 @@ class UserUpcomingKathas extends StatelessWidget {
                   crossAxisCount: crossAxisCount,
                   crossAxisSpacing: 25,
                   mainAxisSpacing: 25,
-                  childAspectRatio: 0.85,
+                  childAspectRatio: 1.0, // Making boxes a bit smaller and more square
                 ),
-                itemCount: controller.upcomingKathas.take(4).length,
-                itemBuilder: (context, index) {
-                  final katha = controller.upcomingKathas[index];
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.06), 
-                          blurRadius: 20, 
-                          offset: const Offset(0, 10)
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Brown Circular ID
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: accentBrown,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(color: accentBrown.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4)),
-                            ]
-                          ),
-                          child: Center(
-                            child: Text(
-                              katha.kathaNumber,
-                              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                        
-                        // Location/Name
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            katha.name.toUpperCase(), 
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold, 
-                              fontSize: 18, 
-                              color: Color(0xFF333333),
-                              letterSpacing: 1,
-                            )
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        
-                        // Date
-                        Text(
-                          katha.dateString.toUpperCase(), 
-                          style: TextStyle(
-                            color: primaryTeal.withOpacity(0.6), 
-                            fontSize: 13, 
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
-                          )
-                        ),
-                        
-                        const SizedBox(height: 40),
-                        
-                        // Details Link
-                        InkWell(
-                          onTap: () => Navigator.pushNamed(context, '/upcoming_ram_kathas'),
-                          child: Text(
-                            'MORE DETAILS >',
-                            style: TextStyle(
-                              color: accentBrown,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                itemCount: controller.upcomingKathas.take(3).length,
+                itemBuilder: (context, index) => _buildEventCard(controller.upcomingKathas[index]),
               );
             }),
           ),
           
-          const SizedBox(height: 80),
+          const SizedBox(height: 60),
           
-          // Main Action Button
           ElevatedButton(
-            onPressed: () => Navigator.pushNamed(context, '/katha_list'),
+            onPressed: () => Navigator.pushNamed(context, '/upcoming_ram_kathas'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: primaryTeal,
+              backgroundColor: const Color(0xFF0F4C5C),
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 25),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              elevation: 5,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
-            child: const Text(
-              'VIEW ALL KATHAS', 
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)
+            child: const Text('VIEW ALL UPCOMING KATHAS', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEventCard(UpcomingKatha katha) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 10)),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Calendar Icon in top-right corner
+          const Positioned(
+            top: 15, right: 15,
+            child: Icon(Icons.calendar_month_outlined, color: Color(0xFFC89A5B), size: 24),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(25),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 10),
+                Text(
+                  katha.dateString.toUpperCase(),
+                  style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  katha.kathaNumber,
+                  style: TextStyle(color: const Color(0xFF0F4C5C).withOpacity(0.3), fontSize: 40, fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  katha.name,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A), fontFamily: 'serif'),
+                ),
+                const Spacer(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFFC89A5B)),
+                    const SizedBox(width: 8),
+                    Flexible(child: Text(katha.location, style: const TextStyle(color: Color(0xFF6D6D6D), fontSize: 14))),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "DETAILS >",
+                  style: TextStyle(color: Color(0xFFC89A5B), fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 2),
+                ),
+              ],
             ),
           ),
         ],

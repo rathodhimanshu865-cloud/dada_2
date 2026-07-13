@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../controllers/homepage_controller.dart';
-import 'sections/user_header.dart';
+import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 
 class StotraPage extends StatelessWidget {
@@ -24,107 +24,59 @@ class StotraPage extends StatelessWidget {
     final section = controller.stotraSection;
 
     if (controller.isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: primaryTeal)),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            UserHeader(controller: controller),
-
-            // Hero Title Section (Matches All Kathas style)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 80),
-              color: backgroundBeige.withOpacity(0.5),
-              child: Column(
-                children: [
-                  Text(
-                    section.pageTitle,
-                    style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Text('Home > Stotra / Bhajan / Aarti', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
-                ],
-              ),
+    return UserPageLayout(
+      controller: controller,
+      child: Column(
+        children: [
+          const SizedBox(height: 120),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 80),
+            color: backgroundBeige.withOpacity(0.5),
+            child: Column(
+              children: [
+                Text(section.pageTitle, style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                Text('Home > Stotra / Bhajan / Aarti', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+              ],
             ),
-
-            const SizedBox(height: 80),
-
-            // Table-like Structure
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 100),
-              child: Column(
-                children: [
-                  // Header row
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: primaryTeal.withOpacity(0.04),
-                      border: Border(bottom: BorderSide(color: primaryTeal.withOpacity(0.15), width: 2)),
-                    ),
+          ),
+          const SizedBox(height: 80),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 100),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 20),
+                  decoration: BoxDecoration(color: primaryTeal.withOpacity(0.04), border: Border(bottom: BorderSide(color: primaryTeal.withOpacity(0.15), width: 2))),
+                  child: Row(children: [_colHeader('ID', flex: 1), _colHeader('NAME / TITLE', flex: 5), _colHeader('ENGLISH', flex: 2, center: true), _colHeader('HINDI', flex: 2, center: true), _colHeader('GUJARATI', flex: 2, center: true)]),
+                ),
+                ...section.items.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  final item = entry.value;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 20),
+                    decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey[100]!))),
                     child: Row(
                       children: [
-                        _colHeader('ID', flex: 1),
-                        _colHeader('NAME / TITLE', flex: 5),
-                        _colHeader('ENGLISH', flex: 2, center: true),
-                        _colHeader('HINDI', flex: 2, center: true),
-                        _colHeader('GUJARATI', flex: 2, center: true),
+                        Expanded(flex: 1, child: _circleId('${index + 1}', primaryTeal)),
+                        Expanded(flex: 5, child: Text(item.title.toUpperCase(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF444444), letterSpacing: 0.5))),
+                        _pdfLink('Download', item.englishPdfUrl, primaryTeal, flex: 2),
+                        _pdfLink('Download', item.hindiPdfUrl, primaryTeal, flex: 2),
+                        _pdfLink('Download', item.gujaratiPdfUrl, primaryTeal, flex: 2),
                       ],
                     ),
-                  ),
-
-                  // List of Stotras
-                  ...section.items.asMap().entries.map((entry) {
-                    int index = entry.key;
-                    final item = entry.value;
-                    return Container(
-                      padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 20),
-                      decoration: BoxDecoration(
-                        border: Border(bottom: BorderSide(color: Colors.grey[100]!)),
-                      ),
-                      child: Row(
-                        children: [
-                          // Numbered Circle
-                          Expanded(
-                            flex: 1,
-                            child: _circleId('${index + 1}', primaryTeal),
-                          ),
-
-                          // Stotra Name
-                          Expanded(
-                            flex: 5,
-                            child: Text(
-                              item.title.toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF444444),
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-
-                          // PDF Links with bigger fonts
-                          _pdfLink('Download', item.englishPdfUrl, primaryTeal, flex: 2),
-                          _pdfLink('Download', item.hindiPdfUrl, primaryTeal, flex: 2),
-                          _pdfLink('Download', item.gujaratiPdfUrl, primaryTeal, flex: 2),
-                        ],
-                      ),
-                    );
-                  }),
-                ],
-              ),
+                  );
+                }),
+              ],
             ),
-
-            const SizedBox(height: 120),
-            UserFooter(controller: controller),
-          ],
-        ),
+          ),
+          const SizedBox(height: 120),
+          UserFooter(controller: controller),
+        ],
       ),
     );
   }
@@ -143,14 +95,7 @@ class StotraPage extends StatelessWidget {
               children: [
                 Icon(Icons.picture_as_pdf_outlined, size: 24, color: color),
                 const SizedBox(width: 10),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    color: Color(0xFF444444),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                Text(label, style: const TextStyle(fontSize: 15, color: Color(0xFF444444), fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -161,32 +106,10 @@ class StotraPage extends StatelessWidget {
 
   Widget _colHeader(String title, {required int flex, bool center = false}) {
     const primaryTeal = Color(0xFF0F4C5C);
-    return Expanded(
-      flex: flex, 
-      child: Text(
-        title, 
-        textAlign: center ? TextAlign.center : TextAlign.start,
-        style: TextStyle(
-          fontSize: 14, 
-          fontWeight: FontWeight.bold, 
-          color: primaryTeal.withOpacity(0.7), 
-          letterSpacing: 1.5
-        )
-      )
-    );
+    return Expanded(flex: flex, child: Text(title, textAlign: center ? TextAlign.center : TextAlign.start, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: primaryTeal.withOpacity(0.7), letterSpacing: 1.5)));
   }
 
   Widget _circleId(String id, Color color) {
-    return Container(
-      width: 40, height: 40,
-      decoration: BoxDecoration(
-        color: color, 
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(color: color.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 3)),
-        ]
-      ),
-      child: Center(child: Text(id, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold))),
-    );
+    return Container(width: 40, height: 40, decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 3))]), child: Center(child: Text(id, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold))));
   }
 }
