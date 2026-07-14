@@ -11,7 +11,6 @@ import 'sections/user_photo_gallery.dart';
 import 'sections/user_daily_suvichar.dart';
 import 'sections/user_ram_katha.dart';
 import 'sections/user_news.dart';
-import 'sections/user_donation_cta.dart';
 import 'sections/user_footer.dart';
 
 class UserHomePage extends StatefulWidget {
@@ -58,7 +57,6 @@ class _UserHomePageState extends State<UserHomePage> {
           UserRamKatha(controller: controller), // This is the "About Katha" preview section
           // Testimonials removed
           UserNews(controller: controller),
-          UserDonationCTA(controller: controller),
           UserFooter(controller: controller),
         ],
       ),

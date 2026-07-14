@@ -14,6 +14,7 @@ import 'views/user_side/stotra_page.dart';
 import 'views/user_side/upcoming_ram_kathas_page.dart';
 import 'views/user_side/video_gallery_page.dart';
 import 'views/user_side/contact_page.dart';
+import 'views/user_side/news_page.dart';
 import 'views/admin/admin_login_page.dart';
 import 'views/admin/admin_dashboard.dart';
 
@@ -122,6 +123,7 @@ class MyApp extends StatelessWidget {
           '/upcoming_ram_kathas': (context) => const UpcomingRamKathasPage(),
           '/video_gallery': (context) => const VideoGalleryPage(),
           '/contact_us': (context) => const ContactPage(),
+          '/news': (context) => const NewsPage(),
           '/admin_login': (context) => const AdminLoginPage(),
           '/admin_dashboard': (context) => const AdminDashboard(),
         },

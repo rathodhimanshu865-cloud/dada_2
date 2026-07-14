@@ -89,14 +89,20 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
     
     // Dynamic dimensions
     final double headerHeight = isSticky ? 75 : 95;
-    final double marginHorizontal = isSticky ? 40 : 20;
-    final double marginTop = isSticky ? 15 : 20;
-    final double borderRadius = 24.0;
-    final double logoSize = isSticky ? 55 : 70;
-    final double glassOpacity = isSticky ? 0.92 : 0.75;
-    final double blurAmount = isSticky ? 20.0 : 12.0;
-
+    final double marginHorizontal = isSticky ? 40 : 0; // Edge-to-edge when transparent
+    final double marginTop = isSticky ? 15 : 0;
+    final double borderRadius = isSticky ? 24.0 : 0.0;
+    final double logoSize = isSticky ? 75 : 100; // Increased logo size
+    
+    // Transparency Logic
+    final double glassOpacity = isSticky ? 0.92 : 0.0; // Transparent at top
+    final double blurAmount = isSticky ? 20.0 : 0.0; // No blur at top
+    
     final Color bgColor = _parseColor(settings.headerBackgroundColor);
+    
+    // Text Color: Dynamic theme colors based on scroll position
+    final Color navTextColor = isSticky ? const Color(0xFF07404C) : const Color(0xFFFFF8F0);
+    final Color activeNavColor = isSticky ? primaryTeal : const Color(0xFFC89A5B); // Temple Gold for active top
 
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 500),
@@ -107,7 +113,7 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Announcement Bar
+          // Announcement Bar - Hidden when sticky
           if (settings.announcementBarText.isNotEmpty && !isSticky)
             _buildAnnouncementBar(settings.announcementBarText),
           
@@ -119,13 +125,13 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
               height: headerHeight,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(borderRadius),
-                boxShadow: [
+                boxShadow: isSticky ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(isSticky ? 0.15 : 0.08),
-                    blurRadius: isSticky ? 40 : 20,
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 40,
                     offset: const Offset(0, 10),
                   ),
-                ],
+                ] : [],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(borderRadius),
@@ -136,25 +142,21 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
                     decoration: BoxDecoration(
                       color: bgColor.withOpacity(glassOpacity),
                       borderRadius: BorderRadius.circular(borderRadius),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.5),
-                        width: 1.5,
-                      ),
                     ),
                     child: Row(
                       children: [
                         // LEFT SECTION: Logo
-                        _buildLogo(logoSize),
+                        _buildLogo(logoSize, isSticky),
                         
                         const Spacer(),
                         
                         // CENTER SECTION: Navigation
-                        _buildNavigation(currentRoute, isSticky),
+                        _buildNavigation(currentRoute, isSticky, navTextColor, activeNavColor),
                         
                         const Spacer(),
                         
                         // RIGHT SECTION: Actions
-                        _buildActionControls(isSticky, settings),
+                        _buildActionControls(isSticky, settings, navTextColor),
                       ],
                     ),
                   ),
@@ -171,12 +173,10 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 8),
-      margin: const EdgeInsets.only(bottom: 12, left: 40, right: 40),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [templeGold, Color(0xFFD9A66B)],
         ),
-        borderRadius: BorderRadius.circular(30),
       ),
       child: Center(
         child: Text(
@@ -192,7 +192,7 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildLogo(double size) {
+  Widget _buildLogo(double size, bool isSticky) {
     return GestureDetector(
       onTap: _handleLogoTap,
       child: Hero(
@@ -203,13 +203,13 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
           height: size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            boxShadow: [
+            boxShadow: isSticky ? [
               BoxShadow(
                 color: templeGold.withOpacity(0.4),
                 blurRadius: 20,
                 spreadRadius: 1,
               ),
-            ],
+            ] : [],
           ),
           child: Container(
             decoration: BoxDecoration(
@@ -230,12 +230,12 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildNavigation(String currentRoute, bool isSticky) {
+  Widget _buildNavigation(String currentRoute, bool isSticky, Color textColor, Color activeColor) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _navItem('Home', '/', currentRoute == '/', isSticky),
-        _navItem('About Dada', '/about_dada', currentRoute == '/about_dada', isSticky),
+        _navItem('Home', '/', currentRoute == '/', isSticky, textColor, activeColor),
+        _navItem('About Dada', '/about_dada', currentRoute == '/about_dada', isSticky, textColor, activeColor),
         _buildDropdownNavItem('Katha', [
           _dropdownItem('Shrimad Bhagvat Katha', '/about_katha'),
           _dropdownItem('Devi Bhagvat Katha', '/about_devi_katha'),
@@ -243,18 +243,19 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
           const PopupMenuDivider(),
           _dropdownItem('Full Katha List', '/katha_list'),
           _dropdownItem('Upcoming Kathas', '/upcoming_ram_kathas'),
-        ], currentRoute.contains('katha'), isSticky),
-        _navItem('Stotra / Bhajan', '/stotra', currentRoute == '/stotra', isSticky),
+        ], currentRoute.contains('katha'), isSticky, textColor, activeColor),
+        _navItem('Stotra / Bhajan', '/stotra', currentRoute == '/stotra', isSticky, textColor, activeColor),
         _buildDropdownNavItem('Gallery', [
           _dropdownItem('Photo Gallery', '/photo_gallery'),
           _dropdownItem('Video Gallery', '/video_gallery'),
-        ], currentRoute.contains('gallery'), isSticky),
-        _navItem('Contact', '/contact_us', currentRoute == '/contact_us', isSticky),
+          _dropdownItem('News Gallery', '/news'),
+        ], currentRoute.contains('gallery') || currentRoute == '/news', isSticky, textColor, activeColor),
+        _navItem('Contact', '/contact_us', currentRoute == '/contact_us', isSticky, textColor, activeColor),
       ],
     );
   }
 
-  Widget _navItem(String title, String route, bool isActive, bool isSticky) {
+  Widget _navItem(String title, String route, bool isActive, bool isSticky, Color textColor, Color activeColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: InkWell(
@@ -266,9 +267,10 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
             Text(
               title.toUpperCase(),
               style: TextStyle(
+                fontFamily: 'serif', // Theme font
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
-                color: isActive ? primaryTeal : darkCharcoal.withOpacity(0.7),
+                color: isActive ? activeColor : textColor.withOpacity(0.8),
                 letterSpacing: 1.5,
               ),
             ),
@@ -278,7 +280,7 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
               height: 2.5,
               width: isActive ? 20 : 0,
               decoration: BoxDecoration(
-                color: templeGold,
+                color: activeColor,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -288,7 +290,7 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildDropdownNavItem(String title, List<Widget> items, bool isActive, bool isSticky) {
+  Widget _buildDropdownNavItem(String title, List<Widget> items, bool isActive, bool isSticky, Color textColor, Color activeColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: PopupMenuButton<String>(
@@ -305,13 +307,14 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
                 Text(
                   title.toUpperCase(),
                   style: TextStyle(
+                    fontFamily: 'serif', // Theme font
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: isActive ? primaryTeal : darkCharcoal.withOpacity(0.7),
+                    color: isActive ? activeColor : textColor.withOpacity(0.8),
                     letterSpacing: 1.5,
                   ),
                 ),
-                Icon(Icons.keyboard_arrow_down, size: 16, color: templeGold),
+                Icon(Icons.keyboard_arrow_down, size: 16, color: isActive ? activeColor : textColor.withOpacity(0.6)),
               ],
             ),
             const SizedBox(height: 6),
@@ -320,7 +323,7 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
               height: 2.5,
               width: isActive ? 20 : 0,
               decoration: BoxDecoration(
-                color: templeGold,
+                color: activeColor,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -338,10 +341,11 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         child: Text(
           title,
-          style: TextStyle(
-            fontSize: 13,
+          style: const TextStyle(
+            fontFamily: 'serif', // Theme font
+            fontSize: 14,
             fontWeight: FontWeight.w700,
-            color: darkCharcoal,
+            color: Color(0xFF2B2B2B),
             letterSpacing: 0.5,
           ),
         ),
@@ -349,18 +353,15 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildActionControls(bool isSticky, HeaderSettings settings) {
+  Widget _buildActionControls(bool isSticky, HeaderSettings settings, Color textColor) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Language Pill
-        _buildLanguageSwitcher(settings),
-        
+        _buildLanguageSwitcher(settings, textColor, isSticky),
         if (settings.searchVisibility) ...[
           const SizedBox(width: 15),
-          _buildSearchButton(),
+          _buildSearchButton(isSticky),
         ],
-        
         if (settings.donateButtonEnabled) ...[
           const SizedBox(width: 15),
           _buildDonateButton(settings),
@@ -369,51 +370,49 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildLanguageSwitcher(HeaderSettings settings) {
+  Widget _buildLanguageSwitcher(HeaderSettings settings, Color textColor, bool isSticky) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.4),
+        color: isSticky ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.1),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: templeGold.withOpacity(0.3)),
+        border: Border.all(color: isSticky ? templeGold.withOpacity(0.3) : Colors.white.withOpacity(0.3)),
       ),
       child: PopupMenuButton<String>(
         onSelected: (v) => setState(() => selectedLanguage = v),
         child: Row(
           children: [
-            Icon(Icons.language, size: 16, color: templeGold),
+            Icon(Icons.language, size: 16, color: isSticky ? templeGold : textColor),
             const SizedBox(width: 8),
             Text(
               selectedLanguage,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+              style: TextStyle(
+                fontSize: 11, 
+                fontWeight: FontWeight.w800,
+                color: textColor,
+              ),
             ),
-            Icon(Icons.keyboard_arrow_down, size: 14, color: darkCharcoal.withOpacity(0.5)),
+            Icon(Icons.keyboard_arrow_down, size: 14, color: textColor.withOpacity(0.6)),
           ],
         ),
         itemBuilder: (context) => settings.languageOptions.map((lang) => PopupMenuItem(
           value: lang,
-          child: Text(lang, style: const TextStyle(fontWeight: FontWeight.bold)),
+          child: Text(lang, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'serif')),
         )).toList(),
       ),
     );
   }
 
-  Widget _buildSearchButton() {
+  Widget _buildSearchButton(bool isSticky) {
     return Container(
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: primaryTeal,
+        color: isSticky ? primaryTeal : Colors.white.withOpacity(0.2),
         shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: primaryTeal.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: isSticky ? null : Border.all(color: Colors.white.withOpacity(0.3)),
       ),
-      child: const Icon(Icons.search, size: 18, color: Colors.white),
+      child: Icon(Icons.search, size: 18, color: isSticky ? Colors.white : Colors.white),
     );
   }
 

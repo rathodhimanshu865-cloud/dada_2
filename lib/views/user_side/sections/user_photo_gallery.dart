@@ -59,7 +59,7 @@ class UserPhotoGallery extends StatelessWidget {
                       child: Column(
                         children: allPhotos.asMap().entries
                             .where((e) => e.key % cols == colIdx)
-                            .map((e) => _buildGalleryItem(e.value, colIdx, e.key))
+                            .map((e) => _buildGalleryItem(context, e.value, colIdx, e.key))
                             .toList(),
                       ),
                     ),
@@ -86,25 +86,50 @@ class UserPhotoGallery extends StatelessWidget {
     );
   }
 
-  Widget _buildGalleryItem(String url, int colIdx, int globalIdx) {
-    // Alternate height for masonry feel
-    double height = (globalIdx % 3 == 0) ? 400 : 300;
+  void _showFullScreenImage(BuildContext context, String url) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(40),
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(url, fit: BoxFit.contain),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.white, size: 40),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
+  Widget _buildGalleryItem(BuildContext context, String url, int colIdx, int globalIdx) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
-      height: height,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFF3EEE6),
+        color: Colors.transparent,
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10)),
         ],
       ),
       child: ClipRRect(
-        child: Image.network(
-          url,
-          fit: BoxFit.cover,
-          errorBuilder: (c, e, s) => const Icon(Icons.image_outlined, color: Colors.white, size: 50),
+        borderRadius: BorderRadius.circular(8),
+        child: GestureDetector(
+          onTap: () => _showFullScreenImage(context, url),
+          child: Image.network(
+            url,
+            fit: BoxFit.contain,
+            errorBuilder: (c, e, s) => const Icon(Icons.image_outlined, color: Colors.white, size: 50),
+          ),
         ),
       ),
     );

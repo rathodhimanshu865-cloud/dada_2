@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../models/homepage_model.dart';
+import 'katha_calendar_view.dart';
 
 class UserUpcomingKathas extends StatelessWidget {
   final HomePageController controller;
@@ -33,7 +34,26 @@ class UserUpcomingKathas extends StatelessWidget {
             ],
           ),
           
-          const SizedBox(height: 80),
+          const SizedBox(height: 50),
+
+          // View Toggles: List View & Calendar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _viewButton(context, 'LIST VIEW', Icons.list_alt_rounded, () {
+                Navigator.pushNamed(context, '/upcoming_ram_kathas');
+              }),
+              const SizedBox(width: 20),
+              _viewButton(context, 'CALENDAR', Icons.calendar_month_outlined, () {
+                showDialog(
+                  context: context,
+                  builder: (context) => KathaCalendarView(kathas: controller.upcomingKathas),
+                );
+              }),
+            ],
+          ),
+
+          const SizedBox(height: 60),
 
           // Well-arranged Grid of Cards
           Container(
@@ -47,7 +67,7 @@ class UserUpcomingKathas extends StatelessWidget {
                   crossAxisCount: crossAxisCount,
                   crossAxisSpacing: 25,
                   mainAxisSpacing: 25,
-                  childAspectRatio: 1.0, // Making boxes a bit smaller and more square
+                  childAspectRatio: 1.0, 
                 ),
                 itemCount: controller.upcomingKathas.take(3).length,
                 itemBuilder: (context, index) => _buildEventCard(controller.upcomingKathas[index]),
@@ -72,6 +92,22 @@ class UserUpcomingKathas extends StatelessWidget {
     );
   }
 
+  Widget _viewButton(BuildContext context, String label, IconData icon, VoidCallback onTap) {
+    return ElevatedButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon, size: 18),
+      label: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 12)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF0F4C5C),
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+        side: BorderSide(color: const Color(0xFF0F4C5C).withOpacity(0.1)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
   Widget _buildEventCard(UpcomingKatha katha) {
     return Container(
       decoration: BoxDecoration(
@@ -81,55 +117,59 @@ class UserUpcomingKathas extends StatelessWidget {
           BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 10)),
         ],
       ),
-      child: Stack(
-        children: [
-          // Calendar Icon in top-right corner
-          const Positioned(
-            top: 15, right: 15,
-            child: Icon(Icons.calendar_month_outlined, color: Color(0xFFC89A5B), size: 24),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(25),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 10),
-                Text(
-                  katha.dateString.toUpperCase(),
-                  style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1),
-                ),
-                const SizedBox(height: 20),
-                Text(
+      child: Padding(
+        padding: const EdgeInsets.all(25),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 10),
+            Text(
+              katha.dateString.toUpperCase(),
+              style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              width: 60,
+              height: 60,
+              decoration: const BoxDecoration(
+                color: Color(0xFF07404C),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
                   katha.kathaNumber,
-                  style: TextStyle(color: const Color(0xFF0F4C5C).withOpacity(0.3), fontSize: 40, fontWeight: FontWeight.w900),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                const SizedBox(height: 15),
-                Text(
-                  katha.name,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A), fontFamily: 'serif'),
-                ),
-                const Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFFC89A5B)),
-                    const SizedBox(width: 8),
-                    Flexible(child: Text(katha.location, style: const TextStyle(color: Color(0xFF6D6D6D), fontSize: 14))),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  "DETAILS >",
-                  style: TextStyle(color: Color(0xFFC89A5B), fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 2),
-                ),
+              ),
+            ),
+            const SizedBox(height: 15),
+            Text(
+              katha.name,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A), fontFamily: 'serif'),
+            ),
+            const Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFFC89A5B)),
+                const SizedBox(width: 8),
+                Flexible(child: Text(katha.location, style: const TextStyle(color: Color(0xFF6D6D6D), fontSize: 14))),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            const Text(
+              "DETAILS >",
+              style: TextStyle(color: Color(0xFFC89A5B), fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 2),
+            ),
+          ],
+        ),
       ),
     );
   }

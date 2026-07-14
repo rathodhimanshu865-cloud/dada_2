@@ -1,13 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../controllers/homepage_controller.dart';
 
-class UserDailySuvichar extends StatelessWidget {
+class UserDailySuvichar extends StatefulWidget {
   final HomePageController controller;
   const UserDailySuvichar({super.key, required this.controller});
 
   @override
+  State<UserDailySuvichar> createState() => _UserDailySuvicharState();
+}
+
+class _UserDailySuvicharState extends State<UserDailySuvichar> {
+  bool _isLiked = false;
+
+  Future<void> _shareContent(String url) async {
+    await Clipboard.setData(ClipboardData(text: url));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Image link copied to clipboard!')),
+      );
+    }
+  }
+
+  Future<void> _downloadImage(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final suvichar = controller.dailySuvichar;
+    final suvichar = widget.controller.dailySuvichar;
     if (suvichar.imageUrl.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -64,15 +89,32 @@ class UserDailySuvichar extends StatelessWidget {
               
               // Footer Action
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 30),
+                padding: const EdgeInsets.symmetric(vertical: 40),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildShareIcon(Icons.share_outlined),
-                    const SizedBox(width: 30),
-                    _buildShareIcon(Icons.download_outlined),
-                    const SizedBox(width: 30),
-                    _buildShareIcon(Icons.favorite_border_rounded),
+                    _buildActionButton(
+                      icon: Icons.share_outlined,
+                      onTap: () => _shareContent(suvichar.imageUrl),
+                      tooltip: 'Share Link',
+                    ),
+                    const SizedBox(width: 40),
+                    _buildActionButton(
+                      icon: Icons.download_outlined,
+                      onTap: () => _downloadImage(suvichar.imageUrl),
+                      tooltip: 'Open to Download',
+                    ),
+                    const SizedBox(width: 40),
+                    _buildActionButton(
+                      icon: _isLiked ? Icons.favorite : Icons.favorite_border_rounded,
+                      color: _isLiked ? Colors.red : const Color(0xFFC89A5B),
+                      onTap: () {
+                        setState(() {
+                          _isLiked = !_isLiked;
+                        });
+                      },
+                      tooltip: 'Like',
+                    ),
                   ],
                 ),
               ),
@@ -83,14 +125,27 @@ class UserDailySuvichar extends StatelessWidget {
     );
   }
 
-  Widget _buildShareIcon(IconData icon) {
-    return Container(
-      width: 44, height: 44,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFFC89A5B).withOpacity(0.2)),
+  Widget _buildActionButton({
+    required IconData icon, 
+    required VoidCallback onTap, 
+    String? tooltip,
+    Color? color,
+  }) {
+    return Tooltip(
+      message: tooltip ?? '',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          width: 60, // Bigger buttons as requested
+          height: 60,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0xFFC89A5B).withOpacity(0.2)),
+          ),
+          child: Icon(icon, size: 26, color: color ?? const Color(0xFFC89A5B)),
+        ),
       ),
-      child: Icon(icon, size: 18, color: const Color(0xFFC89A5B)),
     );
   }
 }

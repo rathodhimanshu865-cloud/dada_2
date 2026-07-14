@@ -54,11 +54,6 @@ class HomePageController extends ChangeNotifier {
         websiteSettings = WebsiteSettings.fromMap(data['websiteSettings'] ?? {});
         heroSection = HeroSection.fromMap(data['heroSection'] ?? {});
         
-        // Ensure at least one slide for new hero system
-        if (heroSection.slides.isEmpty) {
-          heroSection.slides = [HeroSlide(image: 'https://via.placeholder.com/1920x800?text=Jignesh+Dada+Official')];
-        }
-
         upcomingKathas = (data['upcomingKathas'] as List? ?? []).map((e) => UpcomingKatha.fromMap(e)).toList();
         aboutSection = AboutSection.fromMap(data['aboutSection'] ?? {});
         dailySuvichar = DailySuvichar.fromMap(data['dailySuvichar'] ?? {});

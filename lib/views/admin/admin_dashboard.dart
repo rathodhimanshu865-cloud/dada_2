@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../models/homepage_model.dart';
 
@@ -13,10 +14,20 @@ class AdminDashboard extends StatefulWidget {
 class _AdminDashboardState extends State<AdminDashboard> {
   int currentMenuIndex = 0;
 
+  Future<void> _launchUrl(String url) async {
+    if (url.isEmpty) return;
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      debugPrint('Could not launch $url');
+    }
+  }
+
   final List<String> menuItems = [
     'Branding & Hero Slider',
     'Biography (About Dada)',
-    'About Katha (Bhagwat)',
+    'About Shrimad Bhagvat',
+    'About Devi Bhagvat',
+    'About Shivmahapuran',
     'Upcoming Kathas',
     'Featured Quote',
     'Daily Suvichar',
@@ -167,7 +178,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 50), // Prevent cutoff
+                padding: const EdgeInsets.only(bottom: 50),
                 itemCount: menuItems.length,
                 itemBuilder: (context, index) {
                   return ListTile(
@@ -197,17 +208,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
     switch (currentMenuIndex) {
       case 0: return _heroSliderView(controller);
       case 1: return _aboutDadaView(controller);
-      case 2: return _ramKathaView(controller);
-      case 3: return _upcomingKathasView(controller);
-      case 4: return _featuredQuoteView(controller);
-      case 5: return _suvicharView(controller);
-      case 6: return _latestVideosView(controller);
-      case 7: return _newsView(controller);
-      case 8: return _kathaListView(controller);
-      case 9: return _photoGalleryView(controller);
-      case 10: return _videoGalleryView(controller);
-      case 11: return _inquiryView(controller);
-      case 12: return _footerSettingsView(controller);
+      case 2: return _genericKathaView(controller.bhagvatKathaPage, "Shrimad Bhagvat");
+      case 3: return _genericKathaView(controller.deviKathaPage, "Devi Bhagvat");
+      case 4: return _genericKathaView(controller.shivKathaPage, "Shivmahapuran");
+      case 5: return _upcomingKathasView(controller);
+      case 6: return _featuredQuoteView(controller);
+      case 7: return _suvicharView(controller);
+      case 8: return _latestVideosView(controller);
+      case 9: return _newsView(controller);
+      case 10: return _kathaListView(controller);
+      case 11: return _photoGalleryView(controller);
+      case 12: return _videoGalleryView(controller);
+      case 13: return _inquiryView(controller);
+      case 14: return _footerSettingsView(controller);
       default: return const Center(child: Text('Section not yet implemented'));
     }
   }
@@ -349,14 +362,40 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _ramKathaView(HomePageController controller) {
+  Widget _genericKathaView(KathaAboutPageData data, String kathaName) {
     return ListView(
       padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
       children: [
-        _sectionHeader('ABOUT KATHA PREVIEW (HOMEPAGE)'),
-        _buildField('Short Description', controller.ramKatha.description1, (v) => controller.ramKatha.description1 = v, maxLines: 6),
-        _buildField('Secondary Description', controller.ramKatha.description2, (v) => controller.ramKatha.description2 = v, maxLines: 6),
-        _buildImageField('Katha Section Image', controller.ramKatha.photoUrl, (v) => setState(() => controller.ramKatha.photoUrl = v)),
+        Text('$kathaName Page Settings', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+        const Divider(),
+        const SizedBox(height: 30),
+        _sectionHeader('1. HERO SECTION'),
+        _buildField('Badge (e.g., DIVINE GRACE)', data.heroBadge, (v) => data.heroBadge = v),
+        _buildField('Title', data.heroTitle, (v) => data.heroTitle = v),
+        _buildField('Description Line 1', data.heroDesc1, (v) => data.heroDesc1 = v, maxLines: 3),
+        _buildField('Description Line 2', data.heroDesc2, (v) => data.heroDesc2 = v, maxLines: 3),
+        _buildImageField('Hero Portrait Image', data.heroImage, (v) => setState(() => data.heroImage = v)),
+        
+        _sectionHeader('2. BIOGRAPHY / DESCRIPTION'),
+        _buildField('Detailed Narrative', data.bioText, (v) => data.bioText = v, maxLines: 15),
+        
+        _sectionHeader('3. QUOTE SECTION'),
+        _buildField('Quote Text', data.quoteText, (v) => data.quoteText = v, maxLines: 5),
+        _buildField('Quote Author', data.quoteAuthor, (v) => data.quoteAuthor = v),
+        _buildImageField('Quote Side Image', data.quoteImage, (v) => setState(() => data.quoteImage = v)),
+        
+        _sectionHeader('4. HIGHLIGHTS'),
+        _buildField('Highlight 1 Title', data.highlight1Title, (v) => data.highlight1Title = v),
+        _buildField('Highlight 1 Desc', data.highlight1Desc, (v) => data.highlight1Desc = v, maxLines: 3),
+        _buildField('Highlight 2 Title', data.highlight2Title, (v) => data.highlight2Title = v),
+        _buildField('Highlight 2 Desc', data.highlight2Desc, (v) => data.highlight2Desc = v, maxLines: 3),
+        _buildField('Highlight 3 Title', data.highlight3Title, (v) => data.highlight3Title = v),
+        _buildField('Highlight 3 Desc', data.highlight3Desc, (v) => data.highlight3Desc = v, maxLines: 3),
+        
+        _sectionHeader('5. CALL TO ACTION'),
+        _buildField('CTA Title', data.ctaTitle, (v) => data.ctaTitle = v),
+        _buildField('CTA Subtitle', data.ctaSubtitle, (v) => data.ctaSubtitle = v),
+        _buildField('CTA Button Text', data.ctaButtonText, (v) => data.ctaButtonText = v),
       ],
     );
   }
@@ -408,6 +447,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
       padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
       children: [
         _sectionHeader('LATEST NEWS & UPDATES'),
+        const Text('Note: Only the first 4 items will appear on the homepage. All items will be visible on the dedicated News Page.', 
+          style: TextStyle(fontStyle: FontStyle.italic, color: Colors.blueGrey)),
+        const SizedBox(height: 20),
         ...controller.homepageData.news.asMap().entries.map((entry) {
           int i = entry.key;
           NewsItem n = entry.value;
@@ -426,6 +468,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       _buildField('Title', n.title, (v) => n.title = v),
                       _buildField('Category', n.category, (v) => n.category = v),
                       _buildField('Date', n.date, (v) => n.date = v),
+                      _buildField('News External Link / URL', n.url, (v) => n.url = v),
                       _buildImageField('News Image', n.image, (v) => setState(() => n.image = v)),
                     ],
                   ),
@@ -501,22 +544,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _kathaPagesView(HomePageController controller) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
-      children: [
-        _sectionHeader('INDIVIDUAL KATHA PAGES'),
-        ListTile(title: const Text('Shrimad Bhagvat Katha'), trailing: const Icon(Icons.arrow_forward_ios), onTap: () => _showGenericAboutDialog(controller.bhagvatKathaPage, "Bhagvat Katha")),
-        ListTile(title: const Text('Devi Bhagvat Katha'), trailing: const Icon(Icons.arrow_forward_ios), onTap: () => _showGenericAboutDialog(controller.deviKathaPage, "Devi Bhagvat")),
-        ListTile(title: const Text('Shivmahapuran Katha'), trailing: const Icon(Icons.arrow_forward_ios), onTap: () => _showGenericAboutDialog(controller.shivKathaPage, "Shivmahapuran")),
-      ],
-    );
-  }
-
-  void _showGenericAboutDialog(KathaAboutPageData data, String title) {
-    showDialog(context: context, builder: (context) => Dialog(child: Container(width: 800, padding: const EdgeInsets.all(20), child: _genericAboutView(data, title))));
-  }
-
   Widget _photoGalleryView(HomePageController controller) {
     return ListView(
       padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
@@ -536,18 +563,40 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   child: Column(
                     children: [
                       _buildField('Heading Text', section.heading, (v) => setState(() => section.heading = v)),
-                      Wrap(
-                        spacing: 10, runSpacing: 10,
-                        children: section.photoUrls.asMap().entries.map((photoEntry) {
-                          int photoIdx = photoEntry.key;
-                          return Container(
-                            width: 120, height: 120,
-                            decoration: BoxDecoration(border: Border.all(color: Colors.grey[200]!)),
-                            child: Stack(children: [Image.network(photoEntry.value, fit: BoxFit.cover), Positioned(right: 0, child: IconButton(icon: const Icon(Icons.delete, color: Colors.red, size: 16), onPressed: () => controller.removePhotoFromCategory(sectionIdx, photoIdx)))]),
-                          );
-                        }).toList(),
+                      ...section.photoUrls.asMap().entries.map((photoEntry) {
+                        int photoIdx = photoEntry.key;
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: _buildImageField('Photo URL ${photoIdx + 1}', photoEntry.value, (v) {
+                                setState(() => section.photoUrls[photoIdx] = v);
+                              }),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => setState(() => controller.removePhotoFromCategory(sectionIdx, photoIdx)),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.add_link),
+                            onPressed: () => controller.addPhotoUrlToSection(sectionIdx), 
+                            label: const Text('ADD PHOTO URL')
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.upload_file),
+                            onPressed: () => controller.addPhotoToCategoryFromPicker(sectionIdx), 
+                            label: const Text('UPLOAD PHOTO')
+                          ),
+                        ],
                       ),
-                      ElevatedButton(onPressed: () => controller.addPhotoToCategoryFromPicker(sectionIdx), child: const Text('ADD PHOTO')),
                     ],
                   ),
                 )
@@ -579,8 +628,52 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   child: Column(
                     children: [
                       _buildField('Category Title', cat.categoryTitle, (v) => setState(() => cat.categoryTitle = v)),
-                      ...cat.videos.asMap().entries.map((vidEntry) => ListTile(title: Text(vidEntry.value.title), trailing: IconButton(icon: const Icon(Icons.delete), onPressed: () => controller.removeVideoFromCategory(catIdx, vidEntry.key)))),
-                      ElevatedButton(onPressed: () => controller.addVideoToCategory(catIdx), child: const Text('ADD VIDEO')),
+                      ...cat.videos.asMap().entries.map((vidEntry) {
+                        int vidIdx = vidEntry.key;
+                        VideoGalleryEntry vid = vidEntry.value;
+                        return Card(
+                          color: Colors.grey[50],
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(child: _buildField('Video Title', vid.title, (v) => vid.title = v)),
+                                    IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => setState(() => controller.removeVideoFromCategory(catIdx, vidIdx))),
+                                  ],
+                                ),
+                                _buildField('YouTube URL', vid.youtubeUrl, (v) => setState(() => vid.youtubeUrl = v)),
+                                if (vid.youtubeUrl.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: GestureDetector(
+                                      onTap: () => _launchUrl(vid.youtubeUrl),
+                                      child: MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Image.network(vid.thumbnail, height: 150, width: 250, fit: BoxFit.cover, errorBuilder: (c, e, s) => Container(color: Colors.grey[300], height: 150, width: 250)),
+                                            const Icon(Icons.play_circle_outline, color: Colors.white, size: 50),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      const SizedBox(height: 10),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.add),
+                        onPressed: () => controller.addVideoToCategory(catIdx), 
+                        label: const Text('ADD VIDEO')
+                      ),
                     ],
                   ),
                 )
@@ -628,19 +721,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
           const Divider(thickness: 2, color: Colors.black),
         ],
       ),
-    );
-  }
-
-  Widget _genericAboutView(KathaAboutPageData data, String title) {
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        _buildField('Badge', data.heroBadge, (v) => data.heroBadge = v),
-        _buildField('Title', data.heroTitle, (v) => data.heroTitle = v),
-        _buildField('Description 1', data.heroDesc1, (v) => data.heroDesc1 = v, maxLines: 3),
-        _buildImageField('Hero Image', data.heroImage, (v) => setState(() => data.heroImage = v)),
-        _buildField('Biography', data.bioText, (v) => data.bioText = v, maxLines: 10),
-      ],
     );
   }
 }

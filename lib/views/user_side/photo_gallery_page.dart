@@ -117,12 +117,12 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
 
   Widget _buildPhotoCard(BuildContext context, String url) {
     return Container(
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 8))]),
+      decoration: BoxDecoration(color: Colors.transparent, borderRadius: BorderRadius.circular(8)),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           onTap: () => _showFullScreenImage(context, url),
-          child: Image.network(url, fit: BoxFit.cover, errorBuilder: (c, e, s) => Container(color: Colors.grey[100], child: const Icon(Icons.broken_image_outlined, color: Colors.grey))),
+          child: Image.network(url, fit: BoxFit.contain, errorBuilder: (c, e, s) => Container(color: Colors.grey[100], child: const Icon(Icons.broken_image_outlined, color: Colors.grey))),
         ),
       ),
     );

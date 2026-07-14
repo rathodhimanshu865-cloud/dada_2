@@ -121,11 +121,25 @@ class HeroSlide {
 class HeroSection {
   List<HeroSlide> slides;
   HeroSection({List<HeroSlide>? slides}) : slides = slides ?? [];
+  
   Map<String, dynamic> toMap() => {'slides': slides.map((e) => e.toMap()).toList()};
-  factory HeroSection.fromMap(Map<String, dynamic> map) =>
-      HeroSection(slides: (map['slides'] as List? ?? []).map((e) => HeroSlide.fromMap(e)).toList());
+  
+  factory HeroSection.fromMap(Map<String, dynamic> map) {
+    // Migration logic: Check for 'slides' first, then fallback to 'bannerUrls'
+    if (map['slides'] != null) {
+      return HeroSection(
+        slides: (map['slides'] as List).map((e) => HeroSlide.fromMap(e)).toList(),
+      );
+    } else if (map['bannerUrls'] != null) {
+      return HeroSection(
+        slides: (map['bannerUrls'] as List)
+            .map((url) => HeroSlide(image: url.toString()))
+            .toList(),
+      );
+    }
+    return HeroSection();
+  }
       
-  // Backwards compatibility for the old bannerUrls if needed during migration
   List<String> get bannerUrls => slides.map((e) => e.image).toList();
 }
 
