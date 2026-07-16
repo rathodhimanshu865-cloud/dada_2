@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../controllers/homepage_controller.dart';
 
@@ -26,14 +27,14 @@ class UserLatestVideos extends StatelessWidget {
           // Header
           Column(
             children: [
-              const Text(
-                "WATCH & REFLECT",
-                style: TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
+              Text(
+                "WATCH & REFLECT".tr(),
+                style: const TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
               ),
               const SizedBox(height: 20),
-              const Text(
-                "Latest Videos",
-                style: TextStyle(fontSize: 42, fontFamily: 'serif', fontWeight: FontWeight.w900, color: Color(0xFF0F4C5C)),
+              Text(
+                "Latest Videos".tr(),
+                style: const TextStyle(fontSize: 42, fontFamily: 'serif', fontWeight: FontWeight.w900, color: Color(0xFF0F4C5C)),
               ),
               const SizedBox(height: 30),
               Container(height: 1, width: 80, color: const Color(0xFFC89A5B)),
@@ -72,7 +73,7 @@ class UserLatestVideos extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 25),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
-            child: const Text('VIEW ALL VIDEOS', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+            child: Text('VIEW ALL VIDEOS'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
           ),
         ],
       ),
@@ -121,15 +122,15 @@ class UserLatestVideos extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            video.title.toUpperCase(),
+            (video.title as String).tr().toUpperCase(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A), letterSpacing: 0.5),
           ),
           const SizedBox(height: 6),
-          const Text(
-            "YOUTUBE DISCOURSE",
-            style: TextStyle(color: Color(0xFFC89A5B), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+          Text(
+            "YOUTUBE DISCOURSE".tr(),
+            style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
           ),
         ],
       ),

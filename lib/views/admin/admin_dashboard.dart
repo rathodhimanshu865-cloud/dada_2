@@ -25,17 +25,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
   final List<String> menuItems = [
     'Branding & Hero Slider',
     'Biography (About Dada)',
-    'About Shrimad Bhagvat',
-    'About Devi Bhagvat',
-    'About Shivmahapuran',
+    'Detailed Katha Pages',
+    'Homepage Sections',
+    'Stotra / Bhajan / Aarti',
     'Upcoming Kathas',
-    'Featured Quote',
-    'Daily Suvichar',
     'Latest Videos',
     'Latest News',
     'Full Katha List',
-    'Photo Gallery',
-    'Video Gallery',
+    'Galleries (Photos/Videos)',
     'Enquiries',
     'Footer Settings'
   ];
@@ -208,19 +205,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
     switch (currentMenuIndex) {
       case 0: return _heroSliderView(controller);
       case 1: return _aboutDadaView(controller);
-      case 2: return _genericKathaView(controller.bhagvatKathaPage, "Shrimad Bhagvat");
-      case 3: return _genericKathaView(controller.deviKathaPage, "Devi Bhagvat");
-      case 4: return _genericKathaView(controller.shivKathaPage, "Shivmahapuran");
+      case 2: return _kathaPagesView(controller);
+      case 3: return _homepageSectionsView(controller);
+      case 4: return _stotraView(controller);
       case 5: return _upcomingKathasView(controller);
-      case 6: return _featuredQuoteView(controller);
-      case 7: return _suvicharView(controller);
-      case 8: return _latestVideosView(controller);
-      case 9: return _newsView(controller);
-      case 10: return _kathaListView(controller);
-      case 11: return _photoGalleryView(controller);
-      case 12: return _videoGalleryView(controller);
-      case 13: return _inquiryView(controller);
-      case 14: return _footerSettingsView(controller);
+      case 6: return _latestVideosView(controller);
+      case 7: return _newsView(controller);
+      case 8: return _kathaListView(controller);
+      case 9: return _galleriesView(controller);
+      case 10: return _inquiryView(controller);
+      case 11: return _footerSettingsView(controller);
       default: return const Center(child: Text('Section not yet implemented'));
     }
   }
@@ -362,9 +356,95 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _genericKathaView(KathaAboutPageData data, String kathaName) {
+  Widget _homepageSectionsView(HomePageController controller) {
     return ListView(
       padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        _sectionHeader('HOMEPAGE "ABOUT" PREVIEW'),
+        _buildField('Title', controller.aboutSection.title, (v) => controller.aboutSection.title = v),
+        _buildField('Tagline', controller.aboutSection.tagline, (v) => controller.aboutSection.tagline = v),
+        _buildField('Short Description', controller.aboutSection.description, (v) => controller.aboutSection.description = v, maxLines: 6),
+        _buildImageField('Portrait Photo', controller.aboutSection.photoUrl, (v) => setState(() => controller.aboutSection.photoUrl = v)),
+        
+        _sectionHeader('HOMEPAGE "KATHA" PREVIEW'),
+        _buildField('Description Line 1', controller.ramKatha.description1, (v) => controller.ramKatha.description1 = v, maxLines: 6),
+        _buildField('Description Line 2', controller.ramKatha.description2, (v) => controller.ramKatha.description2 = v, maxLines: 6),
+        _buildImageField('Katha Section Image', controller.ramKatha.photoUrl, (v) => setState(() => controller.ramKatha.photoUrl = v)),
+        
+        _sectionHeader('DAILY SUVICHAR'),
+        _buildField('Display Date', controller.dailySuvichar.date, (v) => controller.dailySuvichar.date = v),
+        _buildImageField('Suvichar Image', controller.dailySuvichar.imageUrl, (v) => setState(() => controller.dailySuvichar.imageUrl = v)),
+
+        _sectionHeader('FEATURED HOMEPAGE QUOTE'),
+        _buildField('The Quote', controller.homepageData.featuredQuote.quote, (v) => controller.homepageData.featuredQuote.quote = v, maxLines: 5),
+        _buildField('Author Name', controller.homepageData.featuredQuote.author, (v) => controller.homepageData.featuredQuote.author = v),
+      ],
+    );
+  }
+
+  Widget _stotraView(HomePageController controller) {
+    final section = controller.stotraSection;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        const Text('Stotra / Bhajan / Aarti Management', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+        const Divider(),
+        const SizedBox(height: 30),
+        _buildField('Page Title', section.pageTitle, (v) => section.pageTitle = v),
+        
+        _sectionHeader('MANAGE ITEMS'),
+        ...section.items.asMap().entries.map((entry) {
+          int i = entry.key;
+          StotraItem item = entry.value;
+          return Card(
+            margin: const EdgeInsets.only(bottom: 20),
+            child: ExpansionTile(
+              title: Text('Item ${i + 1}: ${item.title.isEmpty ? "New Item" : item.title}'),
+              trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => setState(() => section.items.removeAt(i))),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      _buildField('Title', item.title, (v) => setState(() => item.title = v)),
+                      _buildField('English PDF URL', item.englishPdfUrl, (v) => item.englishPdfUrl = v),
+                      _buildField('Hindi PDF URL', item.hindiPdfUrl, (v) => item.hindiPdfUrl = v),
+                      _buildField('Gujarati PDF URL', item.gujaratiPdfUrl, (v) => item.gujaratiPdfUrl = v),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        }),
+        ElevatedButton.icon(
+          onPressed: () => setState(() => controller.addStotraItem()), 
+          icon: const Icon(Icons.add), 
+          label: const Text('ADD NEW ITEM')
+        ),
+      ],
+    );
+  }
+
+  Widget _kathaPagesView(HomePageController controller) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        _sectionHeader('INDIVIDUAL KATHA PAGES'),
+        ListTile(title: const Text('Shrimad Bhagvat Katha'), trailing: const Icon(Icons.arrow_forward_ios), onTap: () => _showGenericAboutDialog(controller.bhagvatKathaPage, "Shrimad Bhagvat")),
+        ListTile(title: const Text('Devi Bhagvat Katha'), trailing: const Icon(Icons.arrow_forward_ios), onTap: () => _showGenericAboutDialog(controller.deviKathaPage, "Devi Bhagvat")),
+        ListTile(title: const Text('Shivmahapuran Katha'), trailing: const Icon(Icons.arrow_forward_ios), onTap: () => _showGenericAboutDialog(controller.shivKathaPage, "Shivmahapuran")),
+      ],
+    );
+  }
+
+  void _showGenericAboutDialog(KathaAboutPageData data, String title) {
+    showDialog(context: context, builder: (context) => Dialog(child: Container(width: 800, padding: const EdgeInsets.all(20), child: _genericKathaView(data, title))));
+  }
+
+  Widget _genericKathaView(KathaAboutPageData data, String kathaName) {
+    return ListView(
+      padding: const EdgeInsets.all(20),
       children: [
         Text('$kathaName Page Settings', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
         const Divider(),
@@ -396,17 +476,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
         _buildField('CTA Title', data.ctaTitle, (v) => data.ctaTitle = v),
         _buildField('CTA Subtitle', data.ctaSubtitle, (v) => data.ctaSubtitle = v),
         _buildField('CTA Button Text', data.ctaButtonText, (v) => data.ctaButtonText = v),
-      ],
-    );
-  }
-
-  Widget _suvicharView(HomePageController controller) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
-      children: [
-        _sectionHeader('DAILY SUVICHAR'),
-        _buildField('Display Date', controller.dailySuvichar.date, (v) => controller.dailySuvichar.date = v),
-        _buildImageField('Suvichar Image', controller.dailySuvichar.imageUrl, (v) => setState(() => controller.dailySuvichar.imageUrl = v)),
       ],
     );
   }
@@ -563,23 +632,26 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   child: Column(
                     children: [
                       _buildField('Heading Text', section.heading, (v) => setState(() => section.heading = v)),
-                      ...section.photoUrls.asMap().entries.map((photoEntry) {
-                        int photoIdx = photoEntry.key;
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: _buildImageField('Photo URL ${photoIdx + 1}', photoEntry.value, (v) {
-                                setState(() => section.photoUrls[photoIdx] = v);
-                              }),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => setState(() => controller.removePhotoFromCategory(sectionIdx, photoIdx)),
-                            ),
-                          ],
-                        );
-                      }).toList(),
+                      Wrap(
+                        spacing: 10, runSpacing: 10,
+                        children: section.photoUrls.asMap().entries.map((photoEntry) {
+                          int photoIdx = photoEntry.key;
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: _buildImageField('Photo URL ${photoIdx + 1}', photoEntry.value, (v) {
+                                  setState(() => section.photoUrls[photoIdx] = v);
+                                }),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => setState(() => controller.removePhotoFromCategory(sectionIdx, photoIdx)),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
                       const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -682,6 +754,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
           );
         }),
         ElevatedButton(onPressed: controller.addVideoCategory, child: const Text('CREATE NEW CATEGORY')),
+      ],
+    );
+  }
+
+  Widget _galleriesView(HomePageController controller) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        _sectionHeader('GALLERY MANAGEMENT'),
+        ElevatedButton(onPressed: () => setState(() => currentMenuIndex = 9), child: const Text('Manage Photo Gallery')),
+        const SizedBox(height: 20),
+        ElevatedButton(onPressed: () => setState(() => currentMenuIndex = 10), child: const Text('Manage Video Gallery')),
       ],
     );
   }

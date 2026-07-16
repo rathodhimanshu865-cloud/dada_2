@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../controllers/homepage_controller.dart';
 
 class UserAboutPreview extends StatelessWidget {
@@ -27,23 +28,23 @@ class UserAboutPreview extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "DISCOVER THE JOURNEY",
-                      style: TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
+                    Text(
+                      "DISCOVER THE JOURNEY".tr(),
+                      style: const TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                     const SizedBox(height: 25),
                     Text(
-                      about.title,
+                      about.title.tr(),
                       style: const TextStyle(fontSize: 48, fontFamily: 'serif', fontWeight: FontWeight.w900, color: Color(0xFF0F4C5C), height: 1.1),
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      about.tagline,
+                      about.tagline.tr(),
                       style: const TextStyle(fontSize: 20, color: Color(0xFFC89A5B), fontWeight: FontWeight.w300),
                     ),
                     const SizedBox(height: 40),
                     Text(
-                      about.description,
+                      about.description.tr(),
                       style: const TextStyle(fontSize: 18, height: 1.8, color: Color(0xFF2B2B2B), letterSpacing: 0.2),
                     ),
                     const SizedBox(height: 50),
@@ -55,7 +56,7 @@ class UserAboutPreview extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                       ),
-                      child: const Text('READ FULL BIOGRAPHY', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                      child: Text('READ FULL BIOGRAPHY'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                     ),
                   ],
                 ),

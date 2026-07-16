@@ -50,30 +50,32 @@ class HomePageController extends ChangeNotifier {
     try {
       final doc = await _firestore.collection('cms').doc('homepage').get();
       if (doc.exists) {
-        final data = doc.data()!;
-        websiteSettings = WebsiteSettings.fromMap(data['websiteSettings'] ?? {});
-        heroSection = HeroSection.fromMap(data['heroSection'] ?? {});
-        
-        upcomingKathas = (data['upcomingKathas'] as List? ?? []).map((e) => UpcomingKatha.fromMap(e)).toList();
-        aboutSection = AboutSection.fromMap(data['aboutSection'] ?? {});
-        dailySuvichar = DailySuvichar.fromMap(data['dailySuvichar'] ?? {});
-        videos = (data['videos'] as List? ?? []).map((e) => VideoItem.fromMap(e)).toList();
-        ramKatha = RamKathaSection.fromMap(data['ramKatha'] ?? {});
-        stotraSection = StotraSection.fromMap(data['stotraSection'] ?? {});
-        footer = FooterData.fromMap(data['footer'] ?? {});
-        
-        aboutDadaPage = AboutDadaPageData.fromMap(data['aboutDadaPage'] ?? {});
-        homepageData = HomepageData.fromMap(data['homepageData'] ?? {});
-        
-        bhagvatKathaPage = KathaAboutPageData.fromMap(data['bhagvatKathaPage'] ?? {});
-        deviKathaPage = KathaAboutPageData.fromMap(data['deviKathaPage'] ?? {});
-        shivKathaPage = KathaAboutPageData.fromMap(data['shivKathaPage'] ?? {});
+        final data = doc.data() as Map<String, dynamic>?;
+        if (data != null) {
+          websiteSettings = WebsiteSettings.fromMap(data['websiteSettings'] ?? {});
+          heroSection = HeroSection.fromMap(data['heroSection'] ?? {});
+          
+          upcomingKathas = (data['upcomingKathas'] as List? ?? []).map((e) => UpcomingKatha.fromMap(e)).toList();
+          aboutSection = AboutSection.fromMap(data['aboutSection'] ?? {});
+          dailySuvichar = DailySuvichar.fromMap(data['dailySuvichar'] ?? {});
+          videos = (data['videos'] as List? ?? []).map((e) => VideoItem.fromMap(e)).toList();
+          ramKatha = RamKathaSection.fromMap(data['ramKatha'] ?? {});
+          stotraSection = StotraSection.fromMap(data['stotraSection'] ?? {});
+          footer = FooterData.fromMap(data['footer'] ?? {});
+          
+          aboutDadaPage = AboutDadaPageData.fromMap(data['aboutDadaPage'] ?? {});
+          homepageData = HomepageData.fromMap(data['homepageData'] ?? {});
+          
+          bhagvatKathaPage = KathaAboutPageData.fromMap(data['bhagvatKathaPage'] ?? {});
+          deviKathaPage = KathaAboutPageData.fromMap(data['deviKathaPage'] ?? {});
+          shivKathaPage = KathaAboutPageData.fromMap(data['shivKathaPage'] ?? {});
 
-        allKathas = (data['allKathas'] as List? ?? []).map((e) => KathaRecord.fromMap(e)).toList();
-        kathaListPageData = KathaListPageData.fromMap(data['kathaListPageData'] ?? {});
-        contactPageData = ContactPageData.fromMap(data['contactPageData'] ?? {});
-        videoGalleryData = VideoGalleryPageData.fromMap(data['videoGalleryData'] ?? {});
-        photoGalleryData = PhotoGalleryPageData.fromMap(data['photoGalleryData'] ?? {});
+          allKathas = (data['allKathas'] as List? ?? []).map((e) => KathaRecord.fromMap(e)).toList();
+          kathaListPageData = KathaListPageData.fromMap(data['kathaListPageData'] ?? {});
+          contactPageData = ContactPageData.fromMap(data['contactPageData'] ?? {});
+          videoGalleryData = VideoGalleryPageData.fromMap(data['videoGalleryData'] ?? {});
+          photoGalleryData = PhotoGalleryPageData.fromMap(data['photoGalleryData'] ?? {});
+        }
       }
       
       final inquirySnapshot = await _firestore.collection('inquiries').orderBy('timestamp', descending: true).get();

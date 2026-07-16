@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,7 +19,7 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
     await Clipboard.setData(ClipboardData(text: url));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Image link copied to clipboard!')),
+        SnackBar(content: Text('Image link copied to clipboard!'.tr())),
       );
     }
   }
@@ -149,3 +150,4 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
     );
   }
 }
+

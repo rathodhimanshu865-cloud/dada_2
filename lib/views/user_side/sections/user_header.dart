@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../models/homepage_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class UserHeader extends StatefulWidget {
   final HomePageController controller;
@@ -36,6 +37,19 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     widget.scrollController?.addListener(_scrollListener);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final locale = context.locale.languageCode;
+    if (locale == 'hi') {
+      selectedLanguage = 'Hindi';
+    } else if (locale == 'gu') {
+      selectedLanguage = 'Gujarati';
+    } else {
+      selectedLanguage = 'English';
+    }
   }
 
   @override
@@ -101,7 +115,8 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
     final Color bgColor = _parseColor(settings.headerBackgroundColor);
     
     // Text Color: Dynamic theme colors based on scroll position
-    final Color navTextColor = isSticky ? const Color(0xFF07404C) : const Color(0xFFFFF8F0);
+    final bool isHomePage = currentRoute == '/';
+    final Color navTextColor = (isSticky || !isHomePage) ? const Color(0xFF07404C) : const Color(0xFFFFF8F0);
     final Color activeNavColor = isSticky ? primaryTeal : const Color(0xFFC89A5B); // Temple Gold for active top
 
     return AnimatedPositioned(
@@ -234,23 +249,23 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _navItem('Home', '/', currentRoute == '/', isSticky, textColor, activeColor),
-        _navItem('About Dada', '/about_dada', currentRoute == '/about_dada', isSticky, textColor, activeColor),
-        _buildDropdownNavItem('Katha', [
-          _dropdownItem('Shrimad Bhagvat Katha', '/about_katha'),
-          _dropdownItem('Devi Bhagvat Katha', '/about_devi_katha'),
-          _dropdownItem('Shivmahapuran Katha', '/about_shiv_katha'),
+        _navItem('Home'.tr(), '/', currentRoute == '/', isSticky, textColor, activeColor),
+        _navItem('About Dada'.tr(), '/about_dada', currentRoute == '/about_dada', isSticky, textColor, activeColor),
+        _buildDropdownNavItem('Katha'.tr(), [
+          _dropdownItem('Shrimad Bhagvat Katha'.tr(), '/about_katha'),
+          _dropdownItem('Devi Bhagvat Katha'.tr(), '/about_devi_katha'),
+          _dropdownItem('Shivmahapuran Katha'.tr(), '/about_shiv_katha'),
           const PopupMenuDivider(),
-          _dropdownItem('Full Katha List', '/katha_list'),
-          _dropdownItem('Upcoming Kathas', '/upcoming_ram_kathas'),
+          _dropdownItem('Full Katha List'.tr(), '/katha_list'),
+          _dropdownItem('Upcoming Kathas'.tr(), '/upcoming_ram_kathas'),
         ], currentRoute.contains('katha'), isSticky, textColor, activeColor),
-        _navItem('Stotra / Bhajan', '/stotra', currentRoute == '/stotra', isSticky, textColor, activeColor),
-        _buildDropdownNavItem('Gallery', [
-          _dropdownItem('Photo Gallery', '/photo_gallery'),
-          _dropdownItem('Video Gallery', '/video_gallery'),
-          _dropdownItem('News Gallery', '/news'),
+        _navItem('Stotra / Bhajan'.tr(), '/stotra', currentRoute == '/stotra', isSticky, textColor, activeColor),
+        _buildDropdownNavItem('Gallery'.tr(), [
+          _dropdownItem('Photo Gallery'.tr(), '/photo_gallery'),
+          _dropdownItem('Video Gallery'.tr(), '/video_gallery'),
+          _dropdownItem('News Gallery'.tr(), '/news'),
         ], currentRoute.contains('gallery') || currentRoute == '/news', isSticky, textColor, activeColor),
-        _navItem('Contact', '/contact_us', currentRoute == '/contact_us', isSticky, textColor, activeColor),
+        _navItem('Contact'.tr(), '/contact_us', currentRoute == '/contact_us', isSticky, textColor, activeColor),
       ],
     );
   }
@@ -267,7 +282,7 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
             Text(
               title.toUpperCase(),
               style: TextStyle(
-                fontFamily: 'serif', // Theme font
+                fontFamily: 'serif',
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
                 color: isActive ? activeColor : textColor.withOpacity(0.8),
@@ -307,7 +322,7 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
                 Text(
                   title.toUpperCase(),
                   style: TextStyle(
-                    fontFamily: 'serif', // Theme font
+                    fontFamily: 'serif',
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
                     color: isActive ? activeColor : textColor.withOpacity(0.8),
@@ -342,7 +357,7 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
         child: Text(
           title,
           style: const TextStyle(
-            fontFamily: 'serif', // Theme font
+            fontFamily: 'serif',
             fontSize: 14,
             fontWeight: FontWeight.w700,
             color: Color(0xFF2B2B2B),
@@ -357,11 +372,14 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Language Button (exactly next to search)
         _buildLanguageSwitcher(settings, textColor, isSticky),
+        
         if (settings.searchVisibility) ...[
           const SizedBox(width: 15),
-          _buildSearchButton(isSticky),
+          _buildSearchButton(isSticky, textColor),
         ],
+        
         if (settings.donateButtonEnabled) ...[
           const SizedBox(width: 15),
           _buildDonateButton(settings),
@@ -371,48 +389,96 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
   }
 
   Widget _buildLanguageSwitcher(HeaderSettings settings, Color textColor, bool isSticky) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSticky ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: isSticky ? templeGold.withOpacity(0.3) : Colors.white.withOpacity(0.3)),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        hoverColor: Colors.transparent,
       ),
       child: PopupMenuButton<String>(
-        onSelected: (v) => setState(() => selectedLanguage = v),
-        child: Row(
-          children: [
-            Icon(Icons.language, size: 16, color: isSticky ? templeGold : textColor),
-            const SizedBox(width: 8),
-            Text(
-              selectedLanguage,
-              style: TextStyle(
-                fontSize: 11, 
-                fontWeight: FontWeight.w800,
-                color: textColor,
-              ),
+        offset: const Offset(0, 50),
+        elevation: 20,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        color: warmWhite,
+        onSelected: (v) {
+          setState(() => selectedLanguage = v);
+          if (v == 'Hindi') {
+            context.setLocale(const Locale('hi'));
+          } else if (v == 'Gujarati') {
+            context.setLocale(const Locale('gu'));
+          } else {
+            context.setLocale(const Locale('en'));
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: isSticky ? primaryTeal.withOpacity(0.05) : Colors.white.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(
+              color: isSticky ? templeGold.withOpacity(0.3) : Colors.white.withOpacity(0.3),
             ),
-            Icon(Icons.keyboard_arrow_down, size: 14, color: textColor.withOpacity(0.6)),
-          ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.language, size: 16, color: isSticky ? templeGold : textColor),
+              const SizedBox(width: 10),
+              Text(
+                selectedLanguage.tr(),
+                style: TextStyle(
+                  fontSize: 13, 
+                  fontWeight: FontWeight.w800,
+                  color: textColor,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.keyboard_arrow_down, size: 16, color: isSticky ? templeGold : textColor.withOpacity(0.6)),
+            ],
+          ),
         ),
-        itemBuilder: (context) => settings.languageOptions.map((lang) => PopupMenuItem(
-          value: lang,
-          child: Text(lang, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'serif')),
-        )).toList(),
+        itemBuilder: (context) => [
+          _buildLangOption('English', 'en'),
+          _buildLangOption('Gujarati', 'gu'),
+          _buildLangOption('Hindi', 'hi'),
+        ],
       ),
     );
   }
 
-  Widget _buildSearchButton(bool isSticky) {
+  PopupMenuItem<String> _buildLangOption(String label, String code) {
+    return PopupMenuItem<String>(
+      value: label,
+      child: Row(
+        children: [
+          Icon(
+            Icons.check_circle, 
+            size: 16, 
+            color: context.locale.languageCode == code ? templeGold : Colors.transparent
+          ),
+          const SizedBox(width: 12),
+          Text(
+            label.tr(),
+            style: TextStyle(
+              fontWeight: context.locale.languageCode == code ? FontWeight.bold : FontWeight.normal,
+              color: darkCharcoal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchButton(bool isSticky, Color textColor) {
+    bool isDarkText = textColor == const Color(0xFF07404C);
     return Container(
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: isSticky ? primaryTeal : Colors.white.withOpacity(0.2),
+        color: isSticky ? primaryTeal : (isDarkText ? Colors.black.withOpacity(0.05) : Colors.white.withOpacity(0.2)),
         shape: BoxShape.circle,
-        border: isSticky ? null : Border.all(color: Colors.white.withOpacity(0.3)),
+        border: isSticky ? null : Border.all(color: isDarkText ? textColor.withOpacity(0.3) : Colors.white.withOpacity(0.3)),
       ),
-      child: Icon(Icons.search, size: 18, color: isSticky ? Colors.white : Colors.white),
+      child: Icon(Icons.search, size: 18, color: isSticky ? Colors.white : (isDarkText ? textColor : Colors.white)),
     );
   }
 

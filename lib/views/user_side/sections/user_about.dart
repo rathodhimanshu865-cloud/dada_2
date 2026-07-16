@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../controllers/homepage_controller.dart';
 
@@ -72,7 +73,7 @@ class UserAbout extends StatelessWidget {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                     ),
-                    child: const Text('READ MORE'),
+                    child: Text('READ MORE'.tr()),
                   ),
                 ],
               ),
@@ -83,3 +84,4 @@ class UserAbout extends StatelessWidget {
     );
   }
 }
+

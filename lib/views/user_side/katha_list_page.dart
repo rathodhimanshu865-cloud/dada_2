@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -255,7 +256,7 @@ class _KathaListPageState extends State<KathaListPage> {
         ...List.generate(totalPages, (index) {
           int pageNum = index + 1;
           if (totalPages > 7 && (pageNum > 3 && pageNum < totalPages - 2)) {
-            if (pageNum == 4) return const Text('...');
+            if (pageNum == 4) return Text('...'.tr());
             return const SizedBox.shrink();
           }
           return _pageNumberCircle(pageNum, currentPage == pageNum);
@@ -285,3 +286,4 @@ class _KathaListPageState extends State<KathaListPage> {
     return Container(width: 40, height: 40, decoration: BoxDecoration(color: primaryTeal, shape: BoxShape.circle, boxShadow: [BoxShadow(color: primaryTeal.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 3))]), child: Center(child: Text(id, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold))));
   }
 }
+

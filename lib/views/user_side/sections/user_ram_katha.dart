@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../controllers/homepage_controller.dart';
 
 class UserRamKatha extends StatelessWidget {
@@ -31,24 +32,24 @@ class UserRamKatha extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "DIVINE DISCOURSES",
-                      style: TextStyle(color: accentGold, letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
+                    Text(
+                      "DIVINE DISCOURSES".tr(),
+                      style: const TextStyle(color: accentGold, letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                     const SizedBox(height: 25),
-                    const Text(
-                      "Shreemad Bhagwat Katha",
-                      style: TextStyle(fontSize: 48, fontFamily: 'serif', fontWeight: FontWeight.w900, color: primaryTeal, height: 1.1),
+                    Text(
+                      "Shreemad Bhagwat Katha".tr(),
+                      style: const TextStyle(fontSize: 48, fontFamily: 'serif', fontWeight: FontWeight.w900, color: primaryTeal, height: 1.1),
                     ),
                     const SizedBox(height: 40),
                     Text(
-                      kathaData.description1,
+                      kathaData.description1.tr(),
                       style: const TextStyle(fontSize: 18, height: 1.8, color: Color(0xFF2B2B2B), letterSpacing: 0.2),
                     ),
                     if (kathaData.description2.isNotEmpty) ...[
                       const SizedBox(height: 25),
                       Text(
-                        kathaData.description2,
+                        kathaData.description2.tr(),
                         style: const TextStyle(fontSize: 16, height: 1.7, color: Color(0xFF6D6D6D)),
                       ),
                     ],
@@ -61,7 +62,7 @@ class UserRamKatha extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                       ),
-                      child: const Text('EXPLORE KATHA JOURNEY', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                      child: Text('EXPLORE KATHA JOURNEY'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                     ),
                   ],
                 ),

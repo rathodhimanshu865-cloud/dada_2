@@ -18,10 +18,20 @@ import 'views/user_side/news_page.dart';
 import 'views/admin/admin_login_page.dart';
 import 'views/admin/admin_dashboard.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('gu'), Locale('hi')],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('en'),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -29,21 +39,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // New Color Palette based on provided home page photo
-    const primaryTeal = Color(0xFF0F4C5C); // Dark Teal from buttons/footer
-    const backgroundBeige = Color(0xFFF9F3EA); // Light Cream/Beige background
-    const accentBrown = Color(0xFFC19A6B); // Gold/Brown accent from icons
+    const primaryTeal = Color(0xFF0F4C5C); 
+    const backgroundBeige = Color(0xFFF9F3EA); 
+    const accentBrown = Color(0xFFC19A6B); 
 
     return ChangeNotifierProvider(
       create: (_) => HomePageController(),
       child: MaterialApp(
         title: 'Jignesh Dada Official',
         debugShowCheckedModeBanner: false,
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
         theme: ThemeData(
           useMaterial3: true,
           brightness: Brightness.light,
           scaffoldBackgroundColor: Colors.white,
           primaryColor: primaryTeal,
+          
           colorScheme: ColorScheme.fromSeed(
             seedColor: primaryTeal,
             primary: primaryTeal,
@@ -51,6 +64,7 @@ class MyApp extends StatelessWidget {
             surface: Colors.white,
             error: Colors.redAccent,
           ).copyWith(background: backgroundBeige),
+          
           appBarTheme: const AppBarTheme(
             backgroundColor: Colors.white,
             foregroundColor: primaryTeal,
@@ -63,6 +77,7 @@ class MyApp extends StatelessWidget {
               letterSpacing: 1,
             ),
           ),
+          
           cardTheme: CardThemeData(
             color: Colors.white,
             elevation: 0,
@@ -71,6 +86,7 @@ class MyApp extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
+          
           inputDecorationTheme: InputDecorationTheme(
             filled: true,
             fillColor: Colors.white,
@@ -87,11 +103,9 @@ class MyApp extends StatelessWidget {
               borderSide: BorderSide(color: primaryTeal, width: 1.5),
             ),
             labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           ),
+          
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryTeal,
@@ -102,11 +116,13 @@ class MyApp extends StatelessWidget {
               textStyle: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
             ),
           ),
+          
           outlinedButtonTheme: OutlinedButtonThemeData(
             style: OutlinedButton.styleFrom(
               foregroundColor: primaryTeal,
               side: BorderSide(color: primaryTeal, width: 1.5),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+              textStyle: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ),

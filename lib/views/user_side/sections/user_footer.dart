@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../controllers/homepage_controller.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class UserFooter extends StatelessWidget {
   final HomePageController controller;
@@ -81,25 +82,25 @@ class UserFooter extends StatelessWidget {
                     ),
                     
                     // Links
-                    _buildFooterColumn(context, "ORGANIZATION", [
-                      {"label": "Home", "route": "/"},
-                      {"label": "About Dada", "route": "/about_dada"},
-                      {"label": "Mission", "route": "/about_dada"},
-                      {"label": "Contact Us", "route": "/contact_us"},
+                    _buildFooterColumn(context, "ORGANIZATION".tr(), [
+                      {"label": "Home".tr(), "route": "/"},
+                      {"label": "About Dada".tr(), "route": "/about_dada"},
+                      {"label": "Mission".tr(), "route": "/about_dada"},
+                      {"label": "Contact Us".tr(), "route": "/contact_us"},
                     ]),
                     
-                    _buildFooterColumn(context, "KATHA", [
-                      {"label": "Upcoming Kathas", "route": "/upcoming_ram_kathas"},
-                      {"label": "Full Katha List", "route": "/katha_list"},
-                      {"label": "Bhagvat Katha", "route": "/about_katha"},
-                      {"label": "Shivmahapuran", "route": "/about_shiv_katha"},
+                    _buildFooterColumn(context, "KATHA".tr(), [
+                      {"label": "Upcoming Kathas".tr(), "route": "/upcoming_ram_kathas"},
+                      {"label": "Full Katha List".tr(), "route": "/katha_list"},
+                      {"label": "Bhagvat Katha".tr(), "route": "/about_katha"},
+                      {"label": "Shivmahapuran".tr(), "route": "/about_shiv_katha"},
                     ]),
                     
-                    _buildFooterColumn(context, "RESOURCES", [
-                      {"label": "Stotra / Bhajan", "route": "/stotra"},
-                      {"label": "Photo Gallery", "route": "/photo_gallery"},
-                      {"label": "Video Gallery", "route": "/video_gallery"},
-                      {"label": "Admin Panel", "route": "/admin_login"},
+                    _buildFooterColumn(context, "RESOURCES".tr(), [
+                      {"label": "Stotra / Bhajan".tr(), "route": "/stotra"},
+                      {"label": "Photo Gallery".tr(), "route": "/photo_gallery"},
+                      {"label": "Video Gallery".tr(), "route": "/video_gallery"},
+                      {"label": "Admin Panel".tr(), "route": "/admin_login"},
                     ]),
                   ],
                 ),
@@ -141,16 +142,16 @@ class UserFooter extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            title,
+            title.tr(),
             style: const TextStyle(color: Color(0xFFC89A5B), fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 2),
           ),
           const SizedBox(height: 35),
           ...links.map((link) => Padding(
             padding: const EdgeInsets.only(bottom: 20),
             child: InkWell(
-              onTap: () => Navigator.pushNamed(context, link['route']!),
+              onTap: () => Navigator.pushNamed(context, link['route'] ?? '/'),
               child: Text(
-                link['label']!,
+                (link['label'] ?? '').tr(),
                 style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15, fontWeight: FontWeight.w300),
               ),
             ),
@@ -172,7 +173,7 @@ class UserFooter extends StatelessWidget {
 
   Widget _buildBottomLink(String text) {
     return Text(
-      text,
+      text.tr(),
       style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13),
     );
   }
