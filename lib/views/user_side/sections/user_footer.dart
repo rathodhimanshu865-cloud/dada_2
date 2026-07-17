@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/homepage_controller.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 class UserFooter extends StatelessWidget {
   final HomePageController controller;
@@ -82,25 +82,25 @@ class UserFooter extends StatelessWidget {
                     ),
                     
                     // Links
-                    _buildFooterColumn(context, "ORGANIZATION".tr(), [
-                      {"label": "Home".tr(), "route": "/"},
-                      {"label": "About Dada".tr(), "route": "/about_dada"},
-                      {"label": "Mission".tr(), "route": "/about_dada"},
-                      {"label": "Contact Us".tr(), "route": "/contact_us"},
+                    _buildFooterColumn(context, AppLocalizations.of(context)!.organization, [
+                      {"label": AppLocalizations.of(context)!.home, "route": "/"},
+                      {"label": AppLocalizations.of(context)!.aboutDada, "route": "/about_dada"},
+                      {"label": AppLocalizations.of(context)!.mission, "route": "/about_dada"},
+                      {"label": AppLocalizations.of(context)!.contactUs, "route": "/contact_us"},
                     ]),
                     
-                    _buildFooterColumn(context, "KATHA".tr(), [
-                      {"label": "Upcoming Kathas".tr(), "route": "/upcoming_ram_kathas"},
-                      {"label": "Full Katha List".tr(), "route": "/katha_list"},
-                      {"label": "Bhagvat Katha".tr(), "route": "/about_katha"},
-                      {"label": "Shivmahapuran".tr(), "route": "/about_shiv_katha"},
+                    _buildFooterColumn(context, AppLocalizations.of(context)!.katha, [
+                      {"label": AppLocalizations.of(context)!.upcomingKathas, "route": "/upcoming_ram_kathas"},
+                      {"label": AppLocalizations.of(context)!.fullKathaList, "route": "/katha_list"},
+                      {"label": AppLocalizations.of(context)!.bhagvatKatha, "route": "/about_katha"},
+                      {"label": AppLocalizations.of(context)!.shivmahapuran, "route": "/about_shiv_katha"},
                     ]),
                     
-                    _buildFooterColumn(context, "RESOURCES".tr(), [
-                      {"label": "Stotra / Bhajan".tr(), "route": "/stotra"},
-                      {"label": "Photo Gallery".tr(), "route": "/photo_gallery"},
-                      {"label": "Video Gallery".tr(), "route": "/video_gallery"},
-                      {"label": "Admin Panel".tr(), "route": "/admin_login"},
+                    _buildFooterColumn(context, AppLocalizations.of(context)!.resources, [
+                      {"label": AppLocalizations.of(context)!.stotraBhajan, "route": "/stotra"},
+                      {"label": AppLocalizations.of(context)!.photoGallery, "route": "/photo_gallery"},
+                      {"label": AppLocalizations.of(context)!.videoGallery, "route": "/video_gallery"},
+                      {"label": AppLocalizations.of(context)!.adminPanel, "route": "/admin_login"},
                     ]),
                   ],
                 ),
@@ -118,11 +118,11 @@ class UserFooter extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        _buildBottomLink("Privacy Policy"),
+                        _buildBottomLink(AppLocalizations.of(context)!.privacyPolicy),
                         const SizedBox(width: 30),
-                        _buildBottomLink("Terms of Service"),
+                        _buildBottomLink(AppLocalizations.of(context)!.termsOfService),
                         const SizedBox(width: 30),
-                        _buildBottomLink("Cookie Policy"),
+                        _buildBottomLink(AppLocalizations.of(context)!.cookiePolicy),
                       ],
                     ),
                   ],
@@ -135,14 +135,14 @@ class UserFooter extends StatelessWidget {
     );
   }
 
-  Widget _buildFooterColumn(BuildContext context, String title, List<Map<String, String>> links) {
+  Widget _buildFooterColumn(BuildContext context, String title, List<Map<String, dynamic>> links) {
     return Expanded(
       flex: 2,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            title.tr(),
+            title,
             style: const TextStyle(color: Color(0xFFC89A5B), fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 2),
           ),
           const SizedBox(height: 35),
@@ -151,7 +151,7 @@ class UserFooter extends StatelessWidget {
             child: InkWell(
               onTap: () => Navigator.pushNamed(context, link['route'] ?? '/'),
               child: Text(
-                (link['label'] ?? '').tr(),
+                (link['label'] ?? '') as String,
                 style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15, fontWeight: FontWeight.w300),
               ),
             ),
@@ -173,7 +173,7 @@ class UserFooter extends StatelessWidget {
 
   Widget _buildBottomLink(String text) {
     return Text(
-      text.tr(),
+      text,
       style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13),
     );
   }

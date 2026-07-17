@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path_helper;
 import '../models/homepage_model.dart';
 import '../models/contact_model.dart';
+import '../services/translation_service.dart';
 
 class HomePageController extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -162,6 +163,63 @@ class HomePageController extends ChangeNotifier {
       photoGalleryData.sections[catIdx].photoUrls.add(url);
       notifyListeners();
     }
+  }
+
+  /// Translates ALL content fields to Hindi and Gujarati, then publishes to Firestore.
+  /// Call this from the admin "Translate & Publish" button.
+  Future<void> translateAndPublish() async {
+    isLoading = true;
+    notifyListeners();
+    try {
+      // ── Hero Slides ──────────────────────────────────────────────────────────
+      for (final s in heroSection.slides) {
+        if (s.badge.isNotEmpty) { s.badgeHi = await TranslationService.translateText(s.badge, 'hi'); s.badgeGu = await TranslationService.translateText(s.badge, 'gu'); }
+        if (s.heading.isNotEmpty) { s.headingHi = await TranslationService.translateText(s.heading, 'hi'); s.headingGu = await TranslationService.translateText(s.heading, 'gu'); }
+        if (s.subtitle.isNotEmpty) { s.subtitleHi = await TranslationService.translateText(s.subtitle, 'hi'); s.subtitleGu = await TranslationService.translateText(s.subtitle, 'gu'); }
+        if (s.description.isNotEmpty) { s.descriptionHi = await TranslationService.translateText(s.description, 'hi'); s.descriptionGu = await TranslationService.translateText(s.description, 'gu'); }
+      }
+      // ── About Section ────────────────────────────────────────────────────────
+      if (aboutSection.title.isNotEmpty) { aboutSection.titleHi = await TranslationService.translateText(aboutSection.title, 'hi'); aboutSection.titleGu = await TranslationService.translateText(aboutSection.title, 'gu'); }
+      if (aboutSection.tagline.isNotEmpty) { aboutSection.taglineHi = await TranslationService.translateText(aboutSection.tagline, 'hi'); aboutSection.taglineGu = await TranslationService.translateText(aboutSection.tagline, 'gu'); }
+      if (aboutSection.description.isNotEmpty) { aboutSection.descriptionHi = await TranslationService.translateText(aboutSection.description, 'hi'); aboutSection.descriptionGu = await TranslationService.translateText(aboutSection.description, 'gu'); }
+      if (aboutSection.paragraphs.isNotEmpty) {
+        aboutSection.paragraphsHi = await TranslationService.translateBatch(aboutSection.paragraphs, 'hi');
+        aboutSection.paragraphsGu = await TranslationService.translateBatch(aboutSection.paragraphs, 'gu');
+      }
+      // ── Ram Katha ────────────────────────────────────────────────────────────
+      if (ramKatha.description1.isNotEmpty) { ramKatha.description1Hi = await TranslationService.translateText(ramKatha.description1, 'hi'); ramKatha.description1Gu = await TranslationService.translateText(ramKatha.description1, 'gu'); }
+      if (ramKatha.description2.isNotEmpty) { ramKatha.description2Hi = await TranslationService.translateText(ramKatha.description2, 'hi'); ramKatha.description2Gu = await TranslationService.translateText(ramKatha.description2, 'gu'); }
+      // ── Upcoming Kathas ──────────────────────────────────────────────────────
+      for (final k in upcomingKathas) {
+        if (k.name.isNotEmpty) { k.nameHi = await TranslationService.translateText(k.name, 'hi'); k.nameGu = await TranslationService.translateText(k.name, 'gu'); }
+        if (k.location.isNotEmpty) { k.locationHi = await TranslationService.translateText(k.location, 'hi'); k.locationGu = await TranslationService.translateText(k.location, 'gu'); }
+        if (k.dateString.isNotEmpty) { k.dateStringHi = await TranslationService.translateText(k.dateString, 'hi'); k.dateStringGu = await TranslationService.translateText(k.dateString, 'gu'); }
+      }
+      // ── Featured Quote ───────────────────────────────────────────────────────
+      if (homepageData.featuredQuote.quote.isNotEmpty) { homepageData.featuredQuote.quoteHi = await TranslationService.translateText(homepageData.featuredQuote.quote, 'hi'); homepageData.featuredQuote.quoteGu = await TranslationService.translateText(homepageData.featuredQuote.quote, 'gu'); }
+      if (homepageData.featuredQuote.author.isNotEmpty) { homepageData.featuredQuote.authorHi = await TranslationService.translateText(homepageData.featuredQuote.author, 'hi'); homepageData.featuredQuote.authorGu = await TranslationService.translateText(homepageData.featuredQuote.author, 'gu'); }
+      // ── Teaching Cards ───────────────────────────────────────────────────────
+      for (final t in homepageData.teachings) {
+        if (t.title.isNotEmpty) { t.titleHi = await TranslationService.translateText(t.title, 'hi'); t.titleGu = await TranslationService.translateText(t.title, 'gu'); }
+        if (t.subtitle.isNotEmpty) { t.subtitleHi = await TranslationService.translateText(t.subtitle, 'hi'); t.subtitleGu = await TranslationService.translateText(t.subtitle, 'gu'); }
+        if (t.description.isNotEmpty) { t.descriptionHi = await TranslationService.translateText(t.description, 'hi'); t.descriptionGu = await TranslationService.translateText(t.description, 'gu'); }
+      }
+      // ── Testimonials ─────────────────────────────────────────────────────────
+      for (final t in homepageData.testimonials) {
+        if (t.name.isNotEmpty) { t.nameHi = await TranslationService.translateText(t.name, 'hi'); t.nameGu = await TranslationService.translateText(t.name, 'gu'); }
+        if (t.feedback.isNotEmpty) { t.feedbackHi = await TranslationService.translateText(t.feedback, 'hi'); t.feedbackGu = await TranslationService.translateText(t.feedback, 'gu'); }
+      }
+      // ── Biography Phases ─────────────────────────────────────────────────────
+      for (final p in aboutDadaPage.phases) {
+        if (p.title.isNotEmpty) { p.titleHi = await TranslationService.translateText(p.title, 'hi'); p.titleGu = await TranslationService.translateText(p.title, 'gu'); }
+        if (p.subtitle.isNotEmpty) { p.subtitleHi = await TranslationService.translateText(p.subtitle, 'hi'); p.subtitleGu = await TranslationService.translateText(p.subtitle, 'gu'); }
+        if (p.content.isNotEmpty) { p.contentHi = await TranslationService.translateText(p.content, 'hi'); p.contentGu = await TranslationService.translateText(p.content, 'gu'); }
+      }
+    } catch (e) {
+      debugPrint('Translation error: $e');
+    }
+    // After translating, publish
+    await publish();
   }
 
   Future<void> publish() async {

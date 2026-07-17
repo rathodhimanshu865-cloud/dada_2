@@ -8,6 +8,7 @@ class UserFeaturedQuote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final quoteData = controller.homepageData.featuredQuote;
+    final lang = Localizations.localeOf(context).languageCode;
     if (quoteData.quote.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -22,7 +23,7 @@ class UserFeaturedQuote extends StatelessWidget {
               const Icon(Icons.format_quote_rounded, size: 80, color: Color(0xFFC89A5B)),
               const SizedBox(height: 40),
               Text(
-                quoteData.quote,
+                quoteData.localizedQuote(lang),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 36,
@@ -36,7 +37,7 @@ class UserFeaturedQuote extends StatelessWidget {
               Container(height: 1, width: 60, color: const Color(0xFFC89A5B)),
               const SizedBox(height: 30),
               Text(
-                quoteData.author.toUpperCase(),
+                quoteData.localizedAuthor(lang).toUpperCase(),
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 4, color: Color(0xFFC89A5B)),
               ),
             ],

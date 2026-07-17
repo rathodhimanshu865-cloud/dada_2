@@ -1,5 +1,5 @@
-﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/homepage_controller.dart';
 
 class UserAbout extends StatelessWidget {
@@ -11,6 +11,7 @@ class UserAbout extends StatelessWidget {
     const primaryTeal = Color(0xFF0F4C5C);
     const backgroundBeige = Color(0xFFF9F3EA);
     final about = controller.aboutSection;
+    final lang = Localizations.localeOf(context).languageCode;
     
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 40),
@@ -55,13 +56,13 @@ class UserAbout extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'About Jignesh Dada',
+                    AppLocalizations.of(context)!.aboutDada,
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: primaryTeal, fontFamily: 'serif'),
                   ),
                   const SizedBox(height: 25),
                   Text(
-                    about.description.isNotEmpty 
-                      ? about.description 
+                    about.localizedDescription(lang).isNotEmpty
+                      ? about.localizedDescription(lang)
                       : 'Shri Jigneshdada, affectionately known as "Radhe Radhe", is one of the most respected and influential contemporary Bhagwatcharyas. He is widely admired as a torchbearer of Sanatan Dharma...',
                     style: const TextStyle(fontSize: 16, height: 1.6, color: Colors.black87),
                   ),
@@ -73,7 +74,7 @@ class UserAbout extends StatelessWidget {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                     ),
-                    child: Text('READ MORE'.tr()),
+                    child: Text(AppLocalizations.of(context)!.readMore),
                   ),
                 ],
               ),

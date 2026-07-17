@@ -1,7 +1,7 @@
-﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/homepage_controller.dart';
 
 class UserDailySuvichar extends StatefulWidget {
@@ -19,7 +19,7 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
     await Clipboard.setData(ClipboardData(text: url));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Image link copied to clipboard!'.tr())),
+        SnackBar(content: Text(AppLocalizations.of(context)!.imageLinkCopied)),
       );
     }
   }
@@ -62,9 +62,9 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
                 child: Center(
                   child: Column(
                     children: [
-                      const Text(
-                        "DADA'S DAILY SUVICHAR",
-                        style: TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 11),
+                      Text(
+                        AppLocalizations.of(context)!.dadasDailySuvichar,
+                        style: const TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 11),
                       ),
                       const SizedBox(height: 10),
                       Text(
@@ -97,13 +97,13 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
                     _buildActionButton(
                       icon: Icons.share_outlined,
                       onTap: () => _shareContent(suvichar.imageUrl),
-                      tooltip: 'Share Link',
+                      tooltip: AppLocalizations.of(context)!.shareLink,
                     ),
                     const SizedBox(width: 40),
                     _buildActionButton(
                       icon: Icons.download_outlined,
                       onTap: () => _downloadImage(suvichar.imageUrl),
-                      tooltip: 'Open to Download',
+                      tooltip: AppLocalizations.of(context)!.openToDownload,
                     ),
                     const SizedBox(width: 40),
                     _buildActionButton(
@@ -114,7 +114,7 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
                           _isLiked = !_isLiked;
                         });
                       },
-                      tooltip: 'Like',
+                      tooltip: AppLocalizations.of(context)!.like,
                     ),
                   ],
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});
@@ -16,7 +17,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
       Navigator.pushReplacementNamed(context, '/admin_dashboard');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid Credentials')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.invalidCredentials)),
       );
     }
   }
@@ -36,24 +37,24 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('ADMIN LOGIN', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              Text(AppLocalizations.of(context)!.adminLogin, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 32),
               TextField(
                 controller: _userController,
-                decoration: const InputDecoration(labelText: 'Username'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.username),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _passController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Password'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.password),
               ),
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _login,
-                  child: const Text('LOGIN'),
+                  child: Text(AppLocalizations.of(context)!.login),
                 ),
               ),
             ],

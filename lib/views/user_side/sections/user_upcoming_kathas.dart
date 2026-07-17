@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../models/homepage_model.dart';
+import '../../../utils/localization_helper.dart';
 import 'katha_calendar_view.dart';
 
 class UserUpcomingKathas extends StatelessWidget {
@@ -22,12 +23,12 @@ class UserUpcomingKathas extends StatelessWidget {
           Column(
             children: [
               Text(
-                "SPIRITUAL CALENDAR".tr(),
+                AppLocalizations.of(context)!.spiritualCalendar,
                 style: const TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
               ),
               const SizedBox(height: 20),
               Text(
-                "Upcoming Kathas".tr(),
+                AppLocalizations.of(context)!.upcomingKathas,
                 style: const TextStyle(fontSize: 42, fontFamily: 'serif', fontWeight: FontWeight.w900, color: Color(0xFF0F4C5C)),
               ),
               const SizedBox(height: 30),
@@ -41,11 +42,11 @@ class UserUpcomingKathas extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _viewButton(context, 'LIST VIEW'.tr(), Icons.list_alt_rounded, () {
+              _viewButton(context, AppLocalizations.of(context)!.listView, Icons.list_alt_rounded, () {
                 Navigator.pushNamed(context, '/upcoming_ram_kathas');
               }),
               const SizedBox(width: 20),
-              _viewButton(context, 'CALENDAR'.tr(), Icons.calendar_month_outlined, () {
+              _viewButton(context, AppLocalizations.of(context)!.calendar, Icons.calendar_month_outlined, () {
                 showDialog(
                   context: context,
                   builder: (context) => KathaCalendarView(kathas: controller.upcomingKathas),
@@ -71,7 +72,7 @@ class UserUpcomingKathas extends StatelessWidget {
                   childAspectRatio: 1.0, 
                 ),
                 itemCount: controller.upcomingKathas.take(3).length,
-                itemBuilder: (context, index) => _buildEventCard(controller.upcomingKathas[index]),
+                itemBuilder: (context, index) => _buildEventCard(context, controller.upcomingKathas[index]),
               );
             }),
           ),
@@ -86,7 +87,7 @@ class UserUpcomingKathas extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 25),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
-            child: Text('VIEW ALL UPCOMING KATHAS'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+            child: Text(AppLocalizations.of(context)!.viewAllUpcomingKathas, style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
           ),
         ],
       ),
@@ -109,7 +110,8 @@ class UserUpcomingKathas extends StatelessWidget {
     );
   }
 
-  Widget _buildEventCard(UpcomingKatha katha) {
+  Widget _buildEventCard(BuildContext context, UpcomingKatha katha) {
+    final lang = Localizations.localeOf(context).languageCode;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -125,7 +127,7 @@ class UserUpcomingKathas extends StatelessWidget {
           children: [
             const SizedBox(height: 10),
             Text(
-              katha.dateString.tr().toUpperCase(),
+              katha.localizedDateString(lang).toUpperCase(),
               style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1),
             ),
             const SizedBox(height: 20),
@@ -149,7 +151,7 @@ class UserUpcomingKathas extends StatelessWidget {
             ),
             const SizedBox(height: 15),
             Text(
-              katha.name.tr(),
+              katha.localizedName(lang),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -161,12 +163,12 @@ class UserUpcomingKathas extends StatelessWidget {
               children: [
                 const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFFC89A5B)),
                 const SizedBox(width: 8),
-                Flexible(child: Text(katha.location.tr(), style: const TextStyle(color: Color(0xFF6D6D6D), fontSize: 14))),
+                Flexible(child: Text(katha.localizedLocation(lang), style: const TextStyle(color: Color(0xFF6D6D6D), fontSize: 14))),
               ],
             ),
             const SizedBox(height: 20),
             Text(
-              "DETAILS >".tr(),
+              AppLocalizations.of(context)!.detailsArrow,
               style: const TextStyle(color: Color(0xFFC89A5B), fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 2),
             ),
           ],

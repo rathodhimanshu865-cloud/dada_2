@@ -33,9 +33,7 @@ class UserTeachings extends StatelessWidget {
               Container(height: 1, width: 80, color: const Color(0xFFC89A5B)),
             ],
           ),
-          
           const SizedBox(height: 80),
-
           // Teaching Grid
           Container(
             constraints: const BoxConstraints(maxWidth: 1300),
@@ -51,7 +49,7 @@ class UserTeachings extends StatelessWidget {
                   childAspectRatio: 0.8,
                 ),
                 itemCount: teachings.length,
-                itemBuilder: (context, index) => _buildTeachingCard(teachings[index]),
+                itemBuilder: (context, index) => _buildTeachingCard(context, teachings[index]),
               );
             }),
           ),
@@ -60,13 +58,14 @@ class UserTeachings extends StatelessWidget {
     );
   }
 
-  Widget _buildTeachingCard(TeachingCard teaching) {
+  Widget _buildTeachingCard(BuildContext context, TeachingCard teaching) {
+    final lang = Localizations.localeOf(context).languageCode;
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFFAF8F4),
         borderRadius: BorderRadius.circular(4),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 25, offset: const Offset(0, 10)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 25, offset: const Offset(0, 10)),
         ],
       ),
       child: Column(
@@ -76,7 +75,7 @@ class UserTeachings extends StatelessWidget {
             child: Container(
               width: double.infinity,
               color: const Color(0xFFF3EEE6),
-              child: teaching.image.isNotEmpty 
+              child: teaching.image.isNotEmpty
                 ? Image.network(teaching.image, fit: BoxFit.cover)
                 : const Icon(Icons.auto_awesome_rounded, size: 60, color: Color(0xFFC89A5B)),
             ),
@@ -87,17 +86,17 @@ class UserTeachings extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  teaching.subtitle.toUpperCase(),
+                  teaching.localizedSubtitle(lang).toUpperCase(),
                   style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 2),
                 ),
                 const SizedBox(height: 15),
                 Text(
-                  teaching.title,
+                  teaching.localizedTitle(lang),
                   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A), fontFamily: 'serif'),
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  teaching.description,
+                  teaching.localizedDescription(lang),
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(color: Color(0xFF6D6D6D), fontSize: 15, height: 1.6),

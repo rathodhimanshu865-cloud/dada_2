@@ -47,7 +47,6 @@ class _UserTestimonialsState extends State<UserTestimonials> {
       color: Colors.white,
       child: Column(
         children: [
-          // Header
           Column(
             children: [
               const Text(
@@ -63,9 +62,7 @@ class _UserTestimonialsState extends State<UserTestimonials> {
               Container(height: 1, width: 80, color: const Color(0xFFC89A5B)),
             ],
           ),
-          
           const SizedBox(height: 80),
-
           SizedBox(
             height: 450,
             child: PageView.builder(
@@ -73,7 +70,7 @@ class _UserTestimonialsState extends State<UserTestimonials> {
               onPageChanged: (i) => setState(() => _currentIndex = i),
               itemCount: testimonials.length,
               itemBuilder: (context, index) {
-                return _buildTestimonialCard(testimonials[index], index == _currentIndex);
+                return _buildTestimonialCard(context, testimonials[index], index == _currentIndex);
               },
             ),
           ),
@@ -82,7 +79,8 @@ class _UserTestimonialsState extends State<UserTestimonials> {
     );
   }
 
-  Widget _buildTestimonialCard(Testimonial testimonial, bool active) {
+  Widget _buildTestimonialCard(BuildContext context, Testimonial testimonial, bool active) {
+    final lang = Localizations.localeOf(context).languageCode;
     return AnimatedScale(
       duration: const Duration(milliseconds: 500),
       scale: active ? 1.0 : 0.9,
@@ -96,7 +94,7 @@ class _UserTestimonialsState extends State<UserTestimonials> {
             color: const Color(0xFFFAF8F4),
             borderRadius: BorderRadius.circular(4),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 40, offset: const Offset(0, 20)),
+              BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 40, offset: const Offset(0, 20)),
             ],
           ),
           child: Column(
@@ -107,7 +105,7 @@ class _UserTestimonialsState extends State<UserTestimonials> {
               Expanded(
                 child: SingleChildScrollView(
                   child: Text(
-                    testimonial.feedback,
+                    testimonial.localizedFeedback(lang),
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 18, height: 1.8, color: Color(0xFF2B2B2B), fontStyle: FontStyle.italic),
                   ),
@@ -128,7 +126,7 @@ class _UserTestimonialsState extends State<UserTestimonials> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        testimonial.name.toUpperCase(),
+                        testimonial.localizedName(lang).toUpperCase(),
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1),
                       ),
                       Text(

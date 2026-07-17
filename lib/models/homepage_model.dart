@@ -80,6 +80,11 @@ class HeroSlide {
   String primaryCtaUrl;
   String secondaryCtaText;
   String secondaryCtaUrl;
+  // Translations
+  String badgeHi; String badgeGu;
+  String headingHi; String headingGu;
+  String subtitleHi; String subtitleGu;
+  String descriptionHi; String descriptionGu;
 
   HeroSlide({
     this.image = '',
@@ -91,18 +96,25 @@ class HeroSlide {
     this.primaryCtaUrl = '',
     this.secondaryCtaText = '',
     this.secondaryCtaUrl = '',
+    this.badgeHi = '', this.badgeGu = '',
+    this.headingHi = '', this.headingGu = '',
+    this.subtitleHi = '', this.subtitleGu = '',
+    this.descriptionHi = '', this.descriptionGu = '',
   });
 
+  String localizedBadge(String lang) => lang == 'hi' && badgeHi.isNotEmpty ? badgeHi : lang == 'gu' && badgeGu.isNotEmpty ? badgeGu : badge;
+  String localizedHeading(String lang) => lang == 'hi' && headingHi.isNotEmpty ? headingHi : lang == 'gu' && headingGu.isNotEmpty ? headingGu : heading;
+  String localizedSubtitle(String lang) => lang == 'hi' && subtitleHi.isNotEmpty ? subtitleHi : lang == 'gu' && subtitleGu.isNotEmpty ? subtitleGu : subtitle;
+  String localizedDescription(String lang) => lang == 'hi' && descriptionHi.isNotEmpty ? descriptionHi : lang == 'gu' && descriptionGu.isNotEmpty ? descriptionGu : description;
+
   Map<String, dynamic> toMap() => {
-    'image': image,
-    'badge': badge,
-    'heading': heading,
-    'subtitle': subtitle,
-    'description': description,
-    'primaryCtaText': primaryCtaText,
-    'primaryCtaUrl': primaryCtaUrl,
-    'secondaryCtaText': secondaryCtaText,
-    'secondaryCtaUrl': secondaryCtaUrl,
+    'image': image, 'badge': badge, 'heading': heading, 'subtitle': subtitle,
+    'description': description, 'primaryCtaText': primaryCtaText, 'primaryCtaUrl': primaryCtaUrl,
+    'secondaryCtaText': secondaryCtaText, 'secondaryCtaUrl': secondaryCtaUrl,
+    'badge_hi': badgeHi, 'badge_gu': badgeGu,
+    'heading_hi': headingHi, 'heading_gu': headingGu,
+    'subtitle_hi': subtitleHi, 'subtitle_gu': subtitleGu,
+    'description_hi': descriptionHi, 'description_gu': descriptionGu,
   };
 
   factory HeroSlide.fromMap(Map<String, dynamic> map) => HeroSlide(
@@ -115,6 +127,10 @@ class HeroSlide {
     primaryCtaUrl: map['primaryCtaUrl'] ?? '',
     secondaryCtaText: map['secondaryCtaText'] ?? '',
     secondaryCtaUrl: map['secondaryCtaUrl'] ?? '',
+    badgeHi: map['badge_hi'] ?? '', badgeGu: map['badge_gu'] ?? '',
+    headingHi: map['heading_hi'] ?? '', headingGu: map['heading_gu'] ?? '',
+    subtitleHi: map['subtitle_hi'] ?? '', subtitleGu: map['subtitle_gu'] ?? '',
+    descriptionHi: map['description_hi'] ?? '', descriptionGu: map['description_gu'] ?? '',
   );
 }
 
@@ -148,15 +164,25 @@ class FeaturedQuote {
   String author;
   String portrait;
   String background;
+  // Translations
+  String quoteHi; String quoteGu;
+  String authorHi; String authorGu;
 
-  FeaturedQuote({this.quote = '', this.author = '', this.portrait = '', this.background = ''});
+  FeaturedQuote({this.quote = '', this.author = '', this.portrait = '', this.background = '',
+    this.quoteHi = '', this.quoteGu = '', this.authorHi = '', this.authorGu = ''});
 
-  Map<String, dynamic> toMap() => {'quote': quote, 'author': author, 'portrait': portrait, 'background': background};
+  String localizedQuote(String lang) => lang == 'hi' && quoteHi.isNotEmpty ? quoteHi : lang == 'gu' && quoteGu.isNotEmpty ? quoteGu : quote;
+  String localizedAuthor(String lang) => lang == 'hi' && authorHi.isNotEmpty ? authorHi : lang == 'gu' && authorGu.isNotEmpty ? authorGu : author;
+
+  Map<String, dynamic> toMap() => {'quote': quote, 'author': author, 'portrait': portrait, 'background': background,
+    'quote_hi': quoteHi, 'quote_gu': quoteGu, 'author_hi': authorHi, 'author_gu': authorGu};
   factory FeaturedQuote.fromMap(Map<String, dynamic> map) => FeaturedQuote(
     quote: map['quote'] ?? '',
     author: map['author'] ?? '',
     portrait: map['portrait'] ?? '',
     background: map['background'] ?? '',
+    quoteHi: map['quote_hi'] ?? '', quoteGu: map['quote_gu'] ?? '',
+    authorHi: map['author_hi'] ?? '', authorGu: map['author_gu'] ?? '',
   );
 }
 
@@ -166,16 +192,28 @@ class TeachingCard {
   String description;
   String image;
   String icon;
+  // Translations
+  String titleHi; String titleGu;
+  String subtitleHi; String subtitleGu;
+  String descriptionHi; String descriptionGu;
 
-  TeachingCard({this.title = '', this.subtitle = '', this.description = '', this.image = '', this.icon = ''});
+  TeachingCard({this.title = '', this.subtitle = '', this.description = '', this.image = '', this.icon = '',
+    this.titleHi = '', this.titleGu = '', this.subtitleHi = '', this.subtitleGu = '',
+    this.descriptionHi = '', this.descriptionGu = ''});
 
-  Map<String, dynamic> toMap() => {'title': title, 'subtitle': subtitle, 'description': description, 'image': image, 'icon': icon};
+  String localizedTitle(String lang) => lang == 'hi' && titleHi.isNotEmpty ? titleHi : lang == 'gu' && titleGu.isNotEmpty ? titleGu : title;
+  String localizedSubtitle(String lang) => lang == 'hi' && subtitleHi.isNotEmpty ? subtitleHi : lang == 'gu' && subtitleGu.isNotEmpty ? subtitleGu : subtitle;
+  String localizedDescription(String lang) => lang == 'hi' && descriptionHi.isNotEmpty ? descriptionHi : lang == 'gu' && descriptionGu.isNotEmpty ? descriptionGu : description;
+
+  Map<String, dynamic> toMap() => {'title': title, 'subtitle': subtitle, 'description': description, 'image': image, 'icon': icon,
+    'title_hi': titleHi, 'title_gu': titleGu, 'subtitle_hi': subtitleHi, 'subtitle_gu': subtitleGu,
+    'description_hi': descriptionHi, 'description_gu': descriptionGu};
   factory TeachingCard.fromMap(Map<String, dynamic> map) => TeachingCard(
-    title: map['title'] ?? '',
-    subtitle: map['subtitle'] ?? '',
-    description: map['description'] ?? '',
-    image: map['image'] ?? '',
-    icon: map['icon'] ?? '',
+    title: map['title'] ?? '', subtitle: map['subtitle'] ?? '', description: map['description'] ?? '',
+    image: map['image'] ?? '', icon: map['icon'] ?? '',
+    titleHi: map['title_hi'] ?? '', titleGu: map['title_gu'] ?? '',
+    subtitleHi: map['subtitle_hi'] ?? '', subtitleGu: map['subtitle_gu'] ?? '',
+    descriptionHi: map['description_hi'] ?? '', descriptionGu: map['description_gu'] ?? '',
   );
 }
 
@@ -184,15 +222,22 @@ class Testimonial {
   String location;
   String feedback;
   String photo;
+  // Translations
+  String feedbackHi; String feedbackGu;
+  String nameHi; String nameGu;
 
-  Testimonial({this.name = '', this.location = '', this.feedback = '', this.photo = ''});
+  Testimonial({this.name = '', this.location = '', this.feedback = '', this.photo = '',
+    this.feedbackHi = '', this.feedbackGu = '', this.nameHi = '', this.nameGu = ''});
 
-  Map<String, dynamic> toMap() => {'name': name, 'location': location, 'feedback': feedback, 'photo': photo};
+  String localizedName(String lang) => lang == 'hi' && nameHi.isNotEmpty ? nameHi : lang == 'gu' && nameGu.isNotEmpty ? nameGu : name;
+  String localizedFeedback(String lang) => lang == 'hi' && feedbackHi.isNotEmpty ? feedbackHi : lang == 'gu' && feedbackGu.isNotEmpty ? feedbackGu : feedback;
+
+  Map<String, dynamic> toMap() => {'name': name, 'location': location, 'feedback': feedback, 'photo': photo,
+    'feedback_hi': feedbackHi, 'feedback_gu': feedbackGu, 'name_hi': nameHi, 'name_gu': nameGu};
   factory Testimonial.fromMap(Map<String, dynamic> map) => Testimonial(
-    name: map['name'] ?? '',
-    location: map['location'] ?? '',
-    feedback: map['feedback'] ?? '',
-    photo: map['photo'] ?? '',
+    name: map['name'] ?? '', location: map['location'] ?? '', feedback: map['feedback'] ?? '', photo: map['photo'] ?? '',
+    feedbackHi: map['feedback_hi'] ?? '', feedbackGu: map['feedback_gu'] ?? '',
+    nameHi: map['name_hi'] ?? '', nameGu: map['name_gu'] ?? '',
   );
 }
 
@@ -257,38 +302,40 @@ class UpcomingKatha {
   String hosting;
   DateTime? startDate;
   DateTime? endDate;
+  // Translations
+  String nameHi; String nameGu;
+  String locationHi; String locationGu;
+  String dateStringHi; String dateStringGu;
 
   UpcomingKatha({
-    this.kathaNumber = '',
-    this.name = '',
-    this.dateString = '',
-    this.timing = '',
-    this.location = '',
-    this.hosting = '',
-    this.startDate,
-    this.endDate,
+    this.kathaNumber = '', this.name = '', this.dateString = '', this.timing = '',
+    this.location = '', this.hosting = '', this.startDate, this.endDate,
+    this.nameHi = '', this.nameGu = '',
+    this.locationHi = '', this.locationGu = '',
+    this.dateStringHi = '', this.dateStringGu = '',
   });
 
+  String localizedName(String lang) => lang == 'hi' && nameHi.isNotEmpty ? nameHi : lang == 'gu' && nameGu.isNotEmpty ? nameGu : name;
+  String localizedLocation(String lang) => lang == 'hi' && locationHi.isNotEmpty ? locationHi : lang == 'gu' && locationGu.isNotEmpty ? locationGu : location;
+  String localizedDateString(String lang) => lang == 'hi' && dateStringHi.isNotEmpty ? dateStringHi : lang == 'gu' && dateStringGu.isNotEmpty ? dateStringGu : dateString;
+
   Map<String, dynamic> toMap() => {
-    'kathaNumber': kathaNumber,
-    'name': name,
-    'dateString': dateString,
-    'timing': timing,
-    'location': location,
-    'hosting': hosting,
-    'startDate': startDate?.toIso8601String(),
-    'endDate': endDate?.toIso8601String(),
+    'kathaNumber': kathaNumber, 'name': name, 'dateString': dateString, 'timing': timing,
+    'location': location, 'hosting': hosting,
+    'startDate': startDate?.toIso8601String(), 'endDate': endDate?.toIso8601String(),
+    'name_hi': nameHi, 'name_gu': nameGu,
+    'location_hi': locationHi, 'location_gu': locationGu,
+    'dateString_hi': dateStringHi, 'dateString_gu': dateStringGu,
   };
 
   factory UpcomingKatha.fromMap(Map<String, dynamic> map) => UpcomingKatha(
-    kathaNumber: map['kathaNumber'] ?? '',
-    name: map['name'] ?? '',
-    dateString: map['dateString'] ?? '',
-    timing: map['timing'] ?? '',
-    location: map['location'] ?? '',
-    hosting: map['hosting'] ?? '',
+    kathaNumber: map['kathaNumber'] ?? '', name: map['name'] ?? '', dateString: map['dateString'] ?? '',
+    timing: map['timing'] ?? '', location: map['location'] ?? '', hosting: map['hosting'] ?? '',
     startDate: map['startDate'] != null ? DateTime.tryParse(map['startDate']) : null,
     endDate: map['endDate'] != null ? DateTime.tryParse(map['endDate']) : null,
+    nameHi: map['name_hi'] ?? '', nameGu: map['name_gu'] ?? '',
+    locationHi: map['location_hi'] ?? '', locationGu: map['location_gu'] ?? '',
+    dateStringHi: map['dateString_hi'] ?? '', dateStringGu: map['dateString_gu'] ?? '',
   );
 }
 
@@ -300,26 +347,43 @@ class AboutSection {
   String quote;
   List<String> paragraphs;
   List<String> galleryImages;
+  // Translations
+  String titleHi; String titleGu;
+  String taglineHi; String taglineGu;
+  String descriptionHi; String descriptionGu;
+  List<String> paragraphsHi; List<String> paragraphsGu;
 
   AboutSection({
-    this.photoUrl = '',
-    this.description = '',
+    this.photoUrl = '', this.description = '',
     this.title = 'Pu. Jignesh Dada',
     this.tagline = 'A divine voice of compassion, wisdom, and service',
     this.quote = 'Radhe Radhe is not just a greeting; it is a resonance of the soul.',
-    List<String>? paragraphs,
-    List<String>? galleryImages,
+    List<String>? paragraphs, List<String>? galleryImages,
+    this.titleHi = '', this.titleGu = '',
+    this.taglineHi = '', this.taglineGu = '',
+    this.descriptionHi = '', this.descriptionGu = '',
+    List<String>? paragraphsHi, List<String>? paragraphsGu,
   })  : paragraphs = paragraphs ?? [],
-        galleryImages = galleryImages ?? [];
+        galleryImages = galleryImages ?? [],
+        paragraphsHi = paragraphsHi ?? [],
+        paragraphsGu = paragraphsGu ?? [];
+
+  String localizedTitle(String lang) => lang == 'hi' && titleHi.isNotEmpty ? titleHi : lang == 'gu' && titleGu.isNotEmpty ? titleGu : title;
+  String localizedTagline(String lang) => lang == 'hi' && taglineHi.isNotEmpty ? taglineHi : lang == 'gu' && taglineGu.isNotEmpty ? taglineGu : tagline;
+  String localizedDescription(String lang) => lang == 'hi' && descriptionHi.isNotEmpty ? descriptionHi : lang == 'gu' && descriptionGu.isNotEmpty ? descriptionGu : description;
+  List<String> localizedParagraphs(String lang) {
+    if (lang == 'hi' && paragraphsHi.isNotEmpty) return paragraphsHi;
+    if (lang == 'gu' && paragraphsGu.isNotEmpty) return paragraphsGu;
+    return paragraphs;
+  }
 
   Map<String, dynamic> toMap() => {
-    'photoUrl': photoUrl,
-    'description': description,
-    'title': title,
-    'tagline': tagline,
-    'quote': quote,
-    'paragraphs': paragraphs,
-    'galleryImages': galleryImages,
+    'photoUrl': photoUrl, 'description': description, 'title': title,
+    'tagline': tagline, 'quote': quote, 'paragraphs': paragraphs, 'galleryImages': galleryImages,
+    'title_hi': titleHi, 'title_gu': titleGu,
+    'tagline_hi': taglineHi, 'tagline_gu': taglineGu,
+    'description_hi': descriptionHi, 'description_gu': descriptionGu,
+    'paragraphs_hi': paragraphsHi, 'paragraphs_gu': paragraphsGu,
   };
 
   factory AboutSection.fromMap(Map<String, dynamic> map) {
@@ -327,6 +391,8 @@ class AboutSection {
     final parsedParagraphs = storedParagraphs is List ? storedParagraphs.map((item) => item.toString()).toList() : <String>[];
     final storedGalleryImages = map['galleryImages'];
     final parsedGalleryImages = storedGalleryImages is List ? storedGalleryImages.map((item) => item.toString()).toList() : <String>[];
+    final parsedParaHi = (map['paragraphs_hi'] as List? ?? []).map((e) => e.toString()).toList();
+    final parsedParaGu = (map['paragraphs_gu'] as List? ?? []).map((e) => e.toString()).toList();
 
     return AboutSection(
       photoUrl: map['photoUrl'] ?? '',
@@ -336,6 +402,10 @@ class AboutSection {
       quote: map['quote'] ?? 'Radhe Radhe is not just a greeting; it is a resonance of the soul.',
       paragraphs: parsedParagraphs.isNotEmpty ? parsedParagraphs : (map['description']?.toString().trim().isNotEmpty ?? false) ? [map['description'].toString()] : <String>[],
       galleryImages: parsedGalleryImages,
+      titleHi: map['title_hi'] ?? '', titleGu: map['title_gu'] ?? '',
+      taglineHi: map['tagline_hi'] ?? '', taglineGu: map['tagline_gu'] ?? '',
+      descriptionHi: map['description_hi'] ?? '', descriptionGu: map['description_gu'] ?? '',
+      paragraphsHi: parsedParaHi, paragraphsGu: parsedParaGu,
     );
   }
 
@@ -398,23 +468,31 @@ class RamKathaSection {
   String description1;
   String description2;
   String photoUrl;
+  // Translations
+  String description1Hi; String description1Gu;
+  String description2Hi; String description2Gu;
+
   RamKathaSection({
-    this.title = 'Ram Katha',
-    this.description1 = '',
-    this.description2 = '',
-    this.photoUrl = '',
+    this.title = 'Ram Katha', this.description1 = '', this.description2 = '', this.photoUrl = '',
+    this.description1Hi = '', this.description1Gu = '',
+    this.description2Hi = '', this.description2Gu = '',
   });
+
+  String localizedDescription1(String lang) => lang == 'hi' && description1Hi.isNotEmpty ? description1Hi : lang == 'gu' && description1Gu.isNotEmpty ? description1Gu : description1;
+  String localizedDescription2(String lang) => lang == 'hi' && description2Hi.isNotEmpty ? description2Hi : lang == 'gu' && description2Gu.isNotEmpty ? description2Gu : description2;
+
   Map<String, dynamic> toMap() => {
-    'title': title,
-    'description1': description1,
-    'description2': description2,
-    'photoUrl': photoUrl,
+    'title': title, 'description1': description1, 'description2': description2, 'photoUrl': photoUrl,
+    'description1_hi': description1Hi, 'description1_gu': description1Gu,
+    'description2_hi': description2Hi, 'description2_gu': description2Gu,
   };
   factory RamKathaSection.fromMap(Map<String, dynamic> map) => RamKathaSection(
     title: map['title'] ?? 'Ram Katha',
     description1: map['description1'] ?? '',
     description2: map['description2'] ?? '',
     photoUrl: map['photoUrl'] ?? '',
+    description1Hi: map['description1_hi'] ?? '', description1Gu: map['description1_gu'] ?? '',
+    description2Hi: map['description2_hi'] ?? '', description2Gu: map['description2_gu'] ?? '',
   );
 }
 
@@ -511,31 +589,38 @@ class BiographyPhase {
   String subtitle;
   String content;
   List<String> images;
-  String layoutType; // 'standard', 'reversed', 'centered', 'highlight'
+  String layoutType;
+  // Translations
+  String titleHi; String titleGu;
+  String subtitleHi; String subtitleGu;
+  String contentHi; String contentGu;
 
   BiographyPhase({
-    this.title = '',
-    this.subtitle = '',
-    this.content = '',
-    List<String>? images,
-    this.layoutType = 'standard',
+    this.title = '', this.subtitle = '', this.content = '',
+    List<String>? images, this.layoutType = 'standard',
+    this.titleHi = '', this.titleGu = '',
+    this.subtitleHi = '', this.subtitleGu = '',
+    this.contentHi = '', this.contentGu = '',
   }) : images = images ?? [];
 
+  String localizedTitle(String lang) => lang == 'hi' && titleHi.isNotEmpty ? titleHi : lang == 'gu' && titleGu.isNotEmpty ? titleGu : title;
+  String localizedSubtitle(String lang) => lang == 'hi' && subtitleHi.isNotEmpty ? subtitleHi : lang == 'gu' && subtitleGu.isNotEmpty ? subtitleGu : subtitle;
+  String localizedContent(String lang) => lang == 'hi' && contentHi.isNotEmpty ? contentHi : lang == 'gu' && contentGu.isNotEmpty ? contentGu : content;
+
   Map<String, dynamic> toMap() => {
-        'title': title,
-        'subtitle': subtitle,
-        'content': content,
-        'images': images,
-        'layoutType': layoutType,
-      };
+    'title': title, 'subtitle': subtitle, 'content': content, 'images': images, 'layoutType': layoutType,
+    'title_hi': titleHi, 'title_gu': titleGu,
+    'subtitle_hi': subtitleHi, 'subtitle_gu': subtitleGu,
+    'content_hi': contentHi, 'content_gu': contentGu,
+  };
 
   factory BiographyPhase.fromMap(Map<String, dynamic> map) => BiographyPhase(
-        title: map['title'] ?? '',
-        subtitle: map['subtitle'] ?? '',
-        content: map['content'] ?? '',
-        images: List<String>.from(map['images'] ?? []),
-        layoutType: map['layoutType'] ?? 'standard',
-      );
+    title: map['title'] ?? '', subtitle: map['subtitle'] ?? '', content: map['content'] ?? '',
+    images: List<String>.from(map['images'] ?? []), layoutType: map['layoutType'] ?? 'standard',
+    titleHi: map['title_hi'] ?? '', titleGu: map['title_gu'] ?? '',
+    subtitleHi: map['subtitle_hi'] ?? '', subtitleGu: map['subtitle_gu'] ?? '',
+    contentHi: map['content_hi'] ?? '', contentGu: map['content_gu'] ?? '',
+  );
 }
 
 class AboutDadaPageData {

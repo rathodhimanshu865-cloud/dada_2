@@ -155,10 +155,38 @@ class _AdminDashboardState extends State<AdminDashboard> {
         leading: Builder(builder: (context) => IconButton(icon: const Icon(Icons.menu, color: Colors.black), onPressed: () => Scaffold.of(context).openDrawer())),
         actions: [
           ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.teal[800], foregroundColor: Colors.white),
+            onPressed: controller.isLoading ? null : () async {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('🌐 Translating to Hindi & Gujarati... please wait'),
+                  duration: Duration(seconds: 60),
+                  backgroundColor: Colors.teal,
+                ),
+              );
+              await controller.translateAndPublish();
+              if (mounted) {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('✅ Translated & Published successfully!'), backgroundColor: Colors.green),
+                );
+              }
+            },
+            icon: controller.isLoading
+                ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                : const Icon(Icons.translate),
+            label: const Text('TRANSLATE & PUBLISH'),
+          ),
+          const SizedBox(width: 12),
+          ElevatedButton.icon(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white),
-            onPressed: () async {
+            onPressed: controller.isLoading ? null : () async {
               await controller.publish();
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All changes published successfully!')));
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('All changes published successfully!')),
+                );
+              }
             },
             icon: controller.isLoading ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Icon(Icons.publish),
             label: const Text('PUBLISH ALL CHANGES'),

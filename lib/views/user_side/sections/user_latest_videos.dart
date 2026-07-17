@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../utils/localization_helper.dart';
 import '../../../controllers/homepage_controller.dart';
 
 class UserLatestVideos extends StatelessWidget {
@@ -28,12 +29,12 @@ class UserLatestVideos extends StatelessWidget {
           Column(
             children: [
               Text(
-                "WATCH & REFLECT".tr(),
+                AppLocalizations.of(context)!.watchAndReflect,
                 style: const TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
               ),
               const SizedBox(height: 20),
               Text(
-                "Latest Videos".tr(),
+                AppLocalizations.of(context)!.latestVideos,
                 style: const TextStyle(fontSize: 42, fontFamily: 'serif', fontWeight: FontWeight.w900, color: Color(0xFF0F4C5C)),
               ),
               const SizedBox(height: 30),
@@ -58,7 +59,7 @@ class UserLatestVideos extends StatelessWidget {
                   childAspectRatio: 1.2,
                 ),
                 itemCount: controller.videos.take(6).length,
-                itemBuilder: (context, index) => _buildVideoCard(controller.videos[index]),
+                itemBuilder: (context, index) => _buildVideoCard(context, controller.videos[index]),
               );
             }),
           ),
@@ -73,14 +74,14 @@ class UserLatestVideos extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 25),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
-            child: Text('VIEW ALL VIDEOS'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+            child: Text(AppLocalizations.of(context)!.viewAllVideos, style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildVideoCard(dynamic video) {
+  Widget _buildVideoCard(BuildContext context, dynamic video) {
     return GestureDetector(
       onTap: () => _launchUrl(video.youtubeUrl),
       child: Column(
@@ -122,14 +123,14 @@ class UserLatestVideos extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            (video.title as String).tr().toUpperCase(),
+            (video.title as String).dynamicTr(context).toUpperCase(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A), letterSpacing: 0.5),
           ),
           const SizedBox(height: 6),
           Text(
-            "YOUTUBE DISCOURSE".tr(),
+            AppLocalizations.of(context)!.youtubeDiscourse,
             style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
           ),
         ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/homepage_controller.dart';
+import '../../../utils/localization_helper.dart';
 
 class UserAboutPreview extends StatelessWidget {
   final HomePageController controller;
@@ -9,6 +10,7 @@ class UserAboutPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final about = controller.aboutSection;
+    final lang = Localizations.localeOf(context).languageCode;
     final isMobile = MediaQuery.of(context).size.width < 900;
 
     return Container(
@@ -29,22 +31,22 @@ class UserAboutPreview extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "DISCOVER THE JOURNEY".tr(),
+                      AppLocalizations.of(context)!.discoverTheJourney,
                       style: const TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                     const SizedBox(height: 25),
                     Text(
-                      about.title.tr(),
+                      about.localizedTitle(lang),
                       style: const TextStyle(fontSize: 48, fontFamily: 'serif', fontWeight: FontWeight.w900, color: Color(0xFF0F4C5C), height: 1.1),
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      about.tagline.tr(),
+                      about.localizedTagline(lang),
                       style: const TextStyle(fontSize: 20, color: Color(0xFFC89A5B), fontWeight: FontWeight.w300),
                     ),
                     const SizedBox(height: 40),
                     Text(
-                      about.description.tr(),
+                      about.localizedDescription(lang),
                       style: const TextStyle(fontSize: 18, height: 1.8, color: Color(0xFF2B2B2B), letterSpacing: 0.2),
                     ),
                     const SizedBox(height: 50),
@@ -56,7 +58,7 @@ class UserAboutPreview extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                       ),
-                      child: Text('READ FULL BIOGRAPHY'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                      child: Text(AppLocalizations.of(context)!.readFullBiography, style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                     ),
                   ],
                 ),

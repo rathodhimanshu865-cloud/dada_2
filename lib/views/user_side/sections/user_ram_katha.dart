@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/homepage_controller.dart';
+import '../../../utils/localization_helper.dart';
 
 class UserRamKatha extends StatelessWidget {
   final HomePageController controller;
@@ -12,7 +13,7 @@ class UserRamKatha extends StatelessWidget {
     const backgroundBeige = Color(0xFFFAF8F4);
     const accentGold = Color(0xFFC89A5B);
     final kathaData = controller.ramKatha;
-    
+    final lang = Localizations.localeOf(context).languageCode;
     final isMobile = MediaQuery.of(context).size.width < 900;
 
     return Container(
@@ -33,23 +34,23 @@ class UserRamKatha extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "DIVINE DISCOURSES".tr(),
+                      AppLocalizations.of(context)!.divineDiscourses,
                       style: const TextStyle(color: accentGold, letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                     const SizedBox(height: 25),
                     Text(
-                      "Shreemad Bhagwat Katha".tr(),
+                      AppLocalizations.of(context)!.shreemadBhagwatKatha,
                       style: const TextStyle(fontSize: 48, fontFamily: 'serif', fontWeight: FontWeight.w900, color: primaryTeal, height: 1.1),
                     ),
                     const SizedBox(height: 40),
                     Text(
-                      kathaData.description1.tr(),
+                      kathaData.localizedDescription1(lang),
                       style: const TextStyle(fontSize: 18, height: 1.8, color: Color(0xFF2B2B2B), letterSpacing: 0.2),
                     ),
                     if (kathaData.description2.isNotEmpty) ...[
                       const SizedBox(height: 25),
                       Text(
-                        kathaData.description2.tr(),
+                        kathaData.localizedDescription2(lang),
                         style: const TextStyle(fontSize: 16, height: 1.7, color: Color(0xFF6D6D6D)),
                       ),
                     ],
@@ -62,7 +63,7 @@ class UserRamKatha extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                       ),
-                      child: Text('EXPLORE KATHA JOURNEY'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                      child: Text(AppLocalizations.of(context)!.exploreKathaJourney, style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                     ),
                   ],
                 ),

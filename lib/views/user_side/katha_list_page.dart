@@ -1,10 +1,11 @@
-﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../models/homepage_model.dart';
 import '../../utils/image_url_helper.dart';
+import '../../utils/app_typography.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 
@@ -54,7 +55,7 @@ class _KathaListPageState extends State<KathaListPage> {
     filteredKathas.sort((a, b) {
       int idA = int.tryParse(a.kathaNumber) ?? 0;
       int idB = int.tryParse(b.kathaNumber) ?? 0;
-      return idB.compareTo(idA); 
+      return idA.compareTo(idB);
     });
 
     final int totalItems = filteredKathas.length;
@@ -78,9 +79,24 @@ class _KathaListPageState extends State<KathaListPage> {
             color: backgroundBeige.withOpacity(0.5),
             child: Column(
               children: [
-                Text('Kathas List', style: TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
+                Text(
+                  AppLocalizations.of(context)!.kathasList, 
+                  style: AppTypography.headingStyle(
+                    context, 
+                    fontSize: AppTypography.getResponsiveSize(context, desktop: 52, tablet: 44, mobile: 34),
+                    color: primaryTeal,
+                  )
+                ),
                 const SizedBox(height: 12),
-                Text('Home > Kathas List', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+                Text(
+                  '${AppLocalizations.of(context)!.home} > ${AppLocalizations.of(context)!.kathasList}', 
+                  style: AppTypography.bodyStyle(
+                    context,
+                    color: primaryTeal.withOpacity(0.6), 
+                    fontSize: 16, 
+                    letterSpacing: 0.5
+                  )
+                ),
               ],
             ),
           ),
@@ -88,9 +104,9 @@ class _KathaListPageState extends State<KathaListPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _tabButton('All Kathas', activeTab == 0, () => setState(() { activeTab = 0; currentPage = 1; })),
+              _tabButton(AppLocalizations.of(context)!.allKathas, activeTab == 0, () => setState(() { activeTab = 0; currentPage = 1; })),
               const SizedBox(width: 80),
-              _tabButton('Upcoming Kathas', activeTab == 1, () => Navigator.pushNamed(context, '/upcoming_ram_kathas')),
+              _tabButton(AppLocalizations.of(context)!.upcomingKathas, activeTab == 1, () => Navigator.pushNamed(context, '/upcoming_ram_kathas')),
             ],
           ),
           const SizedBox(height: 60),
@@ -108,7 +124,16 @@ class _KathaListPageState extends State<KathaListPage> {
       hoverColor: Colors.transparent,
       child: Column(
         children: [
-          Text(title.toUpperCase(), style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isActive ? primaryTeal : Colors.black45, letterSpacing: 1.5)),
+          Text(
+            title.toUpperCase(), 
+            style: AppTypography.bodyStyle(
+              context,
+              fontSize: 16, 
+              fontWeight: FontWeight.w600, 
+              color: isActive ? primaryTeal : Colors.black45, 
+              letterSpacing: 1.5
+            )
+          ),
           const SizedBox(height: 10),
           AnimatedContainer(duration: const Duration(milliseconds: 300), height: 4, width: isActive ? 60 : 0, color: primaryTeal),
         ],
@@ -132,15 +157,25 @@ class _KathaListPageState extends State<KathaListPage> {
                 Expanded(
                   child: TextField(
                     controller: _searchController,
-                    onSubmitted: (v) => setState(() { _searchQuery = v; currentPage = 1; }),
-                    style: const TextStyle(fontSize: 18),
-                    decoration: const InputDecoration(hintText: 'Enter Katha title, Year, or Location...', border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none, contentPadding: EdgeInsets.symmetric(vertical: 25)),
+                    onChanged: (v) => setState(() { _searchQuery = v; currentPage = 1; }),
+                    style: AppTypography.bodyStyle(context, fontSize: 18),
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.searchKathaPlaceholder, 
+                      border: InputBorder.none, 
+                      enabledBorder: InputBorder.none, 
+                      focusedBorder: InputBorder.none, 
+                      contentPadding: const EdgeInsets.symmetric(vertical: 25)
+                    ),
                   ),
                 ),
                 ElevatedButton(
                   onPressed: () => setState(() { _searchQuery = _searchController.text; currentPage = 1; }),
-                  style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 30), shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topRight: Radius.circular(12), bottomRight: Radius.circular(12)))),
-                  child: const Text('SEARCH KATHAS', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryTeal, 
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 30), 
+                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topRight: Radius.circular(12), bottomRight: Radius.circular(12)))
+                  ),
+                  child: Text(AppLocalizations.of(context)!.searchKathas, style: AppTypography.bodyStyle(context, color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600, letterSpacing: 0.3)),
                 ),
               ],
             ),
@@ -149,7 +184,10 @@ class _KathaListPageState extends State<KathaListPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('$totalItems KATHAS FOUND', style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 16, letterSpacing: 2)),
+              Text(
+                AppLocalizations.of(context)!.kathasFound(totalItems), 
+                style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w700, color: primaryTeal, fontSize: 16, letterSpacing: 2)
+              ),
             ],
           ),
           const SizedBox(height: 30),
@@ -158,15 +196,15 @@ class _KathaListPageState extends State<KathaListPage> {
             decoration: BoxDecoration(color: primaryTeal.withOpacity(0.04), border: Border(bottom: BorderSide(color: primaryTeal.withOpacity(0.15), width: 2))),
             child: Row(
               children: [
-                _colHeader('ID', flex: 1, center: true),
-                _colHeader('YEAR', flex: 1),
-                _colHeader('DATES', flex: 2),
-                _colHeader('TOPIC / HEADING', flex: 4),
-                _colHeader('LOCATION', flex: 3),
-                _colHeader('COUNTRY', flex: 2),
-                _colHeader('LANG', flex: 1),
-                _colHeader('PLAYLIST', flex: 1, center: true),
-                _colHeader('ACTION', flex: 1, center: true),
+                _colHeader(AppLocalizations.of(context)!.id, flex: 1, center: true),
+                _colHeader(AppLocalizations.of(context)!.year, flex: 1),
+                _colHeader(AppLocalizations.of(context)!.dates, flex: 2),
+                _colHeader(AppLocalizations.of(context)!.topicHeading, flex: 4),
+                _colHeader(AppLocalizations.of(context)!.location, flex: 3),
+                _colHeader(AppLocalizations.of(context)!.country, flex: 2),
+                _colHeader(AppLocalizations.of(context)!.lang, flex: 1),
+                _colHeader(AppLocalizations.of(context)!.playlist, flex: 1, center: true),
+                _colHeader(AppLocalizations.of(context)!.action, flex: 1, center: true),
               ],
             ),
           ),
@@ -184,12 +222,12 @@ class _KathaListPageState extends State<KathaListPage> {
                     child: Row(
                       children: [
                         Expanded(flex: 1, child: Center(child: _circleId(katha.kathaNumber))),
-                        Expanded(flex: 1, child: Text(katha.year, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600))),
-                        Expanded(flex: 2, child: Text(katha.dates, style: TextStyle(fontSize: 15, color: accentBrown, fontWeight: FontWeight.bold))),
-                        Expanded(flex: 4, child: Text(katha.topic.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 0.5))),
-                        Expanded(flex: 3, child: Row(children: [Icon(Icons.location_on, size: 18, color: primaryTeal.withOpacity(0.5)), const SizedBox(width: 8), Flexible(child: Text(katha.location, style: const TextStyle(fontSize: 16, color: Colors.black87)))])),
-                        Expanded(flex: 2, child: Row(children: [Icon(Icons.public, size: 18, color: Colors.green.withOpacity(0.5)), const SizedBox(width: 8), Text(katha.country, style: const TextStyle(fontSize: 16))])),
-                        Expanded(flex: 1, child: Text(katha.language.toUpperCase(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blueGrey))),
+                        Expanded(flex: 1, child: Text(katha.year, style: AppTypography.bodyStyle(context, fontSize: 16, fontWeight: FontWeight.w600))),
+                        Expanded(flex: 2, child: Text(katha.dates, style: AppTypography.bodyStyle(context, fontSize: 15, color: accentBrown, fontWeight: FontWeight.w600))),
+                        Expanded(flex: 4, child: Text(katha.topic.toUpperCase(), style: AppTypography.headingStyle(context, fontWeight: FontWeight.w600, fontSize: 18, letterSpacing: 0.5))),
+                        Expanded(flex: 3, child: Row(children: [Icon(Icons.location_on, size: 18, color: primaryTeal.withOpacity(0.5)), const SizedBox(width: 8), Flexible(child: Text(katha.location, style: AppTypography.bodyStyle(context, fontSize: 16, color: Colors.black87)))])),
+                        Expanded(flex: 2, child: Row(children: [Icon(Icons.public, size: 18, color: Colors.green.withOpacity(0.5)), const SizedBox(width: 8), Text(katha.country, style: AppTypography.bodyStyle(context, fontSize: 16))])),
+                        Expanded(flex: 1, child: Text(katha.language.toUpperCase(), style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: Colors.blueGrey))),
                         Expanded(flex: 1, child: Center(child: IconButton(icon: const Icon(Icons.play_circle_fill, color: Color(0xFFCD201F), size: 30), onPressed: () => _launchUrl(katha.youtubePlaylistUrl), tooltip: 'Watch Playlist'))),
                         Expanded(flex: 1, child: Center(child: Icon(isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_right, size: 28, color: primaryTeal))),
                       ],
@@ -221,13 +259,22 @@ class _KathaListPageState extends State<KathaListPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(children: [Text(katha.location.toUpperCase(), style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: primaryTeal, letterSpacing: 1.5)), const SizedBox(width: 25), Container(width: 50, height: 2, color: accentBrown)]),
+                Row(children: [Text(katha.location.toUpperCase(), style: AppTypography.headingStyle(context, fontSize: 32, fontWeight: FontWeight.w700, color: primaryTeal, letterSpacing: 1.5)), const SizedBox(width: 25), Container(width: 50, height: 2, color: accentBrown)]),
                 const SizedBox(height: 10),
-                Text('${katha.dates} | ${katha.year}', style: TextStyle(color: accentBrown, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('${katha.dates} | ${katha.year}', style: AppTypography.bodyStyle(context, color: accentBrown, fontSize: 18, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 40),
-                Text(katha.description.isNotEmpty ? katha.description : 'Details for this katha will be updated soon.', style: const TextStyle(fontSize: 18, height: 1.8, color: Colors.black87)),
+                Text(katha.description.isNotEmpty ? katha.description : AppLocalizations.of(context)!.kathaDetailsFallback, style: AppTypography.bodyStyle(context, fontSize: 18, height: 1.8, color: Colors.black87)),
                 const SizedBox(height: 50),
-                OutlinedButton.icon(onPressed: () => _launchUrl(katha.youtubePlaylistUrl), icon: const Icon(Icons.play_arrow, size: 24), label: const Text('WATCH ON YOUTUBE', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)), style: OutlinedButton.styleFrom(foregroundColor: primaryTeal, side: BorderSide(color: primaryTeal, width: 2), padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25))),
+                OutlinedButton.icon(
+                  onPressed: () => _launchUrl(katha.youtubePlaylistUrl), 
+                  icon: const Icon(Icons.play_arrow, size: 24), 
+                  label: Text(AppLocalizations.of(context)!.watchOnYoutube),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: primaryTeal, 
+                    side: BorderSide(color: primaryTeal, width: 2), 
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25)
+                  )
+                ),
               ],
             ),
           ),
@@ -256,7 +303,7 @@ class _KathaListPageState extends State<KathaListPage> {
         ...List.generate(totalPages, (index) {
           int pageNum = index + 1;
           if (totalPages > 7 && (pageNum > 3 && pageNum < totalPages - 2)) {
-            if (pageNum == 4) return Text('...'.tr());
+            if (pageNum == 4) return Text('...', style: AppTypography.bodyStyle(context));
             return const SizedBox.shrink();
           }
           return _pageNumberCircle(pageNum, currentPage == pageNum);
@@ -274,16 +321,15 @@ class _KathaListPageState extends State<KathaListPage> {
   Widget _pageNumberCircle(int num, bool active) {
     return InkWell(
       onTap: () => setState(() { currentPage = num; expandedIndex = null; }),
-      child: Container(margin: const EdgeInsets.symmetric(horizontal: 8), width: 44, height: 44, decoration: BoxDecoration(color: active ? primaryTeal : Colors.transparent, shape: BoxShape.circle, border: Border.all(color: active ? primaryTeal : Colors.grey[200]!, width: 2)), child: Center(child: Text(num.toString(), style: TextStyle(color: active ? Colors.white : Colors.black87, fontSize: 16, fontWeight: active ? FontWeight.bold : FontWeight.w500)))),
+      child: Container(margin: const EdgeInsets.symmetric(horizontal: 8), width: 44, height: 44, decoration: BoxDecoration(color: active ? primaryTeal : Colors.transparent, shape: BoxShape.circle, border: Border.all(color: active ? primaryTeal : Colors.grey[200]!, width: 2)), child: Center(child: Text(num.toString(), style: AppTypography.bodyStyle(context, color: active ? Colors.white : Colors.black87, fontSize: 16, fontWeight: active ? FontWeight.bold : FontWeight.w500)))),
     );
   }
 
   Widget _colHeader(String title, {required int flex, bool center = false}) {
-    return Expanded(flex: flex, child: Text(title, textAlign: center ? TextAlign.center : TextAlign.start, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: primaryTeal.withOpacity(0.7), letterSpacing: 1.5)));
+    return Expanded(flex: flex, child: Text(title, textAlign: center ? TextAlign.center : TextAlign.start, style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.bold, color: primaryTeal.withOpacity(0.7), letterSpacing: 1.5)));
   }
 
   Widget _circleId(String id) {
-    return Container(width: 40, height: 40, decoration: BoxDecoration(color: primaryTeal, shape: BoxShape.circle, boxShadow: [BoxShadow(color: primaryTeal.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 3))]), child: Center(child: Text(id, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold))));
+    return Container(width: 40, height: 40, decoration: BoxDecoration(color: primaryTeal, shape: BoxShape.circle, boxShadow: [BoxShadow(color: primaryTeal.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 3))]), child: Center(child: Text(id, style: AppTypography.bodyStyle(context, color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold))));
   }
 }
-

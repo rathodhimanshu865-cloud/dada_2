@@ -1,7 +1,7 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../models/contact_model.dart';
 import 'sections/user_header.dart';
@@ -19,7 +19,7 @@ class _ContactPageState extends State<ContactPage> {
   final _formKey = GlobalKey<FormState>();
   bool _robotChecked = false;
   bool _isSubmitting = false;
-  String _messageCountText = '0 of 500 max characters.'.tr();
+  String _messageCountText = '';
   String? _errorText;
   int activeTab = 0;
 
@@ -29,12 +29,12 @@ class _ContactPageState extends State<ContactPage> {
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
 
-  final List<String> tabTitles = ['Enquiries'.tr()];
+  List<String> get tabTitles => [AppLocalizations.of(context)?.enquiries ?? 'ENQUIRIES'];
 
   @override
-  void initState() {
-    super.initState();
-    _messageController.addListener(_updateMessageCount);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateMessageCount();
   }
 
   @override
@@ -49,9 +49,10 @@ class _ContactPageState extends State<ContactPage> {
   }
 
   void _updateMessageCount() {
+    if (AppLocalizations.of(context) == null) return;
     final count = _messageController.text.length;
     setState(() {
-      _messageCountText = 'count_characters'.tr(args: [count.toString()]);
+      _messageCountText = AppLocalizations.of(context)!.countCharacters(count);
     });
   }
 
@@ -59,7 +60,7 @@ class _ContactPageState extends State<ContactPage> {
     if (!_formKey.currentState!.validate()) return;
     if (!_robotChecked) {
       setState(() {
-        _errorText = 'Please verify that you are not a robot.'.tr();
+        _errorText = AppLocalizations.of(context)!.verifyNotRobot;
       });
       return;
     }
@@ -83,7 +84,7 @@ class _ContactPageState extends State<ContactPage> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Message saved and email draft opened.'.tr())),
+        SnackBar(content: Text(AppLocalizations.of(context)!.messageSavedEmailOpened)),
       );
       _clearForm();
       setState(() {
@@ -94,7 +95,7 @@ class _ContactPageState extends State<ContactPage> {
   }
 
   Future<void> _launchEmailClient(ContactInquiry inquiry) async {
-    final subject = Uri.encodeComponent('Website Contact Form Message'.tr());
+    final subject = Uri.encodeComponent(AppLocalizations.of(context)!.websiteContactFormMessage);
     final body = Uri.encodeComponent(
       'Name: ${inquiry.name}\n'
       'Email: ${inquiry.email}\n'
@@ -118,7 +119,7 @@ class _ContactPageState extends State<ContactPage> {
     _countryController.clear();
     _messageController.clear();
     setState(() {
-      _messageCountText = '0 of 500 max characters.'.tr();
+      _messageCountText = AppLocalizations.of(context)!.countCharacters(0);
     });
   }
 
@@ -150,7 +151,7 @@ class _ContactPageState extends State<ContactPage> {
 
             const SizedBox(height: 40),
             Text(
-              'Contact Us'.tr(),
+              AppLocalizations.of(context)!.contactUs,
               style: const TextStyle(
                 fontSize: 52,
                 fontFamily: 'serif',
@@ -160,7 +161,7 @@ class _ContactPageState extends State<ContactPage> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Home > Contact Us'.tr(),
+              '${AppLocalizations.of(context)!.home} > ${AppLocalizations.of(context)!.contactUs}',
               style: TextStyle(
                 color: primaryTeal.withOpacity(0.6),
                 fontSize: 16,
@@ -177,7 +178,7 @@ class _ContactPageState extends State<ContactPage> {
                 Column(
                   children: [
                     Text(
-                      'ENQUIRIES'.tr(),
+                      AppLocalizations.of(context)!.enquiries,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -199,7 +200,7 @@ class _ContactPageState extends State<ContactPage> {
               child: Column(
                 children: [
                   Text(
-                    'This site is an informative website, therefore please fill in the form below for any technical website related queries only.'.tr(),
+                    AppLocalizations.of(context)!.siteQueryDisclaimer,
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: Colors.grey, fontSize: 16),
                   ),
@@ -240,12 +241,12 @@ class _ContactPageState extends State<ContactPage> {
             Row(
               children: [
                 Expanded(
-                  child: _formField('Name *'.tr(), _nameController, primaryTeal),
+                  child: _formField(AppLocalizations.of(context)!.nameLabel, _nameController, primaryTeal),
                 ),
                 const SizedBox(width: 40),
                 Expanded(
                   child: _formField(
-                    'Email address *'.tr(),
+                    AppLocalizations.of(context)!.emailLabel,
                     _emailController,
                     primaryTeal,
                   ),
@@ -257,7 +258,7 @@ class _ContactPageState extends State<ContactPage> {
               children: [
                 Expanded(
                   child: _formField(
-                    'Tel/Mobile# *'.tr(),
+                    AppLocalizations.of(context)!.telMobileLabel,
                     _mobileController,
                     primaryTeal,
                     prefix: '🇮🇳 +91',
@@ -266,7 +267,7 @@ class _ContactPageState extends State<ContactPage> {
                 const SizedBox(width: 40),
                 Expanded(
                   child: _formField(
-                    'Country *'.tr(),
+                    AppLocalizations.of(context)!.countryLabel,
                     _countryController,
                     primaryTeal,
                   ),
@@ -275,7 +276,7 @@ class _ContactPageState extends State<ContactPage> {
             ),
             const SizedBox(height: 40),
             _formField(
-              'Message *'.tr(),
+              AppLocalizations.of(context)!.messageLabel,
               _messageController,
               primaryTeal,
               maxLines: 6,
@@ -307,7 +308,7 @@ class _ContactPageState extends State<ContactPage> {
                   ),
                   Expanded(
                     child: Text(
-                      'I\'m not a robot'.tr(),
+                      AppLocalizations.of(context)!.imNotRobot,
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
@@ -338,7 +339,7 @@ class _ContactPageState extends State<ContactPage> {
                   ),
                 ),
                 child: Text(
-                  _isSubmitting ? 'SENDING...'.tr() : 'SEND MESSAGE'.tr(),
+                  _isSubmitting ? AppLocalizations.of(context)!.sending : AppLocalizations.of(context)!.sendMessage,
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -378,10 +379,10 @@ class _ContactPageState extends State<ContactPage> {
           maxLines: maxLines,
           style: const TextStyle(fontSize: 16),
           validator: (value) {
-            if (value == null || value.trim().isEmpty) return 'Required'.tr();
+            if (value == null || value.trim().isEmpty) return AppLocalizations.of(context)!.requiredField;
             if (label.contains('Email') &&
                 !RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+$").hasMatch(value.trim()))
-              return 'Invalid email'.tr();
+              return AppLocalizations.of(context)!.invalidEmail;
             return null;
           },
           decoration: InputDecoration(

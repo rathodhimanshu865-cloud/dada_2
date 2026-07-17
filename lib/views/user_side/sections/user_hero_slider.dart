@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../models/homepage_model.dart';
 
