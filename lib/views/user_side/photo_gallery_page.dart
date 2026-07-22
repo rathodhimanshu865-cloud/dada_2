@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
+import '../../controllers/language_controller.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 
@@ -22,6 +23,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
     
     final controller = Provider.of<HomePageController>(context);
     final data = controller.photoGalleryData;
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
     if (controller.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
@@ -40,7 +42,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
             color: backgroundBeige.withOpacity(0.5),
             child: Column(
               children: [
-                Text(data.title.isNotEmpty ? data.title : 'Photo Gallery', style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
+                Text(data.localizedTitle(lang).isNotEmpty ? data.localizedTitle(lang) : 'Photo Gallery', style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 Text('Home > Gallery > Photos', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
               ],
@@ -57,7 +59,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: data.sections.asMap().entries.map((entry) {
                   int idx = entry.key;
-                  String heading = entry.value.heading;
+                  String heading = entry.value.localizedHeading(lang);
                   bool isActive = activeSectionIndex == idx;
                   
                   return Padding(

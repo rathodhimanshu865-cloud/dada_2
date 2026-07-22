@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/homepage_controller.dart';
+import '../../controllers/language_controller.dart';
 import '../../models/homepage_model.dart';
 import '../../utils/image_url_helper.dart';
 import '../../utils/app_typography.dart';
@@ -39,6 +40,7 @@ class _KathaListPageState extends State<KathaListPage> {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<HomePageController>(context);
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
     
     if (controller.isLoading) {
       return Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
@@ -46,8 +48,8 @@ class _KathaListPageState extends State<KathaListPage> {
 
     List<KathaRecord> filteredKathas = controller.allKathas.where((katha) {
       final query = _searchQuery.toLowerCase();
-      return katha.topic.toLowerCase().contains(query) || 
-             katha.location.toLowerCase().contains(query) ||
+      return katha.localizedTopic(lang).toLowerCase().contains(query) || 
+             katha.localizedLocation(lang).toLowerCase().contains(query) ||
              katha.kathaNumber.toLowerCase().contains(query) ||
              katha.year.contains(query);
     }).toList();
@@ -110,7 +112,7 @@ class _KathaListPageState extends State<KathaListPage> {
             ],
           ),
           const SizedBox(height: 60),
-          if (activeTab == 0) _buildAllKathasView(pagedKathas, totalItems, totalPages),
+          if (activeTab == 0) _buildAllKathasView(pagedKathas, totalItems, totalPages, lang),
           const SizedBox(height: 100),
           UserFooter(controller: controller),
         ],
@@ -141,7 +143,7 @@ class _KathaListPageState extends State<KathaListPage> {
     );
   }
 
-  Widget _buildAllKathasView(List<KathaRecord> kathas, int totalItems, int totalPages) {
+  Widget _buildAllKathasView(List<KathaRecord> kathas, int totalItems, int totalPages, String lang) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 60),
       child: Column(
@@ -224,8 +226,8 @@ class _KathaListPageState extends State<KathaListPage> {
                         Expanded(flex: 1, child: Center(child: _circleId(katha.kathaNumber))),
                         Expanded(flex: 1, child: Text(katha.year, style: AppTypography.bodyStyle(context, fontSize: 16, fontWeight: FontWeight.w600))),
                         Expanded(flex: 2, child: Text(katha.dates, style: AppTypography.bodyStyle(context, fontSize: 15, color: accentBrown, fontWeight: FontWeight.w600))),
-                        Expanded(flex: 4, child: Text(katha.topic.toUpperCase(), style: AppTypography.headingStyle(context, fontWeight: FontWeight.w600, fontSize: 18, letterSpacing: 0.5))),
-                        Expanded(flex: 3, child: Row(children: [Icon(Icons.location_on, size: 18, color: primaryTeal.withOpacity(0.5)), const SizedBox(width: 8), Flexible(child: Text(katha.location, style: AppTypography.bodyStyle(context, fontSize: 16, color: Colors.black87)))])),
+                        Expanded(flex: 4, child: Text(katha.localizedTopic(lang).toUpperCase(), style: AppTypography.headingStyle(context, fontWeight: FontWeight.w600, fontSize: 18, letterSpacing: 0.5))),
+                        Expanded(flex: 3, child: Row(children: [Icon(Icons.location_on, size: 18, color: primaryTeal.withOpacity(0.5)), const SizedBox(width: 8), Flexible(child: Text(katha.localizedLocation(lang), style: AppTypography.bodyStyle(context, fontSize: 16, color: Colors.black87)))])),
                         Expanded(flex: 2, child: Row(children: [Icon(Icons.public, size: 18, color: Colors.green.withOpacity(0.5)), const SizedBox(width: 8), Text(katha.country, style: AppTypography.bodyStyle(context, fontSize: 16))])),
                         Expanded(flex: 1, child: Text(katha.language.toUpperCase(), style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: Colors.blueGrey))),
                         Expanded(flex: 1, child: Center(child: IconButton(icon: const Icon(Icons.play_circle_fill, color: Color(0xFFCD201F), size: 30), onPressed: () => _launchUrl(katha.youtubePlaylistUrl), tooltip: 'Watch Playlist'))),
@@ -234,7 +236,7 @@ class _KathaListPageState extends State<KathaListPage> {
                     ),
                   ),
                 ),
-                if (isExpanded) _buildExpandedDetails(katha),
+                if (isExpanded) _buildExpandedDetails(katha, lang),
               ],
             );
           }),
@@ -245,7 +247,7 @@ class _KathaListPageState extends State<KathaListPage> {
     );
   }
 
-  Widget _buildExpandedDetails(KathaRecord katha) {
+  Widget _buildExpandedDetails(KathaRecord katha, String lang) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(vertical: 2),
@@ -259,11 +261,11 @@ class _KathaListPageState extends State<KathaListPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(children: [Text(katha.location.toUpperCase(), style: AppTypography.headingStyle(context, fontSize: 32, fontWeight: FontWeight.w700, color: primaryTeal, letterSpacing: 1.5)), const SizedBox(width: 25), Container(width: 50, height: 2, color: accentBrown)]),
+                Row(children: [Text(katha.localizedLocation(lang).toUpperCase(), style: AppTypography.headingStyle(context, fontSize: 32, fontWeight: FontWeight.w700, color: primaryTeal, letterSpacing: 1.5)), const SizedBox(width: 25), Container(width: 50, height: 2, color: accentBrown)]),
                 const SizedBox(height: 10),
                 Text('${katha.dates} | ${katha.year}', style: AppTypography.bodyStyle(context, color: accentBrown, fontSize: 18, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 40),
-                Text(katha.description.isNotEmpty ? katha.description : AppLocalizations.of(context)!.kathaDetailsFallback, style: AppTypography.bodyStyle(context, fontSize: 18, height: 1.8, color: Colors.black87)),
+                Text(katha.localizedDescription(lang).isNotEmpty ? katha.localizedDescription(lang) : AppLocalizations.of(context)!.kathaDetailsFallback, style: AppTypography.bodyStyle(context, fontSize: 18, height: 1.8, color: Colors.black87)),
                 const SizedBox(height: 50),
                 OutlinedButton.icon(
                   onPressed: () => _launchUrl(katha.youtubePlaylistUrl), 

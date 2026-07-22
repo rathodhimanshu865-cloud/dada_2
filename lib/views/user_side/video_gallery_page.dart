@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../controllers/homepage_controller.dart';
+import '../../controllers/language_controller.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 
@@ -24,6 +25,7 @@ class VideoGalleryPage extends StatelessWidget {
 
     final controller = Provider.of<HomePageController>(context);
     final data = controller.videoGalleryData;
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
     if (controller.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
@@ -50,7 +52,7 @@ class VideoGalleryPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 100),
             child: Column(
-              children: data.categories.map((category) => _buildVideoSection(context, category, primaryTeal, accentBrown)).toList(),
+              children: data.categories.map((category) => _buildVideoSection(context, category, primaryTeal, accentBrown, lang)).toList(),
             ),
           ),
           const SizedBox(height: 100),
@@ -60,12 +62,12 @@ class VideoGalleryPage extends StatelessWidget {
     );
   }
 
-  Widget _buildVideoSection(BuildContext context, dynamic category, Color primaryTeal, Color accentBrown) {
+  Widget _buildVideoSection(BuildContext context, dynamic category, Color primaryTeal, Color accentBrown, String lang) {
     if (category.videos.isEmpty) return const SizedBox.shrink();
 
     return Column(
       children: [
-        Column(children: [Text(category.categoryTitle.toUpperCase(), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF444444), letterSpacing: 2)), const SizedBox(height: 15), Container(width: 60, height: 3, color: accentBrown)]),
+        Column(children: [Text(category.localizedCategoryTitle(lang).toUpperCase(), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF444444), letterSpacing: 2)), const SizedBox(height: 15), Container(width: 60, height: 3, color: accentBrown)]),
         const SizedBox(height: 60),
         LayoutBuilder(builder: (context, constraints) {
           int crossAxisCount = constraints.maxWidth > 1200 ? 3 : (constraints.maxWidth > 800 ? 2 : 1);
@@ -74,7 +76,7 @@ class VideoGalleryPage extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount, crossAxisSpacing: 30, mainAxisSpacing: 50, childAspectRatio: 1.1),
             itemCount: category.videos.length,
-            itemBuilder: (context, index) => _buildVideoCard(category.videos[index], primaryTeal),
+            itemBuilder: (context, index) => _buildVideoCard(category.videos[index], primaryTeal, lang),
           );
         }),
         const SizedBox(height: 120),
@@ -82,7 +84,7 @@ class VideoGalleryPage extends StatelessWidget {
     );
   }
 
-  Widget _buildVideoCard(dynamic video, Color primaryTeal) {
+  Widget _buildVideoCard(dynamic video, Color primaryTeal, String lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -107,7 +109,7 @@ class VideoGalleryPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 25),
-        Text(video.title.toUpperCase(), maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF444444), height: 1.4, letterSpacing: 0.5)),
+        Text(video.localizedTitle(lang).toUpperCase(), maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF444444), height: 1.4, letterSpacing: 0.5)),
       ],
     );
   }

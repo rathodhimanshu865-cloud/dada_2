@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../controllers/homepage_controller.dart';
+import '../../controllers/language_controller.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 
@@ -22,6 +23,7 @@ class StotraPage extends StatelessWidget {
     const backgroundBeige = Color(0xFFF9F3EA);
     final controller = Provider.of<HomePageController>(context);
     final section = controller.stotraSection;
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
     if (controller.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
@@ -38,7 +40,7 @@ class StotraPage extends StatelessWidget {
             color: backgroundBeige.withOpacity(0.5),
             child: Column(
               children: [
-                Text(section.pageTitle, style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
+                Text(section.localizedPageTitle(lang), style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 Text('Home > Stotra / Bhajan / Aarti', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
               ],
@@ -63,7 +65,7 @@ class StotraPage extends StatelessWidget {
                     child: Row(
                       children: [
                         Expanded(flex: 1, child: _circleId('${index + 1}', primaryTeal)),
-                        Expanded(flex: 5, child: Text(item.title.toUpperCase(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF444444), letterSpacing: 0.5))),
+                        Expanded(flex: 5, child: Text(item.localizedTitle(lang).toUpperCase(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF444444), letterSpacing: 0.5))),
                         _pdfLink('Download', item.englishPdfUrl, primaryTeal, flex: 2),
                         _pdfLink('Download', item.hindiPdfUrl, primaryTeal, flex: 2),
                         _pdfLink('Download', item.gujaratiPdfUrl, primaryTeal, flex: 2),

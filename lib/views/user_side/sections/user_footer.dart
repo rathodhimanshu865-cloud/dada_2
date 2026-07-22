@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import '../../../controllers/homepage_controller.dart';
+import '../../../controllers/language_controller.dart';
 
 class UserFooter extends StatelessWidget {
   final HomePageController controller;
@@ -18,6 +20,7 @@ class UserFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const accentGold = Color(0xFFC89A5B);
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
     return Container(
       width: double.infinity,
@@ -64,7 +67,7 @@ class UserFooter extends StatelessWidget {
                           SizedBox(
                             width: 400,
                             child: Text(
-                              controller.footer.description,
+                              controller.footer.localizedDescription(lang),
                               style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 15, height: 1.8),
                             ),
                           ),

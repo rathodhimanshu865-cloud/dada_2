@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
+import '../../controllers/language_controller.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 
@@ -15,6 +16,7 @@ class AboutDeviPage extends StatelessWidget {
 
     final controller = Provider.of<HomePageController>(context);
     final data = controller.deviKathaPage;
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
     if (controller.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
@@ -44,24 +46,24 @@ class AboutDeviPage extends StatelessWidget {
                           Container(width: 40, height: 1.5, color: accentBrown),
                           const SizedBox(width: 15),
                           Text(
-                            data.heroBadge.toUpperCase(),
+                            data.localizedHeroBadge(lang).toUpperCase(),
                             style: const TextStyle(color: accentBrown, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1.5),
                           ),
                         ],
                       ),
                       const SizedBox(height: 25),
                       Text(
-                        data.heroTitle,
+                        data.localizedHeroTitle(lang),
                         style: const TextStyle(fontSize: 48, fontFamily: 'serif', fontWeight: FontWeight.bold, color: primaryTeal, height: 1.2, letterSpacing: -0.5),
                       ),
                       const SizedBox(height: 40),
                       Text(
-                        data.heroDesc1,
+                        data.localizedHeroDesc1(lang),
                         style: const TextStyle(fontSize: 18, color: Colors.black87, height: 1.6, fontStyle: FontStyle.italic),
                       ),
                       const SizedBox(height: 25),
                       Text(
-                        data.heroDesc2,
+                        data.localizedHeroDesc2(lang),
                         style: const TextStyle(fontSize: 16, color: Colors.black54, height: 1.6),
                       ),
                     ],
@@ -87,7 +89,7 @@ class AboutDeviPage extends StatelessWidget {
                 const Icon(Icons.wb_sunny_outlined, color: accentBrown, size: 35),
                 const SizedBox(height: 50),
                 Text(
-                  data.bioText.isNotEmpty ? data.bioText : 'Full biography details will appear here as managed from the admin side.',
+                  data.localizedBioText(lang).isNotEmpty ? data.localizedBioText(lang) : 'Full biography details will appear here as managed from the admin side.',
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 16, color: Color(0xFF333333), height: 1.9, letterSpacing: 0.3),
                 ),
@@ -110,9 +112,9 @@ class AboutDeviPage extends StatelessWidget {
                       children: [
                         const Icon(Icons.format_quote, color: accentBrown, size: 60),
                         const SizedBox(height: 30),
-                        Text(data.quoteText, style: const TextStyle(color: Colors.white, fontSize: 26, fontFamily: 'serif', height: 1.5)),
+                        Text(data.localizedQuoteText(lang), style: const TextStyle(color: Colors.white, fontSize: 26, fontFamily: 'serif', height: 1.5)),
                         const SizedBox(height: 40),
-                        Text('- ${data.quoteAuthor}', style: const TextStyle(color: accentBrown, fontSize: 20, fontWeight: FontWeight.bold)),
+                        Text('- ${data.localizedQuoteAuthor(lang)}', style: const TextStyle(color: accentBrown, fontSize: 20, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 15),
                         Container(width: 50, height: 2, color: accentBrown),
                       ],
@@ -131,11 +133,11 @@ class AboutDeviPage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 100),
             child: Row(
               children: [
-                _buildHighlightCard(data.highlight1Title, Icons.stars_rounded, data.highlight1Desc, accentBrown),
+                _buildHighlightCard(data.localizedHighlight1Title(lang), Icons.stars_rounded, data.localizedHighlight1Desc(lang), accentBrown),
                 const SizedBox(width: 40),
-                _buildHighlightCard(data.highlight2Title, Icons.auto_awesome, data.highlight2Desc, accentBrown),
+                _buildHighlightCard(data.localizedHighlight2Title(lang), Icons.auto_awesome, data.localizedHighlight2Desc(lang), accentBrown),
                 const SizedBox(width: 40),
-                _buildHighlightCard(data.highlight3Title, Icons.favorite_border_rounded, data.highlight3Desc, accentBrown),
+                _buildHighlightCard(data.localizedHighlight3Title(lang), Icons.favorite_border_rounded, data.localizedHighlight3Desc(lang), accentBrown),
               ],
             ),
           ),
@@ -153,9 +155,9 @@ class AboutDeviPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(data.ctaTitle, style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+                      Text(data.localizedCtaTitle(lang), style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, fontFamily: 'serif')),
                       const SizedBox(height: 12),
-                      Text(data.ctaSubtitle, style: const TextStyle(color: Colors.white70, fontSize: 16)),
+                      Text(data.localizedCtaSubtitle(lang), style: const TextStyle(color: Colors.white70, fontSize: 16)),
                     ],
                   ),
                 ),
@@ -165,7 +167,7 @@ class AboutDeviPage extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(data.ctaButtonText, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                      Text(data.localizedCtaButtonText(lang), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                       const SizedBox(width: 15),
                       const Icon(Icons.arrow_forward, size: 20),
                     ],

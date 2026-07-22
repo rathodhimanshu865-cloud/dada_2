@@ -247,16 +247,31 @@ class NewsItem {
   String date;
   String image;
   String url;
+  // Translations
+  String titleHi; String titleGu;
+  String categoryHi; String categoryGu;
 
-  NewsItem({this.title = '', this.category = '', this.date = '', this.image = '', this.url = ''});
+  NewsItem({
+    this.title = '', this.category = '', this.date = '', this.image = '', this.url = '',
+    this.titleHi = '', this.titleGu = '', this.categoryHi = '', this.categoryGu = '',
+  });
 
-  Map<String, dynamic> toMap() => {'title': title, 'category': category, 'date': date, 'image': image, 'url': url};
+  String localizedTitle(String lang) => lang == 'hi' && titleHi.isNotEmpty ? titleHi : lang == 'gu' && titleGu.isNotEmpty ? titleGu : title;
+  String localizedCategory(String lang) => lang == 'hi' && categoryHi.isNotEmpty ? categoryHi : lang == 'gu' && categoryGu.isNotEmpty ? categoryGu : category;
+
+  Map<String, dynamic> toMap() => {
+    'title': title, 'category': category, 'date': date, 'image': image, 'url': url,
+    'title_hi': titleHi, 'title_gu': titleGu, 'category_hi': categoryHi, 'category_gu': categoryGu,
+  };
+
   factory NewsItem.fromMap(Map<String, dynamic> map) => NewsItem(
     title: map['title'] ?? '',
     category: map['category'] ?? '',
     date: map['date'] ?? '',
     image: map['image'] ?? '',
     url: map['url'] ?? '',
+    titleHi: map['title_hi'] ?? '', titleGu: map['title_gu'] ?? '',
+    categoryHi: map['category_hi'] ?? '', categoryGu: map['category_gu'] ?? '',
   );
 }
 
@@ -439,13 +454,22 @@ class DailySuvichar {
 class VideoItem {
   String title;
   String youtubeUrl;
+  // Translations
+  String titleHi; String titleGu;
 
-  VideoItem({this.title = '', this.youtubeUrl = ''});
+  VideoItem({this.title = '', this.youtubeUrl = '', this.titleHi = '', this.titleGu = ''});
 
-  Map<String, dynamic> toMap() => {'title': title, 'youtubeUrl': youtubeUrl};
+  String localizedTitle(String lang) => lang == 'hi' && titleHi.isNotEmpty ? titleHi : lang == 'gu' && titleGu.isNotEmpty ? titleGu : title;
+
+  Map<String, dynamic> toMap() => {'title': title, 'youtubeUrl': youtubeUrl, 'title_hi': titleHi, 'title_gu': titleGu};
 
   factory VideoItem.fromMap(Map<String, dynamic> map) =>
-      VideoItem(title: map['title'] ?? '', youtubeUrl: map['youtubeUrl'] ?? '');
+      VideoItem(
+        title: map['title'] ?? '', 
+        youtubeUrl: map['youtubeUrl'] ?? '',
+        titleHi: map['title_hi'] ?? '',
+        titleGu: map['title_gu'] ?? '',
+      );
 
   String get thumbnail {
     if (youtubeUrl.isEmpty) return 'https://via.placeholder.com/300x500';
@@ -503,6 +527,8 @@ class FooterData {
   String instagramUrl;
   String facebookUrl;
   String whatsappUrl;
+  // Translations
+  String descriptionHi; String descriptionGu;
 
   FooterData({
     this.description = '', 
@@ -511,7 +537,11 @@ class FooterData {
     this.instagramUrl = '',
     this.facebookUrl = '',
     this.whatsappUrl = '',
+    this.descriptionHi = '',
+    this.descriptionGu = '',
   });
+
+  String localizedDescription(String lang) => lang == 'hi' && descriptionHi.isNotEmpty ? descriptionHi : lang == 'gu' && descriptionGu.isNotEmpty ? descriptionGu : description;
 
   Map<String, dynamic> toMap() => {
     'description': description,
@@ -520,6 +550,8 @@ class FooterData {
     'instagramUrl': instagramUrl,
     'facebookUrl': facebookUrl,
     'whatsappUrl': whatsappUrl,
+    'description_hi': descriptionHi,
+    'description_gu': descriptionGu,
   };
 
   factory FooterData.fromMap(Map<String, dynamic> map) => FooterData(
@@ -529,6 +561,8 @@ class FooterData {
     instagramUrl: map['instagramUrl'] ?? '',
     facebookUrl: map['facebookUrl'] ?? '',
     whatsappUrl: map['whatsappUrl'] ?? '',
+    descriptionHi: map['description_hi'] ?? '',
+    descriptionGu: map['description_gu'] ?? '',
   );
 }
 
@@ -543,6 +577,10 @@ class KathaRecord {
   String youtubePlaylistUrl;
   String description;
   String imageUrl;
+  // Translations
+  String topicHi; String topicGu;
+  String locationHi; String locationGu;
+  String descriptionHi; String descriptionGu;
 
   KathaRecord({
     this.kathaNumber = '',
@@ -555,7 +593,14 @@ class KathaRecord {
     this.youtubePlaylistUrl = '',
     this.description = '',
     this.imageUrl = '',
+    this.topicHi = '', this.topicGu = '',
+    this.locationHi = '', this.locationGu = '',
+    this.descriptionHi = '', this.descriptionGu = '',
   });
+
+  String localizedTopic(String lang) => lang == 'hi' && topicHi.isNotEmpty ? topicHi : lang == 'gu' && topicGu.isNotEmpty ? topicGu : topic;
+  String localizedLocation(String lang) => lang == 'hi' && locationHi.isNotEmpty ? locationHi : lang == 'gu' && locationGu.isNotEmpty ? locationGu : location;
+  String localizedDescription(String lang) => lang == 'hi' && descriptionHi.isNotEmpty ? descriptionHi : lang == 'gu' && descriptionGu.isNotEmpty ? descriptionGu : description;
 
   Map<String, dynamic> toMap() => {
     'kathaNumber': kathaNumber,
@@ -568,6 +613,9 @@ class KathaRecord {
     'youtubePlaylistUrl': youtubePlaylistUrl,
     'description': description,
     'imageUrl': imageUrl,
+    'topic_hi': topicHi, 'topic_gu': topicGu,
+    'location_hi': locationHi, 'location_gu': locationGu,
+    'description_hi': descriptionHi, 'description_gu': descriptionGu,
   };
 
   factory KathaRecord.fromMap(Map<String, dynamic> map) => KathaRecord(
@@ -581,6 +629,9 @@ class KathaRecord {
     youtubePlaylistUrl: map['youtubePlaylistUrl'] ?? '',
     description: map['description'] ?? '',
     imageUrl: map['imageUrl'] ?? '',
+    topicHi: map['topic_hi'] ?? '', topicGu: map['topic_gu'] ?? '',
+    locationHi: map['location_hi'] ?? '', locationGu: map['location_gu'] ?? '',
+    descriptionHi: map['description_hi'] ?? '', descriptionGu: map['description_gu'] ?? '',
   );
 }
 
@@ -656,19 +707,27 @@ class StotraItem {
   String englishPdfUrl;
   String hindiPdfUrl;
   String gujaratiPdfUrl;
+  // Translations
+  String titleHi; String titleGu;
 
   StotraItem({
     this.title = '',
     this.englishPdfUrl = '',
     this.hindiPdfUrl = '',
     this.gujaratiPdfUrl = '',
+    this.titleHi = '',
+    this.titleGu = '',
   });
+
+  String localizedTitle(String lang) => lang == 'hi' && titleHi.isNotEmpty ? titleHi : lang == 'gu' && titleGu.isNotEmpty ? titleGu : title;
 
   Map<String, dynamic> toMap() => {
     'title': title,
     'englishPdfUrl': englishPdfUrl,
     'hindiPdfUrl': hindiPdfUrl,
     'gujaratiPdfUrl': gujaratiPdfUrl,
+    'title_hi': titleHi,
+    'title_gu': titleGu,
   };
 
   factory StotraItem.fromMap(Map<String, dynamic> map) => StotraItem(
@@ -676,6 +735,8 @@ class StotraItem {
     englishPdfUrl: map['englishPdfUrl'] ?? '',
     hindiPdfUrl: map['hindiPdfUrl'] ?? '',
     gujaratiPdfUrl: map['gujaratiPdfUrl'] ?? '',
+    titleHi: map['title_hi'] ?? '',
+    titleGu: map['title_gu'] ?? '',
   );
 }
 
@@ -683,23 +744,32 @@ class StotraSection {
   String pageTitle;
   String topHeaderImage;
   List<StotraItem> items;
+  // Translations
+  String pageTitleHi; String pageTitleGu;
 
   StotraSection({
     this.pageTitle = 'Stotra / Bhajan / Aarti',
     this.topHeaderImage = '',
     List<StotraItem>? items,
+    this.pageTitleHi = '', this.pageTitleGu = '',
   }) : items = items ?? [];
+
+  String localizedPageTitle(String lang) => lang == 'hi' && pageTitleHi.isNotEmpty ? pageTitleHi : lang == 'gu' && pageTitleGu.isNotEmpty ? pageTitleGu : pageTitle;
 
   Map<String, dynamic> toMap() => {
     'pageTitle': pageTitle,
     'topHeaderImage': topHeaderImage,
     'items': items.map((e) => e.toMap()).toList(),
+    'pageTitle_hi': pageTitleHi,
+    'pageTitle_gu': pageTitleGu,
   };
 
   factory StotraSection.fromMap(Map<String, dynamic> map) => StotraSection(
     pageTitle: map['pageTitle'] ?? 'Stotra / Bhajan / Aarti',
     topHeaderImage: map['topHeaderImage'] ?? '',
     items: (map['items'] as List? ?? []).map((e) => StotraItem.fromMap(e)).toList(),
+    pageTitleHi: map['pageTitle_hi'] ?? '',
+    pageTitleGu: map['pageTitle_gu'] ?? '',
   );
 }
 
@@ -722,6 +792,23 @@ class KathaAboutPageData {
   String ctaTitle;
   String ctaSubtitle;
   String ctaButtonText;
+  // Translations
+  String heroBadgeHi; String heroBadgeGu;
+  String heroTitleHi; String heroTitleGu;
+  String heroDesc1Hi; String heroDesc1Gu;
+  String heroDesc2Hi; String heroDesc2Gu;
+  String bioTextHi; String bioTextGu;
+  String quoteTextHi; String quoteTextGu;
+  String quoteAuthorHi; String quoteAuthorGu;
+  String highlight1TitleHi; String highlight1TitleGu;
+  String highlight1DescHi; String highlight1DescGu;
+  String highlight2TitleHi; String highlight2TitleGu;
+  String highlight2DescHi; String highlight2DescGu;
+  String highlight3TitleHi; String highlight3TitleGu;
+  String highlight3DescHi; String highlight3DescGu;
+  String ctaTitleHi; String ctaTitleGu;
+  String ctaSubtitleHi; String ctaSubtitleGu;
+  String ctaButtonTextHi; String ctaButtonTextGu;
 
   KathaAboutPageData({
     this.heroBadge = 'ABOUT KATHA &',
@@ -742,7 +829,40 @@ class KathaAboutPageData {
     this.ctaTitle = 'Join us in this Divine Journey',
     this.ctaSubtitle = 'Listen, reflect and experience the nectar of Bhagwat Katha. Let devotion lead your life towards peace and purpose.',
     this.ctaButtonText = 'EXPLORE KATHA',
+    this.heroBadgeHi = '', this.heroBadgeGu = '',
+    this.heroTitleHi = '', this.heroTitleGu = '',
+    this.heroDesc1Hi = '', this.heroDesc1Gu = '',
+    this.heroDesc2Hi = '', this.heroDesc2Gu = '',
+    this.bioTextHi = '', this.bioTextGu = '',
+    this.quoteTextHi = '', this.quoteTextGu = '',
+    this.quoteAuthorHi = '', this.quoteAuthorGu = '',
+    this.highlight1TitleHi = '', this.highlight1TitleGu = '',
+    this.highlight1DescHi = '', this.highlight1DescGu = '',
+    this.highlight2TitleHi = '', this.highlight2TitleGu = '',
+    this.highlight2DescHi = '', this.highlight2DescGu = '',
+    this.highlight3TitleHi = '', this.highlight3TitleGu = '',
+    this.highlight3DescHi = '', this.highlight3DescGu = '',
+    this.ctaTitleHi = '', this.ctaTitleGu = '',
+    this.ctaSubtitleHi = '', this.ctaSubtitleGu = '',
+    this.ctaButtonTextHi = '', this.ctaButtonTextGu = '',
   });
+
+  String localizedHeroBadge(String lang) => lang == 'hi' && heroBadgeHi.isNotEmpty ? heroBadgeHi : lang == 'gu' && heroBadgeGu.isNotEmpty ? heroBadgeGu : heroBadge;
+  String localizedHeroTitle(String lang) => lang == 'hi' && heroTitleHi.isNotEmpty ? heroTitleHi : lang == 'gu' && heroTitleGu.isNotEmpty ? heroTitleGu : heroTitle;
+  String localizedHeroDesc1(String lang) => lang == 'hi' && heroDesc1Hi.isNotEmpty ? heroDesc1Hi : lang == 'gu' && heroDesc1Gu.isNotEmpty ? heroDesc1Gu : heroDesc1;
+  String localizedHeroDesc2(String lang) => lang == 'hi' && heroDesc2Hi.isNotEmpty ? heroDesc2Hi : lang == 'gu' && heroDesc2Gu.isNotEmpty ? heroDesc2Gu : heroDesc2;
+  String localizedBioText(String lang) => lang == 'hi' && bioTextHi.isNotEmpty ? bioTextHi : lang == 'gu' && bioTextGu.isNotEmpty ? bioTextGu : bioText;
+  String localizedQuoteText(String lang) => lang == 'hi' && quoteTextHi.isNotEmpty ? quoteTextHi : lang == 'gu' && quoteTextGu.isNotEmpty ? quoteTextGu : quoteText;
+  String localizedQuoteAuthor(String lang) => lang == 'hi' && quoteAuthorHi.isNotEmpty ? quoteAuthorHi : lang == 'gu' && quoteAuthorGu.isNotEmpty ? quoteAuthorGu : quoteAuthor;
+  String localizedHighlight1Title(String lang) => lang == 'hi' && highlight1TitleHi.isNotEmpty ? highlight1TitleHi : lang == 'gu' && highlight1TitleGu.isNotEmpty ? highlight1TitleGu : highlight1Title;
+  String localizedHighlight1Desc(String lang) => lang == 'hi' && highlight1DescHi.isNotEmpty ? highlight1DescHi : lang == 'gu' && highlight1DescGu.isNotEmpty ? highlight1DescGu : highlight1Desc;
+  String localizedHighlight2Title(String lang) => lang == 'hi' && highlight2TitleHi.isNotEmpty ? highlight2TitleHi : lang == 'gu' && highlight2TitleGu.isNotEmpty ? highlight2TitleGu : highlight2Title;
+  String localizedHighlight2Desc(String lang) => lang == 'hi' && highlight2DescHi.isNotEmpty ? highlight2DescHi : lang == 'gu' && highlight2DescGu.isNotEmpty ? highlight2DescGu : highlight2Desc;
+  String localizedHighlight3Title(String lang) => lang == 'hi' && highlight3TitleHi.isNotEmpty ? highlight3TitleHi : lang == 'gu' && highlight3TitleGu.isNotEmpty ? highlight3TitleGu : highlight3Title;
+  String localizedHighlight3Desc(String lang) => lang == 'hi' && highlight3DescHi.isNotEmpty ? highlight3DescHi : lang == 'gu' && highlight3DescGu.isNotEmpty ? highlight3DescGu : highlight3Desc;
+  String localizedCtaTitle(String lang) => lang == 'hi' && ctaTitleHi.isNotEmpty ? ctaTitleHi : lang == 'gu' && ctaTitleGu.isNotEmpty ? ctaTitleGu : ctaTitle;
+  String localizedCtaSubtitle(String lang) => lang == 'hi' && ctaSubtitleHi.isNotEmpty ? ctaSubtitleHi : lang == 'gu' && ctaSubtitleGu.isNotEmpty ? ctaSubtitleGu : ctaSubtitle;
+  String localizedCtaButtonText(String lang) => lang == 'hi' && ctaButtonTextHi.isNotEmpty ? ctaButtonTextHi : lang == 'gu' && ctaButtonTextGu.isNotEmpty ? ctaButtonTextGu : ctaButtonText;
 
   Map<String, dynamic> toMap() => {
     'heroBadge': heroBadge,
@@ -763,6 +883,22 @@ class KathaAboutPageData {
     'ctaTitle': ctaTitle,
     'ctaSubtitle': ctaSubtitle,
     'ctaButtonText': ctaButtonText,
+    'heroBadge_hi': heroBadgeHi, 'heroBadge_gu': heroBadgeGu,
+    'heroTitle_hi': heroTitleHi, 'heroTitle_gu': heroTitleGu,
+    'heroDesc1_hi': heroDesc1Hi, 'heroDesc1_gu': heroDesc1Gu,
+    'heroDesc2_hi': heroDesc2Hi, 'heroDesc2_gu': heroDesc2Gu,
+    'bioText_hi': bioTextHi, 'bioText_gu': bioTextGu,
+    'quoteText_hi': quoteTextHi, 'quoteText_gu': quoteTextGu,
+    'quoteAuthor_hi': quoteAuthorHi, 'quoteAuthor_gu': quoteAuthorGu,
+    'highlight1Title_hi': highlight1TitleHi, 'highlight1Title_gu': highlight1TitleGu,
+    'highlight1Desc_hi': highlight1DescHi, 'highlight1Desc_gu': highlight1DescGu,
+    'highlight2Title_hi': highlight2TitleHi, 'highlight2Title_gu': highlight2TitleGu,
+    'highlight2Desc_hi': highlight2DescHi, 'highlight2Desc_gu': highlight2DescGu,
+    'highlight3Title_hi': highlight3TitleHi, 'highlight3Title_gu': highlight3TitleGu,
+    'highlight3Desc_hi': highlight3DescHi, 'highlight3Desc_gu': highlight3DescGu,
+    'ctaTitle_hi': ctaTitleHi, 'ctaTitle_gu': ctaTitleGu,
+    'ctaSubtitle_hi': ctaSubtitleHi, 'ctaSubtitle_gu': ctaSubtitleGu,
+    'ctaButtonText_hi': ctaButtonTextHi, 'ctaButtonText_gu': ctaButtonTextGu,
   };
 
   factory KathaAboutPageData.fromMap(Map<String, dynamic> map) => KathaAboutPageData(
@@ -784,6 +920,22 @@ class KathaAboutPageData {
     ctaTitle: map['ctaTitle'] ?? '',
     ctaSubtitle: map['ctaSubtitle'] ?? '',
     ctaButtonText: map['ctaButtonText'] ?? '',
+    heroBadgeHi: map['heroBadge_hi'] ?? '', heroBadgeGu: map['heroBadge_gu'] ?? '',
+    heroTitleHi: map['heroTitle_hi'] ?? '', heroTitleGu: map['heroTitle_gu'] ?? '',
+    heroDesc1Hi: map['heroDesc1_hi'] ?? '', heroDesc1Gu: map['heroDesc1_gu'] ?? '',
+    heroDesc2Hi: map['heroDesc2_hi'] ?? '', heroDesc2Gu: map['heroDesc2_gu'] ?? '',
+    bioTextHi: map['bioText_hi'] ?? '', bioTextGu: map['bioText_gu'] ?? '',
+    quoteTextHi: map['quoteText_hi'] ?? '', quoteTextGu: map['quoteText_gu'] ?? '',
+    quoteAuthorHi: map['quoteAuthor_hi'] ?? '', quoteAuthorGu: map['quoteAuthor_gu'] ?? '',
+    highlight1TitleHi: map['highlight1Title_hi'] ?? '', highlight1TitleGu: map['highlight1Title_gu'] ?? '',
+    highlight1DescHi: map['highlight1Desc_hi'] ?? '', highlight1DescGu: map['highlight1Desc_gu'] ?? '',
+    highlight2TitleHi: map['highlight2Title_hi'] ?? '', highlight2TitleGu: map['highlight2Title_gu'] ?? '',
+    highlight2DescHi: map['highlight2Desc_hi'] ?? '', highlight2DescGu: map['highlight2Desc_gu'] ?? '',
+    highlight3TitleHi: map['highlight3Title_hi'] ?? '', highlight3TitleGu: map['highlight3Title_gu'] ?? '',
+    highlight3DescHi: map['highlight3Desc_hi'] ?? '', highlight3DescGu: map['highlight3Desc_gu'] ?? '',
+    ctaTitleHi: map['ctaTitle_hi'] ?? '', ctaTitleGu: map['ctaTitle_gu'] ?? '',
+    ctaSubtitleHi: map['ctaSubtitle_hi'] ?? '', ctaSubtitleGu: map['ctaSubtitle_gu'] ?? '',
+    ctaButtonTextHi: map['ctaButtonText_hi'] ?? '', ctaButtonTextGu: map['ctaButtonText_gu'] ?? '',
   );
 }
 
@@ -806,11 +958,25 @@ class ContactPageData {
 class VideoCategory {
   String categoryTitle;
   List<VideoGalleryEntry> videos;
-  VideoCategory({this.categoryTitle = '', List<VideoGalleryEntry>? videos}) : videos = videos ?? [];
-  Map<String, dynamic> toMap() => {'categoryTitle': categoryTitle, 'videos': videos.map((v) => v.toMap()).toList()};
+  // Translations
+  String categoryTitleHi; String categoryTitleGu;
+
+  VideoCategory({this.categoryTitle = '', List<VideoGalleryEntry>? videos, this.categoryTitleHi = '', this.categoryTitleGu = ''}) : videos = videos ?? [];
+
+  String localizedCategoryTitle(String lang) => lang == 'hi' && categoryTitleHi.isNotEmpty ? categoryTitleHi : lang == 'gu' && categoryTitleGu.isNotEmpty ? categoryTitleGu : categoryTitle;
+
+  Map<String, dynamic> toMap() => {
+    'categoryTitle': categoryTitle, 
+    'videos': videos.map((v) => v.toMap()).toList(),
+    'categoryTitle_hi': categoryTitleHi,
+    'categoryTitle_gu': categoryTitleGu,
+  };
+
   factory VideoCategory.fromMap(Map<String, dynamic> map) => VideoCategory(
     categoryTitle: map['categoryTitle'] ?? '',
     videos: (map['videos'] as List? ?? []).map((v) => VideoGalleryEntry.fromMap(v)).toList(),
+    categoryTitleHi: map['categoryTitle_hi'] ?? '',
+    categoryTitleGu: map['categoryTitle_gu'] ?? '',
   );
 }
 
@@ -846,17 +1012,48 @@ class VideoGalleryPageData {
 class PhotoGallerySection {
   String heading;
   List<String> photoUrls;
-  PhotoGallerySection({this.heading = '', List<String>? photoUrls}) : photoUrls = photoUrls ?? [];
-  Map<String, dynamic> toMap() => {'heading': heading, 'photoUrls': photoUrls};
-  factory PhotoGallerySection.fromMap(Map<String, dynamic> map) => PhotoGallerySection(heading: map['heading'] ?? '', photoUrls: List<String>.from(map['photoUrls'] ?? []));
+  // Translations
+  String headingHi; String headingGu;
+
+  PhotoGallerySection({this.heading = '', List<String>? photoUrls, this.headingHi = '', this.headingGu = ''}) : photoUrls = photoUrls ?? [];
+
+  String localizedHeading(String lang) => lang == 'hi' && headingHi.isNotEmpty ? headingHi : lang == 'gu' && headingGu.isNotEmpty ? headingGu : heading;
+
+  Map<String, dynamic> toMap() => {
+    'heading': heading, 'photoUrls': photoUrls,
+    'heading_hi': headingHi, 'heading_gu': headingGu,
+  };
+
+  factory PhotoGallerySection.fromMap(Map<String, dynamic> map) => PhotoGallerySection(
+    heading: map['heading'] ?? '', 
+    photoUrls: List<String>.from(map['photoUrls'] ?? []),
+    headingHi: map['heading_hi'] ?? '',
+    headingGu: map['heading_gu'] ?? '',
+  );
 }
 
 class PhotoGalleryPageData {
   String title;
   String headerImageUrl;
   List<PhotoGallerySection> sections;
-  PhotoGalleryPageData({this.title = 'Gallery', this.headerImageUrl = '', List<PhotoGallerySection>? sections}) : sections = sections ?? [];
-  Map<String, dynamic> toMap() => {'title': title, 'headerImageUrl': headerImageUrl, 'sections': sections.map((c) => c.toMap()).toList()};
+  // Translations
+  String titleHi; String titleGu;
+
+  PhotoGalleryPageData({this.title = 'Gallery', this.headerImageUrl = '', List<PhotoGallerySection>? sections, this.titleHi = '', this.titleGu = ''}) : sections = sections ?? [];
+
+  String localizedTitle(String lang) => lang == 'hi' && titleHi.isNotEmpty ? titleHi : lang == 'gu' && titleGu.isNotEmpty ? titleGu : title;
+
+  Map<String, dynamic> toMap() => {
+    'title': title, 'headerImageUrl': headerImageUrl, 'sections': sections.map((c) => c.toMap()).toList(),
+    'title_hi': titleHi, 'title_gu': titleGu,
+  };
+
   factory PhotoGalleryPageData.fromMap(Map<String, dynamic> map) =>
-      PhotoGalleryPageData(title: map['title'] ?? 'Gallery', headerImageUrl: map['headerImageUrl'] ?? '', sections: (map['sections'] as List? ?? []).map((c) => PhotoGallerySection.fromMap(c)).toList());
+      PhotoGalleryPageData(
+        title: map['title'] ?? 'Gallery', 
+        headerImageUrl: map['headerImageUrl'] ?? '', 
+        sections: (map['sections'] as List? ?? []).map((c) => PhotoGallerySection.fromMap(c)).toList(),
+        titleHi: map['title_hi'] ?? '',
+        titleGu: map['title_gu'] ?? '',
+      );
 }

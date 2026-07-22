@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../controllers/homepage_controller.dart';
+import '../../controllers/language_controller.dart';
 import '../../models/homepage_model.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
@@ -50,6 +51,7 @@ class NewsPage extends StatelessWidget {
 
     final controller = Provider.of<HomePageController>(context);
     final newsList = controller.homepageData.news;
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
     if (controller.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
@@ -97,7 +99,7 @@ class NewsPage extends StatelessWidget {
                 ),
                 itemCount: newsList.length,
                 itemBuilder: (context, index) {
-                  return _buildNewsCard(context, newsList[index], accentBrown, primaryTeal);
+                  return _buildNewsCard(context, newsList[index], accentBrown, primaryTeal, lang);
                 },
               );
             }),
@@ -110,7 +112,7 @@ class NewsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNewsCard(BuildContext context, NewsItem item, Color accentGold, Color primaryTeal) {
+  Widget _buildNewsCard(BuildContext context, NewsItem item, Color accentGold, Color primaryTeal, String lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -137,12 +139,12 @@ class NewsPage extends StatelessWidget {
         ),
         const SizedBox(height: 25),
         Text(
-          item.category.toUpperCase(),
+          item.localizedCategory(lang).toUpperCase(),
           style: TextStyle(color: accentGold, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 2),
         ),
         const SizedBox(height: 15),
         Text(
-          item.title,
+          item.localizedTitle(lang),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A), fontFamily: 'serif', height: 1.3),

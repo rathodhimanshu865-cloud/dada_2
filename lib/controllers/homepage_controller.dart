@@ -215,6 +215,78 @@ class HomePageController extends ChangeNotifier {
         if (p.subtitle.isNotEmpty) { p.subtitleHi = await TranslationService.translateText(p.subtitle, 'hi'); p.subtitleGu = await TranslationService.translateText(p.subtitle, 'gu'); }
         if (p.content.isNotEmpty) { p.contentHi = await TranslationService.translateText(p.content, 'hi'); p.contentGu = await TranslationService.translateText(p.content, 'gu'); }
       }
+      
+      // ── Generic Katha Pages ──────────────────────────────────────────────────
+      Future<void> translateKathaPage(KathaAboutPageData kPage) async {
+        if (kPage.heroBadge.isNotEmpty) { kPage.heroBadgeHi = await TranslationService.translateText(kPage.heroBadge, 'hi'); kPage.heroBadgeGu = await TranslationService.translateText(kPage.heroBadge, 'gu'); }
+        if (kPage.heroTitle.isNotEmpty) { kPage.heroTitleHi = await TranslationService.translateText(kPage.heroTitle, 'hi'); kPage.heroTitleGu = await TranslationService.translateText(kPage.heroTitle, 'gu'); }
+        if (kPage.heroDesc1.isNotEmpty) { kPage.heroDesc1Hi = await TranslationService.translateText(kPage.heroDesc1, 'hi'); kPage.heroDesc1Gu = await TranslationService.translateText(kPage.heroDesc1, 'gu'); }
+        if (kPage.heroDesc2.isNotEmpty) { kPage.heroDesc2Hi = await TranslationService.translateText(kPage.heroDesc2, 'hi'); kPage.heroDesc2Gu = await TranslationService.translateText(kPage.heroDesc2, 'gu'); }
+        if (kPage.bioText.isNotEmpty) { kPage.bioTextHi = await TranslationService.translateText(kPage.bioText, 'hi'); kPage.bioTextGu = await TranslationService.translateText(kPage.bioText, 'gu'); }
+        if (kPage.quoteText.isNotEmpty) { kPage.quoteTextHi = await TranslationService.translateText(kPage.quoteText, 'hi'); kPage.quoteTextGu = await TranslationService.translateText(kPage.quoteText, 'gu'); }
+        if (kPage.quoteAuthor.isNotEmpty) { kPage.quoteAuthorHi = await TranslationService.translateText(kPage.quoteAuthor, 'hi'); kPage.quoteAuthorGu = await TranslationService.translateText(kPage.quoteAuthor, 'gu'); }
+        if (kPage.highlight1Title.isNotEmpty) { kPage.highlight1TitleHi = await TranslationService.translateText(kPage.highlight1Title, 'hi'); kPage.highlight1TitleGu = await TranslationService.translateText(kPage.highlight1Title, 'gu'); }
+        if (kPage.highlight1Desc.isNotEmpty) { kPage.highlight1DescHi = await TranslationService.translateText(kPage.highlight1Desc, 'hi'); kPage.highlight1DescGu = await TranslationService.translateText(kPage.highlight1Desc, 'gu'); }
+        if (kPage.highlight2Title.isNotEmpty) { kPage.highlight2TitleHi = await TranslationService.translateText(kPage.highlight2Title, 'hi'); kPage.highlight2TitleGu = await TranslationService.translateText(kPage.highlight2Title, 'gu'); }
+        if (kPage.highlight2Desc.isNotEmpty) { kPage.highlight2DescHi = await TranslationService.translateText(kPage.highlight2Desc, 'hi'); kPage.highlight2DescGu = await TranslationService.translateText(kPage.highlight2Desc, 'gu'); }
+        if (kPage.highlight3Title.isNotEmpty) { kPage.highlight3TitleHi = await TranslationService.translateText(kPage.highlight3Title, 'hi'); kPage.highlight3TitleGu = await TranslationService.translateText(kPage.highlight3Title, 'gu'); }
+        if (kPage.highlight3Desc.isNotEmpty) { kPage.highlight3DescHi = await TranslationService.translateText(kPage.highlight3Desc, 'hi'); kPage.highlight3DescGu = await TranslationService.translateText(kPage.highlight3Desc, 'gu'); }
+        if (kPage.ctaTitle.isNotEmpty) { kPage.ctaTitleHi = await TranslationService.translateText(kPage.ctaTitle, 'hi'); kPage.ctaTitleGu = await TranslationService.translateText(kPage.ctaTitle, 'gu'); }
+        if (kPage.ctaSubtitle.isNotEmpty) { kPage.ctaSubtitleHi = await TranslationService.translateText(kPage.ctaSubtitle, 'hi'); kPage.ctaSubtitleGu = await TranslationService.translateText(kPage.ctaSubtitle, 'gu'); }
+        if (kPage.ctaButtonText.isNotEmpty) { kPage.ctaButtonTextHi = await TranslationService.translateText(kPage.ctaButtonText, 'hi'); kPage.ctaButtonTextGu = await TranslationService.translateText(kPage.ctaButtonText, 'gu'); }
+      }
+      await translateKathaPage(bhagvatKathaPage);
+      await translateKathaPage(deviKathaPage);
+      await translateKathaPage(shivKathaPage);
+
+      // ── News Items ───────────────────────────────────────────────────────────
+      for (final n in homepageData.news) {
+        if (n.title.isNotEmpty) { n.titleHi = await TranslationService.translateText(n.title, 'hi'); n.titleGu = await TranslationService.translateText(n.title, 'gu'); }
+        if (n.category.isNotEmpty) { n.categoryHi = await TranslationService.translateText(n.category, 'hi'); n.categoryGu = await TranslationService.translateText(n.category, 'gu'); }
+      }
+
+      // ── Full Katha List ──────────────────────────────────────────────────────
+      for (final k in allKathas) {
+        if (k.topic.isNotEmpty) { k.topicHi = await TranslationService.translateText(k.topic, 'hi'); k.topicGu = await TranslationService.translateText(k.topic, 'gu'); }
+        if (k.location.isNotEmpty) { k.locationHi = await TranslationService.translateText(k.location, 'hi'); k.locationGu = await TranslationService.translateText(k.location, 'gu'); }
+        if (k.description.isNotEmpty) { k.descriptionHi = await TranslationService.translateText(k.description, 'hi'); k.descriptionGu = await TranslationService.translateText(k.description, 'gu'); }
+      }
+
+      // ── Footer ───────────────────────────────────────────────────────────────
+      if (footer.description.isNotEmpty) {
+        footer.descriptionHi = await TranslationService.translateText(footer.description, 'hi');
+        footer.descriptionGu = await TranslationService.translateText(footer.description, 'gu');
+      }
+
+      // ── Videos (Homepage Latest) ─────────────────────────────────────────────
+      for (final v in videos) {
+        if (v.title.isNotEmpty) { v.titleHi = await TranslationService.translateText(v.title, 'hi'); v.titleGu = await TranslationService.translateText(v.title, 'gu'); }
+      }
+
+      // ── Stotra Section ───────────────────────────────────────────────────────
+      if (stotraSection.pageTitle.isNotEmpty) {
+        stotraSection.pageTitleHi = await TranslationService.translateText(stotraSection.pageTitle, 'hi');
+        stotraSection.pageTitleGu = await TranslationService.translateText(stotraSection.pageTitle, 'gu');
+      }
+      for (final s in stotraSection.items) {
+        if (s.title.isNotEmpty) { s.titleHi = await TranslationService.translateText(s.title, 'hi'); s.titleGu = await TranslationService.translateText(s.title, 'gu'); }
+      }
+
+      // ── Galleries ────────────────────────────────────────────────────────────
+      if (photoGalleryData.title.isNotEmpty) {
+        photoGalleryData.titleHi = await TranslationService.translateText(photoGalleryData.title, 'hi');
+        photoGalleryData.titleGu = await TranslationService.translateText(photoGalleryData.title, 'gu');
+      }
+      for (final sec in photoGalleryData.sections) {
+        if (sec.heading.isNotEmpty) { sec.headingHi = await TranslationService.translateText(sec.heading, 'hi'); sec.headingGu = await TranslationService.translateText(sec.heading, 'gu'); }
+      }
+      
+      for (final cat in videoGalleryData.categories) {
+        if (cat.categoryTitle.isNotEmpty) { cat.categoryTitleHi = await TranslationService.translateText(cat.categoryTitle, 'hi'); cat.categoryTitleGu = await TranslationService.translateText(cat.categoryTitle, 'gu'); }
+        for (final v in cat.videos) {
+           if (v.title.isNotEmpty) { v.titleHi = await TranslationService.translateText(v.title, 'hi'); v.titleGu = await TranslationService.translateText(v.title, 'gu'); }
+        }
+      }
     } catch (e) {
       debugPrint('Translation error: $e');
     }
