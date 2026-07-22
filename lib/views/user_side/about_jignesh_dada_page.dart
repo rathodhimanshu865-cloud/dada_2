@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
+import '../../controllers/language_controller.dart';
 import '../../models/homepage_model.dart';
 import '../../utils/app_typography.dart';
 import 'sections/user_page_layout.dart';
@@ -27,6 +28,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
   Widget build(BuildContext context) {
     final controller = Provider.of<HomePageController>(context);
     final data = controller.aboutDadaPage;
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
     if (_chapterKeys.length != data.phases.length) {
       _chapterKeys.clear();
@@ -42,7 +44,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
       child: Column(
         children: [
           const SizedBox(height: 120),
-          _buildAsymmetricalHero(data, isDesktop),
+          _buildAsymmetricalHero(data, isDesktop, lang),
           _buildGoldenDivider(),
           
           Padding(
@@ -56,7 +58,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
                     if (isDesktop)
                       SizedBox(
                         width: 250,
-                        child: _buildStickyIndex(data.phases),
+                        child: _buildStickyIndex(data.phases, lang),
                       ),
                     
                     Expanded(
@@ -67,6 +69,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
                             phase: entry.value,
                             isDesktop: isDesktop,
                             index: entry.key,
+                            lang: lang,
                           );
                         }).toList(),
                       ),
@@ -82,7 +85,10 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
     );
   }
 
-  Widget _buildAsymmetricalHero(AboutDadaPageData data, bool isDesktop) {
+  Widget _buildAsymmetricalHero(AboutDadaPageData data, bool isDesktop, String lang) {
+    final title = data.localizedHeroTitle(lang);
+    final subtitle = data.localizedHeroSubtitle(lang);
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: isDesktop ? 100 : 24, vertical: 60),
@@ -97,7 +103,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
                 _FadeIn(
                   delay: const Duration(milliseconds: 200),
                   child: Text(
-                    data.heroTitle.isEmpty ? "PUJYA JIGNESH DADA" : data.heroTitle,
+                    title.isEmpty ? "PUJYA JIGNESH DADA" : title,
                     style: AppTypography.headingStyle(
                       context,
                       fontSize: AppTypography.getResponsiveSize(context, desktop: 72, tablet: 40, mobile: 34),
@@ -111,7 +117,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
                 _FadeIn(
                   delay: const Duration(milliseconds: 400),
                   child: Text(
-                    data.heroSubtitle.isEmpty ? "Spiritual Leader & Scholar" : data.heroSubtitle,
+                    subtitle.isEmpty ? "Spiritual Leader & Scholar" : subtitle,
                     style: AppTypography.bodyStyle(
                       context,
                       fontSize: AppTypography.getResponsiveSize(context, desktop: 22, tablet: 20, mobile: 18),
@@ -158,7 +164,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
     );
   }
 
-  Widget _buildStickyIndex(List<BiographyPhase> phases) {
+  Widget _buildStickyIndex(List<BiographyPhase> phases, String lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: phases.asMap().entries.map((entry) {
@@ -166,7 +172,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Text(
-            "${(entry.key + 1).toString().padLeft(2, '0')} ${entry.value.title.toUpperCase()}",
+            "${(entry.key + 1).toString().padLeft(2, '0')} ${entry.value.localizedTitle(lang).toUpperCase()}",
             style: AppTypography.bodyStyle(
               context,
               fontSize: 11,
@@ -180,7 +186,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
     );
   }
 
-  Widget _buildChapterSegment({required GlobalKey key, required BiographyPhase phase, required bool isDesktop, required int index}) {
+  Widget _buildChapterSegment({required GlobalKey key, required BiographyPhase phase, required bool isDesktop, required int index, required String lang}) {
     return Container(
       key: key,
       padding: EdgeInsets.only(bottom: 120, left: isDesktop ? 60 : 0),
@@ -188,7 +194,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            phase.title,
+            phase.localizedTitle(lang),
             style: AppTypography.headingStyle(
               context,
               fontSize: AppTypography.getResponsiveSize(context, desktop: 42, tablet: 34, mobile: 28),
@@ -198,7 +204,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
           ),
           const SizedBox(height: 40),
           Text(
-            phase.content,
+            phase.localizedContent(lang),
             style: AppTypography.bodyStyle(
               context,
               fontSize: AppTypography.getResponsiveSize(context, desktop: 17, tablet: 16, mobile: 15),
@@ -214,6 +220,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
       ),
     );
   }
+
 
   Widget _buildStaggeredMedia(List<String> images, bool isDesktop) {
     return Wrap(

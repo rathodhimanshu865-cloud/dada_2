@@ -4,6 +4,7 @@ import '../../controllers/homepage_controller.dart';
 import '../../controllers/language_controller.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 
 class PhotoGalleryPage extends StatefulWidget {
   const PhotoGalleryPage({super.key});
@@ -44,7 +45,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
               children: [
                 Text(data.localizedTitle(lang).isNotEmpty ? data.localizedTitle(lang) : 'Photo Gallery', style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                Text('Home > Gallery > Photos', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+                Text(AppLocalizations.of(context)!.homeGalleryPhotos, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
               ],
             ),
           ),
@@ -94,7 +95,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
 
   Widget _buildPhotoSection(BuildContext context, dynamic section, Color primaryTeal, Color accentBrown) {
     if (section.photoUrls.isEmpty) {
-      return const Padding(padding: EdgeInsets.symmetric(vertical: 100), child: Text('No photos added to this section yet.', style: TextStyle(color: Colors.grey, fontSize: 18)));
+      return Padding(padding: const EdgeInsets.symmetric(vertical: 100), child: Text(AppLocalizations.of(context)!.noPhotosAdded, style: const TextStyle(color: Colors.grey, fontSize: 18)));
     }
 
     return Column(

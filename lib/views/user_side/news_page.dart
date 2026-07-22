@@ -6,6 +6,7 @@ import '../../controllers/language_controller.dart';
 import '../../models/homepage_model.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 
 class NewsPage extends StatelessWidget {
   const NewsPage({super.key});
@@ -70,12 +71,12 @@ class NewsPage extends StatelessWidget {
             color: backgroundBeige.withOpacity(0.5),
             child: Column(
               children: [
-                const Text(
-                  'Latest News',
-                  style: TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold),
+                Text(
+                  AppLocalizations.of(context)!.latestNews,
+                  style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
-                Text('Home > News', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+                Text(AppLocalizations.of(context)!.homeNews, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
               ],
             ),
           ),
@@ -160,7 +161,7 @@ class NewsPage extends StatelessWidget {
             if (item.url.isNotEmpty)
               TextButton(
                 onPressed: () => _launchUrl(item.url),
-                child: Text("READ MORE", style: TextStyle(color: primaryTeal, fontWeight: FontWeight.bold, fontSize: 12)),
+                child: Text(AppLocalizations.of(context)!.readMore, style: TextStyle(color: primaryTeal, fontWeight: FontWeight.bold, fontSize: 12)),
               ),
           ],
         ),

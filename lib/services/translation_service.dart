@@ -33,27 +33,37 @@ class TranslationService {
     return text;
   }
 
-  /// Translate a list of texts to [targetLang] sequentially.
-  static Future<List<String>> translateBatch(
-      List<String> texts, String targetLang) async {
-    final results = <String>[];
-    for (final t in texts) {
-      results.add(await translateText(t, targetLang));
-      // Small delay to avoid rate-limiting
-      await Future.delayed(const Duration(milliseconds: 200));
-    }
-    return results;
-  }
-
   /// Translate a single text to BOTH Hindi and Gujarati.
   /// Returns a map: {'en': original, 'hi': hindi, 'gu': gujarati}
   static Future<Map<String, String>> translateToAll(String englishText) async {
     if (englishText.trim().isEmpty) {
       return {'en': englishText, 'hi': '', 'gu': ''};
     }
-    final hi = await translateText(englishText, 'hi');
-    final gu = await translateText(englishText, 'gu');
-    return {'en': englishText, 'hi': hi, 'gu': gu};
+    final results = await Future.wait([
+      translateText(englishText, 'hi'),
+      translateText(englishText, 'gu'),
+    ]);
+    return {'en': englishText, 'hi': results[0], 'gu': results[1]};
+  }
+
+  /// Translate a list of texts to [targetLang] concurrently in batches.
+  static Future<List<String>> translateBatch(
+      List<String> texts, String targetLang) async {
+    final results = <String>[];
+    const batchSize = 10; // Process 10 concurrent requests at a time
+    for (int i = 0; i < texts.length; i += batchSize) {
+      final end = (i + batchSize < texts.length) ? i + batchSize : texts.length;
+      final batch = texts.sublist(i, end);
+      final batchResults = await Future.wait(
+        batch.map((t) => translateText(t, targetLang))
+      );
+      results.addAll(batchResults);
+      // Small delay between batches to avoid rate-limiting
+      if (end < texts.length) {
+        await Future.delayed(const Duration(milliseconds: 300));
+      }
+    }
+    return results;
   }
 
   /// Translate all fields of a flat map that contain non-empty String values.
@@ -64,15 +74,22 @@ class TranslationService {
     List<String> translatableKeys,
   ) async {
     final result = Map<String, dynamic>.from(sourceMap);
+    final futures = <Future<void>>[];
+
     for (final key in translatableKeys) {
       final value = sourceMap[key];
       if (value is String && value.trim().isNotEmpty) {
-        for (final lang in _targetLangs) {
-          result['${key}_$lang'] = await translateText(value, lang);
-          await Future.delayed(const Duration(milliseconds: 150));
-        }
+        futures.add(Future(() async {
+          final translatedHi = await translateText(value, 'hi');
+          final translatedGu = await translateText(value, 'gu');
+          result['${key}_hi'] = translatedHi;
+          result['${key}_gu'] = translatedGu;
+        }));
       }
     }
+    
+    // Process all fields in parallel
+    await Future.wait(futures);
     return result;
   }
 }

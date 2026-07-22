@@ -286,5 +286,65 @@ class AppLocalizationsGu extends AppLocalizations {
   String get openToDownload => 'ડાઉનલોડ કરો';
 
   @override
+  String get latestUpdates => 'તાજા અપડેટ';
+
+  @override
+  String get newsAndEvents => 'સમાચાર અને કાર્યક્રમ';
+
+  @override
+  String get homeGalleryVideos => 'હોમ > ગેલેરી > વિડિઓ';
+
+  @override
+  String get homeGalleryPhotos => 'હોમ > ગેલેરી > ફોટો';
+
+  @override
+  String get homeStotra => 'હોમ > સ્તોત્ર / ભજન / આરતી';
+
+  @override
+  String get homeKathasUpcoming => 'હોમ > કથા > આગામી કથાઓ';
+
+  @override
+  String get upcomingKathas2026 => 'આગામી કથાઓ 2026';
+
+  @override
+  String get kathaPrefix => 'કથા';
+
+  @override
+  String get kathaDate => 'કથાની તારીખ';
+
+  @override
+  String get kathaTiming => 'કથાનો સમય';
+
+  @override
+  String get kathaLocation => 'કથાનું સ્થળ';
+
+  @override
+  String get kathaHosting => 'કથાનું આયોજન';
+
+  @override
+  String get sacredMoments => 'પવિત્ર ક્ષણો';
+
+  @override
+  String get divineGallery => 'દિવ્ય ગેલેરી';
+
+  @override
+  String get download => 'ડાઉનલોડ';
+
+  @override
+  String get idColumn => 'આઈડી';
+
+  @override
+  String get nameTitle => 'નામ / શીર્ષક';
+
+  @override
+  String get englishCol => 'અંગ્રેજી';
+
+  @override
+  String get hindiCol => 'હિન્દી';
+
+  @override
+  String get gujaratiCol => 'ગુજરાતી';
+
+  @override
   String get like => 'પસંદ કરો';
 }

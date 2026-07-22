@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../controllers/homepage_controller.dart';
+import '../../../controllers/language_controller.dart';
 
 class UserVideos extends StatelessWidget {
   final HomePageController controller;
@@ -17,6 +19,7 @@ class UserVideos extends StatelessWidget {
   Widget build(BuildContext context) {
     const primaryTeal = Color(0xFF0F4C5C);
     const accentBrown = Color(0xFFC19A6B);
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
     return Container(
       width: double.infinity,
@@ -57,7 +60,7 @@ class UserVideos extends StatelessWidget {
               runSpacing: 40,
               alignment: WrapAlignment.center,
               children: controller.videos.take(4).map((video) {
-                return _buildVideoShortCard(video, primaryTeal);
+                return _buildVideoShortCard(video, primaryTeal, lang);
               }).toList(),
             ),
           ),
@@ -82,7 +85,7 @@ class UserVideos extends StatelessWidget {
     );
   }
 
-  Widget _buildVideoShortCard(dynamic video, Color primaryTeal) {
+  Widget _buildVideoShortCard(dynamic video, Color primaryTeal, String lang) {
     return GestureDetector(
       onTap: () => _launchUrl(video.youtubeUrl),
       child: Container(
@@ -147,7 +150,7 @@ class UserVideos extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      video.title.isEmpty ? 'RADHE RADHE' : video.title.toUpperCase(),
+                      video.localizedTitle(lang).isEmpty ? 'RADHE RADHE' : video.localizedTitle(lang).toUpperCase(),
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -156,6 +159,7 @@ class UserVideos extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+
                     const SizedBox(height: 10),
                     Row(
                       children: [

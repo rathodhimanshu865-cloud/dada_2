@@ -5,6 +5,7 @@ import '../../controllers/homepage_controller.dart';
 import '../../controllers/language_controller.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 
 class VideoGalleryPage extends StatelessWidget {
   const VideoGalleryPage({super.key});
@@ -42,9 +43,9 @@ class VideoGalleryPage extends StatelessWidget {
             color: backgroundBeige.withOpacity(0.5),
             child: Column(
               children: [
-                const Text('Video Gallery', style: TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
+                Text(AppLocalizations.of(context)!.videoGallery, style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                Text('Home > Gallery > Videos', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+                Text(AppLocalizations.of(context)!.homeGalleryVideos, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
               ],
             ),
           ),

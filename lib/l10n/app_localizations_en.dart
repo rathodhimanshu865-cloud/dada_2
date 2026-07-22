@@ -286,5 +286,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openToDownload => 'Open to Download';
 
   @override
+  String get latestUpdates => 'LATEST UPDATES';
+
+  @override
+  String get newsAndEvents => 'News & Events';
+
+  @override
+  String get homeGalleryVideos => 'Home > Gallery > Videos';
+
+  @override
+  String get homeGalleryPhotos => 'Home > Gallery > Photos';
+
+  @override
+  String get homeStotra => 'Home > Stotra / Bhajan / Aarti';
+
+  @override
+  String get homeKathasUpcoming => 'Home > Kathas > Upcoming Kathas';
+
+  @override
+  String get upcomingKathas2026 => 'Upcoming Kathas 2026';
+
+  @override
+  String get kathaPrefix => 'Katha';
+
+  @override
+  String get kathaDate => 'Katha Date';
+
+  @override
+  String get kathaTiming => 'Katha Timing';
+
+  @override
+  String get kathaLocation => 'Katha Location';
+
+  @override
+  String get kathaHosting => 'Katha Hosting';
+
+  @override
+  String get sacredMoments => 'SACRED MOMENTS';
+
+  @override
+  String get divineGallery => 'Divine Gallery';
+
+  @override
+  String get download => 'Download';
+
+  @override
+  String get idColumn => 'ID';
+
+  @override
+  String get nameTitle => 'NAME / TITLE';
+
+  @override
+  String get englishCol => 'ENGLISH';
+
+  @override
+  String get hindiCol => 'HINDI';
+
+  @override
+  String get gujaratiCol => 'GUJARATI';
+
+  @override
   String get like => 'Like';
 }

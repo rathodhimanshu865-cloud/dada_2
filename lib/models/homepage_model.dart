@@ -679,19 +679,31 @@ class AboutDadaPageData {
   String heroSubtitle;
   String heroImage;
   List<BiographyPhase> phases;
+  // Translations
+  String heroTitleHi; String heroTitleGu;
+  String heroSubtitleHi; String heroSubtitleGu;
 
   AboutDadaPageData({
     this.heroTitle = '',
     this.heroSubtitle = '',
     this.heroImage = '',
     List<BiographyPhase>? phases,
+    this.heroTitleHi = '', this.heroTitleGu = '',
+    this.heroSubtitleHi = '', this.heroSubtitleGu = '',
   }) : phases = phases ?? [];
+
+  String localizedHeroTitle(String lang) => lang == 'hi' && heroTitleHi.isNotEmpty ? heroTitleHi : lang == 'gu' && heroTitleGu.isNotEmpty ? heroTitleGu : heroTitle;
+  String localizedHeroSubtitle(String lang) => lang == 'hi' && heroSubtitleHi.isNotEmpty ? heroSubtitleHi : lang == 'gu' && heroSubtitleGu.isNotEmpty ? heroSubtitleGu : heroSubtitle;
 
   Map<String, dynamic> toMap() => {
         'heroTitle': heroTitle,
         'heroSubtitle': heroSubtitle,
         'heroImage': heroImage,
         'phases': phases.map((p) => p.toMap()).toList(),
+        'heroTitle_hi': heroTitleHi,
+        'heroTitle_gu': heroTitleGu,
+        'heroSubtitle_hi': heroSubtitleHi,
+        'heroSubtitle_gu': heroSubtitleGu,
       };
 
   factory AboutDadaPageData.fromMap(Map<String, dynamic> map) => AboutDadaPageData(
@@ -699,6 +711,10 @@ class AboutDadaPageData {
         heroSubtitle: map['heroSubtitle'] ?? '',
         heroImage: map['heroImage'] ?? '',
         phases: (map['phases'] as List? ?? []).map((p) => BiographyPhase.fromMap(p)).toList(),
+        heroTitleHi: map['heroTitle_hi'] ?? '',
+        heroTitleGu: map['heroTitle_gu'] ?? '',
+        heroSubtitleHi: map['heroSubtitle_hi'] ?? '',
+        heroSubtitleGu: map['heroSubtitle_gu'] ?? '',
       );
 }
 
@@ -983,9 +999,22 @@ class VideoCategory {
 class VideoGalleryEntry {
   String title;
   String youtubeUrl;
-  VideoGalleryEntry({this.title = '', this.youtubeUrl = ''});
-  Map<String, dynamic> toMap() => {'title': title, 'youtubeUrl': youtubeUrl};
-  factory VideoGalleryEntry.fromMap(Map<String, dynamic> map) => VideoGalleryEntry(title: map['title'] ?? '', youtubeUrl: map['youtubeUrl'] ?? '');
+  // Translations
+  String titleHi; String titleGu;
+
+  VideoGalleryEntry({this.title = '', this.youtubeUrl = '', this.titleHi = '', this.titleGu = ''});
+
+  String localizedTitle(String lang) => lang == 'hi' && titleHi.isNotEmpty ? titleHi : lang == 'gu' && titleGu.isNotEmpty ? titleGu : title;
+
+  Map<String, dynamic> toMap() => {'title': title, 'youtubeUrl': youtubeUrl, 'title_hi': titleHi, 'title_gu': titleGu};
+  
+  factory VideoGalleryEntry.fromMap(Map<String, dynamic> map) => VideoGalleryEntry(
+    title: map['title'] ?? '', 
+    youtubeUrl: map['youtubeUrl'] ?? '',
+    titleHi: map['title_hi'] ?? '',
+    titleGu: map['title_gu'] ?? '',
+  );
+  
   String get thumbnail {
     if (youtubeUrl.isEmpty) return 'https://via.placeholder.com/300x200';
     String videoId = '';

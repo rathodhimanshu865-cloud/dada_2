@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
+import '../../controllers/language_controller.dart';
 import '../../models/homepage_model.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 
 class UpcomingRamKathasPage extends StatefulWidget {
   const UpcomingRamKathasPage({super.key});
@@ -26,6 +28,8 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
       return Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
+
     return UserPageLayout(
       controller: controller,
       child: Column(
@@ -37,9 +41,9 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
             color: backgroundBeige.withOpacity(0.5),
             child: Column(
               children: [
-                Text('Upcoming Kathas', style: TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
+                Text(AppLocalizations.of(context)!.upcomingKathas, style: TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                Text('Home > Kathas > Upcoming Kathas', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+                Text(AppLocalizations.of(context)!.homeKathasUpcoming, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
               ],
             ),
           ),
@@ -47,9 +51,9 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _tabButton('All Kathas', activeTab == 0, () => Navigator.pushNamed(context, '/katha_list')),
+              _tabButton(AppLocalizations.of(context)!.allKathas, activeTab == 0, () => Navigator.pushNamed(context, '/katha_list')),
               const SizedBox(width: 80),
-              _tabButton('Upcoming Kathas 2026', activeTab == 1, () {}),
+              _tabButton(AppLocalizations.of(context)!.upcomingKathas2026, activeTab == 1, () {}),
             ],
           ),
           const SizedBox(height: 60),
@@ -58,7 +62,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
             child: Column(
               children: [
                 const Divider(color: Color(0xFFEEEEEE), thickness: 1),
-                ...controller.upcomingKathas.map((katha) => _buildUpcomingKathaRow(context, katha)).toList(),
+                ...controller.upcomingKathas.map((katha) => _buildUpcomingKathaRow(context, katha, lang)).toList(),
               ],
             ),
           ),
@@ -83,7 +87,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
     );
   }
 
-  Widget _buildUpcomingKathaRow(BuildContext context, UpcomingKatha katha) {
+  Widget _buildUpcomingKathaRow(BuildContext context, UpcomingKatha katha, String lang) {
     return Column(
       children: [
         Padding(
@@ -93,7 +97,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Katha ', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                  Text(AppLocalizations.of(context)!.kathaPrefix, style: const TextStyle(color: Colors.grey, fontSize: 16)),
                   const SizedBox(width: 10),
                   Container(width: 44, height: 44, decoration: BoxDecoration(color: accentBrown, shape: BoxShape.circle, boxShadow: [BoxShadow(color: accentBrown.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 4))]), child: Center(child: Text(katha.kathaNumber, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)))),
                 ],
@@ -103,16 +107,16 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(katha.name.toUpperCase(), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF444444), letterSpacing: 1.2)),
+                    Text(katha.localizedName(lang).toUpperCase(), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF444444), letterSpacing: 1.2)),
                     const SizedBox(height: 8),
-                    Text(katha.dateString.toUpperCase(), style: const TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
+                    Text(katha.localizedDateString(lang).toUpperCase(), style: const TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
                   ],
                 ),
               ),
               OutlinedButton(
-                onPressed: () => _showMoreDetails(context, katha),
+                onPressed: () => _showMoreDetails(context, katha, lang),
                 style: OutlinedButton.styleFrom(foregroundColor: accentBrown, side: BorderSide(color: accentBrown.withOpacity(0.5), width: 1.5), padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
-                child: const Text('More Details', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                child: Text(AppLocalizations.of(context)!.moreDetails, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
               ),
             ],
           ),
@@ -122,7 +126,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
     );
   }
 
-  void _showMoreDetails(BuildContext context, UpcomingKatha katha) {
+  void _showMoreDetails(BuildContext context, UpcomingKatha katha, String lang) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -137,21 +141,21 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Text('Katha ${katha.kathaNumber} - ${katha.name}', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: primaryTeal, fontFamily: 'serif'))),
+                  Expanded(child: Text('${AppLocalizations.of(context)!.kathaPrefix} ${katha.kathaNumber} - ${katha.localizedName(lang)}', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: primaryTeal, fontFamily: 'serif'))),
                   IconButton(icon: const Icon(Icons.close, size: 30), onPressed: () => Navigator.pop(context)),
                 ],
               ),
               const SizedBox(height: 20),
               Container(width: 80, height: 3, color: accentBrown),
               const SizedBox(height: 40),
-              _detailRow('Katha Date', katha.dateString),
-              _detailRow('Katha Timing', katha.timing),
-              _detailRow('Katha Location', katha.location),
-              _detailRow('Katha Hosting', katha.hosting),
+              _detailRow(AppLocalizations.of(context)!.kathaDate, katha.localizedDateString(lang)),
+              _detailRow(AppLocalizations.of(context)!.kathaTiming, katha.timing),
+              _detailRow(AppLocalizations.of(context)!.kathaLocation, katha.localizedLocation(lang)),
+              _detailRow(AppLocalizations.of(context)!.kathaHosting, katha.hosting),
               const SizedBox(height: 40),
               Center(child: Container(width: 80, height: 1, color: Colors.grey[200])),
               const SizedBox(height: 30),
-              Center(child: ElevatedButton(onPressed: () => Navigator.pop(context), style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20)), child: const Text('CLOSE', style: TextStyle(fontWeight: FontWeight.bold)))),
+              Center(child: ElevatedButton(onPressed: () => Navigator.pop(context), style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20)), child: Text(AppLocalizations.of(context)!.close, style: const TextStyle(fontWeight: FontWeight.bold)))),
             ],
           ),
         ),

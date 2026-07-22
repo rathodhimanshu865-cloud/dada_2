@@ -5,6 +5,7 @@ import '../../controllers/homepage_controller.dart';
 import '../../controllers/language_controller.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 
 class StotraPage extends StatelessWidget {
   const StotraPage({super.key});
@@ -42,7 +43,7 @@ class StotraPage extends StatelessWidget {
               children: [
                 Text(section.localizedPageTitle(lang), style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                Text('Home > Stotra / Bhajan / Aarti', style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+                Text(AppLocalizations.of(context)!.homeStotra, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
               ],
             ),
           ),
@@ -54,7 +55,7 @@ class StotraPage extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 20),
                   decoration: BoxDecoration(color: primaryTeal.withOpacity(0.04), border: Border(bottom: BorderSide(color: primaryTeal.withOpacity(0.15), width: 2))),
-                  child: Row(children: [_colHeader('ID', flex: 1), _colHeader('NAME / TITLE', flex: 5), _colHeader('ENGLISH', flex: 2, center: true), _colHeader('HINDI', flex: 2, center: true), _colHeader('GUJARATI', flex: 2, center: true)]),
+                  child: Row(children: [_colHeader(AppLocalizations.of(context)!.idColumn, flex: 1), _colHeader(AppLocalizations.of(context)!.nameTitle, flex: 5), _colHeader(AppLocalizations.of(context)!.englishCol, flex: 2, center: true), _colHeader(AppLocalizations.of(context)!.hindiCol, flex: 2, center: true), _colHeader(AppLocalizations.of(context)!.gujaratiCol, flex: 2, center: true)]),
                 ),
                 ...section.items.asMap().entries.map((entry) {
                   int index = entry.key;
@@ -66,9 +67,9 @@ class StotraPage extends StatelessWidget {
                       children: [
                         Expanded(flex: 1, child: _circleId('${index + 1}', primaryTeal)),
                         Expanded(flex: 5, child: Text(item.localizedTitle(lang).toUpperCase(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF444444), letterSpacing: 0.5))),
-                        _pdfLink('Download', item.englishPdfUrl, primaryTeal, flex: 2),
-                        _pdfLink('Download', item.hindiPdfUrl, primaryTeal, flex: 2),
-                        _pdfLink('Download', item.gujaratiPdfUrl, primaryTeal, flex: 2),
+                        _pdfLink(AppLocalizations.of(context)!.download, item.englishPdfUrl, primaryTeal, flex: 2),
+                        _pdfLink(AppLocalizations.of(context)!.download, item.hindiPdfUrl, primaryTeal, flex: 2),
+                        _pdfLink(AppLocalizations.of(context)!.download, item.gujaratiPdfUrl, primaryTeal, flex: 2),
                       ],
                     ),
                   );

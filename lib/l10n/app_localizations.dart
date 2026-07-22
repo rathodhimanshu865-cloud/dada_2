@@ -640,6 +640,126 @@ abstract class AppLocalizations {
   /// **'Open to Download'**
   String get openToDownload;
 
+  /// No description provided for @latestUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'LATEST UPDATES'**
+  String get latestUpdates;
+
+  /// No description provided for @newsAndEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'News & Events'**
+  String get newsAndEvents;
+
+  /// No description provided for @homeGalleryVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'Home > Gallery > Videos'**
+  String get homeGalleryVideos;
+
+  /// No description provided for @homeGalleryPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Home > Gallery > Photos'**
+  String get homeGalleryPhotos;
+
+  /// No description provided for @homeStotra.
+  ///
+  /// In en, this message translates to:
+  /// **'Home > Stotra / Bhajan / Aarti'**
+  String get homeStotra;
+
+  /// No description provided for @homeKathasUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Home > Kathas > Upcoming Kathas'**
+  String get homeKathasUpcoming;
+
+  /// No description provided for @upcomingKathas2026.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming Kathas 2026'**
+  String get upcomingKathas2026;
+
+  /// No description provided for @kathaPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Katha'**
+  String get kathaPrefix;
+
+  /// No description provided for @kathaDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Katha Date'**
+  String get kathaDate;
+
+  /// No description provided for @kathaTiming.
+  ///
+  /// In en, this message translates to:
+  /// **'Katha Timing'**
+  String get kathaTiming;
+
+  /// No description provided for @kathaLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Katha Location'**
+  String get kathaLocation;
+
+  /// No description provided for @kathaHosting.
+  ///
+  /// In en, this message translates to:
+  /// **'Katha Hosting'**
+  String get kathaHosting;
+
+  /// No description provided for @sacredMoments.
+  ///
+  /// In en, this message translates to:
+  /// **'SACRED MOMENTS'**
+  String get sacredMoments;
+
+  /// No description provided for @divineGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Divine Gallery'**
+  String get divineGallery;
+
+  /// No description provided for @download.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get download;
+
+  /// No description provided for @idColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'ID'**
+  String get idColumn;
+
+  /// No description provided for @nameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'NAME / TITLE'**
+  String get nameTitle;
+
+  /// No description provided for @englishCol.
+  ///
+  /// In en, this message translates to:
+  /// **'ENGLISH'**
+  String get englishCol;
+
+  /// No description provided for @hindiCol.
+  ///
+  /// In en, this message translates to:
+  /// **'HINDI'**
+  String get hindiCol;
+
+  /// No description provided for @gujaratiCol.
+  ///
+  /// In en, this message translates to:
+  /// **'GUJARATI'**
+  String get gujaratiCol;
+
   /// No description provided for @like.
   ///
   /// In en, this message translates to:

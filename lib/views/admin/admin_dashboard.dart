@@ -181,10 +181,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white),
             onPressed: controller.isLoading ? null : () async {
-              await controller.publish();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('🌐 Translating & Publishing all changes to Database... please wait'),
+                  duration: Duration(seconds: 60),
+                  backgroundColor: Colors.teal,
+                ),
+              );
+              await controller.translateAndPublish();
               if (mounted) {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('All changes published successfully!')),
+                  const SnackBar(content: Text('✅ All changes translated & published to Database successfully!'), backgroundColor: Colors.green),
                 );
               }
             },

@@ -287,5 +287,65 @@ class AppLocalizationsHi extends AppLocalizations {
   String get openToDownload => 'डाउनलोड करें';
 
   @override
+  String get latestUpdates => 'ताज़ा अपडेट';
+
+  @override
+  String get newsAndEvents => 'समाचार और कार्यक्रम';
+
+  @override
+  String get homeGalleryVideos => 'होम > गैलरी > वीडियो';
+
+  @override
+  String get homeGalleryPhotos => 'होम > गैलरी > फ़ोटो';
+
+  @override
+  String get homeStotra => 'होम > स्तोत्र / भजन / आरती';
+
+  @override
+  String get homeKathasUpcoming => 'होम > कथा > आगामी कथाएं';
+
+  @override
+  String get upcomingKathas2026 => 'आगामी कथाएं 2026';
+
+  @override
+  String get kathaPrefix => 'कथा';
+
+  @override
+  String get kathaDate => 'कथा की तारीख';
+
+  @override
+  String get kathaTiming => 'कथा का समय';
+
+  @override
+  String get kathaLocation => 'कथा का स्थान';
+
+  @override
+  String get kathaHosting => 'कथा का आयोजन';
+
+  @override
+  String get sacredMoments => 'पवित्र क्षण';
+
+  @override
+  String get divineGallery => 'दिव्य गैलरी';
+
+  @override
+  String get download => 'डाउनलोड';
+
+  @override
+  String get idColumn => 'आईडी';
+
+  @override
+  String get nameTitle => 'नाम / शीर्षक';
+
+  @override
+  String get englishCol => 'अंग्रेज़ी';
+
+  @override
+  String get hindiCol => 'हिंदी';
+
+  @override
+  String get gujaratiCol => 'गुजराती';
+
+  @override
   String get like => 'पसंद करें';
 }

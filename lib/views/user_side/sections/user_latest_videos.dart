@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../utils/localization_helper.dart';
 import '../../../controllers/homepage_controller.dart';
+import '../../../controllers/language_controller.dart';
 
 class UserLatestVideos extends StatelessWidget {
   final HomePageController controller;
@@ -82,6 +84,7 @@ class UserLatestVideos extends StatelessWidget {
   }
 
   Widget _buildVideoCard(BuildContext context, dynamic video) {
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
     return GestureDetector(
       onTap: () => _launchUrl(video.youtubeUrl),
       child: Column(
@@ -123,7 +126,7 @@ class UserLatestVideos extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            (video.title as String).dynamicTr(context).toUpperCase(),
+            video.localizedTitle(lang).toUpperCase(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A), letterSpacing: 0.5),

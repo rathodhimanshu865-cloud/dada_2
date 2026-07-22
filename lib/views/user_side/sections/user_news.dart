@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../models/homepage_model.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 
 class UserNews extends StatelessWidget {
   final HomePageController controller;
@@ -32,14 +33,14 @@ class UserNews extends StatelessWidget {
           // Header
           Column(
             children: [
-              const Text(
-                "LATEST UPDATES",
-                style: TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
+              Text(
+                AppLocalizations.of(context)!.latestUpdates,
+                style: const TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
               ),
               const SizedBox(height: 20),
-              const Text(
-                "News & Events",
-                style: TextStyle(fontSize: 42, fontFamily: 'serif', fontWeight: FontWeight.w900, color: Color(0xFF0F4C5C)),
+              Text(
+                AppLocalizations.of(context)!.newsAndEvents,
+                style: const TextStyle(fontSize: 42, fontFamily: 'serif', fontWeight: FontWeight.w900, color: Color(0xFF0F4C5C)),
               ),
               const SizedBox(height: 30),
               Container(height: 1, width: 80, color: const Color(0xFFC89A5B)),
@@ -79,7 +80,7 @@ class UserNews extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 25),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
-            child: const Text('VIEW ALL NEWS', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+            child: Text(AppLocalizations.of(context)!.viewAllNews, style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
           ),
         ],
       ),
