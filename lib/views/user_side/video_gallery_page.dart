@@ -77,16 +77,15 @@ class VideoGalleryPage extends StatelessWidget {
           bool isMobile = MediaQuery.of(context).size.width < 900;
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: List.generate(cols, (colIdx) {
+            children: List.generate(cols * 2 - 1, (index) {
+              if (index.isOdd) return SizedBox(width: isMobile ? 15 : 30);
+              int colIdx = index ~/ 2;
               return Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(right: colIdx < cols - 1 ? (isMobile ? 15 : 30) : 0),
-                  child: Column(
-                    children: category.videos.asMap().entries
-                        .where((e) => e.key % cols == colIdx)
-                        .map<Widget>((e) => _buildVideoCard(e.value, primaryTeal, lang, isMobile))
-                        .toList(),
-                  ),
+                child: Column(
+                  children: category.videos.asMap().entries
+                      .where((e) => e.key % cols == colIdx)
+                      .map<Widget>((e) => _buildVideoCard(e.value, primaryTeal, lang, isMobile))
+                      .toList(),
                 ),
               );
             }),

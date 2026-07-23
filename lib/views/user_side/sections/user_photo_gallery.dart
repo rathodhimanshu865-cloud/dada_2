@@ -54,16 +54,15 @@ class UserPhotoGallery extends StatelessWidget {
 
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(cols, (colIdx) {
+                children: List.generate(cols * 2 - 1, (index) {
+                  if (index.isOdd) return const SizedBox(width: 20);
+                  int colIdx = index ~/ 2;
                   return Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(right: colIdx < cols - 1 ? 20 : 0),
-                      child: Column(
-                        children: displayPhotos.asMap().entries
-                          .where((e) => e.key % cols == colIdx)
-                          .map<Widget>((e) => _buildGalleryItem(context, e.value, colIdx, e.key))
-                          .toList(),
-                      ),
+                    child: Column(
+                      children: displayPhotos.asMap().entries
+                        .where((e) => e.key % cols == colIdx)
+                        .map<Widget>((e) => _buildGalleryItem(context, e.value, colIdx, e.key))
+                        .toList(),
                     ),
                   );
                 }),

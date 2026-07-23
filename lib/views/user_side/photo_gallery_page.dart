@@ -111,16 +111,15 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
             int cols = constraints.maxWidth > 1200 ? 4 : (constraints.maxWidth > 800 ? 3 : (constraints.maxWidth > 500 ? 2 : 1));
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: List.generate(cols, (colIdx) {
+              children: List.generate(cols * 2 - 1, (index) {
+                if (index.isOdd) return SizedBox(width: isMobile ? 15 : 30);
+                int colIdx = index ~/ 2;
                 return Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(right: colIdx < cols - 1 ? (isMobile ? 15 : 30) : 0),
-                    child: Column(
-                      children: section.photoUrls.asMap().entries
-                          .where((e) => e.key % cols == colIdx)
-                          .map<Widget>((e) => _buildPhotoCard(context, e.value, isMobile))
-                          .toList(),
-                    ),
+                  child: Column(
+                    children: section.photoUrls.asMap().entries
+                        .where((e) => e.key % cols == colIdx)
+                        .map<Widget>((e) => _buildPhotoCard(context, e.value, isMobile))
+                        .toList(),
                   ),
                 );
               }),
