@@ -5,6 +5,7 @@ import '../../controllers/language_controller.dart';
 import '../../models/homepage_model.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
+import '../../utils/app_typography.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 
 class UpcomingRamKathasPage extends StatefulWidget {
@@ -43,7 +44,15 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
             color: backgroundBeige.withOpacity(0.5),
             child: Column(
               children: [
-                Text(AppLocalizations.of(context)!.upcomingKathas, style: TextStyle(fontSize: isMobile ? 32 : 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
+                Text(
+                  AppLocalizations.of(context)!.upcomingKathas, 
+                  style: AppTypography.headingStyle(
+                    context, 
+                    fontSize: AppTypography.getResponsiveSize(context, desktop: 52, tablet: 44, mobile: 34),
+                    fontWeight: FontWeight.bold,
+                    color: primaryTeal,
+                  )
+                ),
                 const SizedBox(height: 12),
                 Text(AppLocalizations.of(context)!.homeKathasUpcoming, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: isMobile ? 14 : 16, letterSpacing: 0.5)),
               ],

@@ -6,6 +6,7 @@ import '../../controllers/language_controller.dart';
 import '../../models/homepage_model.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
+import '../../utils/app_typography.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 
 class NewsPage extends StatelessWidget {
@@ -73,7 +74,12 @@ class NewsPage extends StatelessWidget {
               children: [
                 Text(
                   AppLocalizations.of(context)!.latestNews,
-                  style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold),
+                  style: AppTypography.headingStyle(
+                    context, 
+                    fontSize: AppTypography.getResponsiveSize(context, desktop: 52, tablet: 44, mobile: 34),
+                    fontWeight: FontWeight.bold,
+                    color: primaryTeal,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Text(AppLocalizations.of(context)!.homeNews, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),

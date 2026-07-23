@@ -6,6 +6,7 @@ import '../../controllers/homepage_controller.dart';
 import '../../models/contact_model.dart';
 import 'sections/user_header.dart';
 import 'sections/user_footer.dart';
+import '../../utils/app_typography.dart';
 
 class ContactPage extends StatefulWidget {
   const ContactPage({super.key});
@@ -153,11 +154,11 @@ class _ContactPageState extends State<ContactPage> {
             const SizedBox(height: 40),
             Text(
               AppLocalizations.of(context)!.contactUs,
-              style: const TextStyle(
-                fontSize: 52,
-                fontFamily: 'serif',
-                color: primaryTeal,
+              style: AppTypography.headingStyle(
+                context,
+                fontSize: AppTypography.getResponsiveSize(context, desktop: 52, tablet: 44, mobile: 34),
                 fontWeight: FontWeight.bold,
+                color: primaryTeal,
               ),
             ),
             const SizedBox(height: 12),

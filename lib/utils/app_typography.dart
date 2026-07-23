@@ -6,14 +6,14 @@ class AppTypography {
     final locale = Localizations.localeOf(context).languageCode;
     if (locale == 'gu') return GoogleFonts.notoSansGujarati().fontFamily!;
     if (locale == 'hi') return GoogleFonts.notoSansDevanagari().fontFamily!;
-    return GoogleFonts.playfairDisplay().fontFamily!;
+    return GoogleFonts.cormorantGaramond().fontFamily!;
   }
 
   static String getBodyFont(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
     if (locale == 'gu') return GoogleFonts.notoSansGujarati().fontFamily!;
     if (locale == 'hi') return GoogleFonts.notoSansDevanagari().fontFamily!;
-    return GoogleFonts.inter().fontFamily!;
+    return GoogleFonts.nunito().fontFamily!;
   }
 
   static TextStyle headingStyle(BuildContext context, {double? fontSize, FontWeight? fontWeight, Color? color, double? letterSpacing, double? height}) {

@@ -86,6 +86,7 @@ class _KathaListPageState extends State<KathaListPage> {
                   style: AppTypography.headingStyle(
                     context, 
                     fontSize: AppTypography.getResponsiveSize(context, desktop: 52, tablet: 44, mobile: 34),
+                    fontWeight: FontWeight.bold,
                     color: primaryTeal,
                   )
                 ),
@@ -226,7 +227,7 @@ class _KathaListPageState extends State<KathaListPage> {
                         Expanded(flex: 1, child: Center(child: _circleId(katha.kathaNumber))),
                         Expanded(flex: 1, child: Text(katha.year, style: AppTypography.bodyStyle(context, fontSize: 16, fontWeight: FontWeight.w600))),
                         Expanded(flex: 2, child: Text(katha.dates, style: AppTypography.bodyStyle(context, fontSize: 15, color: accentBrown, fontWeight: FontWeight.w600))),
-                        Expanded(flex: 4, child: Text(katha.localizedTopic(lang).toUpperCase(), style: AppTypography.headingStyle(context, fontWeight: FontWeight.w600, fontSize: 18, letterSpacing: 0.5))),
+                        Expanded(flex: 4, child: Text(katha.localizedTopic(lang).toUpperCase(), style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: 0.5, color: const Color(0xFF333333)))),
                         Expanded(flex: 3, child: Row(children: [Icon(Icons.location_on, size: 18, color: primaryTeal.withOpacity(0.5)), const SizedBox(width: 8), Flexible(child: Text(katha.localizedLocation(lang), style: AppTypography.bodyStyle(context, fontSize: 16, color: Colors.black87)))])),
                         Expanded(flex: 2, child: Row(children: [Icon(Icons.public, size: 18, color: Colors.green.withOpacity(0.5)), const SizedBox(width: 8), Text(katha.country, style: AppTypography.bodyStyle(context, fontSize: 16))])),
                         Expanded(flex: 1, child: Text(katha.language.toUpperCase(), style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: Colors.blueGrey))),
