@@ -73,13 +73,23 @@ class VideoGalleryPage extends StatelessWidget {
         Column(children: [Text(category.localizedCategoryTitle(lang).toUpperCase(), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF444444), letterSpacing: 2)), const SizedBox(height: 15), Container(width: 60, height: 3, color: accentBrown)]),
         const SizedBox(height: 60),
         LayoutBuilder(builder: (context, constraints) {
-          int crossAxisCount = constraints.maxWidth > 1200 ? 3 : (constraints.maxWidth > 800 ? 2 : 1);
-          return GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount, crossAxisSpacing: 30, mainAxisSpacing: 50, childAspectRatio: 1.1),
-            itemCount: category.videos.length,
-            itemBuilder: (context, index) => _buildVideoCard(category.videos[index], primaryTeal, lang),
+          int cols = constraints.maxWidth > 1200 ? 4 : (constraints.maxWidth > 800 ? 3 : (constraints.maxWidth > 500 ? 2 : 1));
+          bool isMobile = MediaQuery.of(context).size.width < 900;
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: List.generate(cols, (colIdx) {
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: colIdx < cols - 1 ? (isMobile ? 15 : 30) : 0),
+                  child: Column(
+                    children: category.videos.asMap().entries
+                        .where((e) => e.key % cols == colIdx)
+                        .map<Widget>((e) => _buildVideoCard(e.value, primaryTeal, lang, isMobile))
+                        .toList(),
+                  ),
+                ),
+              );
+            }),
           );
         }),
         const SizedBox(height: 120),
@@ -87,10 +97,12 @@ class VideoGalleryPage extends StatelessWidget {
     );
   }
 
-  Widget _buildVideoCard(dynamic video, Color primaryTeal, String lang) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+  Widget _buildVideoCard(dynamic video, Color primaryTeal, String lang, bool isMobile) {
+    return Container(
+      margin: EdgeInsets.only(bottom: isMobile ? 15 : 30),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
         GestureDetector(
           onTap: () => _launchUrl(video.youtubeUrl),
           child: MouseRegion(
@@ -102,8 +114,11 @@ class VideoGalleryPage extends StatelessWidget {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Image.network(video.thumbnail, height: 220, width: double.infinity, fit: BoxFit.cover, errorBuilder: (c, e, s) => Container(color: Colors.grey[200], height: 220)),
-                    Container(height: 220, color: Colors.black.withOpacity(0.15)),
+                    AspectRatio(
+                      aspectRatio: 16/9,
+                      child: Image.network(video.thumbnail, width: double.infinity, fit: BoxFit.cover, errorBuilder: (c, e, s) => Container(color: Colors.grey[200])),
+                    ),
+                    Positioned.fill(child: Container(color: Colors.black.withOpacity(0.15))),
                     const Icon(Icons.play_circle_outline, color: Colors.white, size: 60),
                   ],
                 ),

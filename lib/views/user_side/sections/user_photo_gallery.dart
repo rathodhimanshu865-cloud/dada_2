@@ -127,10 +127,13 @@ class UserPhotoGallery extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         child: GestureDetector(
           onTap: () => _showFullScreenImage(context, url),
-          child: Image.network(
-            url,
-            fit: BoxFit.contain,
-            errorBuilder: (c, e, s) => const Icon(Icons.image_outlined, color: Colors.white, size: 50),
+          child: AspectRatio(
+            aspectRatio: 0.85,
+            child: Image.network(
+              url,
+              fit: BoxFit.cover,
+              errorBuilder: (c, e, s) => Container(color: Colors.grey[200], child: const Icon(Icons.image_outlined, color: Colors.grey, size: 50)),
+            ),
           ),
         ),
       ),
