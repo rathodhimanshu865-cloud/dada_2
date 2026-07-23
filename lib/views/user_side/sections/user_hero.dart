@@ -71,8 +71,8 @@ class _UserHeroState extends State<UserHero> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // High-end edge-to-edge height
-        double sliderHeight = 650; 
+        bool isMobile = constraints.maxWidth < 900;
+        double sliderHeight = isMobile ? 400 : 650; 
 
         return Stack(
           children: [

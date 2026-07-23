@@ -11,29 +11,30 @@ class UserFeaturedQuote extends StatelessWidget {
     final lang = Localizations.localeOf(context).languageCode;
     if (quoteData.quote.isEmpty) return const SizedBox.shrink();
 
+    final isMobile = MediaQuery.of(context).size.width < 900;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 120, horizontal: 40),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 120, horizontal: isMobile ? 20 : 40),
       color: const Color(0xFFFAF8F4),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 900),
           child: Column(
             children: [
-              const Icon(Icons.format_quote_rounded, size: 80, color: Color(0xFFC89A5B)),
-              const SizedBox(height: 40),
+              Icon(Icons.format_quote_rounded, size: isMobile ? 50 : 80, color: const Color(0xFFC89A5B)),
+              SizedBox(height: isMobile ? 20 : 40),
               Text(
                 quoteData.localizedQuote(lang),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 36,
+                style: TextStyle(
+                  fontSize: isMobile ? 22 : 36,
                   fontFamily: 'serif',
                   fontStyle: FontStyle.italic,
-                  color: Color(0xFF2B2B2B),
+                  color: const Color(0xFF2B2B2B),
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: isMobile ? 25 : 40),
               Container(height: 1, width: 60, color: const Color(0xFFC89A5B)),
               const SizedBox(height: 30),
               Text(

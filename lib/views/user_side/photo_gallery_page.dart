@@ -30,6 +30,8 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
+    final isMobile = MediaQuery.of(context).size.width < 900;
+
     return UserPageLayout(
       controller: controller,
       child: Column(
@@ -39,25 +41,27 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
           // Hero Title Section
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 80),
+            padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80),
             color: backgroundBeige.withOpacity(0.5),
             child: Column(
               children: [
-                Text(data.localizedTitle(lang).isNotEmpty ? data.localizedTitle(lang) : 'Photo Gallery', style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
+                Text(data.localizedTitle(lang).isNotEmpty ? data.localizedTitle(lang) : 'Photo Gallery', style: TextStyle(fontSize: isMobile ? 32 : 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                Text(AppLocalizations.of(context)!.homeGalleryPhotos, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+                Text(AppLocalizations.of(context)!.homeGalleryPhotos, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: isMobile ? 14 : 16, letterSpacing: 0.5)),
               ],
             ),
           ),
 
-          const SizedBox(height: 60),
+          SizedBox(height: isMobile ? 30 : 60),
 
           // Section Switcher (Tabs)
           if (data.sections.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 100),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: isMobile ? 10 : 20,
+                runSpacing: 15,
                 children: data.sections.asMap().entries.map((entry) {
                   int idx = entry.key;
                   String heading = entry.value.localizedHeading(lang);
@@ -94,6 +98,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
   }
 
   Widget _buildPhotoSection(BuildContext context, dynamic section, Color primaryTeal, Color accentBrown) {
+    final isMobile = MediaQuery.of(context).size.width < 900;
     if (section.photoUrls.isEmpty) {
       return Padding(padding: const EdgeInsets.symmetric(vertical: 100), child: Text(AppLocalizations.of(context)!.noPhotosAdded, style: const TextStyle(color: Colors.grey, fontSize: 18)));
     }
@@ -101,19 +106,19 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 100),
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
           child: LayoutBuilder(builder: (context, constraints) {
-            int crossAxisCount = constraints.maxWidth > 1200 ? 4 : (constraints.maxWidth > 800 ? 3 : 2);
+            int crossAxisCount = constraints.maxWidth > 1200 ? 4 : (constraints.maxWidth > 800 ? 3 : (constraints.maxWidth > 500 ? 2 : 1));
             return GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount, crossAxisSpacing: 30, mainAxisSpacing: 30, childAspectRatio: 1.2),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount, crossAxisSpacing: isMobile ? 15 : 30, mainAxisSpacing: isMobile ? 15 : 30, childAspectRatio: 1.2),
               itemCount: section.photoUrls.length,
               itemBuilder: (context, index) => _buildPhotoCard(context, section.photoUrls[index]),
             );
           }),
         ),
-        const SizedBox(height: 120),
+        SizedBox(height: isMobile ? 50 : 120),
       ],
     );
   }

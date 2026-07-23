@@ -22,6 +22,9 @@ class AboutKathaPage extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
+    final isMobile = MediaQuery.of(context).size.width < 900;
+    final horizontalPad = isMobile ? 20.0 : 100.0;
+
     return UserPageLayout(
       controller: controller,
       child: Column(
@@ -32,73 +35,74 @@ class AboutKathaPage extends StatelessWidget {
           Container(
             width: double.infinity,
             color: backgroundBeige,
-            padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 80),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            padding: EdgeInsets.symmetric(horizontal: horizontalPad, vertical: isMobile ? 40 : 80),
+            child: Builder(builder: (context) {
+              Widget heroText = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Container(width: 40, height: 1.5, color: accentBrown),
-                          const SizedBox(width: 15),
-                          Text(
-                            data.localizedHeroBadge(lang).toUpperCase(),
-                            style: const TextStyle(color: accentBrown, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1.5),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 25),
+                      Container(width: 40, height: 1.5, color: accentBrown),
+                      const SizedBox(width: 15),
                       Text(
-                        data.localizedHeroTitle(lang),
-                        style: const TextStyle(
-                          fontSize: 48,
-                          fontFamily: 'serif',
-                          fontWeight: FontWeight.bold,
-                          color: primaryTeal,
-                          height: 1.2,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 40),
-                      Text(
-                        data.localizedHeroDesc1(lang),
-                        style: const TextStyle(fontSize: 18, color: Colors.black87, height: 1.6, fontStyle: FontStyle.italic),
-                      ),
-                      const SizedBox(height: 25),
-                      Text(
-                        data.localizedHeroDesc2(lang),
-                        style: const TextStyle(fontSize: 16, color: Colors.black54, height: 1.6),
+                        data.localizedHeroBadge(lang).toUpperCase(),
+                        style: const TextStyle(color: accentBrown, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1.5),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(width: 60),
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 30, offset: const Offset(0, 15)),
-                      ],
-                    ),
-                    child: Image.network(
-                      data.heroImage.isNotEmpty ? data.heroImage : 'https://via.placeholder.com/700x450',
-                      fit: BoxFit.cover,
-                      errorBuilder: (c,e,s) => Container(height: 400, color: Colors.white24),
+                  const SizedBox(height: 25),
+                  Text(
+                    data.localizedHeroTitle(lang),
+                    style: TextStyle(
+                      fontSize: isMobile ? 30 : 48,
+                      fontFamily: 'serif',
+                      fontWeight: FontWeight.bold,
+                      color: primaryTeal,
+                      height: 1.2,
+                      letterSpacing: -0.5,
                     ),
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(height: 40),
+                  Text(
+                    data.localizedHeroDesc1(lang),
+                    style: TextStyle(fontSize: isMobile ? 15 : 18, color: Colors.black87, height: 1.6, fontStyle: FontStyle.italic),
+                  ),
+                  const SizedBox(height: 25),
+                  Text(
+                    data.localizedHeroDesc2(lang),
+                    style: TextStyle(fontSize: isMobile ? 14 : 16, color: Colors.black54, height: 1.6),
+                  ),
+                ],
+              );
+
+              Widget heroImg = Container(
+                decoration: BoxDecoration(boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 30, offset: const Offset(0, 15))]),
+                child: Image.network(data.heroImage.isNotEmpty ? data.heroImage : 'https://via.placeholder.com/700x450', fit: BoxFit.cover, errorBuilder: (c,e,s) => Container(height: 250, color: Colors.white24)),
+              );
+
+              if (isMobile) {
+                return Column(
+                  children: [
+                    heroText,
+                    const SizedBox(height: 40),
+                    heroImg,
+                  ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(flex: 1, child: heroText),
+                  const SizedBox(width: 60),
+                  Expanded(flex: 1, child: heroImg),
+                ],
+              );
+            }),
           ),
 
           // 2. BIOGRAPHY SECTION
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 150, vertical: 100),
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 150, vertical: isMobile ? 50 : 100),
             child: Column(
               children: [
                 const Icon(Icons.wb_sunny_outlined, color: accentBrown, size: 35),
@@ -106,7 +110,7 @@ class AboutKathaPage extends StatelessWidget {
                 Text(
                   data.localizedBioText(lang).isNotEmpty ? data.localizedBioText(lang) : 'Full biography details will appear here as managed from the admin side.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16, color: Color(0xFF333333), height: 1.9, letterSpacing: 0.3),
+                  style: TextStyle(fontSize: isMobile ? 14 : 16, color: const Color(0xFF333333), height: 1.9, letterSpacing: 0.3),
                 ),
               ],
             ),
@@ -114,110 +118,125 @@ class AboutKathaPage extends StatelessWidget {
 
           // 3. QUOTE SECTION
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 100),
-            decoration: BoxDecoration(
-              color: primaryTeal,
-              borderRadius: BorderRadius.circular(4),
-            ),
+            margin: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
+            decoration: BoxDecoration(color: primaryTeal, borderRadius: BorderRadius.circular(4)),
             clipBehavior: Clip.antiAlias,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(80),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.format_quote, color: accentBrown, size: 60),
-                        const SizedBox(height: 30),
-                        Text(
-                          data.localizedQuoteText(lang),
-                          style: const TextStyle(color: Colors.white, fontSize: 26, fontFamily: 'serif', height: 1.5),
-                        ),
-                        const SizedBox(height: 40),
-                        Text(
-                          '- ${data.localizedQuoteAuthor(lang)}',
-                          style: const TextStyle(color: accentBrown, fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 15),
-                        Container(width: 50, height: 2, color: accentBrown),
-                      ],
-                    ),
-                  ),
+            child: Builder(builder: (context) {
+              Widget quoteText = Padding(
+                padding: EdgeInsets.all(isMobile ? 30 : 80),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.format_quote, color: accentBrown, size: 60),
+                    const SizedBox(height: 30),
+                    Text(data.localizedQuoteText(lang), style: TextStyle(color: Colors.white, fontSize: isMobile ? 18 : 26, fontFamily: 'serif', height: 1.5)),
+                    const SizedBox(height: 40),
+                    Text('- ${data.localizedQuoteAuthor(lang)}', style: TextStyle(color: accentBrown, fontSize: isMobile ? 16 : 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 15),
+                    Container(width: 50, height: 2, color: accentBrown),
+                  ],
                 ),
-                Expanded(
-                  child: Image.network(
-                    data.quoteImage.isNotEmpty ? data.quoteImage : 'https://via.placeholder.com/600x600',
-                    height: 500,
-                    fit: BoxFit.cover,
-                    errorBuilder: (c,e,s) => Container(color: Colors.black26),
-                  ),
-                ),
-              ],
-            ),
+              );
+
+              Widget quoteImg = Image.network(data.quoteImage.isNotEmpty ? data.quoteImage : 'https://via.placeholder.com/600x600', height: isMobile ? 250 : 500, fit: BoxFit.cover, errorBuilder: (c,e,s) => Container(color: Colors.black26));
+
+              if (isMobile) {
+                return Column(
+                  children: [
+                    quoteText,
+                    quoteImg,
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  Expanded(child: quoteText),
+                  Expanded(child: quoteImg),
+                ],
+              );
+            }),
           ),
 
           // 4. HIGHLIGHTS
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 100),
-            child: Row(
-              children: [
-                _buildHighlightCard(data.localizedHighlight1Title(lang), Icons.stars_rounded, data.localizedHighlight1Desc(lang), accentBrown),
-                const SizedBox(width: 40),
-                _buildHighlightCard(data.localizedHighlight2Title(lang), Icons.auto_awesome, data.localizedHighlight2Desc(lang), accentBrown),
-                const SizedBox(width: 40),
-                _buildHighlightCard(data.localizedHighlight3Title(lang), Icons.favorite_border_rounded, data.localizedHighlight3Desc(lang), accentBrown),
-              ],
-            ),
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100, vertical: isMobile ? 50 : 100),
+            child: isMobile 
+              ? Column(
+                  children: [
+                    _buildHighlightCard(data.localizedHighlight1Title(lang), Icons.stars_rounded, data.localizedHighlight1Desc(lang), accentBrown),
+                    const SizedBox(height: 25),
+                    _buildHighlightCard(data.localizedHighlight2Title(lang), Icons.auto_awesome, data.localizedHighlight2Desc(lang), accentBrown),
+                    const SizedBox(height: 25),
+                    _buildHighlightCard(data.localizedHighlight3Title(lang), Icons.favorite_border_rounded, data.localizedHighlight3Desc(lang), accentBrown),
+                  ],
+                )
+              : Row(
+                  children: [
+                    _buildHighlightCard(data.localizedHighlight1Title(lang), Icons.stars_rounded, data.localizedHighlight1Desc(lang), accentBrown),
+                    const SizedBox(width: 40),
+                    _buildHighlightCard(data.localizedHighlight2Title(lang), Icons.auto_awesome, data.localizedHighlight2Desc(lang), accentBrown),
+                    const SizedBox(width: 40),
+                    _buildHighlightCard(data.localizedHighlight3Title(lang), Icons.favorite_border_rounded, data.localizedHighlight3Desc(lang), accentBrown),
+                  ],
+                ),
           ),
 
           // 5. CTA BANNER
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 100),
-            padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 80),
-            decoration: BoxDecoration(
-              color: primaryTeal,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.temple_hindu_outlined, color: Colors.white54, size: 70),
-                const SizedBox(width: 50),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        data.localizedCtaTitle(lang),
-                        style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, fontFamily: 'serif'),
+            margin: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
+            padding: EdgeInsets.symmetric(vertical: 40, horizontal: isMobile ? 20 : 80),
+            decoration: BoxDecoration(color: primaryTeal, borderRadius: BorderRadius.circular(4)),
+            child: isMobile
+              ? Column(
+                  children: [
+                    const Icon(Icons.temple_hindu_outlined, color: Colors.white54, size: 50),
+                    const SizedBox(height: 20),
+                    Text(data.localizedCtaTitle(lang), textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+                    const SizedBox(height: 10),
+                    Text(data.localizedCtaSubtitle(lang), textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pushNamed(context, '/katha_list'),
+                      style: ElevatedButton.styleFrom(backgroundColor: backgroundBeige, foregroundColor: primaryTeal, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), elevation: 10),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(data.localizedCtaButtonText(lang), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          const SizedBox(width: 10),
+                          const Icon(Icons.arrow_forward, size: 18),
+                        ],
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        data.localizedCtaSubtitle(lang),
-                        style: const TextStyle(color: Colors.white70, fontSize: 16),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    const Icon(Icons.temple_hindu_outlined, color: Colors.white54, size: 70),
+                    const SizedBox(width: 50),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(data.localizedCtaTitle(lang), style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+                          const SizedBox(height: 12),
+                          Text(data.localizedCtaSubtitle(lang), style: const TextStyle(color: Colors.white70, fontSize: 16)),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pushNamed(context, '/katha_list'),
+                      style: ElevatedButton.styleFrom(backgroundColor: backgroundBeige, foregroundColor: primaryTeal, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25), elevation: 10),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(data.localizedCtaButtonText(lang), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                          const SizedBox(width: 15),
+                          const Icon(Icons.arrow_forward, size: 20),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/katha_list'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: backgroundBeige,
-                    foregroundColor: primaryTeal,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
-                    elevation: 10,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(data.localizedCtaButtonText(lang), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                      const SizedBox(width: 15),
-                      const Icon(Icons.arrow_forward, size: 20),
-                    ],
-                  ),
-                ),
-              ],
-            ),
           ),
 
           const SizedBox(height: 120),
@@ -228,28 +247,26 @@ class AboutKathaPage extends StatelessWidget {
   }
 
   Widget _buildHighlightCard(String title, IconData icon, String desc, Color accent) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(50),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 25, offset: const Offset(0, 12)),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: accent, size: 40),
-            const SizedBox(height: 35),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 1.2, color: Color(0xFF222222))),
-            const SizedBox(height: 25),
-            Text(desc, style: const TextStyle(color: Color(0xFF666666), fontSize: 15, height: 1.7)),
-            const SizedBox(height: 30),
-            Container(width: 40, height: 3, color: accent.withOpacity(0.4)),
-          ],
-        ),
+    return Container(
+      padding: const EdgeInsets.all(30),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 25, offset: const Offset(0, 12)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: accent, size: 40),
+          const SizedBox(height: 25),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 1.2, color: Color(0xFF222222))),
+          const SizedBox(height: 15),
+          Text(desc, style: const TextStyle(color: Color(0xFF666666), fontSize: 15, height: 1.7)),
+          const SizedBox(height: 20),
+          Container(width: 40, height: 3, color: accent.withOpacity(0.4)),
+        ],
       ),
     );
   }

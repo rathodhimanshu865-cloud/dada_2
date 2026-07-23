@@ -30,6 +30,8 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
 
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
+    final isMobile = MediaQuery.of(context).size.width < 900;
+
     return UserPageLayout(
       controller: controller,
       child: Column(
@@ -37,28 +39,29 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
           const SizedBox(height: 120),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 80),
+            padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80),
             color: backgroundBeige.withOpacity(0.5),
             child: Column(
               children: [
-                Text(AppLocalizations.of(context)!.upcomingKathas, style: TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
+                Text(AppLocalizations.of(context)!.upcomingKathas, style: TextStyle(fontSize: isMobile ? 32 : 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                Text(AppLocalizations.of(context)!.homeKathasUpcoming, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+                Text(AppLocalizations.of(context)!.homeKathasUpcoming, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: isMobile ? 14 : 16, letterSpacing: 0.5)),
               ],
             ),
           ),
-          const SizedBox(height: 60),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          SizedBox(height: isMobile ? 30 : 60),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: isMobile ? 20 : 80,
+            runSpacing: 15,
             children: [
               _tabButton(AppLocalizations.of(context)!.allKathas, activeTab == 0, () => Navigator.pushNamed(context, '/katha_list')),
-              const SizedBox(width: 80),
               _tabButton(AppLocalizations.of(context)!.upcomingKathas2026, activeTab == 1, () {}),
             ],
           ),
-          const SizedBox(height: 60),
+          SizedBox(height: isMobile ? 30 : 60),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100),
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
             child: Column(
               children: [
                 const Divider(color: Color(0xFFEEEEEE), thickness: 1),

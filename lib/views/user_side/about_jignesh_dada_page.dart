@@ -48,7 +48,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
           _buildGoldenDivider(),
           
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: isDesktop ? 100 : 20, vertical: 80),
+            padding: EdgeInsets.symmetric(horizontal: isDesktop ? 100 : 15, vertical: isDesktop ? 80 : 40),
             child: Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 1400),

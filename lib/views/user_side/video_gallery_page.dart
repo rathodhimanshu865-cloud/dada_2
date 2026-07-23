@@ -32,6 +32,8 @@ class VideoGalleryPage extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
+    final isMobile = MediaQuery.of(context).size.width < 900;
+
     return UserPageLayout(
       controller: controller,
       child: Column(
@@ -39,24 +41,24 @@ class VideoGalleryPage extends StatelessWidget {
           const SizedBox(height: 120),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 80),
+            padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80),
             color: backgroundBeige.withOpacity(0.5),
             child: Column(
               children: [
-                Text(AppLocalizations.of(context)!.videoGallery, style: const TextStyle(fontSize: 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
+                Text(AppLocalizations.of(context)!.videoGallery, style: TextStyle(fontSize: isMobile ? 32 : 52, fontFamily: 'serif', color: primaryTeal, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                Text(AppLocalizations.of(context)!.homeGalleryVideos, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+                Text(AppLocalizations.of(context)!.homeGalleryVideos, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: isMobile ? 14 : 16, letterSpacing: 0.5)),
               ],
             ),
           ),
-          const SizedBox(height: 80),
+          SizedBox(height: isMobile ? 40 : 80),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100),
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
             child: Column(
               children: data.categories.map((category) => _buildVideoSection(context, category, primaryTeal, accentBrown, lang)).toList(),
             ),
           ),
-          const SizedBox(height: 100),
+          SizedBox(height: isMobile ? 50 : 100),
           UserFooter(controller: controller),
         ],
       ),

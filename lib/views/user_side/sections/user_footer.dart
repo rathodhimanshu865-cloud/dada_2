@@ -21,6 +21,7 @@ class UserFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     const accentGold = Color(0xFFC89A5B);
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
+    final isMobile = MediaQuery.of(context).size.width < 900;
 
     return Container(
       width: double.infinity,
@@ -47,16 +48,15 @@ class UserFooter extends StatelessWidget {
           ),
           
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 80),
+            padding: EdgeInsets.symmetric(vertical: 80, horizontal: isMobile ? 30 : 80),
             child: Column(
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Branding
-                    Expanded(
-                      flex: 4,
-                      child: Column(
+                if (isMobile)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Branding
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
@@ -65,7 +65,7 @@ class UserFooter extends StatelessWidget {
                           ),
                           const SizedBox(height: 30),
                           SizedBox(
-                            width: 400,
+                            width: double.infinity,
                             child: Text(
                               controller.footer.localizedDescription(lang),
                               style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 15, height: 1.8),
@@ -82,49 +82,113 @@ class UserFooter extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ),
-                    
-                    // Links
-                    _buildFooterColumn(context, AppLocalizations.of(context)!.organization, [
-                      {"label": AppLocalizations.of(context)!.home, "route": "/"},
-                      {"label": AppLocalizations.of(context)!.aboutDada, "route": "/about_dada"},
-                      {"label": AppLocalizations.of(context)!.mission, "route": "/about_dada"},
-                      {"label": AppLocalizations.of(context)!.contactUs, "route": "/contact_us"},
-                    ]),
-                    
-                    _buildFooterColumn(context, AppLocalizations.of(context)!.katha, [
-                      {"label": AppLocalizations.of(context)!.upcomingKathas, "route": "/upcoming_ram_kathas"},
-                      {"label": AppLocalizations.of(context)!.fullKathaList, "route": "/katha_list"},
-                      {"label": AppLocalizations.of(context)!.bhagvatKatha, "route": "/about_katha"},
-                      {"label": AppLocalizations.of(context)!.shivmahapuran, "route": "/about_shiv_katha"},
-                    ]),
-                    
-                    _buildFooterColumn(context, AppLocalizations.of(context)!.resources, [
-                      {"label": AppLocalizations.of(context)!.stotraBhajan, "route": "/stotra"},
-                      {"label": AppLocalizations.of(context)!.photoGallery, "route": "/photo_gallery"},
-                      {"label": AppLocalizations.of(context)!.videoGallery, "route": "/video_gallery"},
-                      {"label": AppLocalizations.of(context)!.adminPanel, "route": "/admin_login"},
-                    ]),
-                  ],
-                ),
+                      const SizedBox(height: 50),
+                      // Links
+                      Wrap(
+                        spacing: 40,
+                        runSpacing: 40,
+                        children: [
+                          _buildFooterColumn(context, AppLocalizations.of(context)!.organization, [
+                            {"label": AppLocalizations.of(context)!.home, "route": "/"},
+                            {"label": AppLocalizations.of(context)!.aboutDada, "route": "/about_dada"},
+                            {"label": AppLocalizations.of(context)!.mission, "route": "/about_dada"},
+                            {"label": AppLocalizations.of(context)!.contactUs, "route": "/contact_us"},
+                          ], true),
+                          _buildFooterColumn(context, AppLocalizations.of(context)!.katha, [
+                            {"label": AppLocalizations.of(context)!.upcomingKathas, "route": "/upcoming_ram_kathas"},
+                            {"label": AppLocalizations.of(context)!.fullKathaList, "route": "/katha_list"},
+                            {"label": AppLocalizations.of(context)!.bhagvatKatha, "route": "/about_katha"},
+                            {"label": AppLocalizations.of(context)!.shivmahapuran, "route": "/about_shiv_katha"},
+                          ], true),
+                          _buildFooterColumn(context, AppLocalizations.of(context)!.resources, [
+                            {"label": AppLocalizations.of(context)!.stotraBhajan, "route": "/stotra"},
+                            {"label": AppLocalizations.of(context)!.photoGallery, "route": "/photo_gallery"},
+                            {"label": AppLocalizations.of(context)!.videoGallery, "route": "/video_gallery"},
+                            {"label": AppLocalizations.of(context)!.adminPanel, "route": "/admin_login"},
+                          ], true),
+                        ],
+                      ),
+                    ],
+                  )
+                else
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Branding
+                      Expanded(
+                        flex: 4,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              controller.websiteSettings.name.toUpperCase(),
+                              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: 2, fontFamily: 'serif'),
+                            ),
+                            const SizedBox(height: 30),
+                            SizedBox(
+                              width: 400,
+                              child: Text(
+                                controller.footer.localizedDescription(lang),
+                                style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 15, height: 1.8),
+                              ),
+                            ),
+                            const SizedBox(height: 40),
+                            Row(
+                              children: [
+                                _buildSocialIcon(Icons.facebook, controller.footer.facebookUrl),
+                                _buildSocialIcon(Icons.camera_alt_outlined, controller.footer.instagramUrl),
+                                _buildSocialIcon(Icons.play_arrow_rounded, controller.footer.youtubeUrl),
+                                _buildSocialIcon(Icons.chat_bubble_outline, controller.footer.whatsappUrl),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      // Links
+                      _buildFooterColumn(context, AppLocalizations.of(context)!.organization, [
+                        {"label": AppLocalizations.of(context)!.home, "route": "/"},
+                        {"label": AppLocalizations.of(context)!.aboutDada, "route": "/about_dada"},
+                        {"label": AppLocalizations.of(context)!.mission, "route": "/about_dada"},
+                        {"label": AppLocalizations.of(context)!.contactUs, "route": "/contact_us"},
+                      ], false),
+                      
+                      _buildFooterColumn(context, AppLocalizations.of(context)!.katha, [
+                        {"label": AppLocalizations.of(context)!.upcomingKathas, "route": "/upcoming_ram_kathas"},
+                        {"label": AppLocalizations.of(context)!.fullKathaList, "route": "/katha_list"},
+                        {"label": AppLocalizations.of(context)!.bhagvatKatha, "route": "/about_katha"},
+                        {"label": AppLocalizations.of(context)!.shivmahapuran, "route": "/about_shiv_katha"},
+                      ], false),
+                      
+                      _buildFooterColumn(context, AppLocalizations.of(context)!.resources, [
+                        {"label": AppLocalizations.of(context)!.stotraBhajan, "route": "/stotra"},
+                        {"label": AppLocalizations.of(context)!.photoGallery, "route": "/photo_gallery"},
+                        {"label": AppLocalizations.of(context)!.videoGallery, "route": "/video_gallery"},
+                        {"label": AppLocalizations.of(context)!.adminPanel, "route": "/admin_login"},
+                      ], false),
+                    ],
+                  ),
                 
-                const SizedBox(height: 100),
+                const SizedBox(height: 60),
                 const Divider(color: Colors.white10),
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
                 
-                Row(
+                Flex(
+                  direction: isMobile ? Axis.vertical : Axis.horizontal,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       controller.footer.copyright,
+                      textAlign: isMobile ? TextAlign.center : TextAlign.left,
                       style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13),
                     ),
-                    Row(
+                    if (isMobile) const SizedBox(height: 20),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 30,
                       children: [
                         _buildBottomLink(AppLocalizations.of(context)!.privacyPolicy),
-                        const SizedBox(width: 30),
                         _buildBottomLink(AppLocalizations.of(context)!.termsOfService),
-                        const SizedBox(width: 30),
                         _buildBottomLink(AppLocalizations.of(context)!.cookiePolicy),
                       ],
                     ),
@@ -138,30 +202,29 @@ class UserFooter extends StatelessWidget {
     );
   }
 
-  Widget _buildFooterColumn(BuildContext context, String title, List<Map<String, dynamic>> links) {
-    return Expanded(
-      flex: 2,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(color: Color(0xFFC89A5B), fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 2),
-          ),
-          const SizedBox(height: 35),
-          ...links.map((link) => Padding(
-            padding: const EdgeInsets.only(bottom: 20),
-            child: InkWell(
-              onTap: () => Navigator.pushNamed(context, link['route'] ?? '/'),
-              child: Text(
-                (link['label'] ?? '') as String,
-                style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15, fontWeight: FontWeight.w300),
-              ),
+  Widget _buildFooterColumn(BuildContext context, String title, List<Map<String, dynamic>> links, bool isMobile) {
+    Widget content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(color: Color(0xFFC89A5B), fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 2),
+        ),
+        const SizedBox(height: 35),
+        ...links.map((link) => Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: InkWell(
+            onTap: () => Navigator.pushNamed(context, link['route'] ?? '/'),
+            child: Text(
+              (link['label'] ?? '') as String,
+              style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15, fontWeight: FontWeight.w300),
             ),
-          )),
-        ],
-      ),
+          ),
+        )),
+      ],
     );
+
+    return isMobile ? content : Expanded(flex: 2, child: content);
   }
 
   Widget _buildSocialIcon(IconData icon, String url) {

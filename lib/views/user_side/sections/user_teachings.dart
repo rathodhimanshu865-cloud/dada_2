@@ -11,9 +11,10 @@ class UserTeachings extends StatelessWidget {
     final teachings = controller.homepageData.teachings;
     if (teachings.isEmpty) return const SizedBox.shrink();
 
+    final isMobile = MediaQuery.of(context).size.width < 900;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 120, horizontal: 40),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 120, horizontal: isMobile ? 15 : 40),
       color: Colors.white,
       child: Column(
         children: [
@@ -25,15 +26,15 @@ class UserTeachings extends StatelessWidget {
                 style: TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 "Spiritual Teachings",
-                style: TextStyle(fontSize: 42, fontFamily: 'serif', fontWeight: FontWeight.w900, color: Color(0xFF0F4C5C)),
+                style: TextStyle(fontSize: isMobile ? 30 : 42, fontFamily: 'serif', fontWeight: FontWeight.w900, color: const Color(0xFF0F4C5C)),
               ),
               const SizedBox(height: 30),
               Container(height: 1, width: 80, color: const Color(0xFFC89A5B)),
             ],
           ),
-          const SizedBox(height: 80),
+          SizedBox(height: isMobile ? 40 : 80),
           // Teaching Grid
           Container(
             constraints: const BoxConstraints(maxWidth: 1300),
@@ -46,7 +47,7 @@ class UserTeachings extends StatelessWidget {
                   crossAxisCount: cols,
                   crossAxisSpacing: 30,
                   mainAxisSpacing: 30,
-                  childAspectRatio: 0.8,
+                  childAspectRatio: cols == 1 ? 0.95 : 0.8,
                 ),
                 itemCount: teachings.length,
                 itemBuilder: (context, index) => _buildTeachingCard(context, teachings[index]),

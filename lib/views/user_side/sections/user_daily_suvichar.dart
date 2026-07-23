@@ -36,9 +36,10 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
     final suvichar = widget.controller.dailySuvichar;
     if (suvichar.imageUrl.isEmpty) return const SizedBox.shrink();
 
+    final isMobile = MediaQuery.of(context).size.width < 900;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 120, horizontal: 40),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 120, horizontal: isMobile ? 15 : 40),
       color: const Color(0xFFF3EEE6),
       child: Center(
         child: Container(
@@ -78,7 +79,7 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
               
               // Image
               Padding(
-                padding: const EdgeInsets.all(40),
+                padding: EdgeInsets.all(isMobile ? 15 : 40),
                 child: ClipRRect(
                   child: Image.network(
                     suvichar.imageUrl,

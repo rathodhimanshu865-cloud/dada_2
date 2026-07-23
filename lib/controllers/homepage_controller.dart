@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_storage/firebase_storage.dart';
@@ -23,12 +24,11 @@ class HomePageController extends ChangeNotifier {
   StotraSection stotraSection = StotraSection();
   FooterData footer = FooterData();
   
+  KathaAboutPageData bhagvatKathaPage = KathaAboutPageData(heroBadge: 'ABOUT KATHA &', heroTitle: 'PU. JIGNESH DADA (RADHE RADHE)');
+  KathaAboutPageData deviKathaPage = KathaAboutPageData(heroBadge: 'ABOUT DEVI KATHA &', heroTitle: 'PU. JIGNESH DADA (RADHE RADHE)');
+  KathaAboutPageData shivKathaPage = KathaAboutPageData(heroBadge: 'ABOUT SHIV KATHA &', heroTitle: 'PU. JIGNESH DADA (RADHE RADHE)');
   AboutDadaPageData aboutDadaPage = AboutDadaPageData();
   HomepageData homepageData = HomepageData();
-
-  KathaAboutPageData bhagvatKathaPage = KathaAboutPageData(heroBadge: 'ABOUT KATHA &', heroTitle: 'PU. JIGNESH DADA (RADHE RADHE)');
-  KathaAboutPageData deviKathaPage = KathaAboutPageData(heroBadge: 'DIVINE GRACE', heroTitle: 'SHREEMAD DEVI BHAGVAT');
-  KathaAboutPageData shivKathaPage = KathaAboutPageData(heroBadge: 'ETERNAL WISDOM', heroTitle: 'SHREE SHIVMAHAPURAN');
 
   List<KathaRecord> allKathas = [];
   KathaListPageData kathaListPageData = KathaListPageData();
@@ -50,41 +50,40 @@ class HomePageController extends ChangeNotifier {
     notifyListeners();
     try {
       final doc = await _firestore.collection('cms').doc('homepage').get();
-      if (doc.exists) {
-        final data = doc.data() as Map<String, dynamic>?;
-        if (data != null) {
-          websiteSettings = WebsiteSettings.fromMap(data['websiteSettings'] ?? {});
-          heroSection = HeroSection.fromMap(data['heroSection'] ?? {});
-          
-          upcomingKathas = (data['upcomingKathas'] as List? ?? []).map((e) => UpcomingKatha.fromMap(e)).toList();
-          aboutSection = AboutSection.fromMap(data['aboutSection'] ?? {});
-          dailySuvichar = DailySuvichar.fromMap(data['dailySuvichar'] ?? {});
-          videos = (data['videos'] as List? ?? []).map((e) => VideoItem.fromMap(e)).toList();
-          ramKatha = RamKathaSection.fromMap(data['ramKatha'] ?? {});
-          stotraSection = StotraSection.fromMap(data['stotraSection'] ?? {});
-          footer = FooterData.fromMap(data['footer'] ?? {});
-          
-          aboutDadaPage = AboutDadaPageData.fromMap(data['aboutDadaPage'] ?? {});
-          homepageData = HomepageData.fromMap(data['homepageData'] ?? {});
-          
-          bhagvatKathaPage = KathaAboutPageData.fromMap(data['bhagvatKathaPage'] ?? {});
-          deviKathaPage = KathaAboutPageData.fromMap(data['deviKathaPage'] ?? {});
-          shivKathaPage = KathaAboutPageData.fromMap(data['shivKathaPage'] ?? {});
-
-          allKathas = (data['allKathas'] as List? ?? []).map((e) => KathaRecord.fromMap(e)).toList();
-          kathaListPageData = KathaListPageData.fromMap(data['kathaListPageData'] ?? {});
-          contactPageData = ContactPageData.fromMap(data['contactPageData'] ?? {});
-          videoGalleryData = VideoGalleryPageData.fromMap(data['videoGalleryData'] ?? {});
-          photoGalleryData = PhotoGalleryPageData.fromMap(data['photoGalleryData'] ?? {});
+      if (doc.exists && doc.data() != null) {
+        final data = doc.data()!;
+        if (data['websiteSettings'] != null) websiteSettings = WebsiteSettings.fromMap(data['websiteSettings']);
+        if (data['heroSection'] != null) heroSection = HeroSection.fromMap(data['heroSection']);
+        if (data['upcomingKathas'] != null) {
+          upcomingKathas = (data['upcomingKathas'] as List).map((e) => UpcomingKatha.fromMap(e)).toList();
         }
+        if (data['aboutSection'] != null) aboutSection = AboutSection.fromMap(data['aboutSection']);
+        if (data['dailySuvichar'] != null) dailySuvichar = DailySuvichar.fromMap(data['dailySuvichar']);
+        if (data['videos'] != null) {
+          videos = (data['videos'] as List).map((e) => VideoItem.fromMap(e)).toList();
+        }
+        if (data['ramKatha'] != null) ramKatha = RamKathaSection.fromMap(data['ramKatha']);
+        if (data['stotraSection'] != null) stotraSection = StotraSection.fromMap(data['stotraSection']);
+        if (data['footer'] != null) footer = FooterData.fromMap(data['footer']);
+        if (data['bhagvatKathaPage'] != null) bhagvatKathaPage = KathaAboutPageData.fromMap(data['bhagvatKathaPage']);
+        if (data['deviKathaPage'] != null) deviKathaPage = KathaAboutPageData.fromMap(data['deviKathaPage']);
+        if (data['shivKathaPage'] != null) shivKathaPage = KathaAboutPageData.fromMap(data['shivKathaPage']);
+        if (data['aboutDadaPage'] != null) aboutDadaPage = AboutDadaPageData.fromMap(data['aboutDadaPage']);
+        if (data['homepageData'] != null) homepageData = HomepageData.fromMap(data['homepageData']);
+        if (data['allKathas'] != null) {
+          allKathas = (data['allKathas'] as List).map((e) => KathaRecord.fromMap(e)).toList();
+        }
+        if (data['kathaListPageData'] != null) kathaListPageData = KathaListPageData.fromMap(data['kathaListPageData']);
+        if (data['contactPageData'] != null) contactPageData = ContactPageData.fromMap(data['contactPageData']);
+        if (data['videoGalleryData'] != null) videoGalleryData = VideoGalleryPageData.fromMap(data['videoGalleryData']);
+        if (data['photoGalleryData'] != null) photoGalleryData = PhotoGalleryPageData.fromMap(data['photoGalleryData']);
       }
       
-      final inquirySnapshot = await _firestore.collection('inquiries').orderBy('timestamp', descending: true).get();
-      inquiries = inquirySnapshot.docs.map((doc) => ContactInquiry.fromMap(doc.id, doc.data())).toList();
+      final inqSnap = await _firestore.collection('inquiries').get();
+      inquiries = inqSnap.docs.map((doc) => ContactInquiry.fromMap(doc.id, doc.data())).toList();
     } catch (e) {
       debugPrint("Load error: $e");
     }
-    
     isLoading = false;
     notifyListeners();
   }
@@ -94,7 +93,7 @@ class HomePageController extends ChangeNotifier {
   void removeHeroSlide(int i) { heroSection.slides.removeAt(i); notifyListeners(); }
   void addKatha() { upcomingKathas.add(UpcomingKatha()); notifyListeners(); }
   void removeKatha(int i) { upcomingKathas.removeAt(i); notifyListeners(); }
-  void addVideo() { videos.add(VideoItem()); notifyListeners(); }
+  void addVideo() { videos.add(VideoItem(title: 'New Video', youtubeUrl: '')); notifyListeners(); }
   void removeVideo(int i) { videos.removeAt(i); notifyListeners(); }
   void addTeaching() { homepageData.teachings.add(TeachingCard()); notifyListeners(); }
   void removeTeaching(int i) { homepageData.teachings.removeAt(i); notifyListeners(); }
@@ -118,28 +117,52 @@ class HomePageController extends ChangeNotifier {
     try {
       isUploading = true;
       notifyListeners();
-      final result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: false, withData: kIsWeb);
+      final result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: false, withData: true);
       if (result == null || result.files.isEmpty) { isUploading = false; notifyListeners(); return null; }
       final fileName = result.files.single.name;
       final uploadName = '${DateTime.now().millisecondsSinceEpoch}_$fileName';
       final reference = _storage.ref('uploads/$uploadName');
       UploadTask task;
-      if (kIsWeb) {
-        final bytes = result.files.single.bytes;
-        if (bytes == null) throw Exception("Failed to read file bytes");
-        task = reference.putData(bytes, SettableMetadata(contentType: 'image/${path_helper.extension(fileName).replaceFirst('.', '')}'));
-      } else {
-        final filePath = result.files.single.path;
-        if (filePath == null) throw Exception("Failed to get file path");
+      final fileBytes = result.files.single.bytes;
+      final filePath = result.files.single.path;
+
+      if (kIsWeb || fileBytes != null) {
+        if (fileBytes == null) throw Exception("Failed to read file bytes");
+        final ext = path_helper.extension(fileName).replaceFirst('.', '').toLowerCase();
+        final mimeType = ext == 'png' ? 'image/png' : ext == 'webp' ? 'image/webp' : 'image/jpeg';
+        task = reference.putData(fileBytes, SettableMetadata(contentType: mimeType));
+      } else if (filePath != null) {
         final file = File(filePath);
         task = reference.putFile(file);
+      } else {
+        throw Exception("No file bytes or path available");
       }
       final snapshot = await task;
       final url = await snapshot.ref.getDownloadURL();
       isUploading = false;
       notifyListeners();
       return url;
-    } catch (e) { isUploading = false; notifyListeners(); return null; }
+    } catch (e) {
+      debugPrint("Firebase Storage upload error: $e. Trying base64 fallback...");
+      try {
+        final result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: false, withData: true);
+        if (result != null && result.files.isNotEmpty && result.files.single.bytes != null) {
+          final bytes = result.files.single.bytes!;
+          final ext = path_helper.extension(result.files.single.name).replaceFirst('.', '').toLowerCase();
+          final mimeType = ext == 'png' ? 'image/png' : ext == 'webp' ? 'image/webp' : 'image/jpeg';
+          final base64Str = base64Encode(bytes);
+          final dataUrl = 'data:$mimeType;base64,$base64Str';
+          isUploading = false;
+          notifyListeners();
+          return dataUrl;
+        }
+      } catch (fallbackErr) {
+        debugPrint("Base64 Fallback error: $fallbackErr");
+      }
+      isUploading = false;
+      notifyListeners();
+      return null;
+    }
   }
 
   void addBiographyPhase() { aboutDadaPage.phases.add(BiographyPhase()); notifyListeners(); }

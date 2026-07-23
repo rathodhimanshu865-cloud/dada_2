@@ -50,9 +50,38 @@ class UserAbout extends StatelessWidget {
               imageWidget,
               const SizedBox(height: 40),
             ],
-            Expanded(
-              flex: 2,
-              child: Column(
+            if (isDesktop)
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.aboutDada,
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: primaryTeal, fontFamily: 'serif'),
+                    ),
+                    const SizedBox(height: 25),
+                    Text(
+                      about.localizedDescription(lang).isNotEmpty
+                        ? about.localizedDescription(lang)
+                        : 'Shri Jigneshdada, affectionately known as "Radhe Radhe", is one of the most respected and influential contemporary Bhagwatcharyas. He is widely admired as a torchbearer of Sanatan Dharma...',
+                      style: const TextStyle(fontSize: 16, height: 1.6, color: Colors.black87),
+                    ),
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pushNamed(context, '/about_katha'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryTeal,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                      ),
+                      child: Text(AppLocalizations.of(context)!.readMore),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -78,7 +107,6 @@ class UserAbout extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
           ],
         );
       }),

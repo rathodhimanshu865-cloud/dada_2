@@ -128,6 +128,7 @@ class _ContactPageState extends State<ContactPage> {
     const primaryTeal = Color(0xFF0F4C5C);
     const backgroundBeige = Color(0xFFF9F3EA);
     final controller = Provider.of<HomePageController>(context);
+    final isMobile = MediaQuery.of(context).size.width < 900;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -193,19 +194,19 @@ class _ContactPageState extends State<ContactPage> {
               ],
             ),
 
-            const SizedBox(height: 60),
+            SizedBox(height: isMobile ? 30 : 60),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 100),
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
               child: Column(
                 children: [
                   Text(
                     AppLocalizations.of(context)!.siteQueryDisclaimer,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.grey, fontSize: 16),
+                    style: TextStyle(color: Colors.grey, fontSize: isMobile ? 14 : 16),
                   ),
-                  const SizedBox(height: 60),
-                  _buildForm(controller, primaryTeal),
+                  SizedBox(height: isMobile ? 30 : 60),
+                  _buildForm(controller, primaryTeal, isMobile),
                 ],
               ),
             ),
@@ -218,12 +219,12 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  Widget _buildForm(HomePageController controller, Color primaryTeal) {
+  Widget _buildForm(HomePageController controller, Color primaryTeal, bool isMobile) {
     return Form(
       key: _formKey,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1000),
-        padding: const EdgeInsets.all(50),
+        padding: EdgeInsets.all(isMobile ? 20 : 50),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -238,42 +239,53 @@ class _ContactPageState extends State<ContactPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: _formField(AppLocalizations.of(context)!.nameLabel, _nameController, primaryTeal),
-                ),
-                const SizedBox(width: 40),
-                Expanded(
-                  child: _formField(
-                    AppLocalizations.of(context)!.emailLabel,
-                    _emailController,
-                    primaryTeal,
+            if (isMobile) ...[
+              _formField(AppLocalizations.of(context)!.nameLabel, _nameController, primaryTeal),
+              const SizedBox(height: 20),
+              _formField(AppLocalizations.of(context)!.emailLabel, _emailController, primaryTeal),
+            ] else ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: _formField(AppLocalizations.of(context)!.nameLabel, _nameController, primaryTeal),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 40),
-            Row(
-              children: [
-                Expanded(
-                  child: _formField(
-                    AppLocalizations.of(context)!.telMobileLabel,
-                    _mobileController,
-                    primaryTeal,
-                    prefix: '🇮🇳 +91',
+                  const SizedBox(width: 40),
+                  Expanded(
+                    child: _formField(
+                      AppLocalizations.of(context)!.emailLabel,
+                      _emailController,
+                      primaryTeal,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 40),
-                Expanded(
-                  child: _formField(
-                    AppLocalizations.of(context)!.countryLabel,
-                    _countryController,
-                    primaryTeal,
+                ],
+              ),
+            ],
+            SizedBox(height: isMobile ? 20 : 40),
+            if (isMobile) ...[
+              _formField(AppLocalizations.of(context)!.telMobileLabel, _mobileController, primaryTeal),
+              const SizedBox(height: 20),
+              _formField(AppLocalizations.of(context)!.countryLabel, _countryController, primaryTeal),
+            ] else ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: _formField(
+                      AppLocalizations.of(context)!.telMobileLabel,
+                      _mobileController,
+                      primaryTeal,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(width: 40),
+                  Expanded(
+                    child: _formField(
+                      AppLocalizations.of(context)!.countryLabel,
+                      _countryController,
+                      primaryTeal,
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 40),
             _formField(
               AppLocalizations.of(context)!.messageLabel,

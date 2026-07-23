@@ -112,6 +112,7 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
     final bool isHomePage = currentRoute == '/';
     final Color navTextColor = (isSticky || !isHomePage) ? const Color(0xFF07404C) : const Color(0xFFFFF8F0);
     final Color activeNavColor = isSticky ? primaryTeal : templeGold;
+    final bool isMobile = MediaQuery.of(context).size.width < 1100;
 
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 500),
@@ -151,9 +152,16 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
                       children: [
                         _buildBranding(logoSize, isSticky, navTextColor),
                         const Spacer(),
-                        _buildNavigation(l10n, currentRoute, isSticky, navTextColor, activeNavColor),
-                        const Spacer(),
-                        _buildActionControls(l10n, isSticky, settings, navTextColor),
+                        if (!isMobile) ...[
+                          _buildNavigation(l10n, currentRoute, isSticky, navTextColor, activeNavColor),
+                          const Spacer(),
+                          _buildActionControls(l10n, isSticky, settings, navTextColor),
+                        ] else ...[
+                          IconButton(
+                            icon: Icon(Icons.menu, color: navTextColor, size: 30),
+                            onPressed: () => _showMobileMenu(context, l10n, currentRoute, activeNavColor),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -166,24 +174,82 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildBranding(double logoSize, bool isSticky, Color textColor) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildLogo(logoSize, isSticky),
-        const SizedBox(width: 15),
-        Text(
-          widget.controller.websiteSettings.name,
-          style: AppTypography.headingStyle(
-            context,
-            fontWeight: FontWeight.w700,
-            color: textColor,
-            letterSpacing: -0.5,
-            fontSize: AppTypography.getResponsiveSize(context, desktop: 32, tablet: 28, mobile: 24),
+  void _showMobileMenu(BuildContext context, AppLocalizations l10n, String currentRoute, Color activeColor) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: warmWhite,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(icon: const Icon(Icons.close, size: 30), onPressed: () => Navigator.pop(context)),
+              ),
+              ListTile(title: Text(l10n.home, style: TextStyle(color: currentRoute == '/' ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/'); }),
+              ListTile(title: Text(l10n.aboutDada, style: TextStyle(color: currentRoute == '/about_dada' ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/about_dada'); }),
+              ExpansionTile(
+                title: Text(l10n.katha, style: TextStyle(color: currentRoute.contains('katha') ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)),
+                children: [
+                  ListTile(title: Text(l10n.shrimadBhagvatKatha), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/about_katha'); }),
+                  ListTile(title: Text(l10n.deviBhagvatKatha), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/about_devi_katha'); }),
+                  ListTile(title: Text(l10n.shivmahapuranKatha), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/about_shiv_katha'); }),
+                  ListTile(title: Text(l10n.fullKathaList), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/katha_list'); }),
+                  ListTile(title: Text(l10n.upcomingKathas), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/upcoming_ram_kathas'); }),
+                ],
+              ),
+              ListTile(title: Text(l10n.stotraBhajan, style: TextStyle(color: currentRoute == '/stotra' ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/stotra'); }),
+              ExpansionTile(
+                title: Text(l10n.gallery, style: TextStyle(color: currentRoute.contains('gallery') || currentRoute == '/news' ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)),
+                children: [
+                  ListTile(title: Text(l10n.photoGallery), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/photo_gallery'); }),
+                  ListTile(title: Text(l10n.videoGallery), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/video_gallery'); }),
+                  ListTile(title: Text(l10n.newsGallery), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/news'); }),
+                ],
+              ),
+              ListTile(title: Text(l10n.contact, style: TextStyle(color: currentRoute == '/contact_us' ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/contact_us'); }),
+              const Divider(height: 40),
+              // Language Selector
+              const Text("Select Language", style: TextStyle(fontWeight: FontWeight.bold)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _mobileLangButton('EN', 'English'),
+                  _mobileLangButton('HI', 'Hindi'),
+                  _mobileLangButton('GU', 'Gujarati'),
+                ],
+              ),
+              const SizedBox(height: 20),
+            ],
           ),
         ),
-      ],
+      ),
     );
+  }
+
+  Widget _mobileLangButton(String shortCode, String fullLanguage) {
+    bool isSelected = selectedLanguage == fullLanguage;
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected ? templeGold : Colors.grey[200],
+        foregroundColor: isSelected ? Colors.white : Colors.black,
+      ),
+      onPressed: () {
+        setState(() => selectedLanguage = fullLanguage);
+        final langCode = fullLanguage == 'English' ? 'en' : fullLanguage == 'Hindi' ? 'hi' : 'gu';
+        Provider.of<LanguageController>(context, listen: false).changeLanguage(Locale(langCode));
+        Navigator.pop(context);
+      },
+      child: Text(shortCode),
+    );
+  }
+
+  Widget _buildBranding(double logoSize, bool isSticky, Color textColor) {
+    return _buildLogo(logoSize, isSticky);
   }
 
   Widget _buildLogo(double size, bool isSticky) {
