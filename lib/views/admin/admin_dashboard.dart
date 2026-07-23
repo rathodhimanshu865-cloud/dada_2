@@ -160,7 +160,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             onPressed: controller.isLoading ? null : () async {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('🌐 Translating to Hindi & Gujarati... please wait'),
+                  content: Text('🌐 Translating text to Hindi & Gujarati... please wait'),
                   duration: Duration(seconds: 60),
                   backgroundColor: Colors.teal,
                 ),
@@ -169,14 +169,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
               if (mounted) {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('✅ Translated & Published successfully!'), backgroundColor: Colors.green),
+                  const SnackBar(content: Text('✅ Text translated & published successfully!'), backgroundColor: Colors.green),
                 );
               }
             },
             icon: controller.isLoading
                 ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                 : const Icon(Icons.translate),
-            label: const Text('TRANSLATE & PUBLISH'),
+            label: const Text('TRANSLATE & PUBLISH TEXT'),
           ),
           const SizedBox(width: 12),
           ElevatedButton.icon(
@@ -184,21 +184,21 @@ class _AdminDashboardState extends State<AdminDashboard> {
             onPressed: controller.isLoading ? null : () async {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('🌐 Translating & Publishing all changes to Database... please wait'),
-                  duration: Duration(seconds: 60),
-                  backgroundColor: Colors.teal,
+                  content: Text('🚀 Publishing media and changes... please wait'),
+                  duration: Duration(seconds: 10),
+                  backgroundColor: Colors.black,
                 ),
               );
-              await controller.translateAndPublish();
+              await controller.publish(); // Only publish, skip heavy translation
               if (mounted) {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('✅ All changes translated & published to Database successfully!'), backgroundColor: Colors.green),
+                  const SnackBar(content: Text('✅ Media/Changes published successfully!'), backgroundColor: Colors.green),
                 );
               }
             },
             icon: controller.isLoading ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Icon(Icons.publish),
-            label: const Text('PUBLISH ALL CHANGES'),
+            label: const Text('PUBLISH MEDIA (FAST)'),
           ),
           const SizedBox(width: 20),
         ],

@@ -163,15 +163,16 @@ class AboutShivPage extends StatelessWidget {
                     _buildHighlightCard(data.localizedHighlight3Title(lang), Icons.favorite_border_rounded, data.localizedHighlight3Desc(lang), accentBrown),
                   ],
                 )
-              : Row(
-                  children: [
-                    _buildHighlightCard(data.localizedHighlight1Title(lang), Icons.stars_rounded, data.localizedHighlight1Desc(lang), accentBrown),
-                    const SizedBox(width: 40),
-                    _buildHighlightCard(data.localizedHighlight2Title(lang), Icons.auto_awesome, data.localizedHighlight2Desc(lang), accentBrown),
-                    const SizedBox(width: 40),
-                    _buildHighlightCard(data.localizedHighlight3Title(lang), Icons.favorite_border_rounded, data.localizedHighlight3Desc(lang), accentBrown),
-                  ],
-                ),
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: _buildHighlightCard(data.localizedHighlight1Title(lang), Icons.stars_rounded, data.localizedHighlight1Desc(lang), accentBrown)),
+                      const SizedBox(width: 40),
+                      Expanded(child: _buildHighlightCard(data.localizedHighlight2Title(lang), Icons.auto_awesome, data.localizedHighlight2Desc(lang), accentBrown)),
+                      const SizedBox(width: 40),
+                      Expanded(child: _buildHighlightCard(data.localizedHighlight3Title(lang), Icons.favorite_border_rounded, data.localizedHighlight3Desc(lang), accentBrown)),
+                    ],
+                  ),
           ),
 
           // 5. CTA BANNER
