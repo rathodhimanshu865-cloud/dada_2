@@ -61,7 +61,7 @@ class UserPhotoGallery extends StatelessWidget {
                       child: Column(
                         children: displayPhotos.asMap().entries
                           .where((e) => e.key % cols == colIdx)
-                          .map((e) => _buildGalleryItem(context, e.value, colIdx, e.key))
+                          .map<Widget>((e) => _buildGalleryItem(context, e.value, colIdx, e.key))
                           .toList(),
                       ),
                     ),

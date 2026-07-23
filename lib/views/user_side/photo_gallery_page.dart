@@ -118,7 +118,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
                     child: Column(
                       children: section.photoUrls.asMap().entries
                           .where((e) => e.key % cols == colIdx)
-                          .map((e) => _buildPhotoCard(context, e.value, isMobile))
+                          .map<Widget>((e) => _buildPhotoCard(context, e.value, isMobile))
                           .toList(),
                     ),
                   ),
