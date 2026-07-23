@@ -301,6 +301,9 @@ class HomePageController extends ChangeNotifier {
         if (sec.heading.isNotEmpty) futures.add(TranslationService.translateToAll(sec.heading).then((res) { sec.headingHi = res['hi'] ?? ''; sec.headingGu = res['gu'] ?? ''; }));
       }
       
+      // ── Contact Page ─────────────────────────────────────────────────────────
+      if (contactPageData.address.isNotEmpty) futures.add(TranslationService.translateToAll(contactPageData.address).then((res) { contactPageData.addressHi = res['hi'] ?? ''; contactPageData.addressGu = res['gu'] ?? ''; }));
+      
       for (final cat in videoGalleryData.categories) {
         if (cat.categoryTitle.isNotEmpty) futures.add(TranslationService.translateToAll(cat.categoryTitle).then((res) { cat.categoryTitleHi = res['hi'] ?? ''; cat.categoryTitleGu = res['gu'] ?? ''; }));
         for (final v in cat.videos) {

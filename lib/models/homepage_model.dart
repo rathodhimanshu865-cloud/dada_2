@@ -965,10 +965,34 @@ class KathaListPageData {
 
 class ContactPageData {
   String bannerImageUrl;
-  ContactPageData({this.bannerImageUrl = ''});
-  Map<String, dynamic> toMap() => {'bannerImageUrl': bannerImageUrl};
-  factory ContactPageData.fromMap(Map<String, dynamic> map) =>
-      ContactPageData(bannerImageUrl: map['bannerImageUrl'] ?? '');
+  String email;
+  String phone;
+  String address;
+  
+  String addressHi;
+  String addressGu;
+
+  ContactPageData({this.bannerImageUrl = '', this.email = '', this.phone = '', this.address = '', this.addressHi = '', this.addressGu = ''});
+  
+  String localizedAddress(String lang) => lang == 'hi' && addressHi.isNotEmpty ? addressHi : lang == 'gu' && addressGu.isNotEmpty ? addressGu : address;
+
+  Map<String, dynamic> toMap() => {
+    'bannerImageUrl': bannerImageUrl,
+    'email': email,
+    'phone': phone,
+    'address': address,
+    'addressHi': addressHi,
+    'addressGu': addressGu,
+  };
+  
+  factory ContactPageData.fromMap(Map<String, dynamic> map) => ContactPageData(
+    bannerImageUrl: map['bannerImageUrl'] ?? '',
+    email: map['email'] ?? '',
+    phone: map['phone'] ?? '',
+    address: map['address'] ?? '',
+    addressHi: map['addressHi'] ?? '',
+    addressGu: map['addressGu'] ?? '',
+  );
 }
 
 class VideoCategory {
