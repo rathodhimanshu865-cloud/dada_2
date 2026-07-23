@@ -18,6 +18,7 @@ class UserPhotoGallery extends StatelessWidget {
     }
 
     if (allPhotos.isEmpty) return const SizedBox.shrink();
+    final displayPhotos = allPhotos.take(4).toList();
 
     return Container(
       width: double.infinity,
@@ -58,10 +59,10 @@ class UserPhotoGallery extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.only(right: colIdx < cols - 1 ? 20 : 0),
                       child: Column(
-                        children: allPhotos.asMap().entries
-                            .where((e) => e.key % cols == colIdx)
-                            .map((e) => _buildGalleryItem(context, e.value, colIdx, e.key))
-                            .toList(),
+                        children: displayPhotos.asMap().entries
+                          .where((e) => e.key % cols == colIdx)
+                          .map((e) => _buildGalleryItem(context, e.value, colIdx, e.key))
+                          .toList(),
                       ),
                     ),
                   );

@@ -108,13 +108,22 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
           child: LayoutBuilder(builder: (context, constraints) {
-            int crossAxisCount = constraints.maxWidth > 1200 ? 4 : (constraints.maxWidth > 800 ? 3 : (constraints.maxWidth > 500 ? 2 : 1));
-            return GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: crossAxisCount, crossAxisSpacing: isMobile ? 15 : 30, mainAxisSpacing: isMobile ? 15 : 30, childAspectRatio: 1.2),
-              itemCount: section.photoUrls.length,
-              itemBuilder: (context, index) => _buildPhotoCard(context, section.photoUrls[index]),
+            int cols = constraints.maxWidth > 1200 ? 4 : (constraints.maxWidth > 800 ? 3 : (constraints.maxWidth > 500 ? 2 : 1));
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: List.generate(cols, (colIdx) {
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: colIdx < cols - 1 ? (isMobile ? 15 : 30) : 0),
+                    child: Column(
+                      children: section.photoUrls.asMap().entries
+                          .where((e) => e.key % cols == colIdx)
+                          .map((e) => _buildPhotoCard(context, e.value, isMobile))
+                          .toList(),
+                    ),
+                  ),
+                );
+              }),
             );
           }),
         ),
@@ -123,14 +132,25 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
     );
   }
 
-  Widget _buildPhotoCard(BuildContext context, String url) {
+  Widget _buildPhotoCard(BuildContext context, String url, bool isMobile) {
     return Container(
-      decoration: BoxDecoration(color: Colors.transparent, borderRadius: BorderRadius.circular(8)),
+      margin: EdgeInsets.only(bottom: isMobile ? 15 : 30),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10)),
+        ],
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: InkWell(
+        child: GestureDetector(
           onTap: () => _showFullScreenImage(context, url),
-          child: Image.network(url, fit: BoxFit.contain, errorBuilder: (c, e, s) => Container(color: Colors.grey[100], child: const Icon(Icons.broken_image_outlined, color: Colors.grey))),
+          child: Image.network(
+            url,
+            fit: BoxFit.contain,
+            errorBuilder: (c, e, s) => Container(color: Colors.grey[100], child: const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 50)),
+          ),
         ),
       ),
     );
