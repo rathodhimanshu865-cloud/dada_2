@@ -32,7 +32,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'Latest Videos',
     'Latest News',
     'Full Katha List',
-    'Galleries (Photos/Videos)',
+    'Photo Gallery',
+    'Video Gallery',
     'Enquiries',
     'Footer Settings'
   ];
@@ -248,9 +249,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 6: return _latestVideosView(controller);
       case 7: return _newsView(controller);
       case 8: return _kathaListView(controller);
-      case 9: return _galleriesView(controller);
-      case 10: return _inquiryView(controller);
-      case 11: return _footerSettingsView(controller);
+      case 9: return _photoGalleryView(controller);
+      case 10: return _videoGalleryView(controller);
+      case 11: return _inquiryView(controller);
+      case 12: return _footerSettingsView(controller);
       default: return const Center(child: Text('Section not yet implemented'));
     }
   }
@@ -794,17 +796,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _galleriesView(HomePageController controller) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
-      children: [
-        _sectionHeader('GALLERY MANAGEMENT'),
-        ElevatedButton(onPressed: () => setState(() => currentMenuIndex = 9), child: const Text('Manage Photo Gallery')),
-        const SizedBox(height: 20),
-        ElevatedButton(onPressed: () => setState(() => currentMenuIndex = 10), child: const Text('Manage Video Gallery')),
-      ],
-    );
-  }
 
   Widget _inquiryView(HomePageController controller) {
     return ListView(
