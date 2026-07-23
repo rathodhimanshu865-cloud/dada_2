@@ -129,6 +129,7 @@ class VideoGalleryPage extends StatelessWidget {
         const SizedBox(height: 25),
         Text(video.localizedTitle(lang).toUpperCase(), maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF444444), height: 1.4, letterSpacing: 0.5)),
       ],
-    );
-  }
+    ),
+  );
+}
 }
