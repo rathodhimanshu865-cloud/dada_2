@@ -25,7 +25,7 @@ class NewsPage extends StatelessWidget {
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(40),
+        insetPadding: const EdgeInsets.all(20),
         child: Stack(
           alignment: Alignment.topRight,
           children: [
@@ -59,67 +59,79 @@ class NewsPage extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
+    final isMobile = MediaQuery.of(context).size.width < 900;
+
     return UserPageLayout(
       controller: controller,
       child: Column(
         children: [
           const SizedBox(height: 120),
-          
+
           // Hero Title Section
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 80),
-            color: backgroundBeige.withOpacity(0.5),
+            padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80),
+            color: backgroundBeige.withValues(alpha: 0.5),
             child: Column(
               children: [
                 Text(
                   AppLocalizations.of(context)!.latestNews,
                   style: AppTypography.headingStyle(
-                    context, 
-                    fontSize: AppTypography.getResponsiveSize(context, desktop: 52, tablet: 44, mobile: 34),
+                    context,
+                    fontSize: AppTypography.getResponsiveSize(
+                        context, desktop: 52, tablet: 44, mobile: 34),
                     fontWeight: FontWeight.bold,
                     color: primaryTeal,
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text(AppLocalizations.of(context)!.homeNews, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 16, letterSpacing: 0.5)),
+                Text(
+                  AppLocalizations.of(context)!.homeNews,
+                  style: AppTypography.bodyStyle(
+                    context,
+                    color: primaryTeal.withValues(alpha: 0.6),
+                    fontSize: isMobile ? 14 : 16,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ],
             ),
           ),
 
-          const SizedBox(height: 80),
+          SizedBox(height: isMobile ? 40 : 80),
 
-          // News Grid
+          // News Grid — responsive padding
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100),
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
             child: LayoutBuilder(builder: (context, constraints) {
-              int crossAxisCount = constraints.maxWidth > 1200 ? 3 : (constraints.maxWidth > 800 ? 2 : 1);
-              
+              int crossAxisCount = constraints.maxWidth > 1200
+                  ? 3
+                  : (constraints.maxWidth > 700 ? 2 : 1);
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: 30,
-                  mainAxisSpacing: 50,
-                  childAspectRatio: 0.85,
+                  crossAxisSpacing: isMobile ? 15 : 30,
+                  mainAxisSpacing: isMobile ? 30 : 50,
+                  childAspectRatio: isMobile ? 0.9 : 0.85,
                 ),
                 itemCount: newsList.length,
-                itemBuilder: (context, index) {
-                  return _buildNewsCard(context, newsList[index], accentBrown, primaryTeal, lang);
-                },
+                itemBuilder: (context, index) =>
+                    _buildNewsCard(context, newsList[index], accentBrown, primaryTeal, lang),
               );
             }),
           ),
 
-          const SizedBox(height: 120),
+          SizedBox(height: isMobile ? 60 : 120),
           UserFooter(controller: controller),
         ],
       ),
     );
   }
 
-  Widget _buildNewsCard(BuildContext context, NewsItem item, Color accentGold, Color primaryTeal, String lang) {
+  Widget _buildNewsCard(BuildContext context, NewsItem item, Color accentGold,
+      Color primaryTeal, String lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -132,42 +144,71 @@ class NewsPage extends StatelessWidget {
                 color: const Color(0xFFF3EEE6),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 20, offset: const Offset(0, 10)),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
                 ],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: item.image.isNotEmpty 
-                  ? Image.network(item.image, fit: BoxFit.cover)
-                  : const Icon(Icons.newspaper_rounded, size: 50, color: Colors.white),
+                child: item.image.isNotEmpty
+                    ? Image.network(item.image, fit: BoxFit.cover)
+                    : const Icon(Icons.newspaper_rounded, size: 50, color: Colors.white),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 25),
+        const SizedBox(height: 20),
         Text(
           item.localizedCategory(lang).toUpperCase(),
-          style: TextStyle(color: accentGold, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 2),
+          style: AppTypography.bodyStyle(
+            context,
+            color: accentGold,
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2,
+          ),
         ),
-        const SizedBox(height: 15),
+        const SizedBox(height: 12),
         Text(
           item.localizedTitle(lang),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A), fontFamily: 'serif', height: 1.3),
+          style: AppTypography.headingStyle(
+            context,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF1A1A1A),
+            height: 1.3,
+          ),
         ),
-        const SizedBox(height: 15),
+        const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               item.date,
-              style: const TextStyle(color: Color(0xFF6D6D6D), fontSize: 14, fontWeight: FontWeight.w300),
+              style: AppTypography.bodyStyle(
+                context,
+                color: const Color(0xFF6D6D6D),
+                fontSize: 13,
+                fontWeight: FontWeight.w300,
+              ),
             ),
             if (item.url.isNotEmpty)
               TextButton(
                 onPressed: () => _launchUrl(item.url),
-                child: Text(AppLocalizations.of(context)!.readMore, style: TextStyle(color: primaryTeal, fontWeight: FontWeight.bold, fontSize: 12)),
+                child: Text(
+                  AppLocalizations.of(context)!.readMore,
+                  style: AppTypography.bodyStyle(
+                    context,
+                    color: primaryTeal,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
               ),
           ],
         ),

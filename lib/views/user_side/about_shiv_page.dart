@@ -4,6 +4,7 @@ import '../../controllers/homepage_controller.dart';
 import '../../controllers/language_controller.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
+import '../../utils/app_typography.dart';
 
 class AboutShivPage extends StatelessWidget {
   const AboutShivPage({super.key});
@@ -53,7 +54,13 @@ class AboutShivPage extends StatelessWidget {
                   const SizedBox(height: 25),
                   Text(
                     data.localizedHeroTitle(lang),
-                    style: TextStyle(fontSize: isMobile ? 30 : 48, fontFamily: 'serif', fontWeight: FontWeight.bold, color: primaryTeal, height: 1.2, letterSpacing: -0.5),
+                    style: AppTypography.headingStyle(
+                      context,
+                      fontSize: isMobile ? 30 : 48,
+                      fontWeight: FontWeight.bold,
+                      color: primaryTeal,
+                      height: 1.2,
+                    ),
                   ),
                   const SizedBox(height: 40),
                   Text(

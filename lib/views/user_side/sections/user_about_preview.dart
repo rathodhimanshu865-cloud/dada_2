@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../utils/app_typography.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../utils/localization_helper.dart';
@@ -31,7 +32,13 @@ class UserAboutPreview extends StatelessWidget {
                 const SizedBox(height: 25),
                 Text(
                   about.localizedTitle(lang),
-                  style: TextStyle(fontSize: isMobile ? 32 : 48, fontFamily: 'serif', fontWeight: FontWeight.w900, color: const Color(0xFF0F4C5C), height: 1.1),
+                  style: AppTypography.headingStyle(
+                    context,
+                    fontSize: isMobile ? 32 : 48,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF0F4C5C),
+                    height: 1.1,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Text(

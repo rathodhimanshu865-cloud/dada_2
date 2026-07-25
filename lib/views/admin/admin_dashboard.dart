@@ -151,59 +151,150 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('ADMIN - ${menuItems[currentMenuIndex].toUpperCase()}'),
+        title: LayoutBuilder(
+          builder: (context, constraints) {
+            final isNarrow = MediaQuery.of(context).size.width < 700;
+            return Text(
+              isNarrow
+                  ? menuItems[currentMenuIndex]
+                  : 'ADMIN — ${menuItems[currentMenuIndex].toUpperCase()}',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              overflow: TextOverflow.ellipsis,
+            );
+          },
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: Builder(builder: (context) => IconButton(icon: const Icon(Icons.menu, color: Colors.black), onPressed: () => Scaffold.of(context).openDrawer())),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.black),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
         actions: [
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.teal[800], foregroundColor: Colors.white),
-            onPressed: controller.isLoading ? null : () async {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('🌐 Translating text to Hindi & Gujarati... please wait'),
-                  duration: Duration(seconds: 60),
-                  backgroundColor: Colors.teal,
-                ),
+          Builder(builder: (context) {
+            final isNarrow = MediaQuery.of(context).size.width < 900;
+            if (isNarrow) {
+              // On mobile: collapse actions into a popup menu
+              return PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, color: Colors.black),
+                onSelected: (value) async {
+                  if (value == 'translate') {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('🌐 Translating... please wait'),
+                        duration: Duration(seconds: 60),
+                        backgroundColor: Colors.teal,
+                      ),
+                    );
+                    await controller.translateAndPublish();
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('✅ Translated & published!'), backgroundColor: Colors.green),
+                      );
+                    }
+                  } else if (value == 'publish') {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('🚀 Publishing... please wait'),
+                        duration: Duration(seconds: 10),
+                        backgroundColor: Colors.black,
+                      ),
+                    );
+                    await controller.publish();
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('✅ Published!'), backgroundColor: Colors.green),
+                      );
+                    }
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'translate',
+                    child: Row(children: [
+                      Icon(Icons.translate, color: Colors.teal),
+                      SizedBox(width: 12),
+                      Text('Translate & Publish'),
+                    ]),
+                  ),
+                  const PopupMenuItem(
+                    value: 'publish',
+                    child: Row(children: [
+                      Icon(Icons.publish, color: Colors.black),
+                      SizedBox(width: 12),
+                      Text('Publish Media (Fast)'),
+                    ]),
+                  ),
+                ],
               );
-              await controller.translateAndPublish();
-              if (mounted) {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('✅ Text translated & published successfully!'), backgroundColor: Colors.green),
-                );
-              }
-            },
-            icon: controller.isLoading
-                ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : const Icon(Icons.translate),
-            label: const Text('TRANSLATE & PUBLISH TEXT'),
-          ),
-          const SizedBox(width: 12),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white),
-            onPressed: controller.isLoading ? null : () async {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('🚀 Publishing media and changes... please wait'),
-                  duration: Duration(seconds: 10),
-                  backgroundColor: Colors.black,
+            }
+            // Desktop: full buttons
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal[800],
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: controller.isLoading ? null : () async {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('🌐 Translating text to Hindi & Gujarati... please wait'),
+                        duration: Duration(seconds: 60),
+                        backgroundColor: Colors.teal,
+                      ),
+                    );
+                    await controller.translateAndPublish();
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('✅ Text translated & published successfully!'), backgroundColor: Colors.green),
+                      );
+                    }
+                  },
+                  icon: controller.isLoading
+                      ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : const Icon(Icons.translate),
+                  label: const Text('TRANSLATE & PUBLISH TEXT'),
                 ),
-              );
-              await controller.publish(); // Only publish, skip heavy translation
-              if (mounted) {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('✅ Media/Changes published successfully!'), backgroundColor: Colors.green),
-                );
-              }
-            },
-            icon: controller.isLoading ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Icon(Icons.publish),
-            label: const Text('PUBLISH MEDIA (FAST)'),
-          ),
-          const SizedBox(width: 20),
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: controller.isLoading ? null : () async {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('🚀 Publishing media and changes... please wait'),
+                        duration: Duration(seconds: 10),
+                        backgroundColor: Colors.black,
+                      ),
+                    );
+                    await controller.publish();
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('✅ Media/Changes published successfully!'), backgroundColor: Colors.green),
+                      );
+                    }
+                  },
+                  icon: controller.isLoading
+                      ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : const Icon(Icons.publish),
+                  label: const Text('PUBLISH MEDIA (FAST)'),
+                ),
+                const SizedBox(width: 20),
+              ],
+            );
+          }),
         ],
       ),
+
       drawer: Drawer(
         child: Column(
           children: [

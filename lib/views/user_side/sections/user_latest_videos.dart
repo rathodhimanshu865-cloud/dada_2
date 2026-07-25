@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../utils/localization_helper.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../controllers/language_controller.dart';
+import '../../../utils/app_typography.dart';
 
 class UserLatestVideos extends StatelessWidget {
   final HomePageController controller;
@@ -20,10 +20,14 @@ class UserLatestVideos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (controller.videos.isEmpty) return const SizedBox.shrink();
+    final isMobile = MediaQuery.of(context).size.width < 900;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 40),
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 60 : 100,
+        horizontal: isMobile ? 20 : 40,
+      ),
       color: Colors.white,
       child: Column(
         children: [
@@ -32,51 +36,76 @@ class UserLatestVideos extends StatelessWidget {
             children: [
               Text(
                 AppLocalizations.of(context)!.watchAndReflect,
-                style: const TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
+                style: AppTypography.bodyStyle(
+                  context,
+                  color: const Color(0xFFC89A5B),
+                  letterSpacing: 4,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
               ),
               const SizedBox(height: 20),
               Text(
                 AppLocalizations.of(context)!.latestVideos,
-                style: const TextStyle(fontSize: 42, fontFamily: 'serif', fontWeight: FontWeight.w900, color: Color(0xFF0F4C5C)),
+                style: AppTypography.headingStyle(
+                  context,
+                  fontSize: isMobile ? 32 : 42,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFF0F4C5C),
+                ),
               ),
               const SizedBox(height: 30),
               Container(height: 1, width: 80, color: const Color(0xFFC89A5B)),
             ],
           ),
-          
-          const SizedBox(height: 80),
 
-          // Refined Video Grid
+          SizedBox(height: isMobile ? 50 : 80),
+
+          // Responsive Video Grid
           Container(
             constraints: const BoxConstraints(maxWidth: 1200),
             child: LayoutBuilder(builder: (context, constraints) {
-              int crossAxisCount = constraints.maxWidth > 1000 ? 3 : (constraints.maxWidth > 700 ? 2 : 1);
+              int crossAxisCount = constraints.maxWidth > 1000
+                  ? 3
+                  : (constraints.maxWidth > 700 ? 2 : 1);
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: 30,
-                  mainAxisSpacing: 40,
-                  childAspectRatio: 1.2,
+                  crossAxisSpacing: isMobile ? 15 : 30,
+                  mainAxisSpacing: isMobile ? 30 : 40,
+                  childAspectRatio: isMobile ? 1.4 : 1.2,
                 ),
                 itemCount: controller.videos.take(6).length,
-                itemBuilder: (context, index) => _buildVideoCard(context, controller.videos[index]),
+                itemBuilder: (context, index) =>
+                    _buildVideoCard(context, controller.videos[index]),
               );
             }),
           ),
-          
-          const SizedBox(height: 80),
-          
+
+          SizedBox(height: isMobile ? 50 : 80),
+
           ElevatedButton(
             onPressed: () => Navigator.pushNamed(context, '/video_gallery'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF0F4C5C),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 25),
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 30 : 50,
+                vertical: isMobile ? 18 : 25,
+              ),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
-            child: Text(AppLocalizations.of(context)!.viewAllVideos, style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+            child: Text(
+              AppLocalizations.of(context)!.viewAllVideos,
+              style: AppTypography.bodyStyle(
+                context,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
+              ),
+            ),
           ),
         ],
       ),
@@ -95,7 +124,11 @@ class UserLatestVideos extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10)),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
                 ],
               ),
               child: ClipRRect(
@@ -109,11 +142,11 @@ class UserLatestVideos extends StatelessWidget {
                       height: double.infinity,
                       fit: BoxFit.cover,
                     ),
-                    // Glassy play button
                     Container(
-                      width: 50, height: 50,
+                      width: 50,
+                      height: 50,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 2),
                       ),
@@ -124,17 +157,29 @@ class UserLatestVideos extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Text(
             video.localizedTitle(lang).toUpperCase(),
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A), letterSpacing: 0.5),
+            style: AppTypography.bodyStyle(
+              context,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF1A1A1A),
+              letterSpacing: 0.5,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             AppLocalizations.of(context)!.youtubeDiscourse,
-            style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+            style: AppTypography.bodyStyle(
+              context,
+              color: const Color(0xFFC89A5B),
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
+            ),
           ),
         ],
       ),

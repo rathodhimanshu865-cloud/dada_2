@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../models/homepage_model.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
+import '../../../utils/app_typography.dart';
 
 class UserNews extends StatelessWidget {
   final HomePageController controller;
@@ -21,12 +22,15 @@ class UserNews extends StatelessWidget {
     final news = controller.homepageData.news;
     if (news.isEmpty) return const SizedBox.shrink();
 
-    // Only show 4-5 pictures (limiting to 4 for balanced grid)
+    final isMobile = MediaQuery.of(context).size.width < 900;
     final displayNews = news.take(4).toList();
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 120, horizontal: 40),
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 70 : 120,
+        horizontal: isMobile ? 20 : 40,
+      ),
       color: const Color(0xFFFAF8F4),
       child: Column(
         children: [
@@ -35,52 +39,76 @@ class UserNews extends StatelessWidget {
             children: [
               Text(
                 AppLocalizations.of(context)!.latestUpdates,
-                style: const TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 12),
+                style: AppTypography.bodyStyle(
+                  context,
+                  color: const Color(0xFFC89A5B),
+                  letterSpacing: 4,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
               ),
               const SizedBox(height: 20),
               Text(
                 AppLocalizations.of(context)!.newsAndEvents,
-                style: const TextStyle(fontSize: 42, fontFamily: 'serif', fontWeight: FontWeight.w900, color: Color(0xFF0F4C5C)),
+                style: AppTypography.headingStyle(
+                  context,
+                  fontSize: isMobile ? 30 : 42,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFF0F4C5C),
+                ),
               ),
               const SizedBox(height: 30),
               Container(height: 1, width: 80, color: const Color(0xFFC89A5B)),
             ],
           ),
-          
-          const SizedBox(height: 80),
 
-          // News Grid (Showing only limited items)
+          SizedBox(height: isMobile ? 50 : 80),
+
+          // News Grid (responsive)
           Container(
             constraints: const BoxConstraints(maxWidth: 1300),
             child: LayoutBuilder(builder: (context, constraints) {
-              int cols = constraints.maxWidth > 1000 ? 4 : (constraints.maxWidth > 700 ? 2 : 1);
+              int cols = constraints.maxWidth > 1000
+                  ? 4
+                  : (constraints.maxWidth > 700 ? 2 : 1);
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: cols,
-                  crossAxisSpacing: 25,
-                  mainAxisSpacing: 40,
-                  childAspectRatio: 0.8,
+                  crossAxisSpacing: isMobile ? 15 : 25,
+                  mainAxisSpacing: isMobile ? 30 : 40,
+                  childAspectRatio: isMobile ? 0.9 : 0.8,
                 ),
                 itemCount: displayNews.length,
-                itemBuilder: (context, index) => _buildNewsCard(context, displayNews[index]),
+                itemBuilder: (context, index) =>
+                    _buildNewsCard(context, displayNews[index]),
               );
             }),
           ),
 
-          const SizedBox(height: 60),
+          SizedBox(height: isMobile ? 40 : 60),
 
-          // Redirect button to dedicated News Page
           ElevatedButton(
             onPressed: () => Navigator.pushNamed(context, '/news'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF0F4C5C),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 25),
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 30 : 50,
+                vertical: isMobile ? 18 : 25,
+              ),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
-            child: Text(AppLocalizations.of(context)!.viewAllNews, style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+            child: Text(
+              AppLocalizations.of(context)!.viewAllNews,
+              style: AppTypography.bodyStyle(
+                context,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
+              ),
+            ),
           ),
         ],
       ),
@@ -92,7 +120,7 @@ class UserNews extends StatelessWidget {
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(40),
+        insetPadding: const EdgeInsets.all(20),
         child: Stack(
           alignment: Alignment.topRight,
           children: [
@@ -125,19 +153,23 @@ class UserNews extends StatelessWidget {
                 color: const Color(0xFFF3EEE6),
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 20, offset: const Offset(0, 10)),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
                 ],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: item.image.isNotEmpty 
-                  ? Image.network(item.image, fit: BoxFit.cover)
-                  : const Icon(Icons.newspaper_rounded, size: 50, color: Colors.white),
+                child: item.image.isNotEmpty
+                    ? Image.network(item.image, fit: BoxFit.cover)
+                    : const Icon(Icons.newspaper_rounded, size: 50, color: Colors.white),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 25),
+        const SizedBox(height: 20),
         GestureDetector(
           onTap: () => _launchUrl(item.url),
           child: Column(
@@ -145,19 +177,35 @@ class UserNews extends StatelessWidget {
             children: [
               Text(
                 item.category.toUpperCase(),
-                style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 2),
+                style: AppTypography.bodyStyle(
+                  context,
+                  color: const Color(0xFFC89A5B),
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
               ),
               const SizedBox(height: 10),
               Text(
                 item.title,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A), fontFamily: 'serif'),
+                style: AppTypography.headingStyle(
+                  context,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1A1A1A),
+                ),
               ),
               const SizedBox(height: 10),
               Text(
                 item.date,
-                style: const TextStyle(color: Color(0xFF6D6D6D), fontSize: 13, fontWeight: FontWeight.w300),
+                style: AppTypography.bodyStyle(
+                  context,
+                  color: const Color(0xFF6D6D6D),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w300,
+                ),
               ),
             ],
           ),
