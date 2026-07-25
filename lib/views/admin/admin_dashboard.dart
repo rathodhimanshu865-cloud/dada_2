@@ -35,6 +35,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'Photo Gallery',
     'Video Gallery',
     'Enquiries',
+    'Contact Page Settings',
     'Footer Settings'
   ];
 
@@ -252,7 +253,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 9: return _photoGalleryView(controller);
       case 10: return _videoGalleryView(controller);
       case 11: return _inquiryView(controller);
-      case 12: return _footerSettingsView(controller);
+      case 12: return _contactPageView(controller);
+      case 13: return _footerSettingsView(controller);
       default: return const Center(child: Text('Section not yet implemented'));
     }
   }
@@ -803,6 +805,36 @@ class _AdminDashboardState extends State<AdminDashboard> {
       children: [
         _sectionHeader('CONTACT ENQUIRIES'),
         ...controller.inquiries.map((inq) => Card(margin: const EdgeInsets.only(bottom: 16), child: ListTile(title: Text('${inq.name} (${inq.type})'), subtitle: Text(inq.message)))),
+      ],
+    );
+  }
+
+  Widget _contactPageView(HomePageController controller) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      children: [
+        _sectionHeader('CONTACT PAGE SETTINGS'),
+        _buildImageField(
+          'Banner Image',
+          controller.contactPageData.bannerImageUrl,
+          (v) => setState(() => controller.contactPageData.bannerImageUrl = v),
+        ),
+        _buildField(
+          'Contact Email',
+          controller.contactPageData.email,
+          (v) => controller.contactPageData.email = v,
+        ),
+        _buildField(
+          'Contact Phone',
+          controller.contactPageData.phone,
+          (v) => controller.contactPageData.phone = v,
+        ),
+        _buildField(
+          'Address',
+          controller.contactPageData.address,
+          (v) => controller.contactPageData.address = v,
+          maxLines: 3,
+        ),
       ],
     );
   }

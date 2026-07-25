@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../models/contact_model.dart';
-import 'sections/user_header.dart';
+import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 import '../../utils/app_typography.dart';
 
@@ -127,95 +127,93 @@ class _ContactPageState extends State<ContactPage> {
   @override
   Widget build(BuildContext context) {
     const primaryTeal = Color(0xFF0F4C5C);
-    const backgroundBeige = Color(0xFFF9F3EA);
     final controller = Provider.of<HomePageController>(context);
     final isMobile = MediaQuery.of(context).size.width < 900;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            UserHeader(controller: controller),
+    return UserPageLayout(
+      controller: controller,
+      child: Column(
+        children: [
+          // Top spacing to clear the floating header
+          const SizedBox(height: 120),
 
-            // NEW: Contact Page Banner Image
-            if (controller.contactPageData.bannerImageUrl.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: Image.network(
-                  controller.contactPageData.bannerImageUrl,
-                  width: double.infinity,
-                  height: 400,
-                  fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) => const SizedBox.shrink(),
-                ),
-              ),
-
-            const SizedBox(height: 40),
-            Text(
-              AppLocalizations.of(context)!.contactUs,
-              style: AppTypography.headingStyle(
-                context,
-                fontSize: AppTypography.getResponsiveSize(context, desktop: 52, tablet: 44, mobile: 34),
-                fontWeight: FontWeight.bold,
-                color: primaryTeal,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '${AppLocalizations.of(context)!.home} > ${AppLocalizations.of(context)!.contactUs}',
-              style: TextStyle(
-                color: primaryTeal.withOpacity(0.6),
-                fontSize: 16,
-                letterSpacing: 0.5,
-              ),
-            ),
-
-            const SizedBox(height: 60),
-
-            // Navigation - Only Enquiries
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Column(
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.enquiries,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: primaryTeal,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Container(height: 4, width: 60, color: primaryTeal),
-                  ],
-                ),
-              ],
-            ),
-
-            SizedBox(height: isMobile ? 30 : 60),
-
+          // Banner Image
+          if (controller.contactPageData.bannerImageUrl.isNotEmpty)
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
-              child: Column(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Image.network(
+                controller.contactPageData.bannerImageUrl,
+                width: double.infinity,
+                height: 400,
+                fit: BoxFit.cover,
+                errorBuilder: (c, e, s) => const SizedBox.shrink(),
+              ),
+            ),
+
+          const SizedBox(height: 40),
+          Text(
+            AppLocalizations.of(context)!.contactUs,
+            style: AppTypography.headingStyle(
+              context,
+              fontSize: AppTypography.getResponsiveSize(context, desktop: 52, tablet: 44, mobile: 34),
+              fontWeight: FontWeight.bold,
+              color: primaryTeal,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '${AppLocalizations.of(context)!.home} > ${AppLocalizations.of(context)!.contactUs}',
+            style: TextStyle(
+              color: primaryTeal.withValues(alpha: 0.6),
+              fontSize: 16,
+              letterSpacing: 0.5,
+            ),
+          ),
+
+          const SizedBox(height: 60),
+
+          // Enquiries tab label
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.siteQueryDisclaimer,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey, fontSize: isMobile ? 14 : 16),
+                    AppLocalizations.of(context)!.enquiries,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: primaryTeal,
+                      letterSpacing: 1.5,
+                    ),
                   ),
-                  SizedBox(height: isMobile ? 30 : 60),
-                  _buildForm(controller, primaryTeal, isMobile),
+                  const SizedBox(height: 10),
+                  Container(height: 4, width: 60, color: primaryTeal),
                 ],
               ),
-            ),
+            ],
+          ),
 
-            const SizedBox(height: 120),
-            UserFooter(controller: controller),
-          ],
-        ),
+          SizedBox(height: isMobile ? 30 : 60),
+
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
+            child: Column(
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.siteQueryDisclaimer,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey, fontSize: isMobile ? 14 : 16),
+                ),
+                SizedBox(height: isMobile ? 30 : 60),
+                _buildForm(controller, primaryTeal, isMobile),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 120),
+          UserFooter(controller: controller),
+        ],
       ),
     );
   }
@@ -231,7 +229,7 @@ class _ContactPageState extends State<ContactPage> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 40,
               offset: const Offset(0, 10),
             ),
@@ -394,8 +392,9 @@ class _ContactPageState extends State<ContactPage> {
           validator: (value) {
             if (value == null || value.trim().isEmpty) return AppLocalizations.of(context)!.requiredField;
             if (label.contains('Email') &&
-                !RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+$").hasMatch(value.trim()))
+                !RegExp(r"^[^\@\s]+@[^\@\s]+\.[^\@\s]+$").hasMatch(value.trim())) {
               return AppLocalizations.of(context)!.invalidEmail;
+            }
             return null;
           },
           decoration: InputDecoration(
