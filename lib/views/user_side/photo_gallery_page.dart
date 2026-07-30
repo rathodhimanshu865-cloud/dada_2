@@ -61,43 +61,9 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
             ),
           ),
 
-          SizedBox(height: isMobile ? 30 : 60),
+          const SizedBox(height: 40),
 
-          // Section Switcher (Tabs)
-          if (data.sections.isNotEmpty)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
-              child: Wrap(
-                alignment: WrapAlignment.center,
-                spacing: isMobile ? 10 : 20,
-                runSpacing: 15,
-                children: data.sections.asMap().entries.map((entry) {
-                  int idx = entry.key;
-                  String heading = entry.value.localizedHeading(lang);
-                  bool isActive = activeSectionIndex == idx;
-                  
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: InkWell(
-                      onTap: () => setState(() => activeSectionIndex = idx),
-                      hoverColor: Colors.transparent,
-                      child: Column(
-                        children: [
-                          Text(heading.toUpperCase(), style: TextStyle(fontSize: 18, fontWeight: isActive ? FontWeight.bold : FontWeight.w500, color: isActive ? primaryTeal : Colors.black45, letterSpacing: 1.5)),
-                          const SizedBox(height: 10),
-                          AnimatedContainer(duration: const Duration(milliseconds: 300), height: 4, width: isActive ? 60 : 0, color: primaryTeal),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-
-          const SizedBox(height: 80),
-
-          if (data.sections.isNotEmpty && activeSectionIndex < data.sections.length)
-            _buildPhotoSection(context, data.sections[activeSectionIndex], primaryTeal, accentBrown),
+          _buildPhotoSection(context, controller.realTimePhotos.map((p) => p['url'] as String? ?? '').where((u) => u.isNotEmpty).toList()),
 
           const SizedBox(height: 100),
           UserFooter(controller: controller),
@@ -106,9 +72,9 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
     );
   }
 
-  Widget _buildPhotoSection(BuildContext context, dynamic section, Color primaryTeal, Color accentBrown) {
+  Widget _buildPhotoSection(BuildContext context, List<String> photoUrls) {
     final isMobile = MediaQuery.of(context).size.width < 900;
-    if (section.photoUrls.isEmpty) {
+    if (photoUrls.isEmpty) {
       return Padding(padding: const EdgeInsets.symmetric(vertical: 100), child: Text(AppLocalizations.of(context)!.noPhotosAdded, style: const TextStyle(color: Colors.grey, fontSize: 18)));
     }
 
@@ -125,9 +91,9 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
                 int colIdx = index ~/ 2;
                 return Expanded(
                   child: Column(
-                    children: section.photoUrls.asMap().entries
+                    children: photoUrls.asMap().entries
                         .where((e) => e.key % cols == colIdx)
-                        .map<Widget>((e) => _buildPhotoCard(context, e.value, isMobile))
+                        .map<Widget>((e) => _buildPhotoCard(context, e.value, photoUrls.indexOf(e.value), photoUrls, isMobile))
                         .toList(),
                   ),
                 );
@@ -140,7 +106,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
     );
   }
 
-  Widget _buildPhotoCard(BuildContext context, String url, bool isMobile) {
+  Widget _buildPhotoCard(BuildContext context, String url, int index, List<String> allPhotos, bool isMobile) {
     return Container(
       margin: EdgeInsets.only(bottom: isMobile ? 15 : 30),
       width: double.infinity,
@@ -153,7 +119,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: GestureDetector(
-          onTap: () => _showFullScreenImage(context, url),
+          onTap: () => _showFullScreenGallery(context, index, allPhotos),
           child: AspectRatio(
             aspectRatio: 0.85,
             child: Image.network(
@@ -167,20 +133,102 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
     );
   }
 
-  void _showFullScreenImage(BuildContext context, String url) {
+  void _showFullScreenGallery(BuildContext context, int initialIndex, List<String> allPhotos) {
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(40),
-        child: Stack(
-          alignment: Alignment.topRight,
-          children: [
-            Center(child: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(url, fit: BoxFit.contain))),
-            IconButton(icon: const Icon(Icons.close, color: Colors.white, size: 40), onPressed: () => Navigator.pop(context)),
-          ],
-        ),
-      ),
+      builder: (context) {
+        int currentIndex = initialIndex;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final isMobile = MediaQuery.of(context).size.width < 900;
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: isMobile ? const EdgeInsets.all(10) : const EdgeInsets.all(40),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  GestureDetector(
+                    onHorizontalDragEnd: (details) {
+                      if (details.primaryVelocity != null) {
+                        if (details.primaryVelocity! < 0) {
+                          setState(() {
+                            currentIndex = (currentIndex + 1) % allPhotos.length;
+                          });
+                        } else if (details.primaryVelocity! > 0) {
+                          setState(() {
+                            currentIndex = (currentIndex - 1 + allPhotos.length) % allPhotos.length;
+                          });
+                        }
+                      }
+                    },
+                    child: InteractiveViewer(
+                      child: Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            allPhotos[currentIndex],
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (!isMobile) ...[
+                    Positioned(
+                      left: 20,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 30),
+                          onPressed: () {
+                            setState(() {
+                              currentIndex = (currentIndex - 1 + allPhotos.length) % allPhotos.length;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 20,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 30),
+                          onPressed: () {
+                            setState(() {
+                              currentIndex = (currentIndex + 1) % allPhotos.length;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

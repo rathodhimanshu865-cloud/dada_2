@@ -1,3 +1,5 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show Uint8List, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,6 +15,7 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   int currentMenuIndex = 0;
+  final Map<String, double> _uploadProgress = {};
 
   Future<void> _launchUrl(String url) async {
     if (url.isEmpty) return;
@@ -687,21 +690,33 @@ class _AdminDashboardState extends State<AdminDashboard> {
       padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
       children: [
         _sectionHeader('UPCOMING KATHAS CALENDAR'),
-        ...controller.upcomingKathas.asMap().entries.map((entry) => Card(
-          margin: const EdgeInsets.only(bottom: 16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
+        ...controller.upcomingKathas.asMap().entries.map((entry) {
+          int index = entry.key;
+          UpcomingKatha k = entry.value;
+          return Card(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: ExpansionTile(
+              title: Text('Upcoming Katha #${k.kathaNumber}: ${k.name}'),
+              trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeKatha(index)),
               children: [
-                _buildField('Katha Number', entry.value.kathaNumber, (v) => entry.value.kathaNumber = v),
-                _buildField('Katha Name', entry.value.name, (v) => entry.value.name = v),
-                _buildField('Katha Date', entry.value.dateString, (v) => entry.value.dateString = v),
-                _buildField('Location', entry.value.location, (v) => entry.value.location = v),
-                IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeKatha(entry.key)),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _buildField('Katha Number', k.kathaNumber, (v) => k.kathaNumber = v),
+                      _buildField('Katha Name', k.name, (v) => k.name = v),
+                      _buildField('Katha Date', k.dateString, (v) => k.dateString = v),
+                      _buildField('Timing', k.timing, (v) => k.timing = v),
+                      _buildField('Location', k.location, (v) => k.location = v),
+                      _buildField('Hosting', k.hosting, (v) => k.hosting = v),
+                      _buildField('More Details / Description', k.description, (v) => k.description = v, maxLines: 5),
+                    ],
+                  ),
+                )
               ],
             ),
-          ),
-        )),
+          );
+        }),
         ElevatedButton(onPressed: controller.addKatha, child: const Text('Add Upcoming Katha')),
       ],
     );
@@ -748,66 +763,164 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
       children: [
-        _sectionHeader('PHOTO GALLERY HEADINGS'),
-        ...controller.photoGalleryData.sections.asMap().entries.map((sectionEntry) {
-          int sectionIdx = sectionEntry.key;
-          final section = sectionEntry.value;
-          return Card(
-            margin: const EdgeInsets.only(bottom: 24),
-            child: ExpansionTile(
-              title: Text('Heading: ${section.heading}'),
-              trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removePhotoCategory(sectionIdx)),
-              children: [
-                Padding(
+        _sectionHeader('DIRECT PHOTO UPLOAD PANEL'),
+        const Text(
+          'Select one or multiple photos to upload directly to Firebase Storage and add them automatically to the public Photo Gallery. In accordance with strict rules, photos uploaded cannot be modified or deleted.',
+          style: TextStyle(fontSize: 14, color: Colors.grey),
+        ),
+        const SizedBox(height: 24),
+        
+        // Direct Upload Action
+        Center(
+          child: Column(
+            children: [
+              ElevatedButton.icon(
+                icon: const Icon(Icons.add_photo_alternate, size: 24),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F4C5C),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                ),
+                onPressed: () async {
+                  final result = await FilePicker.platform.pickFiles(
+                    type: FileType.image,
+                    allowMultiple: true,
+                    withData: true,
+                  );
+                  if (result == null || result.files.isEmpty) return;
+                  
+                  for (final file in result.files) {
+                    if (file.bytes == null) continue;
+                    final fileName = file.name;
+                    setState(() {
+                      _uploadProgress[fileName] = 0.0;
+                    });
+                    
+                    controller.uploadPhotoWithProgress(fileName, file.bytes!).listen((progress) {
+                      setState(() {
+                        _uploadProgress[fileName] = progress;
+                      });
+                    }, onDone: () {
+                      setState(() {
+                        _uploadProgress.remove(fileName);
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Uploaded $fileName successfully!')),
+                      );
+                    }, onError: (err) {
+                      setState(() {
+                        _uploadProgress.remove(fileName);
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to upload $fileName: $err')),
+                      );
+                    });
+                  }
+                },
+                label: const Text('SELECT & UPLOAD PHOTOS', style: TextStyle(fontSize: 16)),
+              ),
+              if (_uploadProgress.isNotEmpty) ...[
+                const SizedBox(height: 24),
+                Container(
+                  constraints: const BoxConstraints(maxWidth: 600),
                   padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    border: Border.all(color: Colors.grey[200]!),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildField('Heading Text', section.heading, (v) => setState(() => section.heading = v)),
-                      Wrap(
-                        spacing: 10, runSpacing: 10,
-                        children: section.photoUrls.asMap().entries.map((photoEntry) {
-                          int photoIdx = photoEntry.key;
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: _buildImageField('Photo URL ${photoIdx + 1}', photoEntry.value, (v) {
-                                  setState(() => section.photoUrls[photoIdx] = v);
-                                }),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => setState(() => controller.removePhotoFromCategory(sectionIdx, photoIdx)),
-                              ),
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      const Text('Active Uploads', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 12),
+                      ..._uploadProgress.entries.map((entry) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(entry.key, maxLines: 1, overflow: TextOverflow.ellipsis),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: LinearProgressIndicator(
+                                    value: entry.value,
+                                    color: const Color(0xFF0F4C5C),
+                                    backgroundColor: Colors.grey[200],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text('${(entry.value * 100).toStringAsFixed(0)}%'),
+                              ],
+                            ),
+                          ],
+                        ),
+                      )),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 40),
+        _sectionHeader('CURRENT LIVE PHOTOS'),
+        
+        // Show current live photos without deletion option
+        controller.realTimePhotos.isEmpty
+            ? const Center(child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 40.0),
+                child: Text('No photos uploaded yet.', style: TextStyle(color: Colors.grey)),
+              ))
+            : LayoutBuilder(builder: (context, constraints) {
+                int cols = constraints.maxWidth > 1200 ? 5 : (constraints.maxWidth > 800 ? 3 : 2);
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: cols,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemCount: controller.realTimePhotos.length,
+                  itemBuilder: (context, index) {
+                    final photo = controller.realTimePhotos[index];
+                    final url = photo['url'] ?? '';
+                    final name = photo['fileName'] ?? '';
+                    return Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: Stack(
+                        fit: StackFit.expand,
                         children: [
-                          ElevatedButton.icon(
-                            icon: const Icon(Icons.add_link),
-                            onPressed: () => controller.addPhotoUrlToSection(sectionIdx), 
-                            label: const Text('ADD PHOTO URL')
+                          Image.network(
+                            url,
+                            fit: BoxFit.cover,
+                            errorBuilder: (c, e, s) => Container(
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.broken_image, color: Colors.grey),
+                            ),
                           ),
-                          const SizedBox(width: 10),
-                          ElevatedButton.icon(
-                            icon: const Icon(Icons.upload_file),
-                            onPressed: () => controller.addPhotoToCategoryFromPicker(sectionIdx), 
-                            label: const Text('UPLOAD PHOTO')
+                          Positioned(
+                            bottom: 0, left: 0, right: 0,
+                            child: Container(
+                              color: Colors.black.withOpacity(0.6),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              child: Text(
+                                name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(color: Colors.white, fontSize: 11),
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          );
-        }),
-        ElevatedButton(onPressed: controller.addPhotoCategory, child: const Text('ADD NEW HEADING')),
+                    );
+                  },
+                );
+              }),
       ],
     );
   }

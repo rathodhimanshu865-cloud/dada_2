@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show Uint8List;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -41,8 +43,32 @@ class HomePageController extends ChangeNotifier {
   bool isLoading = false;
   bool isUploading = false;
 
+  List<Map<String, dynamic>> realTimePhotos = [];
+  StreamSubscription<QuerySnapshot>? _photosSubscription;
+
   HomePageController() {
     loadData();
+    _initPhotosStream();
+  }
+
+  void _initPhotosStream() {
+    _photosSubscription?.cancel();
+    _photosSubscription = _firestore
+        .collection('photos')
+        .orderBy('uploadedAt', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+      realTimePhotos = snapshot.docs.map((doc) => doc.data()).toList();
+      notifyListeners();
+    }, onError: (err) {
+      debugPrint("Photos stream error: $err");
+    });
+  }
+
+  @override
+  void dispose() {
+    _photosSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> loadData() async {
@@ -165,6 +191,33 @@ class HomePageController extends ChangeNotifier {
     }
   }
 
+  Stream<double> uploadPhotoWithProgress(String name, Uint8List bytes) async* {
+    final uploadName = '${DateTime.now().millisecondsSinceEpoch}_$name';
+    final storagePath = 'photos/$uploadName';
+    final reference = _storage.ref(storagePath);
+    
+    final ext = path_helper.extension(name).replaceFirst('.', '').toLowerCase();
+    final mimeType = ext == 'png' ? 'image/png' : ext == 'webp' ? 'image/webp' : 'image/jpeg';
+    
+    final task = reference.putData(bytes, SettableMetadata(contentType: mimeType));
+    
+    await for (final event in task.snapshotEvents) {
+      final progress = event.bytesTransferred / event.totalBytes;
+      yield progress;
+    }
+    
+    final snapshot = await task;
+    final url = await snapshot.ref.getDownloadURL();
+    
+    // Save metadata to Firestore photos collection
+    await _firestore.collection('photos').add({
+      'url': url,
+      'fileName': name,
+      'uploadedAt': FieldValue.serverTimestamp(),
+      'storagePath': storagePath,
+    });
+  }
+
   void addBiographyPhase() { aboutDadaPage.phases.add(BiographyPhase()); notifyListeners(); }
   void removeBiographyPhase(int i) { aboutDadaPage.phases.removeAt(i); notifyListeners(); }
   void addImageToPhase(int phaseIdx, String url) { aboutDadaPage.phases[phaseIdx].images.add(url); notifyListeners(); }
@@ -220,6 +273,7 @@ class HomePageController extends ChangeNotifier {
         if (k.name.isNotEmpty) futures.add(TranslationService.translateToAll(k.name).then((res) { k.nameHi = res['hi'] ?? ''; k.nameGu = res['gu'] ?? ''; }));
         if (k.location.isNotEmpty) futures.add(TranslationService.translateToAll(k.location).then((res) { k.locationHi = res['hi'] ?? ''; k.locationGu = res['gu'] ?? ''; }));
         if (k.dateString.isNotEmpty) futures.add(TranslationService.translateToAll(k.dateString).then((res) { k.dateStringHi = res['hi'] ?? ''; k.dateStringGu = res['gu'] ?? ''; }));
+        if (k.description.isNotEmpty) futures.add(TranslationService.translateToAll(k.description).then((res) { k.descriptionHi = res['hi'] ?? ''; k.descriptionGu = res['gu'] ?? ''; }));
       }
       // ── Featured Quote ───────────────────────────────────────────────────────
       if (homepageData.featuredQuote.quote.isNotEmpty) futures.add(TranslationService.translateToAll(homepageData.featuredQuote.quote).then((res) { homepageData.featuredQuote.quoteHi = res['hi'] ?? ''; homepageData.featuredQuote.quoteGu = res['gu'] ?? ''; }));

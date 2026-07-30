@@ -9,13 +9,10 @@ class UserPhotoGallery extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sections = controller.photoGalleryData.sections;
-    if (sections.isEmpty) return const SizedBox.shrink();
-
-    final List<String> allPhotos = [];
-    for (var s in sections) {
-      allPhotos.addAll(s.photoUrls);
-    }
+    final List<String> allPhotos = controller.realTimePhotos
+        .map((p) => p['url'] as String? ?? '')
+        .where((u) => u.isNotEmpty)
+        .toList();
     if (allPhotos.isEmpty) return const SizedBox.shrink();
 
     final isMobile = MediaQuery.of(context).size.width < 900;
@@ -82,7 +79,7 @@ class UserPhotoGallery extends StatelessWidget {
                           .entries
                           .where((e) => e.key % cols == colIdx)
                           .map<Widget>(
-                              (e) => _buildGalleryItem(context, e.value))
+                              (e) => _buildGalleryItem(context, e.value, allPhotos.indexOf(e.value), allPhotos))
                           .toList(),
                     ),
                   );
@@ -119,32 +116,106 @@ class UserPhotoGallery extends StatelessWidget {
     );
   }
 
-  void _showFullScreenImage(BuildContext context, String url) {
+  void _showFullScreenGallery(BuildContext context, int initialIndex, List<String> allPhotos) {
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(20),
-        child: Stack(
-          alignment: Alignment.topRight,
-          children: [
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(url, fit: BoxFit.contain),
+      builder: (context) {
+        int currentIndex = initialIndex;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final isMobile = MediaQuery.of(context).size.width < 900;
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: isMobile ? const EdgeInsets.all(10) : const EdgeInsets.all(40),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  GestureDetector(
+                    onHorizontalDragEnd: (details) {
+                      if (details.primaryVelocity != null) {
+                        if (details.primaryVelocity! < 0) {
+                          setState(() {
+                            currentIndex = (currentIndex + 1) % allPhotos.length;
+                          });
+                        } else if (details.primaryVelocity! > 0) {
+                          setState(() {
+                            currentIndex = (currentIndex - 1 + allPhotos.length) % allPhotos.length;
+                          });
+                        }
+                      }
+                    },
+                    child: InteractiveViewer(
+                      child: Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            allPhotos[currentIndex],
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (!isMobile) ...[
+                    Positioned(
+                      left: 20,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 30),
+                          onPressed: () {
+                            setState(() {
+                              currentIndex = (currentIndex - 1 + allPhotos.length) % allPhotos.length;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 20,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 30),
+                          onPressed: () {
+                            setState(() {
+                              currentIndex = (currentIndex + 1) % allPhotos.length;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.close, color: Colors.white, size: 40),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
-  Widget _buildGalleryItem(BuildContext context, String url) {
+  Widget _buildGalleryItem(BuildContext context, String url, int index, List<String> allPhotos) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       width: double.infinity,
@@ -161,7 +232,7 @@ class UserPhotoGallery extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: GestureDetector(
-          onTap: () => _showFullScreenImage(context, url),
+          onTap: () => _showFullScreenGallery(context, index, allPhotos),
           child: AspectRatio(
             aspectRatio: 0.85,
             child: Image.network(
@@ -178,3 +249,4 @@ class UserPhotoGallery extends StatelessWidget {
     );
   }
 }
+

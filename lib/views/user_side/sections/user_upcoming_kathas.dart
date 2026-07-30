@@ -140,100 +140,136 @@ class UserUpcomingKathas extends StatelessWidget {
 
   Widget _buildEventCard(BuildContext context, UpcomingKatha katha) {
     final lang = Localizations.localeOf(context).languageCode;
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(25),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 10),
-            Text(
-              katha.localizedDateString(lang).toUpperCase(),
-              style: AppTypography.bodyStyle(
-                context,
-                color: const Color(0xFFC89A5B),
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              width: 60,
-              height: 60,
-              decoration: const BoxDecoration(
-                color: Color(0xFF07404C),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  katha.kathaNumber,
-                  style: AppTypography.bodyStyle(
-                    context,
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 15),
-            // ── Katha name: matches All Kathas page exactly ──
-            Text(
-              katha.localizedName(lang),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.bodyStyle(
-                context,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF1A1A1A),
-              ),
-            ),
-            const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFFC89A5B)),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    katha.localizedLocation(lang),
-                    style: AppTypography.bodyStyle(
-                      context,
-                      color: const Color(0xFF6D6D6D),
-                      fontSize: 14,
-                    ),
-                  ),
+    return StatefulBuilder(
+      builder: (context, setState) {
+        bool isHovered = false;
+        return MouseRegion(
+          onEnter: (_) => setState(() => isHovered = true),
+          onExit: (_) => setState(() => isHovered = false),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            transform: Matrix4.translationValues(0, isHovered ? -10 : 0, 0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: const Border(top: BorderSide(color: Color(0xFFC89A5B), width: 4)),
+              boxShadow: [
+                BoxShadow(
+                  color: isHovered ? Colors.black.withOpacity(0.1) : Colors.black.withOpacity(0.04),
+                  blurRadius: isHovered ? 30 : 20,
+                  offset: Offset(0, isHovered ? 15 : 10),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            Text(
-              AppLocalizations.of(context)!.detailsArrow,
-              style: AppTypography.bodyStyle(
-                context,
-                color: const Color(0xFFC89A5B),
-                fontWeight: FontWeight.bold,
-                fontSize: 11,
-                letterSpacing: 2,
+            child: InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, '/upcoming_ram_kathas');
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.all(25),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 10),
+                    Text(
+                      katha.localizedDateString(lang).toUpperCase(),
+                      style: AppTypography.bodyStyle(
+                        context,
+                        color: const Color(0xFFC89A5B),
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      width: isHovered ? 70 : 60,
+                      height: isHovered ? 70 : 60,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0F4C5C), Color(0xFF07404C)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          if (isHovered) BoxShadow(color: const Color(0xFF0F4C5C).withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5))
+                        ],
+                      ),
+                      child: Center(
+                        child: AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 300),
+                          style: AppTypography.bodyStyle(
+                            context,
+                            color: Colors.white,
+                            fontSize: isHovered ? 24 : 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          child: Text(katha.kathaNumber),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      katha.localizedName(lang),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.bodyStyle(
+                        context,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                    const Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFFC89A5B)),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            katha.localizedLocation(lang),
+                            style: AppTypography.bodyStyle(
+                              context,
+                              color: const Color(0xFF6D6D6D),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.detailsArrow.replaceAll(' >', ''),
+                          style: AppTypography.bodyStyle(
+                            context,
+                            color: const Color(0xFFC89A5B),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: EdgeInsets.only(left: isHovered ? 8 : 4),
+                          child: const Icon(Icons.arrow_forward_ios, size: 10, color: Color(0xFFC89A5B)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

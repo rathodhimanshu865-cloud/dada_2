@@ -315,42 +315,48 @@ class UpcomingKatha {
   String timing;
   String location;
   String hosting;
+  String description;
   DateTime? startDate;
   DateTime? endDate;
   // Translations
   String nameHi; String nameGu;
   String locationHi; String locationGu;
   String dateStringHi; String dateStringGu;
+  String descriptionHi; String descriptionGu;
 
   UpcomingKatha({
     this.kathaNumber = '', this.name = '', this.dateString = '', this.timing = '',
-    this.location = '', this.hosting = '', this.startDate, this.endDate,
+    this.location = '', this.hosting = '', this.description = '', this.startDate, this.endDate,
     this.nameHi = '', this.nameGu = '',
     this.locationHi = '', this.locationGu = '',
     this.dateStringHi = '', this.dateStringGu = '',
+    this.descriptionHi = '', this.descriptionGu = '',
   });
 
   String localizedName(String lang) => lang == 'hi' && nameHi.isNotEmpty ? nameHi : lang == 'gu' && nameGu.isNotEmpty ? nameGu : name;
   String localizedLocation(String lang) => lang == 'hi' && locationHi.isNotEmpty ? locationHi : lang == 'gu' && locationGu.isNotEmpty ? locationGu : location;
   String localizedDateString(String lang) => lang == 'hi' && dateStringHi.isNotEmpty ? dateStringHi : lang == 'gu' && dateStringGu.isNotEmpty ? dateStringGu : dateString;
+  String localizedDescription(String lang) => lang == 'hi' && descriptionHi.isNotEmpty ? descriptionHi : lang == 'gu' && descriptionGu.isNotEmpty ? descriptionGu : description;
 
   Map<String, dynamic> toMap() => {
     'kathaNumber': kathaNumber, 'name': name, 'dateString': dateString, 'timing': timing,
-    'location': location, 'hosting': hosting,
+    'location': location, 'hosting': hosting, 'description': description,
     'startDate': startDate?.toIso8601String(), 'endDate': endDate?.toIso8601String(),
     'name_hi': nameHi, 'name_gu': nameGu,
     'location_hi': locationHi, 'location_gu': locationGu,
     'dateString_hi': dateStringHi, 'dateString_gu': dateStringGu,
+    'description_hi': descriptionHi, 'description_gu': descriptionGu,
   };
 
   factory UpcomingKatha.fromMap(Map<String, dynamic> map) => UpcomingKatha(
     kathaNumber: map['kathaNumber'] ?? '', name: map['name'] ?? '', dateString: map['dateString'] ?? '',
-    timing: map['timing'] ?? '', location: map['location'] ?? '', hosting: map['hosting'] ?? '',
+    timing: map['timing'] ?? '', location: map['location'] ?? '', hosting: map['hosting'] ?? '', description: map['description'] ?? '',
     startDate: map['startDate'] != null ? DateTime.tryParse(map['startDate']) : null,
     endDate: map['endDate'] != null ? DateTime.tryParse(map['endDate']) : null,
     nameHi: map['name_hi'] ?? '', nameGu: map['name_gu'] ?? '',
     locationHi: map['location_hi'] ?? '', locationGu: map['location_gu'] ?? '',
     dateStringHi: map['dateString_hi'] ?? '', dateStringGu: map['dateString_gu'] ?? '',
+    descriptionHi: map['description_hi'] ?? '', descriptionGu: map['description_gu'] ?? '',
   );
 }
 
