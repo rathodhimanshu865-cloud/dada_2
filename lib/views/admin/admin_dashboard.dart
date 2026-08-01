@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show Uint8List, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../models/homepage_model.dart';
 
@@ -56,6 +57,38 @@ class _AdminDashboardState extends State<AdminDashboard> {
           border: const OutlineInputBorder(),
         ),
         onChanged: onChanged,
+      ),
+    );
+  }
+
+  Widget _buildDateField(String label, DateTime? initialDate, Function(DateTime) onDateSelected) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: InkWell(
+        onTap: () async {
+          final date = await showDatePicker(
+            context: context,
+            initialDate: initialDate ?? DateTime.now(),
+            firstDate: DateTime(2024),
+            lastDate: DateTime(2030),
+          );
+          if (date != null) onDateSelected(date);
+        },
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: label,
+            filled: true,
+            fillColor: Colors.grey[50],
+            border: const OutlineInputBorder(),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(initialDate != null ? DateFormat('dd MMM yyyy').format(initialDate) : 'Select Date'),
+              const Icon(Icons.calendar_month, size: 20, color: Colors.grey),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -705,7 +738,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     children: [
                       _buildField('Katha Number', k.kathaNumber, (v) => k.kathaNumber = v),
                       _buildField('Katha Name', k.name, (v) => k.name = v),
-                      _buildField('Katha Date', k.dateString, (v) => k.dateString = v),
+                      _buildField('Katha Date (Display Text)', k.dateString, (v) => k.dateString = v),
+                      Row(
+                        children: [
+                          Expanded(child: _buildDateField('Start Date', k.startDate, (v) => setState(() => k.startDate = v))),
+                          const SizedBox(width: 10),
+                          Expanded(child: _buildDateField('End Date', k.endDate, (v) => setState(() => k.endDate = v))),
+                        ],
+                      ),
                       _buildField('Timing', k.timing, (v) => k.timing = v),
                       _buildField('Location', k.location, (v) => k.location = v),
                       _buildField('Hosting', k.hosting, (v) => k.hosting = v),

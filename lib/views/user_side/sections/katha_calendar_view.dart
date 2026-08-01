@@ -86,7 +86,7 @@ class _KathaCalendarViewState extends State<KathaCalendarView> {
             const SizedBox(height: 20),
             Row(
               children: [
-                _legendItem(accentGold, "Katha Date"),
+                _legendItem(accentGold, "Scheduled Katha"),
                 const SizedBox(width: 20),
                 _legendItem(primaryTeal.withOpacity(0.2), "Today"),
               ],
@@ -120,14 +120,13 @@ class _KathaCalendarViewState extends State<KathaCalendarView> {
         height: 35,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: isToday ? primaryTeal.withOpacity(0.1) : null,
-          border: isKatha ? Border.all(color: accentGold, width: 2) : null, // Circled for Katha
+          color: isKatha ? accentGold : (isToday ? primaryTeal.withOpacity(0.1) : null),
         ),
         child: Center(
           child: Text(
             '${day.day}',
             style: TextStyle(
-              color: isToday ? primaryTeal : (isKatha ? accentGold : Colors.black87),
+              color: isKatha ? Colors.white : (isToday ? primaryTeal : Colors.black87),
               fontWeight: (isToday || isKatha) ? FontWeight.bold : FontWeight.normal,
             ),
           ),
@@ -144,7 +143,6 @@ class _KathaCalendarViewState extends State<KathaCalendarView> {
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
-            border: label == "Katha Date" ? Border.all(color: accentGold) : null,
           ),
         ),
         const SizedBox(width: 8),

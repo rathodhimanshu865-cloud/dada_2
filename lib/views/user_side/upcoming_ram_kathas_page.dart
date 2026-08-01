@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/language_controller.dart';
 import '../../models/homepage_model.dart';
@@ -209,7 +210,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                katha.localizedDateString(lang).toUpperCase(),
+                _formatDateRange(katha, lang).toUpperCase(),
                 style: AppTypography.bodyStyle(
                   context,
                   fontSize: 14,
@@ -276,7 +277,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
         ),
         const SizedBox(height: 6),
         Text(
-          katha.localizedDateString(lang).toUpperCase(),
+          _formatDateRange(katha, lang).toUpperCase(),
           style: AppTypography.bodyStyle(
             context,
             fontSize: 13,
@@ -380,7 +381,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
                   const SizedBox(height: 20),
                   Container(width: 80, height: 3, color: accentBrown),
                   const SizedBox(height: 30),
-                  _detailRow(AppLocalizations.of(context)!.kathaDate, katha.localizedDateString(lang), isMobile),
+                  _detailRow(AppLocalizations.of(context)!.kathaDate, _formatDateRange(katha, lang), isMobile),
                   _detailRow(AppLocalizations.of(context)!.kathaTiming, katha.timing, isMobile),
                   _detailRow(AppLocalizations.of(context)!.kathaLocation, katha.localizedLocation(lang), isMobile),
                   _detailRow(AppLocalizations.of(context)!.kathaHosting, katha.hosting, isMobile),
@@ -467,5 +468,15 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
         ],
       ),
     );
+  }
+
+  String _formatDateRange(UpcomingKatha katha, String lang) {
+    if (katha.startDate != null && katha.endDate != null) {
+      final start = DateFormat('dd MMM yyyy').format(katha.startDate!);
+      final end = DateFormat('dd MMM yyyy').format(katha.endDate!);
+      if (start == end) return start;
+      return '$start - $end';
+    }
+    return katha.localizedDateString(lang);
   }
 }
