@@ -348,4 +348,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get like => 'पसंद करें';
+
+  @override
+  String get previous => 'पिछला';
+
+  @override
+  String get next => 'अगला';
 }

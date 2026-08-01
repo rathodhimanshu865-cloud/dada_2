@@ -110,5 +110,7 @@
   "englishCol": "અંગ્રેજી",
   "hindiCol": "હિન્દી",
   "gujaratiCol": "ગુજરાતી",
-  "like": "પસંદ કરો"
+  "like": "પસંદ કરો",
+  "previous": "પાછળ",
+  "next": "આગળ"
 }

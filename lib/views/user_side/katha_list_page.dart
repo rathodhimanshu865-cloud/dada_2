@@ -673,60 +673,111 @@ class _KathaListPageState extends State<KathaListPage> {
   }
 
   Widget _buildPagination(int totalPages) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _pageNavButton(Icons.chevron_left, currentPage > 1,
-            () => setState(() { currentPage--; expandedIndex = null; })),
-        const SizedBox(width: 30),
-        ...List.generate(totalPages, (index) {
-          int pageNum = index + 1;
-          if (totalPages > 7 && (pageNum > 3 && pageNum < totalPages - 2)) {
-            if (pageNum == 4) return Text('...', style: AppTypography.bodyStyle(context));
-            return const SizedBox.shrink();
-          }
-          return _pageNumberCircle(pageNum, currentPage == pageNum);
-        }),
-        const SizedBox(width: 30),
-        _pageNavButton(Icons.chevron_right, currentPage < totalPages,
-            () => setState(() { currentPage++; expandedIndex = null; })),
-      ],
+    if (totalPages <= 1) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 60),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Previous Button
+          _styledPageNavButton(
+            AppLocalizations.of(context)!.previous,
+            currentPage > 1 ? () => setState(() { currentPage--; expandedIndex = null; }) : null,
+            icon: Icons.chevron_left,
+            isNext: false,
+          ),
+          const SizedBox(width: 20),
+
+          // Page Numbers
+          ...List.generate(totalPages, (index) {
+            int pageNum = index + 1;
+            bool isActive = pageNum == currentPage;
+
+            // Simple logic for showing page numbers (can be enhanced if totalPages is very large)
+            if (totalPages > 7 && (pageNum > 3 && pageNum < totalPages - 2)) {
+              if (pageNum == 4) return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Text('...', style: AppTypography.bodyStyle(context, color: primaryTeal, fontWeight: FontWeight.bold)),
+              );
+              return const SizedBox.shrink();
+            }
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: InkWell(
+                onTap: () => setState(() { currentPage = pageNum; expandedIndex = null; }),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: isActive ? primaryTeal : Colors.white,
+                    border: Border.all(color: isActive ? primaryTeal : Colors.grey[200]!),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "$pageNum",
+                      style: AppTypography.bodyStyle(
+                        context,
+                        color: isActive ? Colors.white : primaryTeal,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+
+          const SizedBox(width: 20),
+
+          // Next Button
+          _styledPageNavButton(
+            AppLocalizations.of(context)!.next,
+            currentPage < totalPages ? () => setState(() { currentPage++; expandedIndex = null; }) : null,
+            icon: Icons.chevron_right,
+            isNext: true,
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _pageNavButton(IconData icon, bool enabled, VoidCallback onTap) {
-    return IconButton(
-      icon: Icon(icon, size: 32),
-      color: enabled ? primaryTeal : Colors.grey[300],
-      onPressed: enabled ? onTap : null,
-    );
-  }
-
-  Widget _pageNumberCircle(int num, bool active) {
+  Widget _styledPageNavButton(String label, VoidCallback? onTap, {required IconData icon, required bool isNext}) {
+    bool isDisabled = onTap == null;
     return InkWell(
-      onTap: () => setState(() { currentPage = num; expandedIndex = null; }),
+      onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        width: 44,
-        height: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
-          color: active ? primaryTeal : Colors.transparent,
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: active ? primaryTeal : Colors.grey[200]!,
-            width: 2,
-          ),
+          color: Colors.white,
+          border: Border.all(color: Colors.grey[200]!),
+          borderRadius: BorderRadius.circular(6),
         ),
-        child: Center(
-          child: Text(
-            num.toString(),
-            style: AppTypography.bodyStyle(
-              context,
-              color: active ? Colors.white : Colors.black87,
-              fontSize: 16,
-              fontWeight: active ? FontWeight.bold : FontWeight.w500,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!isNext) ...[
+              Icon(icon, size: 18, color: isDisabled ? Colors.grey[300] : primaryTeal),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label.toUpperCase(),
+              style: AppTypography.bodyStyle(
+                context,
+                color: isDisabled ? Colors.grey[300] : primaryTeal,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                letterSpacing: 1,
+              ),
             ),
-          ),
+            if (isNext) ...[
+              const SizedBox(width: 8),
+              Icon(icon, size: 18, color: isDisabled ? Colors.grey[300] : primaryTeal),
+            ],
+          ],
         ),
       ),
     );

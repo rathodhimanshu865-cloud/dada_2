@@ -18,6 +18,8 @@ class UpcomingRamKathasPage extends StatefulWidget {
 
 class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
   int activeTab = 1;
+  int currentPage = 1;
+  final int pageSize = 10;
   final primaryTeal = const Color(0xFF0F4C5C);
   final backgroundBeige = const Color(0xFFF9F3EA);
   final accentBrown = const Color(0xFFC19A6B);
@@ -100,12 +102,42 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
           // ── Katha list ────────────────────────────────────────────────────
           Padding(
             padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
-            child: Column(
-              children: [
-                const Divider(color: Color(0xFFEEEEEE), thickness: 1),
-                ...controller.upcomingKathas
-                    .map((katha) => _buildUpcomingKathaRow(context, katha, lang, isMobile)),
-              ],
+            child: Builder(
+              builder: (context) {
+                final allKathas = controller.upcomingKathas.toList();
+                // Ensure list starts from number 1 visually/ordering-wise if possible
+                allKathas.sort((a, b) {
+                  int aNum = int.tryParse(a.kathaNumber) ?? 0;
+                  int bNum = int.tryParse(b.kathaNumber) ?? 0;
+                  return aNum.compareTo(bNum);
+                });
+
+                final totalKathas = allKathas.length;
+                final totalPages = (totalKathas / pageSize).ceil();
+                
+                // Adjust currentPage if out of bounds
+                if (currentPage > totalPages && totalPages > 0) {
+                  currentPage = totalPages;
+                }
+
+                final startIndex = (currentPage - 1) * pageSize;
+                final paginatedKathas = allKathas.skip(startIndex).take(pageSize).toList();
+
+                return Column(
+                  children: [
+                    const Divider(color: Color(0xFFEEEEEE), thickness: 1),
+                    if (paginatedKathas.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
+                        child: Text("No upcoming kathas found.", style: AppTypography.bodyStyle(context, color: Colors.grey)),
+                      )
+                    else
+                      ...paginatedKathas.map((katha) => _buildUpcomingKathaRow(context, katha, lang, isMobile)),
+                    
+                    _buildPaginationControls(totalPages),
+                  ],
+                );
+              },
             ),
           ),
 
@@ -478,5 +510,104 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
       return '$start - $end';
     }
     return katha.localizedDateString(lang);
+  }
+
+  // ── Pagination Controls ───────────────────────────────────────────────────
+  Widget _buildPaginationControls(int totalPages) {
+    if (totalPages <= 1) return const SizedBox.shrink();
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 60),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Previous Button
+          _pageNavButton(
+            AppLocalizations.of(context)!.previous ?? "PREVIOUS", 
+            currentPage > 1 ? () => setState(() => currentPage--) : null,
+            isIcon: true,
+            icon: Icons.chevron_left,
+          ),
+          const SizedBox(width: 20),
+          
+          // Page Numbers
+          ...List.generate(totalPages, (index) {
+            int pageNum = index + 1;
+            bool isActive = pageNum == currentPage;
+            
+            // For many pages, we might want to truncate, but for now 
+            // we show all as typical for this site's scale
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: InkWell(
+                onTap: () => setState(() => currentPage = pageNum),
+                child: Container(
+                  width: 45,
+                  height: 45,
+                  decoration: BoxDecoration(
+                    color: isActive ? primaryTeal : Colors.transparent,
+                    border: Border.all(color: isActive ? primaryTeal : Colors.grey[300]!),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "$pageNum",
+                      style: AppTypography.bodyStyle(
+                        context,
+                        color: isActive ? Colors.white : primaryTeal,
+                        fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+          
+          const SizedBox(width: 20),
+          // Next Button
+          _pageNavButton(
+            AppLocalizations.of(context)!.next ?? "NEXT", 
+            currentPage < totalPages ? () => setState(() => currentPage++) : null,
+            isIcon: true,
+            icon: Icons.chevron_right,
+            isNext: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _pageNavButton(String label, VoidCallback? onTap, {bool isIcon = false, IconData? icon, bool isNext = false}) {
+    bool isDisabled = onTap == null;
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          border: Border.all(color: isDisabled ? Colors.grey[200]! : Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          children: [
+            if (isIcon && icon != null && !isNext) Icon(icon, size: 18, color: isDisabled ? Colors.grey[300] : primaryTeal),
+            if (isIcon && icon != null && !isNext) const SizedBox(width: 5),
+            Text(
+              label.toUpperCase(),
+              style: AppTypography.bodyStyle(
+                context,
+                color: isDisabled ? Colors.grey[300] : primaryTeal,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                letterSpacing: 1,
+              ),
+            ),
+            if (isIcon && icon != null && isNext) const SizedBox(width: 5),
+            if (isIcon && icon != null && isNext) Icon(icon, size: 18, color: isDisabled ? Colors.grey[300] : primaryTeal),
+          ],
+        ),
+      ),
+    );
   }
 }

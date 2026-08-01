@@ -347,4 +347,10 @@ class AppLocalizationsGu extends AppLocalizations {
 
   @override
   String get like => 'પસંદ કરો';
+
+  @override
+  String get previous => 'પાછળ';
+
+  @override
+  String get next => 'આગળ';
 }

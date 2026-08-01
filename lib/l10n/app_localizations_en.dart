@@ -347,4 +347,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get like => 'Like';
+
+  @override
+  String get previous => 'Previous';
+
+  @override
+  String get next => 'Next';
 }

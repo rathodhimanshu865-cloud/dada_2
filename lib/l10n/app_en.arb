@@ -124,5 +124,7 @@
   "englishCol": "ENGLISH",
   "hindiCol": "HINDI",
   "gujaratiCol": "GUJARATI",
-  "like": "Like"
+  "like": "Like",
+  "previous": "Previous",
+  "next": "Next"
 }
