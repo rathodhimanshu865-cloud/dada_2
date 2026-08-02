@@ -88,12 +88,26 @@ class _AboutProfileEditorState extends State<AboutProfileEditor> {
     form.sigSubtitleCtrl.text = sigSub;
   }
 
-  void _loadFromProfile(ProfileData? data) {
+  Future<void> _loadFromProfile(ProfileData? data) async {
     if (data == null) return;
+    
+    // Yield the thread to allow navigation animation and loading spinner to paint
+    await Future.delayed(const Duration(milliseconds: 50));
+    if (!mounted) return;
+
     _loadLanguage('en', data.contentDelta, data.coreCompetencies, data.professionalHighlights, data.personalAttributes, data.socialInitiativeTitle, data.socialVision, data.socialMission, data.socialObjective, data.philosophyOfLife, data.signatureIdentityTitle, data.signatureIdentitySubtitle);
+    
+    await Future.delayed(const Duration(milliseconds: 10)); // Yield again
+    if (!mounted) return;
+    
     _loadLanguage('hi', data.contentDeltaHi, data.coreCompetenciesHi, data.professionalHighlightsHi, data.personalAttributesHi, data.socialInitiativeTitleHi, data.socialVisionHi, data.socialMissionHi, data.socialObjectiveHi, data.philosophyOfLifeHi, data.signatureIdentityTitleHi, data.signatureIdentitySubtitleHi);
+    
+    await Future.delayed(const Duration(milliseconds: 10)); // Yield again
+    if (!mounted) return;
+    
     _loadLanguage('gu', data.contentDeltaGu, data.coreCompetenciesGu, data.professionalHighlightsGu, data.personalAttributesGu, data.socialInitiativeTitleGu, data.socialVisionGu, data.socialMissionGu, data.socialObjectiveGu, data.philosophyOfLifeGu, data.signatureIdentityTitleGu, data.signatureIdentitySubtitleGu);
-    setState(() => _dataLoaded = true);
+    
+    if (mounted) setState(() => _dataLoaded = true);
   }
 
   @override
@@ -248,18 +262,22 @@ class _AboutProfileEditorState extends State<AboutProfileEditor> {
                   color: Colors.white,
                   border: Border(bottom: BorderSide(color: Color(0xFFE0E0E0))),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  runSpacing: 16,
                   children: [
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('About Dada Profile', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: _teal)),
                         SizedBox(height: 4),
-                        Text('Manage the massive biography & structured sections (EN, HI, GU).', style: TextStyle(color: Colors.grey)),
+                        Text('Manage the massive biography & structured sections.', style: TextStyle(color: Colors.grey)),
                       ],
                     ),
-                    Row(
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 16,
                       children: [
                         OutlinedButton.icon(
                           onPressed: _isSaving ? null : _autoTranslate,
@@ -272,7 +290,6 @@ class _AboutProfileEditorState extends State<AboutProfileEditor> {
                             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                           ),
                         ),
-                        const SizedBox(width: 16),
                         ElevatedButton.icon(
                           onPressed: _isSaving ? null : _saveAll,
                           icon: _isSaving

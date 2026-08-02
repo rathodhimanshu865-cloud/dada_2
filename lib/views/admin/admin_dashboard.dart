@@ -435,21 +435,30 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _aboutDadaView(HomePageController controller) {
     final data = controller.aboutDadaPage;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
-      children: [
-        const Text('Biography Page Management', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-        const Divider(),
-        const SizedBox(height: 30),
-        
-        _sectionHeader('1. HERO CANVAS SETTINGS'),
-        _buildField('Hero Title (Banner Name)', data.heroTitle, (v) => data.heroTitle = v),
-        _buildField('Main Designation / Subtitle', data.heroSubtitle, (v) => data.heroSubtitle = v),
-        _buildImageField('Main Spotlight Portrait', data.heroImage, (v) => setState(() => data.heroImage = v)),
-        
-        const SizedBox(height: 50),
-        const AboutProfileEditor(),
-      ],
+    return NestedScrollView(
+      headerSliverBuilder: (context, innerBoxIsScrolled) {
+        return [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(40, 40, 40, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Biography Page Management', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                  const Divider(),
+                  const SizedBox(height: 20),
+                  
+                  _sectionHeader('1. HERO CANVAS SETTINGS'),
+                  _buildField('Hero Title (Banner Name)', data.heroTitle, (v) => data.heroTitle = v),
+                  _buildField('Main Designation / Subtitle', data.heroSubtitle, (v) => data.heroSubtitle = v),
+                  _buildImageField('Main Spotlight Portrait', data.heroImage, (v) => setState(() => data.heroImage = v)),
+                ],
+              ),
+            ),
+          ),
+        ];
+      },
+      body: const AboutProfileEditor(),
     );
   }
 
