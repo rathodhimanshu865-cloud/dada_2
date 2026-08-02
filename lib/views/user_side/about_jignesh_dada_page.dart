@@ -52,31 +52,35 @@ class AboutJigneshDadaPage extends StatelessWidget {
           else if (p != null) ...[
 
             // ── 2. INTRODUCTION ──────────────────────────────────────────
-            if (p.contentHTML.isNotEmpty)
-              _IntroBlock(html: p.contentHTML, portrait: home.aboutDadaPage.heroImage, isMob: isMob, isDsk: isDsk),
+            if (p.localizedContentHTML(lang).isNotEmpty)
+              _IntroBlock(html: p.localizedContentHTML(lang), portrait: home.aboutDadaPage.heroImage, isMob: isMob, isDsk: isDsk, lang: lang),
 
             // ── 3. CORE COMPETENCIES ─────────────────────────────────────
-            if (p.coreCompetencies.isNotEmpty)
-              _CompetenciesBlock(items: p.coreCompetencies, isMob: isMob, isDsk: isDsk),
+            if (p.localizedCoreCompetencies(lang).isNotEmpty)
+              _CompetenciesBlock(items: p.localizedCoreCompetencies(lang), isMob: isMob, isDsk: isDsk, lang: lang),
 
             // ── 4. PROFESSIONAL HIGHLIGHTS ───────────────────────────────
-            if (p.professionalHighlights.isNotEmpty)
-              _HighlightsBlock(items: p.professionalHighlights, isMob: isMob, isDsk: isDsk),
+            if (p.localizedProfessionalHighlights(lang).isNotEmpty)
+              _HighlightsBlock(items: p.localizedProfessionalHighlights(lang), isMob: isMob, isDsk: isDsk, lang: lang),
 
             // ── 5. SOCIAL INITIATIVE ─────────────────────────────────────
-            if (p.socialInitiativeTitle.isNotEmpty || p.socialVision.isNotEmpty)
-              _SocialBlock(p: p, isMob: isMob, isDsk: isDsk),
+            if (p.localizedSocialTitle(lang).isNotEmpty || p.localizedSocialVision(lang).isNotEmpty)
+              _SocialBlock(p: p, isMob: isMob, isDsk: isDsk, lang: lang),
 
             // ── 6. PHILOSOPHY OF LIFE ────────────────────────────────────
-            if (p.philosophyOfLife.isNotEmpty)
-              _PhilosophyBlock(quote: p.philosophyOfLife, isMob: isMob),
+            if (p.localizedPhilosophy(lang).isNotEmpty)
+              _PhilosophyBlock(quote: p.localizedPhilosophy(lang), isMob: isMob, lang: lang),
 
             // ── 7. PERSONAL ATTRIBUTES ───────────────────────────────────
-            if (p.personalAttributes.isNotEmpty)
-              _AttributesBlock(items: p.personalAttributes, isMob: isMob, isDsk: isDsk),
+            if (p.localizedPersonalAttributes(lang).isNotEmpty)
+              _AttributesBlock(items: p.localizedPersonalAttributes(lang), isMob: isMob, isDsk: isDsk, lang: lang),
+
+            // ── 8. SIGNATURE IDENTITY ────────────────────────────────────
+            if (p.localizedSignatureTitle(lang).isNotEmpty || p.localizedSignatureSubtitle(lang).isNotEmpty)
+              _SignatureBlock(title: p.localizedSignatureTitle(lang), subtitle: p.localizedSignatureSubtitle(lang), isMob: isMob, isDsk: isDsk, lang: lang),
           ],
 
-          // ── 8. FOOTER ────────────────────────────────────────────────────
+          // ── 9. FOOTER ────────────────────────────────────────────────────
           UserFooter(controller: home),
         ],
       ),
@@ -157,6 +161,7 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
   }
 
   Widget _desktopLayout(String title, String subtitle, bool hasImg) {
+    String aboutLabel = widget.lang == 'hi' ? 'हमारे बारे में' : widget.lang == 'gu' ? 'અમારા વિશે' : 'ABOUT US';
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -175,7 +180,7 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: _teal.withOpacity(0.1)),
                   ),
-                  child: const Text('ABOUT & PROFILE', style: TextStyle(color: _teal, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 2)),
+                  child: Text(aboutLabel, style: const TextStyle(color: _teal, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 2)),
                 ),
                 const SizedBox(width: 16),
                 Container(width: 40, height: 1, color: _gold),
@@ -225,6 +230,7 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
   }
 
   Widget _mobileLayout(String title, String subtitle, bool hasImg) {
+    String aboutLabel = widget.lang == 'hi' ? 'हमारे बारे में' : widget.lang == 'gu' ? 'અમારા વિશે' : 'ABOUT US';
     return FadeTransition(
       opacity: _fade,
       child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
@@ -233,7 +239,7 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(color: _teal.withOpacity(0.06), borderRadius: BorderRadius.circular(4)),
-          child: const Text('ABOUT & PROFILE', style: TextStyle(color: _teal, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 2)),
+          child: Text(aboutLabel, style: const TextStyle(color: _teal, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 2)),
         ),
         const SizedBox(height: 20),
         
@@ -313,13 +319,16 @@ class _PortraitFrame extends StatelessWidget {
 // 2. INTRODUCTION — editorial two-column with drop cap
 // ─────────────────────────────────────────────────────────────────────────────
 class _IntroBlock extends StatelessWidget {
-  final String html, portrait;
+  final String html, portrait, lang;
   final bool isMob, isDsk;
-  const _IntroBlock({required this.html, required this.portrait, required this.isMob, required this.isDsk});
+  const _IntroBlock({required this.html, required this.portrait, required this.isMob, required this.isDsk, required this.lang});
 
   @override
   Widget build(BuildContext context) {
     final hPad = isMob ? 24.0 : (isDsk ? 120.0 : 60.0);
+    String labelText = lang == 'hi' ? 'एक परिचय' : lang == 'gu' ? 'એક પરિચય' : 'AN INTRODUCTION';
+    String titleText = lang == 'hi' ? 'प्रेरक जीवन और यात्रा' : lang == 'gu' ? 'પ્રેરણાદાયક જીવન અને યાત્રા' : 'The Inspiring Life & Journey';
+    
     return Container(
       color: Colors.white,
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: isMob ? 60 : 100),
@@ -330,9 +339,9 @@ class _IntroBlock extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Section label
-              _Label('AN INTRODUCTION', isMob),
+              _Label(labelText, isMob),
               const SizedBox(height: 8),
-              Text('The Inspiring Life & Journey',
+              Text(titleText,
                 style: AppTypography.headingStyle(context, fontSize: isMob ? 26 : 38, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
               const SizedBox(height: 48),
 
@@ -373,7 +382,8 @@ class _IntroBlock extends StatelessWidget {
 class _CompetenciesBlock extends StatelessWidget {
   final List<String> items;
   final bool isMob, isDsk;
-  const _CompetenciesBlock({required this.items, required this.isMob, required this.isDsk});
+  final String lang;
+  const _CompetenciesBlock({required this.items, required this.isMob, required this.isDsk, required this.lang});
 
   static const _icons = [
     Icons.menu_book_rounded, Icons.self_improvement_rounded, Icons.star_half_rounded,
@@ -385,6 +395,9 @@ class _CompetenciesBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cols = isMob ? 1 : (isDsk ? 3 : 2);
+    String labelText = lang == 'hi' ? 'मुख्य दक्षताएं' : lang == 'gu' ? 'મુખ્ય કુશળતા' : 'CORE COMPETENCIES';
+    String titleText = lang == 'hi' ? 'आध्यात्मिक विशेषज्ञता और सेवा' : lang == 'gu' ? 'આધ્યાત્મિક કુશળતા અને સેવા' : 'Spiritual Expertise & Service';
+    
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -398,9 +411,9 @@ class _CompetenciesBlock extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Label('CORE COMPETENCIES', isMob, onDark: true),
+              _Label(labelText, isMob, onDark: true),
               const SizedBox(height: 8),
-              Text('Spiritual Expertise & Service',
+              Text(titleText,
                 style: AppTypography.headingStyle(context, fontSize: isMob ? 26 : 38, color: Colors.white, fontWeight: FontWeight.w700, height: 1.2)),
               const SizedBox(height: 52),
 
@@ -487,11 +500,15 @@ class _CompCardState extends State<_CompCard> {
 class _HighlightsBlock extends StatelessWidget {
   final List<String> items;
   final bool isMob, isDsk;
-  const _HighlightsBlock({required this.items, required this.isMob, required this.isDsk});
+  final String lang;
+  const _HighlightsBlock({required this.items, required this.isMob, required this.isDsk, required this.lang});
 
   @override
   Widget build(BuildContext context) {
     final hPad = isMob ? 24.0 : (isDsk ? 120.0 : 60.0);
+    String labelText = lang == 'hi' ? 'व्यावसायिक मुख्य अंश' : lang == 'gu' ? 'વ્યાવસાયિક મુખ્ય અંશ' : 'PROFESSIONAL HIGHLIGHTS';
+    String titleText = lang == 'hi' ? 'प्रमुख उपलब्धियां और उल्लेखनीय कार्य' : lang == 'gu' ? 'મુખ્ય સિદ્ધિઓ અને નોંધપાત્ર કાર્ય' : 'Key Achievements & Notable Work';
+
     return Container(
       color: _beige,
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: isMob ? 60 : 100),
@@ -501,9 +518,9 @@ class _HighlightsBlock extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Label('PROFESSIONAL HIGHLIGHTS', isMob),
+              _Label(labelText, isMob),
               const SizedBox(height: 8),
-              Text('Key Achievements & Notable Work',
+              Text(titleText,
                 style: AppTypography.headingStyle(context, fontSize: isMob ? 26 : 38, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
               const SizedBox(height: 52),
 
@@ -606,10 +623,13 @@ class _TimelineItemState extends State<_TimelineItem> {
 class _SocialBlock extends StatelessWidget {
   final ProfileData p;
   final bool isMob, isDsk;
-  const _SocialBlock({required this.p, required this.isMob, required this.isDsk});
+  final String lang;
+  const _SocialBlock({required this.p, required this.isMob, required this.isDsk, required this.lang});
 
   @override
   Widget build(BuildContext context) {
+    String labelText = lang == 'hi' ? 'सामाजिक पहल' : lang == 'gu' ? 'સામાજિક પહેલ' : 'SOCIAL INITIATIVE';
+    
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -625,10 +645,10 @@ class _SocialBlock extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Label('SOCIAL INITIATIVE', isMob, onDark: true),
+              _Label(labelText, isMob, onDark: true),
               const SizedBox(height: 8),
-              if (p.socialInitiativeTitle.isNotEmpty) ...[
-                Text(p.socialInitiativeTitle,
+              if (p.localizedSocialTitle(lang).isNotEmpty) ...[
+                Text(p.localizedSocialTitle(lang),
                   style: AppTypography.headingStyle(context, fontSize: isMob ? 22 : 34, color: Colors.white, fontWeight: FontWeight.w700, height: 1.25)),
                 const SizedBox(height: 18),
                 Row(children: [
@@ -657,10 +677,14 @@ class _SocialBlock extends StatelessWidget {
   }
 
   List<Widget> _pillars(BuildContext ctx) {
+    String visionLabel = lang == 'hi' ? 'दृष्टि' : lang == 'gu' ? 'દ્રષ્ટિ' : 'VISION';
+    String missionLabel = lang == 'hi' ? 'मिशन' : lang == 'gu' ? 'મિશન' : 'MISSION';
+    String objLabel = lang == 'hi' ? 'उद्देश्य' : lang == 'gu' ? 'ઉદ્દેશ્ય' : 'OBJECTIVE';
+
     final data = [
-      if (p.socialVision.isNotEmpty)    (Icons.visibility_outlined, 'VISION',    p.socialVision),
-      if (p.socialMission.isNotEmpty)   (Icons.flag_outlined,        'MISSION',   p.socialMission),
-      if (p.socialObjective.isNotEmpty) (Icons.track_changes_rounded,'OBJECTIVE', p.socialObjective),
+      if (p.localizedSocialVision(lang).isNotEmpty)    (Icons.visibility_outlined, visionLabel,    p.localizedSocialVision(lang)),
+      if (p.localizedSocialMission(lang).isNotEmpty)   (Icons.flag_outlined,        missionLabel,   p.localizedSocialMission(lang)),
+      if (p.localizedSocialObjective(lang).isNotEmpty) (Icons.track_changes_rounded, objLabel, p.localizedSocialObjective(lang)),
     ];
     return data.map((d) => _PillarCard(icon: d.$1, label: d.$2, text: d.$3, isMob: isMob)).toList();
   }
@@ -719,49 +743,40 @@ class _PillarCardState extends State<_PillarCard> {
 class _PhilosophyBlock extends StatelessWidget {
   final String quote;
   final bool isMob;
-  const _PhilosophyBlock({required this.quote, required this.isMob});
+  final String lang;
+  const _PhilosophyBlock({required this.quote, required this.isMob, required this.lang});
 
   @override
   Widget build(BuildContext context) {
+    String labelText = lang == 'hi' ? 'जीवन का दर्शन' : lang == 'gu' ? 'જીવનનું દર્શન' : 'PHILOSOPHY OF LIFE';
+    
     return Container(
       color: Colors.white,
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: isMob ? 24 : 120, vertical: isMob ? 60 : 90),
+      padding: EdgeInsets.symmetric(horizontal: isMob ? 24 : 60, vertical: isMob ? 60 : 100),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 920),
-          child: Column(children: [
-            // Gold decorative mark
-            Text('\u201C',
-              style: TextStyle(
-                fontFamily: 'Georgia',
-                color: _gold.withOpacity(0.25),
-                fontSize: isMob ? 100 : 160,
-                fontWeight: FontWeight.w900,
-                height: 0.7,
+          constraints: const BoxConstraints(maxWidth: 900),
+          child: Column(
+            children: [
+              _Label(labelText, isMob),
+              const SizedBox(height: 48),
+              Icon(Icons.format_quote_rounded, color: _gold.withOpacity(0.2), size: 60),
+              const SizedBox(height: 24),
+              Text(
+                quote,
+                textAlign: TextAlign.center,
+                style: AppTypography.headingStyle(context,
+                  fontSize: isMob ? 24 : 32,
+                  color: _teal,
+                  fontWeight: FontWeight.w600,
+                  height: 1.5,
+                  fontStyle: FontStyle.italic,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            _Label('PHILOSOPHY OF LIFE', isMob, centered: true),
-            const SizedBox(height: 28),
-            Text(quote,
-              textAlign: TextAlign.center,
-              style: AppTypography.headingStyle(context,
-                fontSize: isMob ? 19 : 26,
-                color: _teal,
-                fontWeight: FontWeight.w600,
-                height: 1.7,
-              ),
-            ),
-            const SizedBox(height: 32),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Container(width: 50, height: 1.5, color: _gold.withOpacity(0.4)),
-              const SizedBox(width: 14),
-              const Icon(Icons.brightness_5_rounded, color: _gold, size: 16),
-              const SizedBox(width: 14),
-              Container(width: 50, height: 1.5, color: _gold.withOpacity(0.4)),
-            ]),
-          ]),
+              const SizedBox(height: 32),
+              Container(width: 60, height: 3, color: _gold),
+            ],
+          ),
         ),
       ),
     );
@@ -769,12 +784,13 @@ class _PhilosophyBlock extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 7. PERSONAL ATTRIBUTES — elegant icon + text list on beige
+// 7. PERSONAL ATTRIBUTES — tags/badges
 // ─────────────────────────────────────────────────────────────────────────────
 class _AttributesBlock extends StatelessWidget {
   final List<String> items;
   final bool isMob, isDsk;
-  const _AttributesBlock({required this.items, required this.isMob, required this.isDsk});
+  final String lang;
+  const _AttributesBlock({required this.items, required this.isMob, required this.isDsk, required this.lang});
 
   static const _icons = [
     Icons.favorite_rounded, Icons.handshake_rounded, Icons.self_improvement_rounded,
@@ -784,6 +800,9 @@ class _AttributesBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cols = isMob ? 1 : (isDsk ? 2 : 2);
+    String labelText = lang == 'hi' ? 'व्यक्तिगत विशेषताएं' : lang == 'gu' ? 'વ્યક્તિગત લાક્ષણિકતાઓ' : 'PERSONAL ATTRIBUTES';
+    String titleText = lang == 'hi' ? 'चरित्र, मूल्य और जीवन सिद्धांत' : lang == 'gu' ? 'ચારિત્ર્ય, મૂલ્યો અને જીવન સિદ્ધાંતો' : 'Character, Values & Life Principles';
+
     return Container(
       color: _beige,
       width: double.infinity,
@@ -794,9 +813,9 @@ class _AttributesBlock extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Label('PERSONAL ATTRIBUTES', isMob),
+              _Label(labelText, isMob),
               const SizedBox(height: 8),
-              Text('Character, Values & Life Principles',
+              Text(titleText,
                 style: AppTypography.headingStyle(context, fontSize: isMob ? 26 : 38, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
               const SizedBox(height: 52),
               LayoutBuilder(builder: (ctx, box) {
@@ -865,6 +884,76 @@ class _AttrCardState extends State<_AttrCard> {
             ))),
           Icon(Icons.arrow_forward_rounded, color: _hov ? _gold.withOpacity(0.6) : Colors.transparent, size: 16),
         ]),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. SIGNATURE IDENTITY
+// ─────────────────────────────────────────────────────────────────────────────
+class _SignatureBlock extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final bool isMob, isDsk;
+  final String lang;
+  const _SignatureBlock({required this.title, required this.subtitle, required this.isMob, required this.isDsk, required this.lang});
+
+  @override
+  Widget build(BuildContext context) {
+    String labelText = lang == 'hi' ? 'हस्ताक्षर पहचान' : lang == 'gu' ? 'હસ્તાક્ષર ઓળખ' : 'SIGNATURE IDENTITY';
+
+    return Container(
+      width: double.infinity,
+      color: Colors.white,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMob ? 24 : (isDsk ? 120 : 60),
+        vertical: isMob ? 60 : 80),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 900),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                labelText,
+                style: AppTypography.headingStyle(
+                  context,
+                  fontSize: isMob ? 26 : 32,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF5A2D82), // Deep purple as requested
+                  letterSpacing: 0,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '"$title" ',
+                      style: AppTypography.bodyStyle(context,
+                        fontSize: isMob ? 18 : 22,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFFF03A3A), // Red as requested
+                      ),
+                    ),
+                    TextSpan(
+                      text: subtitle,
+                      style: AppTypography.bodyStyle(context,
+                        fontSize: isMob ? 18 : 22,
+                        fontWeight: FontWeight.w400,
+                        color: _slate,
+                        height: 1.6,
+                      ).copyWith(fontStyle: FontStyle.italic),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

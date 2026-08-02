@@ -13,6 +13,31 @@ const _teal   = Color(0xFF0F4C5C);
 const _gold   = Color(0xFFC19A6B);
 const _beige  = Color(0xFFF9F3EA);
 
+class _LanguageFormState {
+  QuillController? quillController;
+  List<String> competencies = [];
+  List<String> highlights = [];
+  List<String> attributes = [];
+  final siTitleCtrl = TextEditingController();
+  final siVisionCtrl = TextEditingController();
+  final siMissionCtrl = TextEditingController();
+  final siObjectiveCtrl = TextEditingController();
+  final philosophyCtrl = TextEditingController();
+  final sigTitleCtrl = TextEditingController();
+  final sigSubtitleCtrl = TextEditingController();
+
+  void dispose() {
+    quillController?.dispose();
+    siTitleCtrl.dispose();
+    siVisionCtrl.dispose();
+    siMissionCtrl.dispose();
+    siObjectiveCtrl.dispose();
+    philosophyCtrl.dispose();
+    sigTitleCtrl.dispose();
+    sigSubtitleCtrl.dispose();
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // ROOT WIDGET
 // ─────────────────────────────────────────────────────────────────────────────
@@ -25,23 +50,11 @@ class AboutProfileEditor extends StatefulWidget {
 }
 
 class _AboutProfileEditorState extends State<AboutProfileEditor> {
-  // ── Quill (Introduction) ──────────────────────────────────────────────────
-  QuillController? _quillController;
-  bool _quillInitialized = false;
-
-  // ── Local mutable copies of list sections ────────────────────────────────
-  List<String> _competencies    = [];
-  List<String> _highlights      = [];
-  List<String> _attributes      = [];
-
-  // ── Social Initiative text controllers ────────────────────────────────────
-  final _siTitleCtrl     = TextEditingController();
-  final _siVisionCtrl    = TextEditingController();
-  final _siMissionCtrl   = TextEditingController();
-  final _siObjectiveCtrl = TextEditingController();
-
-  // ── Philosophy of Life ────────────────────────────────────────────────────
-  final _philosophyCtrl  = TextEditingController();
+  final Map<String, _LanguageFormState> _forms = {
+    'en': _LanguageFormState(),
+    'hi': _LanguageFormState(),
+    'gu': _LanguageFormState(),
+  };
 
   bool _isSaving       = false;
   bool _dataLoaded     = false;
@@ -55,97 +68,118 @@ class _AboutProfileEditorState extends State<AboutProfileEditor> {
     }
   }
 
+  void _loadLanguage(String lang, String deltaStr, List<String> comp, List<String> high, List<String> attr, String siTitle, String siVis, String siMiss, String siObj, String phil, String sigTitle, String sigSub) {
+    final form = _forms[lang]!;
+    Document doc = Document();
+    if (deltaStr.isNotEmpty) {
+      try { doc = Document.fromJson(jsonDecode(deltaStr)); } catch (_) {}
+    }
+    form.quillController = QuillController(document: doc, selection: const TextSelection.collapsed(offset: 0));
+    form.competencies = List<String>.from(comp);
+    form.highlights = List<String>.from(high);
+    form.attributes = List<String>.from(attr);
+    form.siTitleCtrl.text = siTitle;
+    form.siVisionCtrl.text = siVis;
+    form.siMissionCtrl.text = siMiss;
+    form.siObjectiveCtrl.text = siObj;
+    form.philosophyCtrl.text = phil;
+    form.sigTitleCtrl.text = sigTitle;
+    form.sigSubtitleCtrl.text = sigSub;
+  }
+
   void _loadFromProfile(ProfileData? data) {
     if (data == null) return;
-
-    // ── Quill ──
-    Document doc = Document();
-    if (data.contentDelta.isNotEmpty) {
-      try {
-        doc = Document.fromJson(jsonDecode(data.contentDelta));
-      } catch (_) {}
-    }
-    _quillController = QuillController(
-      document: doc,
-      selection: const TextSelection.collapsed(offset: 0),
-    );
-
-    // ── Lists ──
-    _competencies = List<String>.from(data.coreCompetencies);
-    _highlights   = List<String>.from(data.professionalHighlights);
-    _attributes   = List<String>.from(data.personalAttributes);
-
-    // ── Social Initiative ──
-    _siTitleCtrl.text     = data.socialInitiativeTitle;
-    _siVisionCtrl.text    = data.socialVision;
-    _siMissionCtrl.text   = data.socialMission;
-    _siObjectiveCtrl.text = data.socialObjective;
-
-    // ── Philosophy ──
-    _philosophyCtrl.text  = data.philosophyOfLife;
-
+    _loadLanguage('en', data.contentDelta, data.coreCompetencies, data.professionalHighlights, data.personalAttributes, data.socialInitiativeTitle, data.socialVision, data.socialMission, data.socialObjective, data.philosophyOfLife, data.signatureIdentityTitle, data.signatureIdentitySubtitle);
+    _loadLanguage('hi', data.contentDeltaHi, data.coreCompetenciesHi, data.professionalHighlightsHi, data.personalAttributesHi, data.socialInitiativeTitleHi, data.socialVisionHi, data.socialMissionHi, data.socialObjectiveHi, data.philosophyOfLifeHi, data.signatureIdentityTitleHi, data.signatureIdentitySubtitleHi);
+    _loadLanguage('gu', data.contentDeltaGu, data.coreCompetenciesGu, data.professionalHighlightsGu, data.personalAttributesGu, data.socialInitiativeTitleGu, data.socialVisionGu, data.socialMissionGu, data.socialObjectiveGu, data.philosophyOfLifeGu, data.signatureIdentityTitleGu, data.signatureIdentitySubtitleGu);
     setState(() => _dataLoaded = true);
-    _quillInitialized = true;
   }
 
   @override
   void dispose() {
-    _quillController?.dispose();
-    _siTitleCtrl.dispose();
-    _siVisionCtrl.dispose();
-    _siMissionCtrl.dispose();
-    _siObjectiveCtrl.dispose();
-    _philosophyCtrl.dispose();
+    _forms.values.forEach((f) => f.dispose());
     super.dispose();
   }
 
-  // ── Save all sections ─────────────────────────────────────────────────────
   Future<void> _saveAll() async {
     setState(() => _isSaving = true);
     try {
       final pc = Provider.of<ProfileController>(context, listen: false);
-      final existing = pc.profileData ?? ProfileData();
 
-      // Build HTML from Quill
-      String html  = existing.contentHTML;
-      String delta = existing.contentDelta;
-      if (_quillController != null) {
-        final d = _quillController!.document.toDelta();
-        delta = jsonEncode(d.toJson());
-        html  = QuillDeltaToHtmlConverter(d.toJson(), ConverterOptions()).convert();
+      String getHtml(QuillController? qc) {
+        if (qc == null) return '';
+        try {
+          return QuillDeltaToHtmlConverter(qc.document.toDelta().toJson(), ConverterOptions()).convert();
+        } catch (_) { return ''; }
+      }
+      String getDelta(QuillController? qc) {
+        if (qc == null) return '';
+        return jsonEncode(qc.document.toDelta().toJson());
       }
 
+      final fEn = _forms['en']!;
+      final fHi = _forms['hi']!;
+      final fGu = _forms['gu']!;
+
       final updated = ProfileData(
-        contentHTML:            html,
-        contentDelta:           delta,
-        coreCompetencies:       List<String>.from(_competencies.where((s) => s.trim().isNotEmpty)),
-        professionalHighlights: List<String>.from(_highlights.where((s) => s.trim().isNotEmpty)),
-        socialInitiativeTitle:  _siTitleCtrl.text.trim(),
-        socialVision:           _siVisionCtrl.text.trim(),
-        socialMission:          _siMissionCtrl.text.trim(),
-        socialObjective:        _siObjectiveCtrl.text.trim(),
-        philosophyOfLife:       _philosophyCtrl.text.trim(),
-        personalAttributes:     List<String>.from(_attributes.where((s) => s.trim().isNotEmpty)),
+        contentHTML: getHtml(fEn.quillController),
+        contentDelta: getDelta(fEn.quillController),
+        contentHTMLHi: getHtml(fHi.quillController),
+        contentDeltaHi: getDelta(fHi.quillController),
+        contentHTMLGu: getHtml(fGu.quillController),
+        contentDeltaGu: getDelta(fGu.quillController),
+        
+        coreCompetencies: List<String>.from(fEn.competencies.where((s) => s.trim().isNotEmpty)),
+        coreCompetenciesHi: List<String>.from(fHi.competencies.where((s) => s.trim().isNotEmpty)),
+        coreCompetenciesGu: List<String>.from(fGu.competencies.where((s) => s.trim().isNotEmpty)),
+        
+        professionalHighlights: List<String>.from(fEn.highlights.where((s) => s.trim().isNotEmpty)),
+        professionalHighlightsHi: List<String>.from(fHi.highlights.where((s) => s.trim().isNotEmpty)),
+        professionalHighlightsGu: List<String>.from(fGu.highlights.where((s) => s.trim().isNotEmpty)),
+        
+        socialInitiativeTitle: fEn.siTitleCtrl.text.trim(),
+        socialInitiativeTitleHi: fHi.siTitleCtrl.text.trim(),
+        socialInitiativeTitleGu: fGu.siTitleCtrl.text.trim(),
+        
+        socialVision: fEn.siVisionCtrl.text.trim(),
+        socialVisionHi: fHi.siVisionCtrl.text.trim(),
+        socialVisionGu: fGu.siVisionCtrl.text.trim(),
+        
+        socialMission: fEn.siMissionCtrl.text.trim(),
+        socialMissionHi: fHi.siMissionCtrl.text.trim(),
+        socialMissionGu: fGu.siMissionCtrl.text.trim(),
+        
+        socialObjective: fEn.siObjectiveCtrl.text.trim(),
+        socialObjectiveHi: fHi.siObjectiveCtrl.text.trim(),
+        socialObjectiveGu: fGu.siObjectiveCtrl.text.trim(),
+        
+        philosophyOfLife: fEn.philosophyCtrl.text.trim(),
+        philosophyOfLifeHi: fHi.philosophyCtrl.text.trim(),
+        philosophyOfLifeGu: fGu.philosophyCtrl.text.trim(),
+        
+        personalAttributes: List<String>.from(fEn.attributes.where((s) => s.trim().isNotEmpty)),
+        personalAttributesHi: List<String>.from(fHi.attributes.where((s) => s.trim().isNotEmpty)),
+        personalAttributesGu: List<String>.from(fGu.attributes.where((s) => s.trim().isNotEmpty)),
+        
+        signatureIdentityTitle: fEn.sigTitleCtrl.text.trim(),
+        signatureIdentityTitleHi: fHi.sigTitleCtrl.text.trim(),
+        signatureIdentityTitleGu: fGu.sigTitleCtrl.text.trim(),
+        
+        signatureIdentitySubtitle: fEn.sigSubtitleCtrl.text.trim(),
+        signatureIdentitySubtitleHi: fHi.sigSubtitleCtrl.text.trim(),
+        signatureIdentitySubtitleGu: fGu.sigSubtitleCtrl.text.trim(),
       );
 
       await pc.saveProfileData(updated);
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ All profile sections saved successfully!'),
-            backgroundColor: Colors.green,
-          ),
+          const SnackBar(content: Text('All profile sections saved successfully! (EN, HI, GU)'), backgroundColor: Colors.green),
         );
       }
     } catch (e) {
-      debugPrint('Save error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('❌ Error saving profile data'),
-            backgroundColor: Colors.redAccent,
-          ),
+          SnackBar(content: Text('Error saving: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -153,163 +187,164 @@ class _AboutProfileEditorState extends State<AboutProfileEditor> {
     }
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // BUILD
-  // ─────────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    final pc = Provider.of<ProfileController>(context);
+    if (!_dataLoaded) return const Center(child: CircularProgressIndicator(color: _teal));
 
-    if (pc.isLoading || !_dataLoaded) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(40),
-          child: CircularProgressIndicator(color: _teal),
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // ── Header + Save button ────────────────────────────────────────────
-        if (widget.showHeader) ...[
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.redAccent.withOpacity(0.05),
-              border: Border.all(color: Colors.redAccent.withOpacity(0.5), width: 2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'BIOGRAPHY PAGE — ALL SECTIONS',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.2),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'IMPORTANT: You MUST click the SAVE button here to publish biography data to the live site. The global "Publish" menu does not save these sections.',
-                        style: TextStyle(fontSize: 13, color: Colors.redAccent, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF4F6F8),
+        body: Column(
+          children: [
+            if (widget.showHeader) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  border: Border(bottom: BorderSide(color: Color(0xFFE0E0E0))),
                 ),
-                const SizedBox(width: 20),
-                ElevatedButton.icon(
-                  onPressed: _isSaving ? null : _saveAll,
-                  icon: _isSaving
-                      ? const SizedBox(
-                          width: 20, height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
-                        )
-                      : const Icon(Icons.cloud_upload_rounded, size: 24),
-                  label: Text(
-                    _isSaving ? 'SAVING...' : 'SAVE ALL SECTIONS NOW',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-                    elevation: 4,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('About Dada Profile', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: _teal)),
+                        SizedBox(height: 4),
+                        Text('Manage the massive biography & structured sections (EN, HI, GU).', style: TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: _isSaving ? null : _saveAll,
+                      icon: _isSaving
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Icon(Icons.save_rounded),
+                      label: Text(_isSaving ? 'SAVING...' : 'SAVE ALL SECTIONS NOW'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        textStyle: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.1),
+                        elevation: 4,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
+            ],
+            
+            Container(
+              color: Colors.white,
+              child: const TabBar(
+                labelColor: _teal,
+                unselectedLabelColor: Colors.grey,
+                indicatorColor: _gold,
+                indicatorWeight: 4,
+                tabs: [
+                  Tab(text: 'English'),
+                  Tab(text: 'Hindi (हिन्दी)'),
+                  Tab(text: 'Gujarati (ગુજરાતી)'),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 40),
-        ],
-
-        // ── SECTION 1: Introduction ─────────────────────────────────────────
-        _sectionHeader('1', 'AN INTRODUCTION', 'Rich text biography paragraph(s)'),
-        const SizedBox(height: 12),
-        _quillEditor(),
-        const SizedBox(height: 40),
-
-        // ── SECTION 2: Core Competencies ───────────────────────────────────
-        _sectionHeader('2', 'CORE COMPETENCIES', 'Skills and areas of expertise (bullet list)'),
-        const SizedBox(height: 12),
-        _dynamicList(
-          items: _competencies,
-          hint: 'e.g. Shrimad Bhagavat Katha Exposition',
-          onAdd: () => setState(() => _competencies.add('')),
-          onRemove: (i) => setState(() => _competencies.removeAt(i)),
-          onChanged: (i, v) => _competencies[i] = v,
+            
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _buildFormTab('en', _forms['en']!),
+                  _buildFormTab('hi', _forms['hi']!),
+                  _buildFormTab('gu', _forms['gu']!),
+                ],
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 40),
-
-        // ── SECTION 3: Professional Highlights ─────────────────────────────
-        _sectionHeader('3', 'PROFESSIONAL HIGHLIGHTS', 'Key achievements and notable work'),
-        const SizedBox(height: 12),
-        _dynamicList(
-          items: _highlights,
-          hint: 'e.g. Delivered numerous Shrimad Bhagavat Kathas across various regions...',
-          onAdd: () => setState(() => _highlights.add('')),
-          onRemove: (i) => setState(() => _highlights.removeAt(i)),
-          onChanged: (i, v) => _highlights[i] = v,
-          multiline: true,
-        ),
-        const SizedBox(height: 40),
-
-        // ── SECTION 4: Social Initiative ───────────────────────────────────
-        _sectionHeader('4', 'SOCIAL INITIATIVE', 'Tathastu Vidhyapith — Vision, Mission, Objective'),
-        const SizedBox(height: 12),
-        _plainField(_siTitleCtrl, 'Founder Title', 'e.g. Founder – Tathastu Vidhyapith (Dream Project)'),
-        const SizedBox(height: 12),
-        _plainField(_siVisionCtrl, 'Vision', 'e.g. To ensure that financial limitations do not become barriers...', maxLines: 4),
-        const SizedBox(height: 12),
-        _plainField(_siMissionCtrl, 'Mission', 'e.g. To establish an institution that provides free academic coaching...', maxLines: 4),
-        const SizedBox(height: 12),
-        _plainField(_siObjectiveCtrl, 'Objective', 'e.g. To nurture young minds through education, values...', maxLines: 4),
-        const SizedBox(height: 40),
-
-        // ── SECTION 5: Philosophy of Life ──────────────────────────────────
-        _sectionHeader('5', 'PHILOSOPHY OF LIFE', 'The defining quote / life motto'),
-        const SizedBox(height: 12),
-        _plainField(_philosophyCtrl, 'Philosophy Quote', 'e.g. Spiritual wisdom elevates the soul, while education empowers society...', maxLines: 4),
-        const SizedBox(height: 40),
-
-        // ── SECTION 6: Personal Attributes ────────────────────────────────
-        _sectionHeader('6', 'PERSONAL ATTRIBUTES', 'Character traits and qualities (badge list)'),
-        const SizedBox(height: 12),
-        _dynamicList(
-          items: _attributes,
-          hint: 'e.g. Deeply Religious and Spiritually Inclined',
-          onAdd: () => setState(() => _attributes.add('')),
-          onRemove: (i) => setState(() => _attributes.removeAt(i)),
-          onChanged: (i, v) => _attributes[i] = v,
-        ),
-        const SizedBox(height: 40),
-
-        // ── Last saved timestamp ───────────────────────────────────────────
-        if (pc.profileData?.lastUpdated != null)
-          Text(
-            'Last Saved: ${pc.profileData!.lastUpdated.toString()}',
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        const SizedBox(height: 20),
-      ],
+      ),
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // HELPER WIDGETS
-  // ─────────────────────────────────────────────────────────────────────────
+  Widget _buildFormTab(String lang, _LanguageFormState formState) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(32),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _sectionHeader('01', 'INTRODUCTION / BIOGRAPHY', 'The main long-form text with rich formatting (Quill).'),
+              const SizedBox(height: 16),
+              _quillEditor(formState.quillController),
+              const SizedBox(height: 48),
 
-  /// Numbered section header with title and subtitle
+              _sectionHeader('02', 'CORE COMPETENCIES', 'Short bullet points describing key skills or domains.'),
+              const SizedBox(height: 16),
+              _dynamicList(
+                items: formState.competencies,
+                hint: 'e.g. Shrimad Bhagavat Katha Exposition',
+                onAdd: () => setState(() => formState.competencies.add('')),
+                onRemove: (i) => setState(() => formState.competencies.removeAt(i)),
+                onChanged: (i, v) => formState.competencies[i] = v,
+              ),
+              const SizedBox(height: 48),
+
+              _sectionHeader('03', 'PROFESSIONAL HIGHLIGHTS', 'Notable achievements, global reach, or major milestones.'),
+              const SizedBox(height: 16),
+              _dynamicList(
+                items: formState.highlights,
+                hint: 'e.g. Conducted over 500 kathas globally...',
+                onAdd: () => setState(() => formState.highlights.add('')),
+                onRemove: (i) => setState(() => formState.highlights.removeAt(i)),
+                onChanged: (i, v) => formState.highlights[i] = v,
+                multiline: true,
+              ),
+              const SizedBox(height: 48),
+
+              _sectionHeader('04', 'SOCIAL INITIATIVE & VISION', 'Details about humanitarian work and goals.'),
+              const SizedBox(height: 16),
+              _plainField(formState.siTitleCtrl, 'Initiative Title', 'e.g. Humanitarian & Social Initiatives'),
+              const SizedBox(height: 16),
+              _plainField(formState.siVisionCtrl, 'Vision', 'Describe the overarching vision...', maxLines: 4),
+              const SizedBox(height: 16),
+              _plainField(formState.siMissionCtrl, 'Mission', 'Describe the mission...', maxLines: 4),
+              const SizedBox(height: 16),
+              _plainField(formState.siObjectiveCtrl, 'Objective', 'Describe the specific objectives...', maxLines: 4),
+              const SizedBox(height: 48),
+
+              _sectionHeader('05', 'PHILOSOPHY OF LIFE', 'A core quote or guiding principle.'),
+              const SizedBox(height: 16),
+              _plainField(formState.philosophyCtrl, 'Philosophy', 'e.g. "True devotion is not just in prayer..."', maxLines: 4),
+              const SizedBox(height: 48),
+
+              _sectionHeader('06', 'PERSONAL ATTRIBUTES', 'Qualities that define the persona.'),
+              const SizedBox(height: 16),
+              _dynamicList(
+                items: formState.attributes,
+                hint: 'e.g. Humility and Compassion',
+                onAdd: () => setState(() => formState.attributes.add('')),
+                onRemove: (i) => setState(() => formState.attributes.removeAt(i)),
+                onChanged: (i, v) => formState.attributes[i] = v,
+              ),
+              const SizedBox(height: 48),
+
+              _sectionHeader('07', 'SIGNATURE IDENTITY', 'The custom mantra and subtitle displayed at the bottom.'),
+              const SizedBox(height: 16),
+              _plainField(formState.sigTitleCtrl, 'Title (e.g. "Radhe Radhe")', 'Enter the signature phrase'),
+              const SizedBox(height: 16),
+              _plainField(formState.sigSubtitleCtrl, 'Subtitle', 'e.g. The profound mantra...'),
+              const SizedBox(height: 120),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _sectionHeader(String number, String title, String subtitle) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      decoration: BoxDecoration(
-        color: _teal,
-        borderRadius: BorderRadius.circular(6),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(color: _teal, borderRadius: BorderRadius.circular(8)),
       child: Row(
         children: [
           Container(
@@ -333,11 +368,8 @@ class _AboutProfileEditorState extends State<AboutProfileEditor> {
     );
   }
 
-  /// Quill rich-text editor for the Introduction section
-  Widget _quillEditor() {
-    if (_quillController == null) {
-      return const Center(child: CircularProgressIndicator(color: _teal));
-    }
+  Widget _quillEditor(QuillController? qc) {
+    if (qc == null) return const Center(child: CircularProgressIndicator(color: _teal));
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey[50],
@@ -347,48 +379,25 @@ class _AboutProfileEditorState extends State<AboutProfileEditor> {
       child: Column(
         children: [
           QuillSimpleToolbar(
-            controller: _quillController!,
+            controller: qc,
             config: const QuillSimpleToolbarConfig(
-              showFontFamily: false,
-              showFontSize: true,
-              showBoldButton: true,
-              showItalicButton: true,
-              showUnderLineButton: true,
-              showStrikeThrough: false,
-              showColorButton: true,
-              showBackgroundColorButton: false,
-              showClearFormat: true,
-              showLeftAlignment: true,
-              showCenterAlignment: true,
-              showRightAlignment: true,
-              showJustifyAlignment: false,
-              showHeaderStyle: true,
-              showListNumbers: true,
-              showListBullets: true,
-              showListCheck: false,
-              showCodeBlock: false,
-              showQuote: true,
-              showIndent: true,
-              showLink: false,
-              showUndo: true,
-              showRedo: true,
-              showDirection: false,
-              showSearchButton: false,
-              showSubscript: false,
-              showSuperscript: false,
+              showFontFamily: false, showFontSize: true, showBoldButton: true,
+              showItalicButton: true, showUnderLineButton: true, showStrikeThrough: false,
+              showColorButton: true, showBackgroundColorButton: false, showClearFormat: true,
+              showLeftAlignment: true, showCenterAlignment: true, showRightAlignment: true,
+              showJustifyAlignment: false, showHeaderStyle: true, showListNumbers: true,
+              showListBullets: true, showListCheck: false, showCodeBlock: false,
+              showQuote: true, showIndent: true, showLink: false, showUndo: true, showRedo: true,
+              showDirection: false, showSearchButton: false, showSubscript: false, showSuperscript: false,
             ),
           ),
           const Divider(height: 1),
           Container(
-            height: 500,
-            padding: const EdgeInsets.all(16),
+            height: 500, padding: const EdgeInsets.all(16),
             child: QuillEditor.basic(
-              controller: _quillController!,
+              controller: qc,
               config: const QuillEditorConfig(
-                placeholder: 'Write the full introduction / biography here...',
-                scrollable: true,
-                expands: false,
-                padding: EdgeInsets.zero,
+                placeholder: 'Write here...', scrollable: true, expands: false, padding: EdgeInsets.zero,
               ),
             ),
           ),
@@ -397,27 +406,14 @@ class _AboutProfileEditorState extends State<AboutProfileEditor> {
     );
   }
 
-  /// Dynamic add/remove list of text items
-  Widget _dynamicList({
-    required List<String> items,
-    required String hint,
-    required VoidCallback onAdd,
-    required void Function(int) onRemove,
-    required void Function(int, String) onChanged,
-    bool multiline = false,
-  }) {
+  Widget _dynamicList({required List<String> items, required String hint, required VoidCallback onAdd, required void Function(int) onRemove, required void Function(int, String) onChanged, bool multiline = false}) {
     return Container(
-      decoration: BoxDecoration(
-        color: _beige.withOpacity(0.4),
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(8),
-      ),
+      decoration: BoxDecoration(color: _beige.withOpacity(0.4), border: Border.all(color: Colors.grey[300]!), borderRadius: BorderRadius.circular(8)),
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           ...items.asMap().entries.map((entry) {
             final i = entry.key;
-            // Use TextEditingController to ensure value stays synced even if widget moves
             final controller = TextEditingController(text: items[i]);
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
@@ -426,36 +422,18 @@ class _AboutProfileEditorState extends State<AboutProfileEditor> {
                 children: [
                   Container(
                     margin: const EdgeInsets.only(top: 14, right: 10),
-                    width: 24, height: 24,
-                    decoration: BoxDecoration(
-                      color: _gold.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text('${i + 1}', style: const TextStyle(fontSize: 11, color: _gold, fontWeight: FontWeight.bold)),
+                    width: 24, height: 24, decoration: BoxDecoration(color: _gold.withOpacity(0.2), borderRadius: BorderRadius.circular(4)),
+                    alignment: Alignment.center, child: Text('${i + 1}', style: const TextStyle(fontSize: 11, color: _gold, fontWeight: FontWeight.bold)),
                   ),
                   Expanded(
                     child: TextFormField(
-                      controller: controller,
-                      maxLines: multiline ? 3 : 1,
+                      controller: controller, maxLines: multiline ? 3 : 1,
                       decoration: InputDecoration(
-                        hintText: hint,
-                        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
-                        filled: true,
-                        fillColor: Colors.white,
+                        hintText: hint, hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13), filled: true, fillColor: Colors.white,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: const BorderSide(color: _teal, width: 1.5),
-                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: Colors.grey[300]!)),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: Colors.grey[300]!)),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: _teal, width: 1.5)),
                       ),
                       onChanged: (v) => onChanged(i, v),
                     ),

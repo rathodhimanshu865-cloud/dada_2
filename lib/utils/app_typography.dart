@@ -16,7 +16,7 @@ class AppTypography {
     return GoogleFonts.nunito().fontFamily!;
   }
 
-  static TextStyle headingStyle(BuildContext context, {double? fontSize, FontWeight? fontWeight, Color? color, double? letterSpacing, double? height}) {
+  static TextStyle headingStyle(BuildContext context, {double? fontSize, FontWeight? fontWeight, Color? color, double? letterSpacing, double? height, FontStyle? fontStyle}) {
     return TextStyle(
       fontFamily: getHeadingFont(context),
       fontSize: fontSize,
@@ -24,10 +24,11 @@ class AppTypography {
       color: color,
       letterSpacing: letterSpacing,
       height: height,
+      fontStyle: fontStyle,
     );
   }
 
-  static TextStyle bodyStyle(BuildContext context, {double? fontSize, FontWeight? fontWeight, Color? color, double? letterSpacing, double? height}) {
+  static TextStyle bodyStyle(BuildContext context, {double? fontSize, FontWeight? fontWeight, Color? color, double? letterSpacing, double? height, FontStyle? fontStyle}) {
     return TextStyle(
       fontFamily: getBodyFont(context),
       fontSize: fontSize,
@@ -35,6 +36,7 @@ class AppTypography {
       color: color,
       letterSpacing: letterSpacing,
       height: height,
+      fontStyle: fontStyle,
     );
   }
 
