@@ -264,6 +264,11 @@ class HomePageController extends ChangeNotifier {
         futures.add(TranslationService.translateBatch(aboutSection.paragraphs, 'hi').then((res) => aboutSection.paragraphsHi = res));
         futures.add(TranslationService.translateBatch(aboutSection.paragraphs, 'gu').then((res) => aboutSection.paragraphsGu = res));
       }
+      
+      // ── About Dada Page (Biography) ──────────────────────────────────────────
+      if (aboutDadaPage.heroTitle.isNotEmpty) futures.add(TranslationService.translateToAll(aboutDadaPage.heroTitle).then((res) { aboutDadaPage.heroTitleHi = res['hi'] ?? ''; aboutDadaPage.heroTitleGu = res['gu'] ?? ''; }));
+      if (aboutDadaPage.heroSubtitle.isNotEmpty) futures.add(TranslationService.translateToAll(aboutDadaPage.heroSubtitle).then((res) { aboutDadaPage.heroSubtitleHi = res['hi'] ?? ''; aboutDadaPage.heroSubtitleGu = res['gu'] ?? ''; }));
+
       // ── Ram Katha ────────────────────────────────────────────────────────────
       if (ramKatha.description1.isNotEmpty) futures.add(TranslationService.translateToAll(ramKatha.description1).then((res) { ramKatha.description1Hi = res['hi'] ?? ''; ramKatha.description1Gu = res['gu'] ?? ''; }));
       if (ramKatha.description2.isNotEmpty) futures.add(TranslationService.translateToAll(ramKatha.description2).then((res) { ramKatha.description2Hi = res['hi'] ?? ''; ramKatha.description2Gu = res['gu'] ?? ''; }));

@@ -26,11 +26,41 @@ const _slate   = Color(0xFF4A5568);
 // ─────────────────────────────────────────────────────────────────────────────
 // PAGE
 // ─────────────────────────────────────────────────────────────────────────────
-class AboutJigneshDadaPage extends StatelessWidget {
+class AboutJigneshDadaPage extends StatefulWidget {
   const AboutJigneshDadaPage({super.key});
 
   @override
+  State<AboutJigneshDadaPage> createState() => _AboutJigneshDadaPageState();
+}
+
+class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
+  // keepScrollOffset: false ensures Flutter never restores the previous scroll
+  // position, so the Hero is always visible at the top on every navigation.
+  final ScrollController _scrollController = ScrollController(keepScrollOffset: false);
+  bool _hasForceScrolled = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Aggressive scroll reset: Ensures that even on a hot-reload, 
+    // the page jumps to the very top to reveal the Hero section.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _scrollController.hasClients && !_hasForceScrolled) {
+        _scrollController.jumpTo(0);
+        _hasForceScrolled = true;
+      }
+    });
+
     final home    = Provider.of<HomePageController>(context);
     final prof    = Provider.of<ProfileController>(context);
     final lang    = Provider.of<LanguageController>(context).locale.languageCode;
@@ -41,6 +71,7 @@ class AboutJigneshDadaPage extends StatelessWidget {
 
     return UserPageLayout(
       controller: home,
+      scrollController: _scrollController,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -124,8 +155,11 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final title    = widget.data.localizedHeroTitle(widget.lang).isEmpty   ? 'Pujya Shri Jigneshdada'      : widget.data.localizedHeroTitle(widget.lang);
-    final subtitle = widget.data.localizedHeroSubtitle(widget.lang).isEmpty ? 'Renowned Bhagavatacharya • Spiritual Guide • Social Philanthropist' : widget.data.localizedHeroSubtitle(widget.lang);
+    String defaultTitle = widget.lang == 'hi' ? 'पूज्य श्री जिग्नेशदादा' : widget.lang == 'gu' ? 'પૂજ્ય શ્રી જીગ્નેશદાદા' : 'Pujya Shri Jigneshdada';
+    String defaultSubtitle = widget.lang == 'hi' ? 'प्रसिद्ध भागवताचार्य • आध्यात्मिक मार्गदर्शक • समाज सेवक' : widget.lang == 'gu' ? 'પ્રસિદ્ધ ભાગવતાચાર્ય • આધ્યાત્મિક માર્ગદર્શક • સમાજ સેવક' : 'Renowned Bhagavatacharya • Spiritual Guide • Social Philanthropist';
+
+    final title    = widget.data.localizedHeroTitle(widget.lang).isEmpty   ? defaultTitle : widget.data.localizedHeroTitle(widget.lang);
+    final subtitle = widget.data.localizedHeroSubtitle(widget.lang).isEmpty ? defaultSubtitle : widget.data.localizedHeroSubtitle(widget.lang);
     final hasImg   = widget.data.heroImage.isNotEmpty;
 
     return Container(
@@ -170,6 +204,7 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
           flex: 55,
           child: FadeTransition(opacity: _fade, child: SlideTransition(position: _slideText, child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Label
               Row(children: [
@@ -204,8 +239,8 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
               Row(children: [
                 Icon(Icons.spa_rounded, color: _gold.withOpacity(0.8), size: 24),
                 const SizedBox(width: 12),
-                const Text('"Radhe Radhe"',
-                  style: TextStyle(color: _gold, fontSize: 22, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, fontFamily: 'Georgia')),
+                Text(widget.lang == 'hi' ? '"राधे राधे"' : widget.lang == 'gu' ? '"રાધે રાધે"' : '"Radhe Radhe"',
+                  style: const TextStyle(color: _gold, fontSize: 22, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, fontFamily: 'Georgia')),
               ]),
             ],
           ))),
@@ -250,7 +285,8 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
         Text(subtitle, textAlign: TextAlign.center, style: AppTypography.bodyStyle(context, fontSize: 15, color: _slate, height: 1.6)),
         const SizedBox(height: 32),
         
-        const Text('"Radhe Radhe"', style: TextStyle(color: _gold, fontSize: 20, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, fontFamily: 'Georgia')),
+        Text(widget.lang == 'hi' ? '"राधे राधे"' : widget.lang == 'gu' ? '"રાધે રાધે"' : '"Radhe Radhe"', 
+          style: const TextStyle(color: _gold, fontSize: 20, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, fontFamily: 'Georgia')),
       ]),
     );
   }
@@ -268,9 +304,8 @@ class _PortraitFrame extends StatelessWidget {
       children: [
         // Premium backdrop shadow/offset
         Positioned(
-          right: -20, bottom: -20,
+          top: 20, bottom: -20, left: 20, right: -20,
           child: Container(
-            width: double.infinity, height: height,
             decoration: BoxDecoration(
               color: _gold.withOpacity(0.08),
               borderRadius: BorderRadius.circular(12),
@@ -279,9 +314,8 @@ class _PortraitFrame extends StatelessWidget {
         ),
         // Gold outline
         Positioned(
-          left: -10, top: -10,
+          top: -10, bottom: 10, left: -10, right: 10,
           child: Container(
-            width: double.infinity, height: height,
             decoration: BoxDecoration(
               border: Border.all(color: _gold.withOpacity(0.5), width: 1),
               borderRadius: BorderRadius.circular(12),
@@ -318,20 +352,35 @@ class _PortraitFrame extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. INTRODUCTION — editorial two-column with drop cap
 // ─────────────────────────────────────────────────────────────────────────────
-class _IntroBlock extends StatelessWidget {
+class _IntroBlock extends StatefulWidget {
   final String html, portrait, lang;
   final bool isMob, isDsk;
   const _IntroBlock({required this.html, required this.portrait, required this.isMob, required this.isDsk, required this.lang});
 
   @override
+  State<_IntroBlock> createState() => _IntroBlockState();
+}
+
+class _IntroBlockState extends State<_IntroBlock> {
+  bool _renderHtml = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 150), () {
+      if (mounted) setState(() => _renderHtml = true);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final hPad = isMob ? 24.0 : (isDsk ? 120.0 : 60.0);
-    String labelText = lang == 'hi' ? 'एक परिचय' : lang == 'gu' ? 'એક પરિચય' : 'AN INTRODUCTION';
-    String titleText = lang == 'hi' ? 'प्रेरक जीवन और यात्रा' : lang == 'gu' ? 'પ્રેરણાદાયક જીવન અને યાત્રા' : 'The Inspiring Life & Journey';
+    final hPad = widget.isMob ? 24.0 : (widget.isDsk ? 120.0 : 60.0);
+    String labelText = widget.lang == 'hi' ? 'एक परिचय' : widget.lang == 'gu' ? 'એક પરિચય' : 'AN INTRODUCTION';
+    String titleText = widget.lang == 'hi' ? 'प्रेरक जीवन और यात्रा' : widget.lang == 'gu' ? 'પ્રેરણાદાયક જીવન અને યાત્રા' : 'The Inspiring Life & Journey';
     
     return Container(
       color: Colors.white,
-      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: isMob ? 60 : 100),
+      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: widget.isMob ? 60 : 100),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1100),
@@ -339,34 +388,38 @@ class _IntroBlock extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Section label
-              _Label(labelText, isMob),
+              _Label(labelText, widget.isMob),
               const SizedBox(height: 8),
               Text(titleText,
-                style: AppTypography.headingStyle(context, fontSize: isMob ? 26 : 38, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
+                style: AppTypography.headingStyle(context, fontSize: widget.isMob ? 26 : 38, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
               const SizedBox(height: 48),
 
               // HTML content
-              HtmlWidget(
-                html,
-                textStyle: AppTypography.bodyStyle(context, fontSize: isMob ? 15 : 17, height: 1.95, color: _slate),
-                customStylesBuilder: (el) {
-                  if (el.localName == 'h1') return {
-                    'color': '#0F4C5C', 'font-size': isMob ? '22px' : '30px', 'font-weight': '700',
-                    'margin-top': '56px', 'margin-bottom': '24px', 'padding-bottom': '14px',
-                    'border-bottom': '2px solid #C19A6B', 'letter-spacing': '0.5px'};
-                  if (el.localName == 'h2') return {
-                    'color': '#0F4C5C', 'font-size': isMob ? '19px' : '24px', 'font-weight': '700',
-                    'margin-top': '44px', 'margin-bottom': '18px',
-                    'padding-left': '18px', 'border-left': '4px solid #C19A6B'};
-                  if (el.localName == 'p')  return {'margin-bottom': '24px', 'line-height': '1.95', 'text-align': 'justify'};
-                  if (el.localName == 'li') return {'margin-bottom': '10px', 'line-height': '1.75', 'color': '#4A5568'};
-                  if (el.localName == 'strong' || el.localName == 'b') return {'color': '#0F4C5C', 'font-weight': '700'};
-                  if (el.localName == 'em' || el.localName == 'i') return {'color': '#C19A6B', 'font-style': 'italic'};
-                  if (el.localName == 'blockquote') return {
-                    'background': '#F9F3EA', 'border-left': '5px solid #C19A6B',
-                    'padding': '20px 24px', 'margin': '32px 0', 'font-style': 'italic', 'color': '#374151'};
-                  return null;
-                },
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 300),
+                opacity: _renderHtml ? 1.0 : 0.0,
+                child: _renderHtml ? HtmlWidget(
+                  widget.html,
+                  textStyle: AppTypography.bodyStyle(context, fontSize: widget.isMob ? 15 : 17, height: 1.95, color: _slate),
+                  customStylesBuilder: (el) {
+                    if (el.localName == 'h1') return {
+                      'color': '#0F4C5C', 'font-size': widget.isMob ? '22px' : '30px', 'font-weight': '700',
+                      'margin-top': '56px', 'margin-bottom': '24px', 'padding-bottom': '14px',
+                      'border-bottom': '2px solid #C19A6B', 'letter-spacing': '0.5px'};
+                    if (el.localName == 'h2') return {
+                      'color': '#0F4C5C', 'font-size': widget.isMob ? '19px' : '24px', 'font-weight': '700',
+                      'margin-top': '44px', 'margin-bottom': '18px',
+                      'padding-left': '18px', 'border-left': '4px solid #C19A6B'};
+                    if (el.localName == 'p')  return {'margin-bottom': '24px', 'line-height': '1.95', 'text-align': 'justify'};
+                    if (el.localName == 'li') return {'margin-bottom': '10px', 'line-height': '1.75', 'color': '#4A5568'};
+                    if (el.localName == 'strong' || el.localName == 'b') return {'color': '#0F4C5C', 'font-weight': '700'};
+                    if (el.localName == 'em' || el.localName == 'i') return {'color': '#C19A6B', 'font-style': 'italic'};
+                    if (el.localName == 'blockquote') return {
+                      'background': '#F9F3EA', 'border-left': '5px solid #C19A6B',
+                      'padding': '20px 24px', 'margin': '32px 0', 'font-style': 'italic', 'color': '#374151'};
+                    return null;
+                  },
+                ) : const SizedBox(height: 200, width: double.infinity), // Placeholder height
               ),
             ],
           ),
@@ -525,24 +578,10 @@ class _HighlightsBlock extends StatelessWidget {
               const SizedBox(height: 52),
 
               // Timeline
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Gold vertical line
-                    if (!isMob) Column(children: [
-                      Container(width: 2, color: _gold.withOpacity(0.3), height: double.infinity),
-                    ]),
-                    if (!isMob) const SizedBox(width: 0),
-                    Expanded(
-                      child: Column(
-                        children: items.asMap().entries.map((e) =>
-                          _TimelineItem(index: e.key, text: e.value, isMob: isMob, total: items.length)
-                        ).toList(),
-                      ),
-                    ),
-                  ],
-                ),
+              Column(
+                children: items.asMap().entries.map((e) =>
+                  _TimelineItem(index: e.key, text: e.value, isMob: isMob, total: items.length)
+                ).toList(),
               ),
             ],
           ),
@@ -679,7 +718,7 @@ class _SocialBlock extends StatelessWidget {
   List<Widget> _pillars(BuildContext ctx) {
     String visionLabel = lang == 'hi' ? 'दृष्टि' : lang == 'gu' ? 'દ્રષ્ટિ' : 'VISION';
     String missionLabel = lang == 'hi' ? 'मिशन' : lang == 'gu' ? 'મિશન' : 'MISSION';
-    String objLabel = lang == 'hi' ? 'उद्देश्य' : lang == 'gu' ? 'ઉદ્દેશ્ય' : 'OBJECTIVE';
+    String objLabel = lang == 'hi' ? 'उद्દેશ्य' : lang == 'gu' ? 'ઉદ્દેશ્ય' : 'OBJECTIVE';
 
     final data = [
       if (p.localizedSocialVision(lang).isNotEmpty)    (Icons.visibility_outlined, visionLabel,    p.localizedSocialVision(lang)),

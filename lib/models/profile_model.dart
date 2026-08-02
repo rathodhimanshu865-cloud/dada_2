@@ -229,4 +229,59 @@ class ProfileData {
           : null,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'contentHTML': contentHTML,
+      'contentDelta': contentDelta,
+      'contentHTML_hi': contentHTMLHi,
+      'contentDelta_hi': contentDeltaHi,
+      'contentHTML_gu': contentHTMLGu,
+      'contentDelta_gu': contentDeltaGu,
+      'coreCompetencies': coreCompetencies,
+      'coreCompetencies_hi': coreCompetenciesHi,
+      'coreCompetencies_gu': coreCompetenciesGu,
+      'professionalHighlights': professionalHighlights,
+      'professionalHighlights_hi': professionalHighlightsHi,
+      'professionalHighlights_gu': professionalHighlightsGu,
+      'socialInitiativeTitle': socialInitiativeTitle,
+      'socialInitiativeTitle_hi': socialInitiativeTitleHi,
+      'socialInitiativeTitle_gu': socialInitiativeTitleGu,
+      'socialVision': socialVision,
+      'socialVision_hi': socialVisionHi,
+      'socialVision_gu': socialVisionGu,
+      'socialMission': socialMission,
+      'socialMission_hi': socialMissionHi,
+      'socialMission_gu': socialMissionGu,
+      'socialObjective': socialObjective,
+      'socialObjective_hi': socialObjectiveHi,
+      'socialObjective_gu': socialObjectiveGu,
+      'philosophyOfLife': philosophyOfLife,
+      'philosophyOfLife_hi': philosophyOfLifeHi,
+      'philosophyOfLife_gu': philosophyOfLifeGu,
+      'personalAttributes': personalAttributes,
+      'personalAttributes_hi': personalAttributesHi,
+      'personalAttributes_gu': personalAttributesGu,
+      'signatureIdentityTitle': signatureIdentityTitle,
+      'signatureIdentityTitle_hi': signatureIdentityTitleHi,
+      'signatureIdentityTitle_gu': signatureIdentityTitleGu,
+      'signatureIdentitySubtitle': signatureIdentitySubtitle,
+      'signatureIdentitySubtitle_hi': signatureIdentitySubtitleHi,
+      'signatureIdentitySubtitle_gu': signatureIdentitySubtitleGu,
+      if (lastUpdated != null)
+        'lastUpdated': lastUpdated!.millisecondsSinceEpoch,
+    };
+  }
+
+  factory ProfileData.fromJson(Map<String, dynamic> json) {
+    final lastUpdatedVal = json['lastUpdated'];
+    final Map<String, dynamic> safeJson = Map<String, dynamic>.from(json);
+    safeJson.remove('lastUpdated');
+    
+    final data = ProfileData.fromMap(safeJson);
+    if (lastUpdatedVal != null && lastUpdatedVal is int) {
+      data.lastUpdated = DateTime.fromMillisecondsSinceEpoch(lastUpdatedVal);
+    }
+    return data;
+  }
 }
