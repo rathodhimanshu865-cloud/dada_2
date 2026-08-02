@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../models/homepage_model.dart';
+import 'about_profile_management.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -447,78 +448,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         _buildImageField('Main Spotlight Portrait', data.heroImage, (v) => setState(() => data.heroImage = v)),
         
         const SizedBox(height: 50),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _sectionHeader('2. BIOGRAPHY CHAPTERS'),
-            ElevatedButton.icon(
-              onPressed: () => setState(() => controller.addBiographyPhase()),
-              icon: const Icon(Icons.add_circle_outline),
-              label: const Text('ADD NEW CHAPTER'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15)),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        
-        ...data.phases.asMap().entries.map((entry) {
-          int phaseIdx = entry.key;
-          BiographyPhase phase = entry.value;
-          return Card(
-            margin: const EdgeInsets.only(bottom: 30),
-            elevation: 0,
-            shape: RoundedRectangleBorder(side: BorderSide(color: Colors.grey[200]!), borderRadius: BorderRadius.circular(12)),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(color: Colors.grey[50], borderRadius: const BorderRadius.vertical(top: Radius.circular(12))),
-                  child: Row(
-                    children: [
-                      CircleAvatar(backgroundColor: Colors.black, radius: 14, child: Text('${phaseIdx + 1}', style: const TextStyle(color: Colors.white, fontSize: 12))),
-                      const SizedBox(width: 15),
-                      Text('CHAPTER ${phaseIdx + 1}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1)),
-                      const Spacer(),
-                      IconButton(icon: const Icon(Icons.delete_outline, color: Colors.redAccent), onPressed: () => setState(() => controller.removeBiographyPhase(phaseIdx))),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildField('Chapter Title', phase.title, (v) => setState(() => phase.title = v)),
-                      _buildField('Chapter Subtitle (Optional)', phase.subtitle, (v) => setState(() => phase.subtitle = v)),
-                      _buildField('Chapter Narrative Content', phase.content, (v) => phase.content = v, maxLines: 15),
-                      const SizedBox(height: 20),
-                      const Text('MEDIA STREAM GALLERY', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.blueGrey, letterSpacing: 1)),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 12, runSpacing: 12,
-                        children: [
-                          ...phase.images.asMap().entries.map((imgEntry) => Stack(
-                            children: [
-                              Container(width: 140, height: 140, decoration: BoxDecoration(border: Border.all(color: Colors.grey[200]!), borderRadius: BorderRadius.circular(8)), child: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(imgEntry.value, fit: BoxFit.cover))),
-                              Positioned(top: 5, right: 5, child: CircleAvatar(backgroundColor: Colors.white, radius: 14, child: IconButton(icon: const Icon(Icons.close, color: Colors.red, size: 14), onPressed: () => setState(() => controller.removeImageFromPhase(phaseIdx, imgEntry.key))))),
-                            ],
-                          )),
-                          InkWell(
-                            onTap: () async {
-                              final url = await controller.uploadPhotoFromFile();
-                              if (url != null) setState(() => controller.addImageToPhase(phaseIdx, url));
-                            },
-                            child: Container(width: 140, height: 140, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey[300]!, style: BorderStyle.solid)), child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.add_photo_alternate_outlined, color: Colors.grey, size: 30), SizedBox(height: 8), Text('ADD PHOTO', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold))])),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
+        const AboutProfileEditor(),
       ],
     );
   }

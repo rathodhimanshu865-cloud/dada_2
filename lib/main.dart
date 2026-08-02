@@ -21,8 +21,10 @@ import 'views/admin/admin_dashboard.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import 'controllers/language_controller.dart';
+import 'controllers/profile_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +36,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => HomePageController()),
         ChangeNotifierProvider(create: (_) => LanguageController(savedLanguageCode)),
+        ChangeNotifierProvider(create: (_) => ProfileController()),
       ],
       child: const MyApp(),
     ),
@@ -61,6 +64,7 @@ class MyApp extends StatelessWidget {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
+        FlutterQuillLocalizations.delegate,
       ],
       supportedLocales: const [
         Locale('en'),
@@ -109,7 +113,7 @@ class MyApp extends StatelessWidget {
           color: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            side: BorderSide(color: Colors.grey[300]!, width: 1),
+            side: BorderSide(color: Colors.grey[300]!),
             borderRadius: BorderRadius.circular(8),
           ),
         ),
