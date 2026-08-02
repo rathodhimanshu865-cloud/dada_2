@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../models/homepage_model.dart';
 import 'about_profile_management.dart';
+import 'product_management_view.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -39,6 +40,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'Full Katha List',
     'Photo Gallery',
     'Video Gallery',
+    'Products',
     'Enquiries',
     'Contact Page Settings',
     'Footer Settings'
@@ -380,9 +382,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 8: return _kathaListView(controller);
       case 9: return _photoGalleryView(controller);
       case 10: return _videoGalleryView(controller);
-      case 11: return _inquiryView(controller);
-      case 12: return _contactPageView(controller);
-      case 13: return _footerSettingsView(controller);
+      case 11: return const ProductManagementView();
+      case 12: return _inquiryView(controller);
+      case 13: return _contactPageView(controller);
+      case 14: return _footerSettingsView(controller);
       default: return const Center(child: Text('Section not yet implemented'));
     }
   }

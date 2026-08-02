@@ -25,6 +25,9 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import 'controllers/language_controller.dart';
 import 'controllers/profile_controller.dart';
+import 'controllers/product_controller.dart';
+import 'views/user_side/product_list_page.dart';
+import 'views/user_side/product_detail_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +40,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => HomePageController()),
         ChangeNotifierProvider(create: (_) => LanguageController(savedLanguageCode)),
         ChangeNotifierProvider(create: (_) => ProfileController()),
+        ChangeNotifierProvider(create: (_) => ProductController()),
       ],
       child: const MyApp(),
     ),
@@ -146,6 +150,19 @@ class MyApp extends StatelessWidget {
         ),
       ),
       initialRoute: '/',
+      onGenerateRoute: (settings) {
+        if (settings.name == '/products') {
+          return MaterialPageRoute(builder: (_) => const ProductListPage());
+        }
+        
+        if (settings.name != null && settings.name!.startsWith('/products/')) {
+          final slug = settings.name!.replaceFirst('/products/', '');
+          return MaterialPageRoute(builder: (_) => ProductDetailPage(slug: slug));
+        }
+
+        // Default routes
+        return null;
+      },
       routes: {
         '/': (context) => const UserHomePage(),
         '/about_dada': (context) => const AboutJigneshDadaPage(),
