@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/language_controller.dart';
+import '../../controllers/cart_controller.dart';
 import '../../models/product_model.dart';
 import '../../utils/app_typography.dart';
 import 'sections/user_page_layout.dart';
@@ -231,14 +232,31 @@ class _ProductCardState extends State<_ProductCard> {
               widget.product.title,
               style: AppTypography.headingStyle(context, fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFF0F4C5C)),
             ),
-            if (widget.product.price != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text(
-                  '₹${widget.product.price}',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (widget.product.price != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      '₹${widget.product.price}',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
+                    ),
+                  ),
+                IconButton(
+                  onPressed: () {
+                    Provider.of<CartController>(context, listen: false).addToCart(widget.product);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${widget.product.title} added to cart'),
+                        action: SnackBarAction(label: 'VIEW CART', onPressed: () => Navigator.pushNamed(context, '/cart')),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add_shopping_cart, color: Color(0xFF0F4C5C)),
                 ),
-              ),
+              ],
+            ),
           ],
         ),
       ),

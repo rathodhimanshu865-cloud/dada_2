@@ -1,84 +1,50 @@
-# Implementation Plan - Product Page & Catalog System
+# Implementation Plan - Full E-Commerce Purchase System
 
-Implement a full product management system including an admin interface for CRUD operations and a public-facing catalog with dynamic, slug-based routing.
+Implement a robust, Amazon-style e-commerce flow for the website, including cart management, secure user accounts, Razorpay payment integration, and order tracking.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> 1. **Price Visibility**: Should products display a price, or is this a purely informational showcase? (Default: Price included but optional).
-> 2. **Deletion Policy**: Unlike the photo gallery, should products be fully deletable? (Default: Yes, for inventory management).
-> 3. **Navigation Link**: I will add a "PRODUCTS" link to the main header and mobile menu. Please confirm if it should be placed elsewhere.
+> 1. **Payment Gateway**: I will proceed with **Razorpay** integration as requested. You will need to provide the `KEY_ID` and `KEY_SECRET` from your Razorpay Dashboard later.
+> 2. **Guest Checkout**: Should we allow users to purchase without an account? (Recommended: **No**, require login for better order tracking).
+> 3. **Stock Tracking**: Should we track inventory and prevent overselling? (Default: No, unlimited stock).
+> 4. **Cloud Functions**: This requires a Firebase **Blaze plan** (pay-as-you-go). Please confirm if your project is on the Blaze plan.
 
 ## Proposed Changes
 
-### Core Logic & Data
+### 1. Authentication & Accounts
+- Implement `AuthController` for Firebase Auth (Email/Password & Google).
+- Create `lib/views/user_side/auth/login_page.dart` and `signup_page.dart`.
+- Create `lib/views/user_side/profile/my_orders_page.dart`.
 
-#### [NEW] [product_model.dart](file:///D:/dada_2/lib/models/product_model.dart)
-- Define `Product` class with fields: `id`, `title`, `slug`, `description`, `price`, `images` (List), `category`, `featured` (bool), `visible` (bool), `createdAt`, `updatedAt`.
-- Include `toMap` and `fromMap`.
+### 2. Shopping Cart
+- Create `CartController` using `Provider` for state management.
+- Persist cart items in Firestore for logged-in users and `SharedPreferences` for guest sessions.
+- Add "Add to Cart" buttons to `ProductListPage` and `ProductDetailPage`.
+- Create `lib/views/user_side/cart_page.dart`.
 
-#### [NEW] [product_controller.dart](file:///D:/dada_2/lib/controllers/product_controller.dart)
-- Handle Firestore stream of visible products.
-- CRUD operations for Admin.
-- Multi-image upload logic using `FirebaseStorage`.
-- Slug generation helper (e.g., lowercase + hyphens).
+### 3. Checkout & Payment (Razorpay)
+- Create `lib/views/user_side/checkout_page.dart` (Address form & Summary).
+- **Backend**: Implement Firebase Cloud Functions:
+  - `createRazorpayOrder`: Securely calls Razorpay API to create an order.
+  - `verifyRazorpayPayment`: Securely verifies the payment signature before updating Firestore.
+- **Frontend**: Integrate `razorpay_flutter` package.
 
----
+### 4. Order Management
+- Define `Order` model in `lib/models/order_model.dart`.
+- Update `AdminDashboard` to include an "Orders" section for status updates (Processing, Shipped, Delivered).
 
-### Admin Interface
-
-#### [admin_dashboard.dart](file:///D:/dada_2/lib/views/admin/admin_dashboard.dart)
-- Add "Products" to the sidebar menu.
-- Integrate the new `ProductManagementView`.
-
-#### [NEW] [product_management_view.dart](file:///D:/dada_2/lib/views/admin/product_management_view.dart)
-- List all products with toggle for visibility.
-- Form to Add/Edit products:
-    - Auto-generate slug from title.
-    - Multi-file picker for images.
-    - Fields for category, price, and description.
-
----
-
-### User Side
-
-#### [NEW] [product_list_page.dart](file:///D:/dada_2/lib/views/user_side/product_list_page.dart)
-- Professional grid layout for products.
-- Category filtering (if applicable).
-- Responsive design (mobile/tablet/desktop).
-
-#### [NEW] [product_detail_page.dart](file:///D:/dada_2/lib/views/user_side/product_detail_page.dart)
-- Hero section for product title.
-- Image gallery/carousel for multiple images.
-- Detailed description and price.
-- "Product not found" handling.
-
----
-
-### Routing & Navigation
-
-#### [main.dart](file:///D:/dada_2/lib/main.dart)
-- Register `ProductController` in `MultiProvider`.
-- Implement `onGenerateRoute` to support `/products/:slug` pattern.
-
-#### [user_header.dart](file:///D:/dada_2/lib/views/user_side/sections/user_header.dart)
-- Add "PRODUCTS" to the navigation menu and mobile bottom sheet.
-
----
+### 5. UI/UX Refinements
+- Update `UserHeader` to include a Cart icon with a badge (item count) and a Profile/Account icon.
 
 ## Verification Plan
 
 ### Manual Verification
-1.  **Admin CRUD**:
-    - Add a new product with multiple images.
-    - Edit the product (change title/price).
-    - Verify slug auto-generation and manual override.
-    - Toggle visibility and verify removal from user side.
-    - Delete the product and verify cleanup.
-2.  **Routing**:
-    - Manually enter `/products/your-product-slug` in the browser and verify it loads correctly.
-    - Verify that a non-existent slug shows a "Product Not Found" screen.
-3.  **Real-time Sync**:
-    - Verify that changes in Admin appear on the user side instantly without refresh.
-4.  **Regression**:
-    - Navigate to "About Dada," "Gallery," and "Contact" to ensure no visual or functional changes occurred.
+1.  **Auth Flow**: Sign up, login, and verify order history accessibility.
+2.  **Cart Flow**: Add multiple items, adjust quantities, verify persistence after page refresh.
+3.  **Payment (Test Mode)**:
+    - Proceed to checkout with valid details.
+    - Complete a test transaction using Razorpay's test card/UPI.
+    - Verify the order is marked as "Paid" in Firestore only after backend verification.
+4.  **Admin Flow**: View the new order in the Admin Dashboard and update its status.
+5.  **Customer Flow**: View the updated status in "My Orders".

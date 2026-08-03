@@ -8,6 +8,7 @@ import '../../controllers/homepage_controller.dart';
 import '../../models/homepage_model.dart';
 import 'about_profile_management.dart';
 import 'product_management_view.dart';
+import 'order_management_view.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -41,6 +42,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'Photo Gallery',
     'Video Gallery',
     'Products',
+    'Orders',
     'Enquiries',
     'Contact Page Settings',
     'Footer Settings'
@@ -383,9 +385,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 9: return _photoGalleryView(controller);
       case 10: return _videoGalleryView(controller);
       case 11: return const ProductManagementView();
-      case 12: return _inquiryView(controller);
-      case 13: return _contactPageView(controller);
-      case 14: return _footerSettingsView(controller);
+      case 12: return const OrderManagementView();
+      case 13: return _inquiryView(controller);
+      case 14: return _contactPageView(controller);
+      case 15: return _footerSettingsView(controller);
       default: return const Center(child: Text('Section not yet implemented'));
     }
   }

@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/language_controller.dart';
 import '../../../controllers/homepage_controller.dart';
+import '../../../controllers/cart_controller.dart';
+import '../../../controllers/auth_controller.dart';
 import '../../../models/homepage_model.dart';
 import '../../../utils/app_typography.dart';
 
@@ -191,6 +193,17 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
                 child: IconButton(icon: const Icon(Icons.close, size: 30), onPressed: () => Navigator.pop(context)),
               ),
               ListTile(title: Text(l10n.home, style: TextStyle(color: currentRoute == '/' ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/'); }),
+              ListTile(
+                title: Row(
+                  children: [
+                    Text('MY CART', style: TextStyle(color: currentRoute == '/cart' ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 10),
+                    if (Provider.of<CartController>(context, listen: false).itemCount > 0)
+                      Badge(label: Text('${Provider.of<CartController>(context, listen: false).itemCount}')),
+                  ],
+                ),
+                onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/cart'); },
+              ),
               ListTile(title: Text('PRODUCTS', style: TextStyle(color: currentRoute.startsWith('/products') ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/products'); }),
               ListTile(title: Text(l10n.aboutDada, style: TextStyle(color: currentRoute == '/about_dada' ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/about_dada'); }),
               ExpansionTile(
@@ -213,6 +226,17 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
                 ],
               ),
               ListTile(title: Text(l10n.contact, style: TextStyle(color: currentRoute == '/contact_us' ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/contact_us'); }),
+              ListTile(
+                title: Text(Provider.of<AuthController>(context, listen: false).isAuthenticated ? 'MY ORDERS' : 'LOGIN / SIGN UP', style: TextStyle(color: currentRoute == '/my_orders' || currentRoute == '/login' ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)),
+                onTap: () {
+                  Navigator.pop(context);
+                  if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
+                    Navigator.pushNamed(context, '/my_orders');
+                  } else {
+                    Navigator.pushNamed(context, '/login');
+                  }
+                },
+              ),
               const Divider(height: 40),
               // Language Selector
               const Text("Select Language", style: TextStyle(fontWeight: FontWeight.bold)),
@@ -406,6 +430,10 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        _buildAuthButton(textColor),
+        const SizedBox(width: 15),
+        _buildCartButton(isSticky, textColor),
+        const SizedBox(width: 15),
         _buildLanguageSwitcher(l10n, settings, textColor, isSticky),
         if (settings.searchVisibility) ...[
           const SizedBox(width: 15),
@@ -426,6 +454,38 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
       case 'Hindi': return l10n.hindi;
       default: return lang;
     }
+  }
+
+  Widget _buildAuthButton(Color textColor) {
+    final auth = Provider.of<AuthController>(context);
+    return PopupMenuButton<String>(
+      icon: Icon(Icons.person_outline, color: textColor),
+      onSelected: (v) {
+        if (v == 'login') Navigator.pushNamed(context, '/login');
+        if (v == 'orders') Navigator.pushNamed(context, '/my_orders');
+        if (v == 'logout') auth.logout();
+      },
+      itemBuilder: (context) => auth.isAuthenticated
+          ? [
+              const PopupMenuItem(value: 'orders', child: Text('My Orders')),
+              const PopupMenuItem(value: 'logout', child: Text('Logout')),
+            ]
+          : [
+              const PopupMenuItem(value: 'login', child: Text('Login / Sign Up')),
+            ],
+    );
+  }
+
+  Widget _buildCartButton(bool isSticky, Color textColor) {
+    final cartCount = Provider.of<CartController>(context).itemCount;
+    return InkWell(
+      onTap: () => Navigator.pushNamed(context, '/cart'),
+      child: Badge(
+        label: Text('$cartCount'),
+        isLabelVisible: cartCount > 0,
+        child: Icon(Icons.shopping_cart_outlined, color: textColor),
+      ),
+    );
   }
 
   Widget _buildLanguageSwitcher(AppLocalizations l10n, HeaderSettings settings, Color textColor, bool isSticky) {

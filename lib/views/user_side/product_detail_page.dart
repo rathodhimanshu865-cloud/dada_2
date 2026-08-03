@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/product_controller.dart';
+import '../../controllers/cart_controller.dart';
 import '../../models/product_model.dart';
 import '../../utils/app_typography.dart';
 import 'sections/user_page_layout.dart';
@@ -202,6 +203,24 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         ),
         
         const SizedBox(height: 50),
+        
+        // Add to Cart
+        ElevatedButton.icon(
+          onPressed: () {
+            Provider.of<CartController>(context, listen: false).addToCart(product);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${product.title} added to cart'),
+                action: SnackBarAction(label: 'VIEW CART', onPressed: () => Navigator.pushNamed(context, '/cart')),
+              ),
+            );
+          },
+          icon: const Icon(Icons.add_shopping_cart),
+          label: const Text('ADD TO CART'),
+          style: ElevatedButton.styleFrom(backgroundColor: _gold, foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 60)),
+        ),
+        
+        const SizedBox(height: 20),
         
         // Inquiry CTA
         Container(
