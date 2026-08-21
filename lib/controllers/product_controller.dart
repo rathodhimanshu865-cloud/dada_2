@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import '../models/product_model.dart';
+import '../models/review_model.dart';
 import 'package:path/path.dart' as path_helper;
 
 class ProductController extends ChangeNotifier {
@@ -68,6 +69,21 @@ class ProductController extends ChangeNotifier {
 
   Future<void> toggleVisibility(String id, bool currentStatus) async {
     await _firestore.collection('products').doc(id).update({'visible': !currentStatus});
+  }
+
+  // --- Reviews ---
+  Future<void> addReview(Review review) async {
+    await _firestore.collection('reviews').add(review.toMap());
+  }
+
+  Stream<List<Review>> getProductReviews(String productId) {
+    return _firestore
+        .collection('reviews')
+        .where('productId', isEqualTo: productId)
+        .where('isApproved', isEqualTo: true)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => Review.fromMap(doc.id, doc.data())).toList());
   }
 
   // --- Helpers ---

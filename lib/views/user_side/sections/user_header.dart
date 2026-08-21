@@ -193,6 +193,7 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
                 child: IconButton(icon: const Icon(Icons.close, size: 30), onPressed: () => Navigator.pop(context)),
               ),
               ListTile(title: Text(l10n.home, style: TextStyle(color: currentRoute == '/' ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/'); }),
+              ListTile(title: Text('SHOP', style: TextStyle(color: currentRoute.contains('/shop') ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/shop'); }),
               ListTile(
                 title: Row(
                   children: [
@@ -314,6 +315,7 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
       children: [
         _navItem(l10n.home, '/', currentRoute == '/', isSticky, textColor, activeColor),
         _navItem(l10n.aboutDada, '/about_dada', currentRoute == '/about_dada', isSticky, textColor, activeColor),
+        _navItem('SHOP', '/shop', currentRoute.contains('/shop'), isSticky, textColor, activeColor),
 
         _buildDropdownNavItem(l10n.katha, [
           _dropdownItem(l10n.shrimadBhagvatKatha, '/about_katha'),

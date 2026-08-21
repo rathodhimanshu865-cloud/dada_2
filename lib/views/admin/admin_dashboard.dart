@@ -8,6 +8,7 @@ import '../../controllers/homepage_controller.dart';
 import '../../models/homepage_model.dart';
 import 'about_profile_management.dart';
 import 'order_management_view.dart';
+import 'products/admin_product_list.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -43,7 +44,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'Orders',
     'Enquiries',
     'Contact Page Settings',
-    'Footer Settings'
+    'Footer Settings',
+    'Products Management'
   ];
 
   Widget _buildField(String label, String? initialValue, Function(String) onChanged, {int maxLines = 1}) {
@@ -386,6 +388,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 12: return _inquiryView(controller);
       case 13: return _contactPageView(controller);
       case 14: return _footerSettingsView(controller);
+      case 15: return const AdminProductList();
       default: return const Center(child: Text('Section not yet implemented'));
     }
   }
