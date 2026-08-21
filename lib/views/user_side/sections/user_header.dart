@@ -204,7 +204,7 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
                 ),
                 onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/cart'); },
               ),
-              ListTile(title: Text('PRODUCTS', style: TextStyle(color: currentRoute.startsWith('/products') ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/products'); }),
+
               ListTile(title: Text(l10n.aboutDada, style: TextStyle(color: currentRoute == '/about_dada' ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/about_dada'); }),
               ExpansionTile(
                 title: Text(l10n.katha, style: TextStyle(color: currentRoute.contains('katha') ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)),
@@ -314,7 +314,7 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
       children: [
         _navItem(l10n.home, '/', currentRoute == '/', isSticky, textColor, activeColor),
         _navItem(l10n.aboutDada, '/about_dada', currentRoute == '/about_dada', isSticky, textColor, activeColor),
-        _navItem('PRODUCTS', '/products', currentRoute.startsWith('/products'), isSticky, textColor, activeColor),
+
         _buildDropdownNavItem(l10n.katha, [
           _dropdownItem(l10n.shrimadBhagvatKatha, '/about_katha'),
           _dropdownItem(l10n.deviBhagvatKatha, '/about_devi_katha'),

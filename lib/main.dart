@@ -28,7 +28,6 @@ import 'controllers/profile_controller.dart';
 import 'controllers/product_controller.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/cart_controller.dart';
-import 'views/user_side/product_list_page.dart';
 import 'views/user_side/product_detail_page.dart';
 import 'views/user_side/cart_page.dart';
 import 'views/user_side/checkout_page.dart';
@@ -160,10 +159,6 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       onGenerateRoute: (settings) {
-        if (settings.name == '/products') {
-          return MaterialPageRoute(builder: (_) => const ProductListPage());
-        }
-        
         if (settings.name == '/cart') {
           return MaterialPageRoute(builder: (_) => const CartPage());
         }

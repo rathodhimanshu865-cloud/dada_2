@@ -57,9 +57,9 @@ class CartPage extends StatelessWidget {
           const Text('Your cart is empty', style: TextStyle(fontSize: 18, color: Colors.grey)),
           const SizedBox(height: 32),
           ElevatedButton(
-            onPressed: () => Navigator.pushNamed(context, '/products'),
+            onPressed: () => Navigator.pushNamed(context, '/'),
             style: ElevatedButton.styleFrom(backgroundColor: _teal, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20)),
-            child: const Text('BROWSE PRODUCTS'),
+            child: const Text('GO TO HOME'),
           ),
         ],
       ),

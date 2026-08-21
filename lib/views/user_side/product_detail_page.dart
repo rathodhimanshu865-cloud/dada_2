@@ -63,9 +63,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           const Text('The product you are looking for does not exist or has been removed.'),
           const SizedBox(height: 40),
           ElevatedButton(
-            onPressed: () => Navigator.pushReplacementNamed(context, '/products'),
+            onPressed: () => Navigator.pushReplacementNamed(context, '/'),
             style: ElevatedButton.styleFrom(backgroundColor: _teal, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20)),
-            child: const Text('BACK TO ALL PRODUCTS'),
+            child: const Text('GO TO HOME'),
           ),
         ],
       ),
