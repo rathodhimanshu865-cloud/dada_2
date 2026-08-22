@@ -48,17 +48,20 @@ class WebsiteSettings {
   String name;
   String logoUrl;
   HeaderSettings headerSettings;
+  List<String> supportedPaymentMethods;
 
   WebsiteSettings({
     this.name = '',
     this.logoUrl = '',
     HeaderSettings? headerSettings,
+    this.supportedPaymentMethods = const ['COD', 'UPI', 'Card', 'Net Banking'],
   }) : headerSettings = headerSettings ?? HeaderSettings();
 
   Map<String, dynamic> toMap() => {
         'name': name,
         'logoUrl': logoUrl,
         'headerSettings': headerSettings.toMap(),
+        'supportedPaymentMethods': supportedPaymentMethods,
       };
 
   factory WebsiteSettings.fromMap(Map<String, dynamic> map) => WebsiteSettings(
@@ -67,6 +70,7 @@ class WebsiteSettings {
         headerSettings: map['headerSettings'] != null 
           ? HeaderSettings.fromMap(map['headerSettings']) 
           : HeaderSettings(),
+        supportedPaymentMethods: List<String>.from(map['supportedPaymentMethods'] ?? ['COD', 'UPI', 'Card', 'Net Banking']),
       );
 }
 

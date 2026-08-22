@@ -38,6 +38,22 @@ class Product {
   String? eventId;
   String? metaTitle;
   String? metaDescription;
+  List<Map<String, dynamic>> addOns;
+  
+  // Mantra fields
+  String? mantraText;
+  String? mantraTransliteration;
+  String? mantraSignificance;
+  String? mantraAudioUrl;
+
+  // Tab content fields
+  Map<String, String> specifications;
+  List<String> careInstructions;
+  List<Map<String, String>> faqs;
+
+  // Bundle / cross-sell fields
+  List<String> bundleProductSlugs; // slugs of companion products in the bundle
+  double bundleDiscountPercent;    // e.g. 15.0 = 15% off when buying the complete set
 
   Product({
     this.id = '',
@@ -74,10 +90,25 @@ class Product {
     this.eventId,
     this.metaTitle,
     this.metaDescription,
+    List<Map<String, dynamic>>? addOns,
+    this.mantraText,
+    this.mantraTransliteration,
+    this.mantraSignificance,
+    this.mantraAudioUrl,
+    Map<String, String>? specifications,
+    List<String>? careInstructions,
+    List<Map<String, String>>? faqs,
+    List<String>? bundleProductSlugs,
+    this.bundleDiscountPercent = 0,
   })  : images = images ?? [],
         badges = badges ?? [],
         keyHighlights = keyHighlights ?? [],
-        variants = variants ?? [];
+        variants = variants ?? [],
+        addOns = addOns ?? [],
+        specifications = specifications ?? {},
+        careInstructions = careInstructions ?? [],
+        faqs = faqs ?? [],
+        bundleProductSlugs = bundleProductSlugs ?? [];
 
   Map<String, dynamic> toMap() {
     return {
@@ -114,6 +145,16 @@ class Product {
       'eventId': eventId,
       'metaTitle': metaTitle,
       'metaDescription': metaDescription,
+      'addOns': addOns,
+      'mantraText': mantraText,
+      'mantraTransliteration': mantraTransliteration,
+      'mantraSignificance': mantraSignificance,
+      'mantraAudioUrl': mantraAudioUrl,
+      'specifications': specifications,
+      'careInstructions': careInstructions,
+      'faqs': faqs,
+      'bundleProductSlugs': bundleProductSlugs,
+      'bundleDiscountPercent': bundleDiscountPercent,
     };
   }
 
@@ -153,6 +194,25 @@ class Product {
       eventId: map['eventId'],
       metaTitle: map['metaTitle'],
       metaDescription: map['metaDescription'],
+      addOns: List<Map<String, dynamic>>.from(map['addOns'] ?? []),
+      mantraText: map['mantraText'],
+      mantraTransliteration: map['mantraTransliteration'],
+      mantraSignificance: map['mantraSignificance'],
+      mantraAudioUrl: map['mantraAudioUrl'],
+      specifications: map['specifications'] != null
+          ? Map<String, String>.from(
+              (map['specifications'] as Map).map((k, v) => MapEntry(k.toString(), v.toString())))
+          : {},
+      careInstructions: map['careInstructions'] != null
+          ? List<String>.from(map['careInstructions'])
+          : [],
+      faqs: map['faqs'] != null
+          ? List<Map<String, String>>.from(
+              (map['faqs'] as List).map((e) =>
+                Map<String, String>.from((e as Map).map((k, v) => MapEntry(k.toString(), v.toString())))))
+          : [],
+      bundleProductSlugs: List<String>.from(map['bundleProductSlugs'] ?? []),
+      bundleDiscountPercent: (map['bundleDiscountPercent'] ?? 0).toDouble(),
     );
   }
 
@@ -191,6 +251,16 @@ class Product {
     String? eventId,
     String? metaTitle,
     String? metaDescription,
+    List<Map<String, dynamic>>? addOns,
+    String? mantraText,
+    String? mantraTransliteration,
+    String? mantraSignificance,
+    String? mantraAudioUrl,
+    Map<String, String>? specifications,
+    List<String>? careInstructions,
+    List<Map<String, String>>? faqs,
+    List<String>? bundleProductSlugs,
+    double? bundleDiscountPercent,
   }) {
     return Product(
       id: id ?? this.id,
@@ -227,6 +297,16 @@ class Product {
       eventId: eventId ?? this.eventId,
       metaTitle: metaTitle ?? this.metaTitle,
       metaDescription: metaDescription ?? this.metaDescription,
+      addOns: addOns ?? this.addOns,
+      mantraText: mantraText ?? this.mantraText,
+      mantraTransliteration: mantraTransliteration ?? this.mantraTransliteration,
+      mantraSignificance: mantraSignificance ?? this.mantraSignificance,
+      mantraAudioUrl: mantraAudioUrl ?? this.mantraAudioUrl,
+      specifications: specifications ?? this.specifications,
+      careInstructions: careInstructions ?? this.careInstructions,
+      faqs: faqs ?? this.faqs,
+      bundleProductSlugs: bundleProductSlugs ?? this.bundleProductSlugs,
+      bundleDiscountPercent: bundleDiscountPercent ?? this.bundleDiscountPercent,
     );
   }
 }

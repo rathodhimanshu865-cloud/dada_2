@@ -28,13 +28,13 @@ import 'controllers/profile_controller.dart';
 import 'controllers/product_controller.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/cart_controller.dart';
+import 'views/user_side/product_list_page.dart';
 import 'views/user_side/product_detail_page.dart';
 import 'views/user_side/cart_page.dart';
 import 'views/user_side/checkout_page.dart';
 import 'views/user_side/auth/login_page.dart';
 import 'views/user_side/auth/signup_page.dart';
 import 'views/user_side/profile/my_orders_page.dart';
-import 'views/user_side/shop_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -180,8 +180,11 @@ class MyApp extends StatelessWidget {
           return MaterialPageRoute(builder: (_) => const MyOrdersPage());
         }
 
-        if (settings.name == '/shop') {
-          return MaterialPageRoute(builder: (_) => const ShopPage());
+        if (settings.name == '/products') {
+          return MaterialPageRoute(
+            settings: settings,
+            builder: (_) => const ProductListPage(),
+          );
         }
 
         if (settings.name != null && settings.name!.startsWith('/products/')) {

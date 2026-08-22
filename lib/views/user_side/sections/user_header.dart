@@ -171,6 +171,8 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
               ),
             ),
           ),
+          if (currentRoute.startsWith('/products') || currentRoute.startsWith('/shop'))
+            _buildCollectionsSubBar(isMobile, isSticky, navTextColor, activeNavColor),
         ],
       ),
     );
@@ -193,7 +195,20 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
                 child: IconButton(icon: const Icon(Icons.close, size: 30), onPressed: () => Navigator.pop(context)),
               ),
               ListTile(title: Text(l10n.home, style: TextStyle(color: currentRoute == '/' ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/'); }),
-              ListTile(title: Text('SHOP', style: TextStyle(color: currentRoute.contains('/shop') ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/shop'); }),
+              ExpansionTile(
+                title: Text('PRODUCTS', style: TextStyle(color: currentRoute.startsWith('/products') ? activeColor : darkCharcoal, fontWeight: FontWeight.bold)),
+                children: [
+                  ListTile(title: const Text('All Products'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/products', arguments: 'All Products'); }),
+                  ListTile(title: const Text('Keychain'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/products', arguments: 'Keychain'); }),
+                  ListTile(title: const Text('Acrylic Photo Frame'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/products', arguments: 'Acrylic Photo Frame'); }),
+                  ListTile(title: const Text('Temple'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/products', arguments: 'Temple'); }),
+                  ListTile(title: const Text('Footprints / Paduka'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/products', arguments: 'Footprints / Paduka'); }),
+                  ListTile(title: const Text('Sticker'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/products', arguments: 'Sticker'); }),
+                  ListTile(title: const Text('Pouch / Pocket Pin'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/products', arguments: 'Pouch / Pocket Pin'); }),
+                  ListTile(title: const Text('Rakshasutra / Sacred Thread'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/products', arguments: 'Rakshasutra / Sacred Thread'); }),
+                  ListTile(title: const Text('Other Products'), onTap: () { Navigator.pop(context); Navigator.pushNamed(context, '/products', arguments: 'Other Products'); }),
+                ],
+              ),
               ListTile(
                 title: Row(
                   children: [
@@ -315,7 +330,17 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
       children: [
         _navItem(l10n.home, '/', currentRoute == '/', isSticky, textColor, activeColor),
         _navItem(l10n.aboutDada, '/about_dada', currentRoute == '/about_dada', isSticky, textColor, activeColor),
-        _navItem('SHOP', '/shop', currentRoute.contains('/shop'), isSticky, textColor, activeColor),
+        _buildDropdownNavItem('PRODUCTS', [
+          _dropdownItem('All Products', '/products'),
+          _dropdownItem('Keychain', '/products?category=Keychain'),
+          _dropdownItem('Acrylic Photo Frame', '/products?category=Acrylic Photo Frame'),
+          _dropdownItem('Temple', '/products?category=Temple'),
+          _dropdownItem('Footprints / Paduka', '/products?category=Footprints / Paduka'),
+          _dropdownItem('Sticker', '/products?category=Sticker'),
+          _dropdownItem('Pouch / Pocket Pin', '/products?category=Pouch / Pocket Pin'),
+          _dropdownItem('Rakshasutra / Sacred Thread', '/products?category=Rakshasutra / Sacred Thread'),
+          _dropdownItem('Other Products', '/products?category=Other Products'),
+        ], currentRoute.startsWith('/products'), isSticky, textColor, activeColor),
 
         _buildDropdownNavItem(l10n.katha, [
           _dropdownItem(l10n.shrimadBhagvatKatha, '/about_katha'),
@@ -583,6 +608,81 @@ class _UserHeaderState extends State<UserHeader> with SingleTickerProviderStateM
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(gradient: LinearGradient(colors: [templeGold, const Color(0xFFD9A66B)])),
       child: Center(child: Text(text, style: AppTypography.bodyStyle(context, color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 1.5))),
+    );
+  }
+
+  Widget _buildCollectionsSubBar(bool isMobile, bool isSticky, Color textColor, Color activeColor) {
+    final List<String> categories = [
+      'All Products',
+      'Keychain',
+      'Acrylic Photo Frame',
+      'Temple',
+      'Footprints / Paduka',
+      'Sticker',
+      'Pouch / Pocket Pin',
+      'Rakshasutra / Sacred Thread',
+      'Other Products'
+    ];
+
+    // Attempt to get selected category from route settings
+    final args = ModalRoute.of(context)?.settings.arguments;
+    final String activeCategory = (args is String) ? args : 'All Products';
+
+    return Container(
+      width: double.infinity,
+      height: 50,
+      decoration: BoxDecoration(
+        color: isSticky ? warmWhite.withOpacity(0.9) : warmWhite,
+        border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.2))),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 25),
+        child: Row(
+          children: [
+            const Icon(Icons.grid_view_rounded, size: 16, color: Color(0xFFC19A6B)),
+            const SizedBox(width: 8),
+            const Text(
+              'COLLECTIONS:',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 12,
+                color: Color(0xFFC19A6B),
+                letterSpacing: 1.2,
+              ),
+            ),
+            const SizedBox(width: 24),
+            ...categories.map((cat) {
+              final bool isActive = activeCategory == cat;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/products', arguments: cat);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isActive ? darkCharcoal : Colors.transparent,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      cat.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: isActive ? Colors.white : darkCharcoal.withOpacity(0.7),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ],
+        ),
+      ),
     );
   }
 }
