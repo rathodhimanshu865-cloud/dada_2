@@ -48,7 +48,7 @@ class ProductHeader extends StatelessWidget {
                 children: [
                   _navLink(context, 'Home Portal', '/product', darkCharcoal),
                   const SizedBox(width: 20),
-                  _navLink(context, 'Product Catalogue', '/product', darkCharcoal),
+                  _buildCatalogueDropdown(context, darkCharcoal, primaryTeal),
                   const SizedBox(width: 20),
                   _navLink(context, 'Pu. Dada Teachings', '/about_dada', darkCharcoal),
                   const SizedBox(width: 20),
@@ -100,6 +100,131 @@ class ProductHeader extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCatalogueDropdown(BuildContext context, Color textColor, Color primaryColor) {
+    final categories = [
+      {'title': 'Keychains', 'icon': '🔑'},
+      {'title': 'Acrylic Photo Frames', 'icon': '🖼️'},
+      {'title': 'Temple', 'icon': '⛩️'},
+      {'title': 'Idols', 'icon': '🕉️'},
+      {'title': 'Books & Granths', 'icon': '📚'},
+      {'title': 'Yantras & Malas', 'icon': '📿'},
+      {'title': 'Puja Items', 'icon': '🪔'},
+      {'title': 'Apparel', 'icon': '👕'},
+    ];
+
+    return Theme(
+      data: Theme.of(context).copyWith(
+        hoverColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+      ),
+      child: PopupMenuButton<String>(
+        offset: const Offset(0, 45),
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Colors.grey.shade300, width: 1),
+        ),
+        color: Colors.white,
+        tooltip: '',
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Product Catalogue',
+              style: AppTypography.bodyStyle(
+                context,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: textColor,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.keyboard_arrow_down, size: 16, color: textColor),
+          ],
+        ),
+        itemBuilder: (context) => [
+          PopupMenuItem<String>(
+            enabled: false,
+            padding: const EdgeInsets.all(0),
+            child: Container(
+              width: 500,
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Sacred Categories',
+                    style: AppTypography.headingStyle(
+                      context,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: primaryColor,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Wrap(
+                    spacing: 20,
+                    runSpacing: 20,
+                    children: categories.map((cat) {
+                      return SizedBox(
+                        width: 200,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.pop(context); // Close popup
+                            Navigator.pushNamed(context, '/catalogue');
+                          },
+                          child: Row(
+                            children: [
+                              Text(cat['icon']!, style: const TextStyle(fontSize: 20)),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  cat['title']!,
+                                  style: AppTypography.bodyStyle(
+                                    context,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF2B2B2B),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 30),
+                  const Divider(),
+                  const SizedBox(height: 10),
+                  Center(
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Close popup
+                        Navigator.pushNamed(context, '/catalogue');
+                      },
+                      child: Text(
+                        'Explore All Products >',
+                        style: AppTypography.bodyStyle(
+                          context,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

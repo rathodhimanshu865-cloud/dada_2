@@ -72,7 +72,9 @@ class ProductHomePage extends StatelessWidget {
                     Row(
                       children: [
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/catalogue');
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFC89A5B),
                             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
@@ -228,7 +230,9 @@ class ProductHomePage extends StatelessWidget {
             ),
             const SizedBox(height: 40),
             OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, '/catalogue');
+              },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(0xFF0F4C5C)),
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
