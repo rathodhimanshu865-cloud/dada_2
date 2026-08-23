@@ -19,7 +19,7 @@ class ContactInquiry {
     this.message = '',
     DateTime? timestamp,
     this.type = 'Enquiries',
-  }) : this.timestamp = timestamp ?? DateTime.now();
+  }) : timestamp = timestamp ?? DateTime.now();
 
   Map<String, dynamic> toMap() => {
     'name': name,

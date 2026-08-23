@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../models/homepage_model.dart';
-import '../../../utils/localization_helper.dart';
+
 import '../../../utils/app_typography.dart';
 import 'katha_calendar_view.dart';
 

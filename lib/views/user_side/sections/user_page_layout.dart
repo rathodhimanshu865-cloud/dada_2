@@ -6,12 +6,14 @@ class UserPageLayout extends StatefulWidget {
   final Widget child;
   final HomePageController controller;
   final ScrollController? scrollController;
-  
+  final bool productPage;
+
   const UserPageLayout({
     super.key,
     required this.child,
     required this.controller,
     this.scrollController,
+    this.productPage = false,
   });
 
   @override
@@ -46,11 +48,12 @@ class _UserPageLayoutState extends State<UserPageLayout> {
             controller: _activeController,
             child: widget.child,
           ),
-          
+
           // FLOATING PREMIUM HEADER
           UserHeader(
             controller: widget.controller,
             scrollController: _activeController,
+            productPage: widget.productPage,
           ),
         ],
       ),

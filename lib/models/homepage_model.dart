@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+
 
 class HeaderSettings {
   bool stickyHeaderEnabled;

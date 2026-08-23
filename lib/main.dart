@@ -25,16 +25,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import 'controllers/language_controller.dart';
 import 'controllers/profile_controller.dart';
-import 'controllers/product_controller.dart';
 import 'controllers/auth_controller.dart';
-import 'controllers/cart_controller.dart';
-import 'views/user_side/product_list_page.dart';
-import 'views/user_side/product_detail_page.dart';
-import 'views/user_side/cart_page.dart';
-import 'views/user_side/checkout_page.dart';
-import 'views/user_side/auth/login_page.dart';
-import 'views/user_side/auth/signup_page.dart';
-import 'views/user_side/profile/my_orders_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,9 +38,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => HomePageController()),
         ChangeNotifierProvider(create: (_) => LanguageController(savedLanguageCode)),
         ChangeNotifierProvider(create: (_) => ProfileController()),
-        ChangeNotifierProvider(create: (_) => ProductController()),
         ChangeNotifierProvider(create: (_) => AuthController()),
-        ChangeNotifierProvider(create: (_) => CartController()),
       ],
       child: const MyApp(),
     ),
@@ -160,38 +149,6 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       onGenerateRoute: (settings) {
-        if (settings.name == '/cart') {
-          return MaterialPageRoute(builder: (_) => const CartPage());
-        }
-
-        if (settings.name == '/checkout') {
-          return MaterialPageRoute(builder: (_) => const CheckoutPage());
-        }
-
-        if (settings.name == '/login') {
-          return MaterialPageRoute(builder: (_) => const LoginPage());
-        }
-
-        if (settings.name == '/signup') {
-          return MaterialPageRoute(builder: (_) => const SignupPage());
-        }
-
-        if (settings.name == '/my_orders') {
-          return MaterialPageRoute(builder: (_) => const MyOrdersPage());
-        }
-
-        if (settings.name == '/products') {
-          return MaterialPageRoute(
-            settings: settings,
-            builder: (_) => const ProductListPage(),
-          );
-        }
-
-        if (settings.name != null && settings.name!.startsWith('/products/')) {
-          final slug = settings.name!.replaceFirst('/products/', '');
-          return MaterialPageRoute(builder: (_) => ProductDetailPage(slug: slug));
-        }
-
         // Default routes
         return null;
       },

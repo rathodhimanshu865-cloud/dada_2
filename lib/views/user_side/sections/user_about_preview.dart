@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../utils/app_typography.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/homepage_controller.dart';
-import '../../../utils/localization_helper.dart';
+
 
 class UserAboutPreview extends StatelessWidget {
   final HomePageController controller;
