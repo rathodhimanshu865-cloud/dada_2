@@ -86,13 +86,15 @@ class ProductHomePage extends StatelessWidget {
                         ),
                         const SizedBox(width: 16),
                         OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/teachings');
+                          },
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Colors.white54),
                             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
                           ),
                           child: Text(
-                            'VIEW KATHA SCHEDULE',
+                            'PU. DADA TEACHINGS',
                             style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                         ),
