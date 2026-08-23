@@ -16,6 +16,9 @@ import 'views/user_side/upcoming_ram_kathas_page.dart';
 import 'views/user_side/video_gallery_page.dart';
 import 'views/user_side/contact_page.dart';
 import 'views/user_side/news_page.dart';
+import 'views/user_side/product_home_page.dart';
+import 'views/user_side/product_details_page.dart';
+import 'views/user_side/cart_page.dart';
 import 'views/admin/admin_login_page.dart';
 import 'views/admin/admin_dashboard.dart';
 
@@ -165,6 +168,9 @@ class MyApp extends StatelessWidget {
         '/video_gallery': (context) => const VideoGalleryPage(),
         '/contact_us': (context) => const ContactPage(),
         '/news': (context) => const NewsPage(),
+        '/product': (context) => const ProductHomePage(),
+        '/product_details': (context) => const ProductDetailsPage(),
+        '/cart': (context) => const CartPage(),
         '/admin_login': (context) => const AdminLoginPage(),
         '/admin_dashboard': (context) => const AdminDashboard(),
       },

@@ -545,6 +545,14 @@ class _UserHeaderState extends State<UserHeader>
           activeColor,
         ),
         _navItem(
+          'Product',
+          '/product',
+          currentRoute == '/product',
+          isSticky,
+          textColor,
+          activeColor,
+        ),
+        _navItem(
           l10n.stotraBhajan,
           '/stotra',
           currentRoute == '/stotra',
