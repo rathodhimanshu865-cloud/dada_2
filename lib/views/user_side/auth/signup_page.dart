@@ -15,6 +15,8 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   bool _isLoading = false;
@@ -22,6 +24,8 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   void dispose() {
+    _nameCtrl.dispose();
+    _phoneCtrl.dispose();
     _emailCtrl.dispose();
     _passCtrl.dispose();
     super.dispose();
@@ -31,10 +35,20 @@ class _SignupPageState extends State<SignupPage> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
-      await Provider.of<AuthController>(context, listen: false).signUp(_emailCtrl.text, _passCtrl.text);
-      if (mounted) Navigator.pop(context);
+      await Provider.of<AuthController>(context, listen: false).signUp(
+        email: _emailCtrl.text.trim(),
+        password: _passCtrl.text.trim(),
+        fullName: _nameCtrl.text.trim(),
+        phone: _phoneCtrl.text.trim(),
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Account Created Successfully!'), backgroundColor: Colors.green),
+        );
+        Navigator.pop(context);
+      }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.redAccent));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -49,12 +63,16 @@ class _SignupPageState extends State<SignupPage> {
         children: [
           const SizedBox(height: 120),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 100),
+            padding: const EdgeInsets.symmetric(vertical: 60),
             child: Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 450),
                 padding: const EdgeInsets.all(40),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 30)]),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 30)],
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -63,6 +81,18 @@ class _SignupPageState extends State<SignupPage> {
                       const SizedBox(height: 12),
                       const Text('Create an account to track your orders', style: TextStyle(color: Colors.grey)),
                       const SizedBox(height: 40),
+                      TextFormField(
+                        controller: _nameCtrl,
+                        decoration: const InputDecoration(labelText: 'Full Name', border: OutlineInputBorder()),
+                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _phoneCtrl,
+                        decoration: const InputDecoration(labelText: 'Phone Number', border: OutlineInputBorder()),
+                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                      ),
+                      const SizedBox(height: 20),
                       TextFormField(
                         controller: _emailCtrl,
                         decoration: const InputDecoration(labelText: 'Email Address', border: OutlineInputBorder()),
@@ -79,7 +109,7 @@ class _SignupPageState extends State<SignupPage> {
                       ElevatedButton(
                         onPressed: _isLoading ? null : _signup,
                         style: ElevatedButton.styleFrom(backgroundColor: _teal, minimumSize: const Size(double.infinity, 60)),
-                        child: _isLoading ? const CircularProgressIndicator(color: Colors.white) : const Text('CREATE ACCOUNT'),
+                        child: _isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text('CREATE ACCOUNT'),
                       ),
                       const SizedBox(height: 24),
                       TextButton(

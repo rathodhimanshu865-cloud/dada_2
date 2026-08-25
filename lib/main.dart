@@ -24,6 +24,9 @@ import 'views/user_side/cart_page.dart';
 import 'views/admin/admin_login_page.dart';
 import 'views/admin/admin_dashboard.dart';
 
+import 'views/user_side/auth/login_page.dart';
+import 'views/user_side/auth/signup_page.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -106,7 +109,7 @@ class MyApp extends StatelessWidget {
           secondary: accentGrey,
           surface: backgroundWhite,
           error: Colors.redAccent,
-        ).copyWith(background: backgroundWhite),
+        ).copyWith(surface: backgroundWhite),
         appBarTheme: AppBarTheme(
           backgroundColor: backgroundWhite,
           foregroundColor: primaryBlack,
@@ -175,6 +178,8 @@ class MyApp extends StatelessWidget {
         '/catalogue': (context) => const CataloguePage(),
         '/teachings': (context) => const PuDadaTeachingsPage(),
         '/cart': (context) => const CartPage(),
+        '/login': (context) => const LoginPage(),
+        '/signup': (context) => const SignupPage(),
         '/admin_login': (context) => const AdminLoginPage(),
         '/admin_dashboard': (context) => const AdminDashboard(),
       },
