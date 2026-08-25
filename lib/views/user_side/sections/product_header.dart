@@ -50,7 +50,7 @@ class ProductHeader extends StatelessWidget {
                   const SizedBox(width: 20),
                   _buildCatalogueDropdown(context, darkCharcoal, primaryTeal),
                   const SizedBox(width: 20),
-                  _navLink(context, 'Pu. Dada Teachings', '/about_dada', darkCharcoal),
+                  _navLink(context, 'Pu. Dada Teachings', '/teachings', darkCharcoal),
                   const SizedBox(width: 20),
                   _navLink(context, 'Track Shipment', '/track', darkCharcoal),
                 ],

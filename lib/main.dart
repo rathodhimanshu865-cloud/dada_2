@@ -19,6 +19,7 @@ import 'views/user_side/news_page.dart';
 import 'views/user_side/product_home_page.dart';
 import 'views/user_side/product_details_page.dart';
 import 'views/user_side/catalogue_page.dart';
+import 'views/user_side/pu_dada_teachings_page.dart';
 import 'views/user_side/cart_page.dart';
 import 'views/admin/admin_login_page.dart';
 import 'views/admin/admin_dashboard.dart';
@@ -172,6 +173,7 @@ class MyApp extends StatelessWidget {
         '/product': (context) => const ProductHomePage(),
         '/product_details': (context) => const ProductDetailsPage(),
         '/catalogue': (context) => const CataloguePage(),
+        '/teachings': (context) => const PuDadaTeachingsPage(),
         '/cart': (context) => const CartPage(),
         '/admin_login': (context) => const AdminLoginPage(),
         '/admin_dashboard': (context) => const AdminDashboard(),
