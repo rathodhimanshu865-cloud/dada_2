@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import '../../../controllers/auth_controller.dart';
 import '../../../utils/app_typography.dart';
@@ -77,12 +78,20 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             backgroundColor: Colors.green,
           ),
         );
+        _loginEmailCtrl.text = _signupEmailCtrl.text;
         _tabController.animateTo(0); // Switch to login tab
       }
     } catch (e) {
       if (mounted) {
+        String errorMessage = e.toString();
+        if (e is FirebaseAuthException && e.code == 'email-already-in-use') {
+          errorMessage = 'Account already exists with this email. Please log in.';
+          // Automatically switch to login tab and pre-fill email
+          _loginEmailCtrl.text = _signupEmailCtrl.text;
+          _tabController.animateTo(0);
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Signup Failed: $e'), backgroundColor: Colors.redAccent),
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.redAccent),
         );
       }
     } finally {
@@ -241,6 +250,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           _buildTextField(_signupPassCtrl, Icons.lock_outline, '••••••••', isPassword: true),
           const SizedBox(height: 24),
           _buildActionButton('Create Devotee Account', _handleSignup),
+          const SizedBox(height: 16),
+          Center(
+            child: TextButton(
+              onPressed: () => _tabController.animateTo(0),
+              child: Text('Already have an account? Sign In', 
+                style: TextStyle(color: primaryTeal, fontWeight: FontWeight.bold, fontSize: 13)),
+            ),
+          ),
           const SizedBox(height: 20),
           _buildInstantAccessSection(),
         ],

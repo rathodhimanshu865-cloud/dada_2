@@ -5,6 +5,7 @@ import '../../controllers/product_controller.dart';
 import '../../controllers/cart_controller.dart';
 import '../../models/product_model.dart';
 import 'sections/product_cart_layout.dart';
+import 'sections/product_card.dart';
 import '../../utils/app_typography.dart';
 
 class ProductHomePage extends StatelessWidget {
@@ -14,7 +15,6 @@ class ProductHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final homeController = Provider.of<HomePageController>(context, listen: false);
     final productController = Provider.of<ProductController>(context);
-    final cartController = Provider.of<CartController>(context, listen: false);
 
     return ProductCartLayout(
       controller: homeController,
@@ -24,7 +24,7 @@ class ProductHomePage extends StatelessWidget {
           const SizedBox(height: 60),
           _buildCategoriesSection(context),
           const SizedBox(height: 60),
-          _buildFeaturedProductsSection(context, productController, cartController),
+          _buildFeaturedProductsSection(context, productController),
           const SizedBox(height: 60),
           _buildProcessSection(context),
           const SizedBox(height: 60),
@@ -141,6 +141,10 @@ class ProductHomePage extends StatelessWidget {
       {'title': 'Apparel', 'icon': '👕', 'items': '10 Items'},
     ];
 
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final int crossAxisCount = screenWidth < 600 ? 1 : (screenWidth < 900 ? 2 : 4);
+    final double aspectRatio = screenWidth < 600 ? 4.0 : 2.5;
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
@@ -156,9 +160,9 @@ class ProductHomePage extends StatelessWidget {
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                childAspectRatio: 2.5,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                childAspectRatio: aspectRatio,
                 crossAxisSpacing: 20,
                 mainAxisSpacing: 20,
               ),
@@ -205,7 +209,7 @@ class ProductHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildFeaturedProductsSection(BuildContext context, ProductController prod, CartController cart) {
+  Widget _buildFeaturedProductsSection(BuildContext context, ProductController prod) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
@@ -238,7 +242,7 @@ class ProductHomePage extends StatelessWidget {
               ),
               itemCount: prod.featuredProducts.length,
               itemBuilder: (context, index) {
-                return _productCard(context, prod.featuredProducts[index], cart);
+                return ProductCard(product: prod.featuredProducts[index]);
               },
             ),
             const SizedBox(height: 40),
@@ -264,98 +268,6 @@ class ProductHomePage extends StatelessWidget {
       backgroundColor: isSelected ? const Color(0xFF0F4C5C) : Colors.white,
       labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.grey.shade700, fontWeight: FontWeight.w600),
       side: BorderSide(color: isSelected ? const Color(0xFF0F4C5C) : Colors.grey.shade300),
-    );
-  }
-
-  Widget _productCard(BuildContext context, ProductModel product, CartController cart) {
-    return InkWell(
-      onTap: () {
-        Navigator.pushNamed(context, '/product_details');
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                      image: DecorationImage(
-                        image: NetworkImage(product.imageUrl),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: Image.network(
-                      product.imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey.shade50,
-                        child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
-                      ),
-                    ),
-                  ),
-                  if (product.isNew)
-                    Positioned(top: 10, left: 10, child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFC89A5B), borderRadius: BorderRadius.circular(4)), child: const Text('NEW', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
-                  Consumer<ProductController>(
-                    builder: (context, prodCtrl, child) {
-                      bool isLiked = prodCtrl.isLiked(product.id);
-                      return Positioned(
-                        top: 10,
-                        right: 10,
-                        child: GestureDetector(
-                          onTap: () => prodCtrl.toggleLike(product.id),
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
-                            child: Icon(
-                              isLiked ? Icons.favorite : Icons.favorite_border,
-                              size: 16,
-                              color: isLiked ? Colors.redAccent : Colors.grey,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(product.title, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 16, color: const Color(0xFF2B2B2B)), maxLines: 2, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 8),
-                  Text('₹ ${product.price}', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18, color: const Color(0xFF0F4C5C))),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      cart.addToCart(product, 1);
-                      Scaffold.of(context).openEndDrawer();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0F4C5C),
-                      minimumSize: const Size(double.infinity, 45),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                    ),
-                    child: Text('ADD TO CART', style: AppTypography.bodyStyle(context, color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
