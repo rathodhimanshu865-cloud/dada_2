@@ -55,9 +55,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const primaryTeal = Color(0xFF0F4C5C); 
-    const backgroundBeige = Color(0xFFF9F3EA); 
-    const accentBrown = Color(0xFFC19A6B); 
+    const primaryBlack = Color(0xFF111111);
+    const backgroundWhite = Color(0xFFFFFFFF);
+    const accentGrey = Color(0xFF757575);
 
     final languageController = Provider.of<LanguageController>(context);
 
@@ -82,15 +82,15 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,
-        scaffoldBackgroundColor: Colors.white,
-        primaryColor: primaryTeal,
+        scaffoldBackgroundColor: backgroundWhite,
+        primaryColor: primaryBlack,
         textTheme: TextTheme(
-          displayLarge:  (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 57, fontWeight: FontWeight.w700, color: primaryTeal) : GoogleFonts.cormorantGaramond(fontSize: 57, fontWeight: FontWeight.w700, color: primaryTeal),
-          displayMedium: (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 45, fontWeight: FontWeight.w700, color: primaryTeal) : GoogleFonts.cormorantGaramond(fontSize: 45, fontWeight: FontWeight.w700, color: primaryTeal),
-          displaySmall:  (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 36, fontWeight: FontWeight.w700, color: primaryTeal) : GoogleFonts.cormorantGaramond(fontSize: 36, fontWeight: FontWeight.w700, color: primaryTeal),
-          headlineLarge: (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 32, fontWeight: FontWeight.w700, color: primaryTeal) : GoogleFonts.cormorantGaramond(fontSize: 32, fontWeight: FontWeight.w700, color: primaryTeal),
-          headlineMedium:(langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 28, fontWeight: FontWeight.w700, color: primaryTeal) : GoogleFonts.cormorantGaramond(fontSize: 28, fontWeight: FontWeight.w700, color: primaryTeal),
-          headlineSmall: (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 24, fontWeight: FontWeight.w600, color: primaryTeal) : GoogleFonts.cormorantGaramond(fontSize: 24, fontWeight: FontWeight.w600, color: primaryTeal),
+          displayLarge:  (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 57, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 57, fontWeight: FontWeight.w700, color: primaryBlack),
+          displayMedium: (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 45, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 45, fontWeight: FontWeight.w700, color: primaryBlack),
+          displaySmall:  (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 36, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 36, fontWeight: FontWeight.w700, color: primaryBlack),
+          headlineLarge: (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 32, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 32, fontWeight: FontWeight.w700, color: primaryBlack),
+          headlineMedium:(langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 28, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 28, fontWeight: FontWeight.w700, color: primaryBlack),
+          headlineSmall: (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 24, fontWeight: FontWeight.w600, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 24, fontWeight: FontWeight.w600, color: primaryBlack),
           titleLarge:    (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 22, fontWeight: FontWeight.w600) : GoogleFonts.nunito(fontSize: 22, fontWeight: FontWeight.w600),
           titleMedium:   (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 16, fontWeight: FontWeight.w600) : GoogleFonts.nunito(fontSize: 16, fontWeight: FontWeight.w600),
           titleSmall:    (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 14, fontWeight: FontWeight.w600) : GoogleFonts.nunito(fontSize: 14, fontWeight: FontWeight.w600),
@@ -101,41 +101,41 @@ class MyApp extends StatelessWidget {
           labelMedium:   (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 12, fontWeight: FontWeight.w500) : GoogleFonts.nunito(fontSize: 12, fontWeight: FontWeight.w500),
         ),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: primaryTeal,
-          primary: primaryTeal,
-          secondary: accentBrown,
-          surface: Colors.white,
+          seedColor: primaryBlack,
+          primary: primaryBlack,
+          secondary: accentGrey,
+          surface: backgroundWhite,
           error: Colors.redAccent,
-        ).copyWith(background: backgroundBeige),
+        ).copyWith(background: backgroundWhite),
         appBarTheme: AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: primaryTeal,
+          backgroundColor: backgroundWhite,
+          foregroundColor: primaryBlack,
           elevation: 0,
           centerTitle: true,
           titleTextStyle: (langCode == 'hi' || langCode == 'gu')
-              ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', color: primaryTeal, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1)
-              : GoogleFonts.cormorantGaramond(color: primaryTeal, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1),
+              ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', color: primaryBlack, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1)
+              : GoogleFonts.cormorantGaramond(color: primaryBlack, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1),
         ),
         cardTheme: CardThemeData(
-          color: Colors.white,
+          color: backgroundWhite,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            side: BorderSide(color: Colors.grey[300]!),
+            side: BorderSide(color: Colors.grey[200]!),
             borderRadius: BorderRadius.circular(8),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey[400]!)),
-          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey[300]!)),
-          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: const BorderSide(color: primaryTeal, width: 1.5)),
+          fillColor: backgroundWhite,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey[300]!)),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey[200]!)),
+          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: const BorderSide(color: primaryBlack, width: 1.5)),
           labelStyle: GoogleFonts.nunito(color: Colors.grey, fontSize: 14),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: primaryTeal,
+            backgroundColor: primaryBlack,
             foregroundColor: Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
@@ -145,8 +145,8 @@ class MyApp extends StatelessWidget {
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
-            foregroundColor: primaryTeal,
-            side: const BorderSide(color: primaryTeal, width: 1.5),
+            foregroundColor: primaryBlack,
+            side: const BorderSide(color: primaryBlack, width: 1.5),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             textStyle: GoogleFonts.nunito(fontWeight: FontWeight.w700),
           ),

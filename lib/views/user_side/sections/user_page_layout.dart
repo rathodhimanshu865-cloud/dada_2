@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../controllers/homepage_controller.dart';
 import 'user_header.dart';
+import 'cart_drawer.dart';
 
 class UserPageLayout extends StatefulWidget {
   final Widget child;
@@ -23,6 +24,7 @@ class UserPageLayout extends StatefulWidget {
 class _UserPageLayoutState extends State<UserPageLayout> {
   late ScrollController _internalController;
   late ScrollController _activeController;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -40,7 +42,9 @@ class _UserPageLayoutState extends State<UserPageLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.white,
+      endDrawer: const CartDrawer(),
       body: Stack(
         children: [
           // MAIN SCROLLABLE CONTENT
@@ -54,6 +58,7 @@ class _UserPageLayoutState extends State<UserPageLayout> {
             controller: widget.controller,
             scrollController: _activeController,
             productPage: widget.productPage,
+            scaffoldKey: _scaffoldKey,
           ),
         ],
       ),

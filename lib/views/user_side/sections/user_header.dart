@@ -13,12 +13,14 @@ class UserHeader extends StatefulWidget {
   final HomePageController controller;
   final ScrollController? scrollController;
   final bool productPage;
+  final GlobalKey<ScaffoldState>? scaffoldKey;
 
   const UserHeader({
     super.key,
     required this.controller,
     this.scrollController,
     this.productPage = false,
+    this.scaffoldKey,
   });
 
   @override
@@ -384,6 +386,24 @@ class _UserHeaderState extends State<UserHeader>
                 },
               ),
               ListTile(
+                title: const Text(
+                  'MY CART',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                trailing: const Icon(Icons.shopping_bag_outlined),
+                onTap: () {
+                  Navigator.pop(context); // Close mobile menu
+                  if (widget.scaffoldKey != null) {
+                    widget.scaffoldKey!.currentState?.openEndDrawer();
+                  } else {
+                    Scaffold.of(context).openEndDrawer();
+                  }
+                },
+              ),
+              ListTile(
                 title: Text(
                   Provider.of<AuthController>(
                         context,
@@ -712,6 +732,8 @@ class _UserHeaderState extends State<UserHeader>
       children: [
         _buildAuthButton(textColor),
         const SizedBox(width: 15),
+        _buildCartButton(textColor),
+        const SizedBox(width: 15),
         _buildLanguageSwitcher(l10n, settings, textColor, isSticky),
         if (settings.searchVisibility) ...[
           const SizedBox(width: 15),
@@ -722,6 +744,43 @@ class _UserHeaderState extends State<UserHeader>
           _buildDonateButton(settings),
         ],
       ],
+    );
+  }
+
+  Widget _buildCartButton(Color textColor) {
+    return InkWell(
+      onTap: () {
+        if (widget.scaffoldKey != null) {
+          widget.scaffoldKey!.currentState?.openEndDrawer();
+        } else {
+          Scaffold.of(context).openEndDrawer();
+        }
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Icon(Icons.shopping_bag_outlined, color: textColor, size: 24),
+          Positioned(
+            right: -4,
+            top: -4,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: templeGold,
+                shape: BoxShape.circle,
+              ),
+              child: const Text(
+                '0',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

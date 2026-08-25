@@ -3,6 +3,7 @@ import '../../../controllers/homepage_controller.dart';
 import 'user_header.dart';
 import 'product_header.dart';
 import 'user_footer.dart';
+import 'cart_drawer.dart';
 
 class ProductCartLayout extends StatefulWidget {
   final Widget child;
@@ -24,6 +25,7 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
   late ScrollController _internalController;
   late ScrollController _activeController;
   double _scrollOffset = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -58,7 +60,9 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
     bool isSticky = _scrollOffset >= header1Height;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      key: _scaffoldKey,
+      backgroundColor: Colors.white,
+      endDrawer: const CartDrawer(),
       body: Stack(
         children: [
           // Content
@@ -79,7 +83,7 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
             top: header2Top,
             left: 0,
             right: 0,
-            child: ProductHeader(isSticky: isSticky),
+            child: ProductHeader(isSticky: isSticky, scaffoldKey: _scaffoldKey),
           ),
 
           // Header 1 (Main Default Header)
@@ -87,6 +91,7 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
             controller: widget.controller,
             scrollController: _activeController,
             productPage: true, // This enables the scroll-away behavior inside UserHeader
+            scaffoldKey: _scaffoldKey,
           ),
         ],
       ),

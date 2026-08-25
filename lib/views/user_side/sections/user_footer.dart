@@ -19,32 +19,22 @@ class UserFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const accentGold = Color(0xFFC89A5B);
+    const accentGrey = Color(0xFF757575);
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
     final isMobile = MediaQuery.of(context).size.width < 900;
 
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: const Color(0xFF0A303B), // Deep Peacock Blue
-        image: DecorationImage(
-          image: const NetworkImage('https://www.transparenttextures.com/patterns/dark-matter.png'), // Luxury pattern
-          opacity: 0.15,
-          colorFilter: ColorFilter.mode(accentGold.withOpacity(0.05), BlendMode.srcATop),
-          repeat: ImageRepeat.repeat,
-        ),
+      decoration: const BoxDecoration(
+        color: Color(0xFF0F4C5C), // Deep Teal from the provided image
       ),
       child: Column(
         children: [
-          // Golden texture bar at the top
+          // Thin divider at the top
           Container(
-            height: 4,
+            height: 1,
             width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.transparent, accentGold, Colors.transparent],
-              ),
-            ),
+            color: Colors.white12,
           ),
           
           Padding(
@@ -208,7 +198,7 @@ class UserFooter extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(color: Color(0xFFC89A5B), fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 2),
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 2),
         ),
         const SizedBox(height: 35),
         ...links.map((link) => Padding(
@@ -217,7 +207,7 @@ class UserFooter extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, link['route'] ?? '/'),
             child: Text(
               (link['label'] ?? '') as String,
-              style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15, fontWeight: FontWeight.w300),
+              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 15, fontWeight: FontWeight.w300),
             ),
           ),
         )),

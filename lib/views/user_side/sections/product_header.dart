@@ -5,10 +5,12 @@ import '../../../utils/app_typography.dart';
 
 class ProductHeader extends StatelessWidget {
   final bool isSticky;
+  final GlobalKey<ScaffoldState>? scaffoldKey;
 
   const ProductHeader({
     super.key,
     this.isSticky = true,
+    this.scaffoldKey,
   });
 
   @override
@@ -270,7 +272,11 @@ class ProductHeader extends StatelessWidget {
   Widget _cartButton(BuildContext context, Color color) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, '/cart');
+        if (scaffoldKey != null) {
+          scaffoldKey!.currentState?.openEndDrawer();
+        } else {
+          Scaffold.of(context).openEndDrawer();
+        }
       },
       child: Row(
         children: [
