@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../controllers/cart_controller.dart';
 import '../../../controllers/product_controller.dart';
+import '../../../models/product_model.dart';
 import '../../../utils/app_typography.dart';
 
-class ProductHeader extends StatelessWidget {
+class ProductHeader extends StatefulWidget {
   final bool isSticky;
   final GlobalKey<ScaffoldState>? scaffoldKey;
 
@@ -14,6 +15,99 @@ class ProductHeader extends StatelessWidget {
     this.isSticky = true,
     this.scaffoldKey,
   });
+
+  @override
+  State<ProductHeader> createState() => _ProductHeaderState();
+}
+
+class _ProductHeaderState extends State<ProductHeader> {
+  final TextEditingController _searchController = TextEditingController();
+  List<ProductModel> _searchResults = [];
+  bool _isSearching = false;
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlayEntry;
+
+  void _onSearchChanged(String query) {
+    final prodController = Provider.of<ProductController>(context, listen: false);
+    setState(() {
+      _searchResults = prodController.searchProducts(query);
+      _isSearching = query.isNotEmpty;
+    });
+
+    if (_isSearching && _searchResults.isNotEmpty) {
+      _showOverlay();
+    } else {
+      _removeOverlay();
+    }
+  }
+
+  void _showOverlay() {
+    _removeOverlay();
+    _overlayEntry = _createOverlayEntry();
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  OverlayEntry _createOverlayEntry() {
+    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    var size = renderBox.size;
+
+    return OverlayEntry(
+      builder: (context) => Positioned(
+        width: 400, // Matching search bar padding approx
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          showWhenUnlinked: false,
+          offset: const Offset(0, 45),
+          child: Material(
+            elevation: 8,
+            borderRadius: BorderRadius.circular(12),
+            color: Colors.white,
+            child: Container(
+              constraints: const BoxConstraints(maxHeight: 400),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: _searchResults.length,
+                itemBuilder: (context, index) {
+                  final product = _searchResults[index];
+                  return ListTile(
+                    leading: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: Image.network(product.imageUrl, width: 40, height: 40, fit: BoxFit.cover),
+                    ),
+                    title: Text(product.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    subtitle: Text(product.category, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    trailing: Text('₹${product.price}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F4C5C))),
+                    onTap: () {
+                      _searchController.clear();
+                      _removeOverlay();
+                      Navigator.pushNamed(context, '/product_details');
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +124,7 @@ class ProductHeader extends StatelessWidget {
             width: 2.0,
           ),
         ),
-        boxShadow: isSticky
+        boxShadow: widget.isSticky
             ? [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
@@ -63,32 +157,37 @@ class ProductHeader extends StatelessWidget {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(6),
-                      color: Colors.grey.shade50,
-                    ),
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 10),
-                        Icon(Icons.search, color: Colors.grey.shade600, size: 20),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Search products...',
-                              hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 14),
-                              border: InputBorder.none,
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
+                  child: CompositedTransformTarget(
+                    link: _layerLink,
+                    child: Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(6),
+                        color: Colors.grey.shade50,
+                      ),
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 10),
+                          Icon(Icons.search, color: Colors.grey.shade600, size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              onChanged: _onSearchChanged,
+                              decoration: InputDecoration(
+                                hintText: 'Search products...',
+                                hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -303,34 +402,13 @@ class ProductHeader extends StatelessWidget {
     );
   }
 
-  Widget _actionButton(BuildContext context, IconData icon, String label, String route, Color color) {
-    return InkWell(
-      onTap: () {},
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: AppTypography.bodyStyle(
-              context,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _cartButton(BuildContext context, Color color) {
     return Consumer<CartController>(
       builder: (context, cart, child) {
         return InkWell(
           onTap: () {
-            if (scaffoldKey != null) {
-              scaffoldKey!.currentState?.openEndDrawer();
+            if (widget.scaffoldKey != null) {
+              widget.scaffoldKey!.currentState?.openEndDrawer();
             } else {
               Scaffold.of(context).openEndDrawer();
             }

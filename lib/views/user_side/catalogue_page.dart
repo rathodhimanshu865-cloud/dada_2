@@ -311,14 +311,26 @@ class CataloguePage extends StatelessWidget {
                         ),
                       ),
                     ),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
-                      child: const Icon(Icons.favorite_border, size: 16, color: Colors.grey),
-                    ),
+                  Consumer<ProductController>(
+                    builder: (context, prodCtrl, child) {
+                      bool isLiked = prodCtrl.isLiked(product.id);
+                      return Positioned(
+                        top: 10,
+                        right: 10,
+                        child: GestureDetector(
+                          onTap: () => prodCtrl.toggleLike(product.id),
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                            child: Icon(
+                              isLiked ? Icons.favorite : Icons.favorite_border,
+                              size: 16,
+                              color: isLiked ? Colors.redAccent : Colors.grey,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

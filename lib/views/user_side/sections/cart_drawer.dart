@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../controllers/cart_controller.dart';
+import '../../../controllers/auth_controller.dart';
 import '../../../utils/app_typography.dart';
 
 class CartDrawer extends StatelessWidget {
@@ -351,8 +352,20 @@ class CartDrawer extends StatelessWidget {
             height: 60,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/checkout');
+                final auth = Provider.of<AuthController>(context, listen: false);
+                if (auth.isAuthenticated) {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/checkout');
+                } else {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/login');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please login to proceed to checkout'),
+                      backgroundColor: Color(0xFF0F4C5C),
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF071C21),

@@ -130,4 +130,12 @@ class ProductController extends ChangeNotifier {
   List<ProductModel> get wishlistProducts {
     return allProducts.where((p) => _wishlistIds.contains(p.id)).toList();
   }
+
+  List<ProductModel> searchProducts(String query) {
+    if (query.isEmpty) return [];
+    return allProducts.where((p) {
+      return p.title.toLowerCase().contains(query.toLowerCase()) ||
+             p.category.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+  }
 }

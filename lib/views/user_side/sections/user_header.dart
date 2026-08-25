@@ -935,31 +935,37 @@ class _UserHeaderState extends State<UserHeader>
   }
 
   Widget _buildSearchButton(bool isSticky, Color textColor) {
-    bool isDarkText = textColor == const Color(0xFF07404C);
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: isSticky
-            ? primaryTeal
-            : (isDarkText
-                  ? Colors.black.withOpacity(0.05)
-                  : Colors.white.withOpacity(0.2)),
-        shape: BoxShape.circle,
-        border: isSticky
-            ? null
-            : Border.all(
-                color: isDarkText
-                    ? textColor.withOpacity(0.3)
-                    : Colors.white.withOpacity(0.3),
-              ),
-      ),
-      child: Icon(
-        Icons.search,
-        size: 18,
-        color: isSticky
-            ? Colors.white
-            : (isDarkText ? textColor : Colors.white),
+    return InkWell(
+      onTap: () {
+        // Since we already have a search bar in ProductHeader, we could navigate there or show a global search overlay.
+        // For now, let's just navigate to the products page where the interactive search bar is.
+        Navigator.pushNamed(context, '/product');
+      },
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: isSticky
+              ? primaryTeal
+              : (textColor == const Color(0xFF07404C)
+                    ? Colors.black.withOpacity(0.05)
+                    : Colors.white.withOpacity(0.2)),
+          shape: BoxShape.circle,
+          border: isSticky
+              ? null
+              : Border.all(
+                  color: textColor == const Color(0xFF07404C)
+                      ? textColor.withOpacity(0.3)
+                      : Colors.white.withOpacity(0.3),
+                ),
+        ),
+        child: Icon(
+          Icons.search,
+          size: 18,
+          color: isSticky
+              ? Colors.white
+              : (textColor == const Color(0xFF07404C) ? textColor : Colors.white),
+        ),
       ),
     );
   }

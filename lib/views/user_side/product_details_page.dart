@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/cart_controller.dart';
+import '../../controllers/product_controller.dart';
+import '../../controllers/auth_controller.dart';
 import '../../models/product_model.dart';
 import 'sections/product_cart_layout.dart';
 import '../../utils/app_typography.dart';
@@ -266,7 +268,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                     const SizedBox(width: 20),
                                     Expanded(child: _buildAddToCartButton(context, cartController, primaryTeal)),
                                     const SizedBox(width: 15),
-                                    _buildWishlistButton(context),
+                                    _buildDetailsWishlistButton(context),
                                   ],
                                 ),
                                 const SizedBox(height: 15),
@@ -339,12 +341,27 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildWishlistButton(BuildContext context) {
-    return Container(
-      height: 55,
-      width: 55,
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(4)),
-      child: const Icon(Icons.favorite_border, color: Colors.black, size: 22),
+  Widget _buildDetailsWishlistButton(BuildContext context) {
+    return Consumer<ProductController>(
+      builder: (context, prodCtrl, child) {
+        bool isLiked = prodCtrl.isLiked(_demoProduct.id);
+        return GestureDetector(
+          onTap: () => prodCtrl.toggleLike(_demoProduct.id),
+          child: Container(
+            height: 55,
+            width: 55,
+            decoration: BoxDecoration(
+              border: Border.all(color: isLiked ? Colors.redAccent : Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Icon(
+              isLiked ? Icons.favorite : Icons.favorite_border,
+              color: isLiked ? Colors.redAccent : Colors.black,
+              size: 22,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -354,8 +371,19 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       height: 55,
       child: ElevatedButton(
         onPressed: () {
-          Provider.of<CartController>(context, listen: false).addToCart(_demoProduct, _quantity);
-          Navigator.pushNamed(context, '/checkout');
+          final auth = Provider.of<AuthController>(context, listen: false);
+          if (auth.isAuthenticated) {
+            Provider.of<CartController>(context, listen: false).addToCart(_demoProduct, _quantity);
+            Navigator.pushNamed(context, '/checkout');
+          } else {
+            Navigator.pushNamed(context, '/login');
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please login to proceed to checkout'),
+                backgroundColor: Color(0xFF0F4C5C),
+              ),
+            );
+          }
         },
         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFFD700), foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), elevation: 0),
         child: Text('BUY IT NOW', style: AppTypography.bodyStyle(context, color: Colors.black, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.5)),
@@ -505,12 +533,42 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Widget _gridCard(BuildContext context, Color color) {
+    // Note: Since this is a dummy card, we use a fixed ID or similar logic for testing.
+    // In a real app, you'd pass a ProductModel here.
     return Container(
       decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade100), borderRadius: BorderRadius.circular(8)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: Container(decoration: const BoxDecoration(borderRadius: BorderRadius.vertical(top: Radius.circular(8)), image: DecorationImage(image: NetworkImage('https://via.placeholder.com/300x400/E8DCC4/0F4C5C'), fit: BoxFit.cover)))),
+          Expanded(
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                      image: DecorationImage(image: NetworkImage('https://via.placeholder.com/300x400/E8DCC4/0F4C5C'), fit: BoxFit.cover),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: GestureDetector(
+                    onTap: () {
+                      // Logic to toggle like for this specific dummy item
+                      // In real app: prodCtrl.toggleLike(product.id);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                      child: const Icon(Icons.favorite_border, size: 14, color: Colors.grey),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(15),
             child: Column(

@@ -305,14 +305,26 @@ class ProductHomePage extends StatelessWidget {
                   ),
                   if (product.isNew)
                     Positioned(top: 10, left: 10, child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFC89A5B), borderRadius: BorderRadius.circular(4)), child: const Text('NEW', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
-                      child: const Icon(Icons.favorite_border, size: 16, color: Colors.grey),
-                    ),
+                  Consumer<ProductController>(
+                    builder: (context, prodCtrl, child) {
+                      bool isLiked = prodCtrl.isLiked(product.id);
+                      return Positioned(
+                        top: 10,
+                        right: 10,
+                        child: GestureDetector(
+                          onTap: () => prodCtrl.toggleLike(product.id),
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                            child: Icon(
+                              isLiked ? Icons.favorite : Icons.favorite_border,
+                              size: 16,
+                              color: isLiked ? Colors.redAccent : Colors.grey,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
