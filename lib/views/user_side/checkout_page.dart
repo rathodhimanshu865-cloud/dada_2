@@ -88,12 +88,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   children: [
                     _buildHeader(),
                     _buildStepper(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(flex: 3, child: _buildDeliveryForm()),
-                        Expanded(flex: 2, child: _buildOrderSummary(context, cartController)),
-                      ],
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        if (constraints.maxWidth < 650) {
+                          return Column(
+                            children: [
+                              _buildOrderSummary(context, cartController),
+                              _buildDeliveryForm(),
+                            ],
+                          );
+                        }
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(flex: 3, child: _buildDeliveryForm()),
+                            Expanded(flex: 2, child: _buildOrderSummary(context, cartController)),
+                          ],
+                        );
+                      },
                     ),
                     _buildFooterActions(),
                     _buildBottomBar(),
@@ -269,8 +281,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildOrderSummary(BuildContext context, CartController cart) {
+    bool isMobile = MediaQuery.of(context).size.width < 650;
     return Container(
-      margin: const EdgeInsets.only(top: 32, right: 32),
+      margin: EdgeInsets.only(
+        top: 32,
+        right: isMobile ? 32 : 32,
+        left: isMobile ? 32 : 0,
+      ),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100)),
       child: Column(
@@ -282,17 +299,40 @@ class _CheckoutPageState extends State<CheckoutPage> {
             padding: const EdgeInsets.only(bottom: 15),
             child: Row(
               children: [
-                ClipRRect(borderRadius: BorderRadius.circular(4), child: Image.network(item.product.imageUrl, width: 40, height: 40, fit: BoxFit.cover)),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: Image.network(
+                    item.product.imageUrl,
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 40,
+                      height: 40,
+                      color: Colors.grey.shade100,
+                      child: const Icon(Icons.broken_image_outlined, size: 20, color: Colors.grey),
+                    ),
+                  ),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(item.product.title, style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      Text('Qty: ${item.quantity}', style: AppTypography.bodyStyle(context, fontSize: 11, color: Colors.grey)),
+                      Text(
+                        item.product.title,
+                        style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        'Qty: ${item.quantity}',
+                        style: AppTypography.bodyStyle(context, fontSize: 11, color: Colors.grey),
+                      ),
                     ],
                   ),
                 ),
+                const SizedBox(width: 8),
                 Text('₹${(item.product.price * item.quantity).toStringAsFixed(2)}', style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.bold)),
               ],
             ),

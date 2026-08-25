@@ -6,6 +6,7 @@ import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/language_controller.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../controllers/auth_controller.dart';
+import '../../../controllers/cart_controller.dart';
 import '../../../models/homepage_model.dart';
 import '../../../utils/app_typography.dart';
 
@@ -748,39 +749,44 @@ class _UserHeaderState extends State<UserHeader>
   }
 
   Widget _buildCartButton(Color textColor) {
-    return InkWell(
-      onTap: () {
-        if (widget.scaffoldKey != null) {
-          widget.scaffoldKey!.currentState?.openEndDrawer();
-        } else {
-          Scaffold.of(context).openEndDrawer();
-        }
-      },
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Icon(Icons.shopping_bag_outlined, color: textColor, size: 24),
-          Positioned(
-            right: -4,
-            top: -4,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: templeGold,
-                shape: BoxShape.circle,
-              ),
-              child: const Text(
-                '0',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
+    return Consumer<CartController>(
+      builder: (context, cart, child) {
+        return InkWell(
+          onTap: () {
+            if (widget.scaffoldKey != null) {
+              widget.scaffoldKey!.currentState?.openEndDrawer();
+            } else {
+              Scaffold.of(context).openEndDrawer();
+            }
+          },
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(Icons.shopping_bag_outlined, color: textColor, size: 24),
+              if (cart.totalItems > 0)
+                Positioned(
+                  right: -4,
+                  top: -4,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: templeGold,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '${cart.totalItems}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

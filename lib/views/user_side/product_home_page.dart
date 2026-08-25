@@ -173,22 +173,28 @@ class ProductHomePage extends StatelessWidget {
                     border: Border.all(color: Colors.grey.shade200),
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
                   ),
-                  child: Row(
-                    children: [
-                      Text(cat['icon']!, style: const TextStyle(fontSize: 32)),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(cat['title']!, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 16, color: const Color(0xFF2B2B2B))),
-                            Text(cat['items']!, style: AppTypography.bodyStyle(context, fontSize: 12, color: Colors.grey.shade500)),
-                          ],
+                  child: InkWell(
+                    onTap: () {
+                      Provider.of<ProductController>(context, listen: false).selectCategory(cat['title']! as String);
+                      Navigator.pushNamed(context, '/catalogue');
+                    },
+                    child: Row(
+                      children: [
+                        Text(cat['icon']! as String, style: const TextStyle(fontSize: 32)),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(cat['title']! as String, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 16, color: const Color(0xFF2B2B2B))),
+                              Text(cat['items']! as String, style: AppTypography.bodyStyle(context, fontSize: 12, color: Colors.grey.shade500)),
+                            ],
+                          ),
                         ),
-                      ),
-                      Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey.shade400),
-                    ],
+                        Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey.shade400),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -284,6 +290,16 @@ class ProductHomePage extends StatelessWidget {
                       image: DecorationImage(
                         image: NetworkImage(product.imageUrl),
                         fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: Image.network(
+                      product.imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: Colors.grey.shade50,
+                        child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
                       ),
                     ),
                   ),

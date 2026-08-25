@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../controllers/homepage_controller.dart';
+import '../../../controllers/cart_controller.dart';
+import '../../../controllers/product_controller.dart';
 import '../../../utils/app_typography.dart';
 
 class ProductHeader extends StatelessWidget {
@@ -94,7 +96,7 @@ class ProductHeader extends StatelessWidget {
               // Group C: User Actions (Wishlist & Cart Counters)
               Row(
                 children: [
-                  _actionButton(context, Icons.favorite_border, 'Favorites', '/favorites', darkCharcoal),
+                  _wishlistButton(context, darkCharcoal),
                   const SizedBox(width: 20),
                   _cartButton(context, darkCharcoal),
                 ],
@@ -106,15 +108,67 @@ class ProductHeader extends StatelessWidget {
     );
   }
 
+  Widget _wishlistButton(BuildContext context, Color color) {
+    return Consumer<ProductController>(
+      builder: (context, prod, child) {
+        return InkWell(
+          onTap: () {
+            Navigator.pushNamed(context, '/wishlist');
+          },
+          child: Row(
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(Icons.favorite_border, color: color, size: 20),
+                  if (prod.wishlistIds.isNotEmpty)
+                    Positioned(
+                      right: -6,
+                      top: -6,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFC89A5B),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '${prod.wishlistIds.length}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Favorites',
+                style: AppTypography.bodyStyle(
+                  context,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildCatalogueDropdown(BuildContext context, Color textColor, Color primaryColor) {
     final categories = [
       {'title': 'Keychains', 'icon': '🔑'},
       {'title': 'Acrylic Photo Frames', 'icon': '🖼️'},
       {'title': 'Temple', 'icon': '⛩️'},
-      {'title': 'Idols', 'icon': '🕉️'},
-      {'title': 'Books & Granths', 'icon': '📚'},
       {'title': 'Yantras & Malas', 'icon': '📿'},
+      {'title': 'Idols', 'icon': '🕉️'},
       {'title': 'Puja Items', 'icon': '🪔'},
+      {'title': 'Books & Granths', 'icon': '📚'},
       {'title': 'Apparel', 'icon': '👕'},
     ];
 
@@ -178,6 +232,7 @@ class ProductHeader extends StatelessWidget {
                         width: 200,
                         child: InkWell(
                           onTap: () {
+                            Provider.of<ProductController>(context, listen: false).selectCategory(cat['title']!);
                             Navigator.pop(context); // Close popup
                             Navigator.pushNamed(context, '/catalogue');
                           },
@@ -270,53 +325,58 @@ class ProductHeader extends StatelessWidget {
   }
 
   Widget _cartButton(BuildContext context, Color color) {
-    return InkWell(
-      onTap: () {
-        if (scaffoldKey != null) {
-          scaffoldKey!.currentState?.openEndDrawer();
-        } else {
-          Scaffold.of(context).openEndDrawer();
-        }
-      },
-      child: Row(
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
+    return Consumer<CartController>(
+      builder: (context, cart, child) {
+        return InkWell(
+          onTap: () {
+            if (scaffoldKey != null) {
+              scaffoldKey!.currentState?.openEndDrawer();
+            } else {
+              Scaffold.of(context).openEndDrawer();
+            }
+          },
+          child: Row(
             children: [
-              Icon(Icons.shopping_cart_outlined, color: color, size: 22),
-              Positioned(
-                right: -6,
-                top: -6,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.redAccent,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Text(
-                    '0',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(Icons.shopping_cart_outlined, color: color, size: 22),
+                  if (cart.totalItems > 0)
+                    Positioned(
+                      right: -6,
+                      top: -6,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF111111),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '${cart.totalItems}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Cart',
+                style: AppTypography.bodyStyle(
+                  context,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: color,
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 8),
-          Text(
-            'Cart',
-            style: AppTypography.bodyStyle(
-              context,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

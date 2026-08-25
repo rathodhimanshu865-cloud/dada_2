@@ -21,65 +21,73 @@ class CartDrawer extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // Header: Icon | Title | Count | Close
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Row(
-                children: [
-                  const Icon(Icons.shopping_bag_outlined, size: 22, color: primaryTeal),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Your Shopping Bag',
-                    style: AppTypography.headingStyle(
-                      context,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: primaryTeal.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      '${cartController.totalItems}',
-                      style: AppTypography.bodyStyle(
-                        context,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: primaryTeal,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, size: 20, color: Colors.grey),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
-              ),
-            ),
+            // Header: Icon | Title | Count | Close (Fixed at top)
+            _buildHeader(context, cartController, primaryTeal),
             const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
 
-            // Shipping Progress Section
-            _buildShippingProgress(context, cartController, primaryTeal, templeGold),
-            const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
-
-            // Cart Items or Empty State
+            // Scrollable Content
             Expanded(
               child: cartController.items.isEmpty
                   ? _buildEmptyState(context, primaryTeal)
-                  : _buildCartItems(context, cartController, primaryTeal),
+                  : SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        children: [
+                          _buildShippingProgress(context, cartController, primaryTeal, templeGold),
+                          const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+                          _buildCartItems(context, cartController, primaryTeal),
+                          _buildSummary(context, cartController, primaryTeal),
+                        ],
+                      ),
+                    ),
             ),
-
-            if (cartController.items.isNotEmpty) _buildSummary(context, cartController, primaryTeal),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, CartController cart, Color teal) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      child: Row(
+        children: [
+          Icon(Icons.shopping_bag_outlined, size: 22, color: teal),
+          const SizedBox(width: 12),
+          Text(
+            'Your Shopping Bag',
+            style: AppTypography.headingStyle(
+              context,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: teal.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              '${cart.totalItems}',
+              style: AppTypography.bodyStyle(
+                context,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: teal,
+              ),
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close, size: 20, color: Colors.grey),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+        ],
       ),
     );
   }
@@ -187,6 +195,8 @@ class CartDrawer extends StatelessWidget {
   Widget _buildCartItems(BuildContext context, CartController cart, Color teal) {
     return ListView.separated(
       padding: const EdgeInsets.all(24),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: cart.items.length,
       separatorBuilder: (context, index) => const SizedBox(height: 20),
       itemBuilder: (context, index) {
@@ -202,7 +212,18 @@ class CartDrawer extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(item.product.imageUrl, width: 70, height: 70, fit: BoxFit.cover),
+                child: Image.network(
+                  item.product.imageUrl,
+                  width: 70,
+                  height: 70,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: 70,
+                    height: 70,
+                    color: Colors.grey.shade100,
+                    child: const Icon(Icons.broken_image_outlined, size: 20, color: Colors.grey),
+                  ),
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -285,7 +306,7 @@ class CartDrawer extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, -5))],
+        border: Border(top: BorderSide(color: Colors.grey.shade100)),
       ),
       child: Column(
         children: [

@@ -121,6 +121,19 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                           ),
                                         ),
                                       ),
+                                      Positioned.fill(
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: Image.network(
+                                            _productImages[_selectedImageIndex],
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) => Container(
+                                              color: Colors.grey.shade50,
+                                              child: const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 40),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                       Positioned(
                                         top: 20,
                                         left: 20,

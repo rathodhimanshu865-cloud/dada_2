@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
+import '../../controllers/product_controller.dart';
+import '../../controllers/cart_controller.dart';
+import '../../models/product_model.dart';
 import 'sections/product_cart_layout.dart';
 import '../../utils/app_typography.dart';
 
@@ -9,19 +12,21 @@ class CataloguePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<HomePageController>(context, listen: false);
+    final homeController = Provider.of<HomePageController>(context, listen: false);
+    final productController = Provider.of<ProductController>(context);
+    final cartController = Provider.of<CartController>(context, listen: false);
 
     return ProductCartLayout(
-      controller: controller,
+      controller: homeController,
       child: Column(
         children: [
           _buildHeroBanner(context),
           const SizedBox(height: 30),
-          _buildFilterRow(context),
+          _buildFilterRow(context, productController),
           const SizedBox(height: 20),
-          _buildControlsRow(context),
+          _buildControlsRow(context, productController),
           const SizedBox(height: 30),
-          _buildProductGrid(context),
+          _buildProductGrid(context, productController, cartController),
           const SizedBox(height: 60),
         ],
       ),
@@ -103,17 +108,18 @@ class CataloguePage extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterRow(BuildContext context) {
-    final filters = [
-      {'label': 'All Sacred Products', 'icon': null},
-      {'label': 'Keychains', 'icon': '🔑'},
-      {'label': 'Acrylic Photo Frames', 'icon': '🖼️'},
-      {'label': 'Temple', 'icon': '⛩️'},
-      {'label': 'Yantras & Malas', 'icon': '📿'},
-      {'label': 'Idols', 'icon': '🕉️'},
-      {'label': 'Books & Granths', 'icon': '📚'},
-      {'label': 'Sacred Apparel & Yatra Clothes', 'icon': '👕'},
-    ];
+  Widget _buildFilterRow(BuildContext context, ProductController prod) {
+    final Map<String, String?> filterIcons = {
+      'All Sacred Products': null,
+      'Keychains': '🔑',
+      'Acrylic Photo Frames': '🖼️',
+      'Temple': '⛩️',
+      'Yantras & Malas': '📿',
+      'Idols': '🕉️',
+      'Puja Items': '🪔',
+      'Books & Granths': '📚',
+      'Apparel': '👕',
+    };
 
     return Center(
       child: ConstrainedBox(
@@ -121,22 +127,25 @@ class CataloguePage extends StatelessWidget {
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: filters.map((f) {
-              bool isSelected = f['label'] == 'All Sacred Products';
+            children: prod.categories.map((cat) {
+              bool isSelected = prod.selectedCategory == cat;
               return Padding(
                 padding: const EdgeInsets.only(right: 12),
-                child: Chip(
-                  label: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (f['icon'] != null) ...[Text(f['icon'] as String), const SizedBox(width: 6)],
-                      Text(f['label'] as String),
-                    ],
+                child: InkWell(
+                  onTap: () => prod.selectCategory(cat),
+                  child: Chip(
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (filterIcons[cat] != null) ...[Text(filterIcons[cat]!), const SizedBox(width: 6)],
+                        Text(cat),
+                      ],
+                    ),
+                    backgroundColor: isSelected ? const Color(0xFF0F4C5C) : Colors.white,
+                    labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.grey.shade700, fontWeight: FontWeight.w600, fontSize: 13),
+                    side: BorderSide(color: isSelected ? const Color(0xFF0F4C5C) : Colors.grey.shade300),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
-                  backgroundColor: isSelected ? const Color(0xFF0F4C5C) : Colors.white,
-                  labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.grey.shade700, fontWeight: FontWeight.w600, fontSize: 13),
-                  side: BorderSide(color: isSelected ? const Color(0xFF0F4C5C) : Colors.grey.shade300),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
               );
             }).toList(),
@@ -146,7 +155,7 @@ class CataloguePage extends StatelessWidget {
     );
   }
 
-  Widget _buildControlsRow(BuildContext context) {
+  Widget _buildControlsRow(BuildContext context, ProductController prod) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
@@ -184,7 +193,7 @@ class CataloguePage extends StatelessWidget {
             // Sort Dropdown
             Row(
               children: [
-                Text('42 items found', style: TextStyle(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.w500)),
+                Text('${prod.filteredProducts.length} items found', style: TextStyle(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.w500)),
                 const SizedBox(width: 20),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -211,22 +220,15 @@ class CataloguePage extends StatelessWidget {
     );
   }
 
-  Widget _buildProductGrid(BuildContext context) {
-    // Generate some dummy data to mimic the screenshot
-    final List<Map<String, dynamic>> products = List.generate(12, (index) {
-      bool isNew = index % 3 == 0;
-      bool isPopular = index % 5 == 0 && !isNew;
-      return {
-        'id': index.toString(),
-        'badge': isNew ? 'NEW' : (isPopular ? 'POPULAR' : null),
-        'badgeColor': isNew ? Colors.blue.shade700 : (isPopular ? Colors.orange.shade700 : null),
-        'category': 'Acrylic Photo Frames',
-        'title': 'Sacred Frame with Golden Border for Altar',
-        'price': '₹ 499.00',
-        'rating': 4.8,
-        'reviews': 24,
-      };
-    });
+  Widget _buildProductGrid(BuildContext context, ProductController prod, CartController cart) {
+    if (prod.filteredProducts.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 60),
+          child: Text('No products found in this category.', style: AppTypography.bodyStyle(context, color: Colors.grey)),
+        ),
+      );
+    }
 
     return Center(
       child: ConstrainedBox(
@@ -236,20 +238,20 @@ class CataloguePage extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
-            childAspectRatio: 0.65,
+            childAspectRatio: 0.6,
             crossAxisSpacing: 20,
             mainAxisSpacing: 30,
           ),
-          itemCount: products.length,
+          itemCount: prod.filteredProducts.length,
           itemBuilder: (context, index) {
-            return _enhancedProductCard(context, products[index]);
+            return _enhancedProductCard(context, prod.filteredProducts[index], cart);
           },
         ),
       ),
     );
   }
 
-  Widget _enhancedProductCard(BuildContext context, Map<String, dynamic> product) {
+  Widget _enhancedProductCard(BuildContext context, ProductModel product, CartController cart) {
     return InkWell(
       onTap: () {
         Navigator.pushNamed(context, '/product_details');
@@ -278,25 +280,34 @@ class CataloguePage extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                       color: Colors.grey.shade100,
-                      image: const DecorationImage(
-                        image: NetworkImage('https://via.placeholder.com/300x300/E8DCC4/0F4C5C?text=Product'),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      child: Image.network(
+                        product.imageUrl,
                         fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Colors.grey.shade50,
+                          child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
+                        ),
                       ),
                     ),
                   ),
-                  if (product['badge'] != null)
+                  if (product.isNew)
                     Positioned(
                       top: 10,
                       left: 10,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: product['badgeColor'],
+                          color: Colors.blue.shade700,
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Text(
-                          product['badge'],
-                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                        child: const Text(
+                          'NEW',
+                          style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -324,33 +335,36 @@ class CataloguePage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          product['category'],
+                          product.category,
                           style: TextStyle(color: Colors.grey.shade500, fontSize: 11, fontWeight: FontWeight.bold),
                         ),
                         Row(
                           children: [
                             const Icon(Icons.star, color: Color(0xFFC89A5B), size: 12),
                             const SizedBox(width: 4),
-                            Text('${product['rating']} (${product['reviews']})', style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
+                            Text('4.8 (24)', style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
                           ],
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      product['title'],
+                      product.title,
                       style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 15, color: const Color(0xFF2B2B2B)),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      product['price'],
+                      '₹ ${product.price.toStringAsFixed(2)}',
                       style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18, color: const Color(0xFF0F4C5C)),
                     ),
                     const SizedBox(height: 12),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        cart.addToCart(product, 1);
+                        Scaffold.of(context).openEndDrawer();
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0F4C5C),
                         minimumSize: const Size(double.infinity, 36),
