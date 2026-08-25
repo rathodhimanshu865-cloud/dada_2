@@ -21,6 +21,7 @@ import 'views/user_side/product_details_page.dart';
 import 'views/user_side/catalogue_page.dart';
 import 'views/user_side/pu_dada_teachings_page.dart';
 import 'views/user_side/cart_page.dart';
+import 'views/user_side/checkout_page.dart';
 import 'views/admin/admin_login_page.dart';
 import 'views/admin/admin_dashboard.dart';
 
@@ -31,6 +32,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
+import 'controllers/cart_controller.dart';
+import 'controllers/product_controller.dart';
 import 'controllers/language_controller.dart';
 import 'controllers/profile_controller.dart';
 import 'controllers/auth_controller.dart';
@@ -47,6 +50,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LanguageController(savedLanguageCode)),
         ChangeNotifierProvider(create: (_) => ProfileController()),
         ChangeNotifierProvider(create: (_) => AuthController()),
+        ChangeNotifierProvider(create: (_) => CartController()),
+        ChangeNotifierProvider(create: (_) => ProductController()),
       ],
       child: const MyApp(),
     ),
@@ -178,6 +183,7 @@ class MyApp extends StatelessWidget {
         '/catalogue': (context) => const CataloguePage(),
         '/teachings': (context) => const PuDadaTeachingsPage(),
         '/cart': (context) => const CartPage(),
+        '/checkout': (context) => const CheckoutPage(),
         '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
         '/admin_login': (context) => const AdminLoginPage(),

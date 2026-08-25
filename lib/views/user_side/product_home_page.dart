@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
+import '../../controllers/product_controller.dart';
+import '../../controllers/cart_controller.dart';
+import '../../models/product_model.dart';
 import 'sections/product_cart_layout.dart';
 import '../../utils/app_typography.dart';
 
@@ -9,17 +12,19 @@ class ProductHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<HomePageController>(context, listen: false);
+    final homeController = Provider.of<HomePageController>(context, listen: false);
+    final productController = Provider.of<ProductController>(context);
+    final cartController = Provider.of<CartController>(context, listen: false);
 
     return ProductCartLayout(
-      controller: controller,
+      controller: homeController,
       child: Column(
         children: [
           _buildHeroSection(context),
           const SizedBox(height: 60),
           _buildCategoriesSection(context),
           const SizedBox(height: 60),
-          _buildFeaturedProductsSection(context),
+          _buildFeaturedProductsSection(context, productController, cartController),
           const SizedBox(height: 60),
           _buildProcessSection(context),
           const SizedBox(height: 60),
@@ -194,7 +199,7 @@ class ProductHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildFeaturedProductsSection(BuildContext context) {
+  Widget _buildFeaturedProductsSection(BuildContext context, ProductController prod, CartController cart) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
@@ -221,13 +226,13 @@ class ProductHomePage extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
-                childAspectRatio: 0.65,
+                childAspectRatio: 0.6,
                 crossAxisSpacing: 20,
                 mainAxisSpacing: 20,
               ),
-              itemCount: 8,
+              itemCount: prod.featuredProducts.length,
               itemBuilder: (context, index) {
-                return _productCard(context);
+                return _productCard(context, prod.featuredProducts[index], cart);
               },
             ),
             const SizedBox(height: 40),
@@ -256,7 +261,7 @@ class ProductHomePage extends StatelessWidget {
     );
   }
 
-  Widget _productCard(BuildContext context) {
+  Widget _productCard(BuildContext context, ProductModel product, CartController cart) {
     return InkWell(
       onTap: () {
         Navigator.pushNamed(context, '/product_details');
@@ -274,14 +279,16 @@ class ProductHomePage extends StatelessWidget {
               child: Stack(
                 children: [
                   Container(
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                       image: DecorationImage(
-                        image: NetworkImage('https://via.placeholder.com/300x300/E8DCC4/0F4C5C?text=Product'),
+                        image: NetworkImage(product.imageUrl),
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
+                  if (product.isNew)
+                    Positioned(top: 10, left: 10, child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFC89A5B), borderRadius: BorderRadius.circular(4)), child: const Text('NEW', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
                   Positioned(
                     top: 10,
                     right: 10,
@@ -299,15 +306,18 @@ class ProductHomePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Spiritual Item Name', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 16, color: const Color(0xFF2B2B2B)), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(product.title, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 16, color: const Color(0xFF2B2B2B)), maxLines: 2, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 8),
-                  Text('₹ 499.00', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18, color: const Color(0xFF0F4C5C))),
+                  Text('₹ ${product.price}', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18, color: const Color(0xFF0F4C5C))),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      cart.addToCart(product, 1);
+                      Scaffold.of(context).openEndDrawer();
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0F4C5C),
-                      minimumSize: const Size(double.infinity, 40),
+                      minimumSize: const Size(double.infinity, 45),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                     ),
                     child: Text('ADD TO CART', style: AppTypography.bodyStyle(context, color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
