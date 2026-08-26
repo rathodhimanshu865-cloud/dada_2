@@ -28,7 +28,6 @@ import 'views/admin/admin_login_page.dart';
 import 'views/admin/admin_dashboard.dart';
 
 import 'views/user_side/auth/login_page.dart';
-import 'views/user_side/auth/signup_page.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -189,7 +188,6 @@ class MyApp extends StatelessWidget {
         '/checkout': (context) => const CheckoutPage(),
         '/track': (context) => const TrackShipmentPage(),
         '/login': (context) => const LoginPage(),
-        '/signup': (context) => const SignupPage(),
         '/admin_login': (context) => const AdminLoginPage(),
         '/admin_dashboard': (context) => const AdminDashboard(),
       },
