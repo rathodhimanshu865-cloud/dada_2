@@ -1,10 +1,11 @@
 ﻿import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart';
 import '../../controllers/homepage_controller.dart';
+import '../../controllers/profile_controller.dart';
 import '../../models/homepage_model.dart';
 import 'order_management_view.dart';
+import 'biography_editor.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -20,15 +21,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<HomePageController>(context);
-
-    if (controller.isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
+    final prof = Provider.of<ProfileController>(context);
+    final bool globalLoading = controller.isLoading || prof.isLoading;
 
     bool isMobile = MediaQuery.of(context).size.width <= 900;
 
     return Scaffold(
       appBar: AppBar(
+        bottom: globalLoading ? const PreferredSize(
+          preferredSize: Size.fromHeight(2),
+          child: LinearProgressIndicator(backgroundColor: Colors.transparent, valueColor: AlwaysStoppedAnimation<Color>(Colors.amber)),
+        ) : null,
         title: const Text('ADMIN PORTAL', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
         centerTitle: false,
         leading: IconButton(
@@ -42,22 +45,31 @@ class _AdminDashboardState extends State<AdminDashboard> {
           },
         ),
         actions: [
-          if (MediaQuery.of(context).size.width > 700)
+          if (MediaQuery.of(context).size.width > 750) ...[
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: ElevatedButton.icon(
-                onPressed: controller.translateAndPublish,
-                icon: const Icon(Icons.auto_awesome, size: 14),
-                label: const Text('PUBLISH ALL', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                onPressed: controller.isLoading ? null : () async {
+                   final prof = Provider.of<ProfileController>(context, listen: false);
+                   await Future.wait([
+                     controller.translateAndPublish(),
+                     prof.translateAll(),
+                   ]);
+                   if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All Sections Translated & Published!')));
+                },
+                icon: controller.isLoading ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)) : const Icon(Icons.auto_awesome, size: 14),
+                label: Text(controller.isLoading ? 'WORKING...' : 'TRANSLATE & PUBLISH', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber, 
                   foregroundColor: Colors.black,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                 ),
               ),
             ),
+            const SizedBox(width: 12),
+          ],
           const SizedBox(width: 8),
           IconButton(
             tooltip: 'Refresh Data',
@@ -135,7 +147,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     switch (currentMenuIndex) {
       case 0: return _generalSettingsView(controller);
       case 1: return _heroSliderView(controller);
-      case 2: return _biographyView(controller);
+      case 2: return const BiographyEditor();
       case 3: return _kathaPagesView(controller);
       case 4: return _upcomingKathasView(controller);
       case 5: return _homepageDataView(controller);
@@ -422,51 +434,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _biographyView(HomePageController controller) {
-    final b = controller.aboutDadaPage;
-    return ListView(
-      padding: _responsivePadding(context).add(const EdgeInsets.only(bottom: 100)),
-      children: [
-        _sectionHeader('BIOGRAPHY PAGE CONTENT'),
-        _buildField('Hero Title', b.heroTitle, (v) => b.heroTitle = v),
-        _buildField('Hero Subtitle', b.heroSubtitle, (v) => b.heroSubtitle = v),
-        ...b.phases.asMap().entries.map((entry) {
-          final i = entry.key;
-          final p = entry.value;
-          return Card(
-            margin: const EdgeInsets.only(bottom: 30),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Life Phase #${i+1}'), IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeBiographyPhase(i))]),
-                  _buildField('Phase Title', p.title, (v) => p.title = v),
-                  _buildField('Phase Subtitle', p.subtitle, (v) => p.subtitle = v),
-                  _buildField('Content / Story', p.content, (v) => p.content = v, maxLines: 10),
-                  _sectionHeader('Phase Images'),
-                  Wrap(
-                    children: [
-                      ...p.images.asMap().entries.map((img) => Stack(
-                        children: [
-                          Image.network(img.value, width: 100, height: 100, fit: BoxFit.cover),
-                          IconButton(icon: const Icon(Icons.cancel, color: Colors.white), onPressed: () => controller.removeImageFromPhase(i, img.key)),
-                        ],
-                      )),
-                      IconButton(icon: const Icon(Icons.add_a_photo, size: 40), onPressed: () async {
-                        final url = await controller.uploadPhotoFromFile();
-                        if (url != null) controller.addImageToPhase(i, url);
-                      }),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          );
-        }),
-        ElevatedButton(onPressed: controller.addBiographyPhase, child: const Text('Add Life Phase')),
-      ],
-    );
-  }
 
   Widget _kathaPagesView(HomePageController controller) {
     return DefaultTabController(
@@ -514,9 +481,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
               child: Column(
                 children: [
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Event #${i+1}'), IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeKatha(i))]),
+                  _buildField('Katha Number (e.g. 7)', k.kathaNumber, (v) => k.kathaNumber = v),
                   _buildField('Katha Name', k.name, (v) => k.name = v),
+                  _buildField('Date Range (String)', k.dateString, (v) => k.dateString = v),
+                  _buildField('Timing (e.g. 2 to 6 PM)', k.timing, (v) => k.timing = v),
                   _buildField('Location', k.location, (v) => k.location = v),
-                  _buildField('Date (String)', k.dateString, (v) => k.dateString = v),
+                  _buildField('Hosting (e.g. Mumbai Team)', k.hosting, (v) => k.hosting = v),
+                  _buildField('Full Description / More Details', k.description, (v) => k.description = v, maxLines: 5),
                 ],
               ),
             ),

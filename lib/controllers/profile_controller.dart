@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/profile_model.dart';
+import '../services/translation_service.dart';
 
 class ProfileController extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -75,5 +76,43 @@ class ProfileController extends ChangeNotifier {
     current.contentHTML  = html;
     current.contentDelta = delta;
     await saveProfileData(current);
+  }
+
+  Future<void> translateAll() async {
+    if (_profileData == null) return;
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final p = _profileData!;
+      final futures = <Future<void>>[];
+
+      if (p.socialInitiativeTitle.isNotEmpty) futures.add(TranslationService.translateToAll(p.socialInitiativeTitle).then((res) { p.socialInitiativeTitleHi = res['hi']!; p.socialInitiativeTitleGu = res['gu']!; }));
+      if (p.socialVision.isNotEmpty) futures.add(TranslationService.translateToAll(p.socialVision).then((res) { p.socialVisionHi = res['hi']!; p.socialVisionGu = res['gu']!; }));
+      if (p.socialMission.isNotEmpty) futures.add(TranslationService.translateToAll(p.socialMission).then((res) { p.socialMissionHi = res['hi']!; p.socialMissionGu = res['gu']!; }));
+      if (p.socialObjective.isNotEmpty) futures.add(TranslationService.translateToAll(p.socialObjective).then((res) { p.socialObjectiveHi = res['hi']!; p.socialObjectiveGu = res['gu']!; }));
+      if (p.philosophyOfLife.isNotEmpty) futures.add(TranslationService.translateToAll(p.philosophyOfLife).then((res) { p.philosophyOfLifeHi = res['hi']!; p.philosophyOfLifeGu = res['gu']!; }));
+      if (p.signatureIdentityTitle.isNotEmpty) futures.add(TranslationService.translateToAll(p.signatureIdentityTitle).then((res) { p.signatureIdentityTitleHi = res['hi']!; p.signatureIdentityTitleGu = res['gu']!; }));
+      if (p.signatureIdentitySubtitle.isNotEmpty) futures.add(TranslationService.translateToAll(p.signatureIdentitySubtitle).then((res) { p.signatureIdentitySubtitleHi = res['hi']!; p.signatureIdentitySubtitleGu = res['gu']!; }));
+
+      if (p.coreCompetencies.isNotEmpty) {
+        futures.add(TranslationService.translateBatch(p.coreCompetencies, 'hi').then((res) => p.coreCompetenciesHi = res));
+        futures.add(TranslationService.translateBatch(p.coreCompetencies, 'gu').then((res) => p.coreCompetenciesGu = res));
+      }
+      if (p.professionalHighlights.isNotEmpty) {
+        futures.add(TranslationService.translateBatch(p.professionalHighlights, 'hi').then((res) => p.professionalHighlightsHi = res));
+        futures.add(TranslationService.translateBatch(p.professionalHighlights, 'gu').then((res) => p.professionalHighlightsGu = res));
+      }
+      if (p.personalAttributes.isNotEmpty) {
+        futures.add(TranslationService.translateBatch(p.personalAttributes, 'hi').then((res) => p.personalAttributesHi = res));
+        futures.add(TranslationService.translateBatch(p.personalAttributes, 'gu').then((res) => p.personalAttributesGu = res));
+      }
+
+      await Future.wait(futures);
+      await saveProfileData(p);
+    } catch (e) {
+      debugPrint("Translation error in ProfileController: $e");
+    }
+    _isLoading = false;
+    notifyListeners();
   }
 }

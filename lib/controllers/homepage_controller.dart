@@ -313,6 +313,8 @@ class HomePageController extends ChangeNotifier {
         if (k.location.isNotEmpty) futures.add(TranslationService.translateToAll(k.location).then((res) { k.locationHi = res['hi'] ?? ''; k.locationGu = res['gu'] ?? ''; }));
         if (k.dateString.isNotEmpty) futures.add(TranslationService.translateToAll(k.dateString).then((res) { k.dateStringHi = res['hi'] ?? ''; k.dateStringGu = res['gu'] ?? ''; }));
         if (k.description.isNotEmpty) futures.add(TranslationService.translateToAll(k.description).then((res) { k.descriptionHi = res['hi'] ?? ''; k.descriptionGu = res['gu'] ?? ''; }));
+        if (k.timing.isNotEmpty) futures.add(TranslationService.translateToAll(k.timing).then((res) { k.timingHi = res['hi'] ?? ''; k.timingGu = res['gu'] ?? ''; }));
+        if (k.hosting.isNotEmpty) futures.add(TranslationService.translateToAll(k.hosting).then((res) { k.hostingHi = res['hi'] ?? ''; k.hostingGu = res['gu'] ?? ''; }));
       }
       if (homepageData.featuredQuote.quote.isNotEmpty) futures.add(TranslationService.translateToAll(homepageData.featuredQuote.quote).then((res) { homepageData.featuredQuote.quoteHi = res['hi'] ?? ''; homepageData.featuredQuote.quoteGu = res['gu'] ?? ''; }));
       if (homepageData.featuredQuote.author.isNotEmpty) futures.add(TranslationService.translateToAll(homepageData.featuredQuote.author).then((res) { homepageData.featuredQuote.authorHi = res['hi'] ?? ''; homepageData.featuredQuote.authorGu = res['gu'] ?? ''; }));

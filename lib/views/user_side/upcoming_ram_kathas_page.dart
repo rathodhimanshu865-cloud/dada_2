@@ -377,84 +377,129 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
       builder: (context) {
         final isMobile = MediaQuery.of(context).size.width < 900;
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          elevation: 24,
           insetPadding: EdgeInsets.all(isMobile ? 16 : 40),
           child: Container(
-            width: isMobile ? double.infinity : 600,
-            padding: EdgeInsets.all(isMobile ? 24 : 50),
+            width: isMobile ? double.infinity : 700,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.white, backgroundBeige.withValues(alpha: 0.2)],
+              ),
+            ),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${AppLocalizations.of(context)!.kathaPrefix} ${katha.kathaNumber} — ${katha.localizedName(lang)}',
-                          style: AppTypography.headingStyle(
-                            context,
-                            fontSize: isMobile ? 20 : 26,
-                            fontWeight: FontWeight.bold,
-                            color: primaryTeal,
+                  // Header section
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(30, 30, 20, 20),
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: accentBrown.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '${AppLocalizations.of(context)!.kathaPrefix} ${katha.kathaNumber}'.toUpperCase(),
+                                  style: TextStyle(color: accentBrown, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 2),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                katha.localizedName(lang).toUpperCase(),
+                                style: AppTypography.headingStyle(
+                                  context,
+                                  fontSize: isMobile ? 22 : 30,
+                                  fontWeight: FontWeight.w800,
+                                  color: primaryTeal,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        icon: const Icon(Icons.close, size: 26),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded, size: 28),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  Container(width: 80, height: 3, color: accentBrown),
-                  const SizedBox(height: 30),
-                  _detailRow(AppLocalizations.of(context)!.kathaDate, _formatDateRange(katha, lang), isMobile),
-                  _detailRow(AppLocalizations.of(context)!.kathaTiming, katha.timing, isMobile),
-                  _detailRow(AppLocalizations.of(context)!.kathaLocation, katha.localizedLocation(lang), isMobile),
-                  _detailRow(AppLocalizations.of(context)!.kathaHosting, katha.hosting, isMobile),
-                  if (katha.localizedDescription(lang).isNotEmpty) ...[
-                    const SizedBox(height: 20),
-                    Text(
-                      AppLocalizations.of(context)!.moreDetails,
-                      style: AppTypography.bodyStyle(
-                        context,
-                        fontWeight: FontWeight.bold,
-                        fontSize: isMobile ? 14 : 16,
-                        color: primaryTeal.withOpacity(0.8),
-                      ),
+                  
+                  // Content section
+                  Padding(
+                    padding: const EdgeInsets.all(30),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _detailRowWithIcon(Icons.calendar_today_outlined, AppLocalizations.of(context)!.kathaDate, _formatDateRange(katha, lang)),
+                        _detailRowWithIcon(Icons.access_time_rounded, AppLocalizations.of(context)!.kathaTiming, katha.localizedTiming(lang)),
+                        _detailRowWithIcon(Icons.location_on_outlined, AppLocalizations.of(context)!.kathaLocation, katha.localizedLocation(lang)),
+                        _detailRowWithIcon(Icons.people_outline_rounded, AppLocalizations.of(context)!.kathaHosting, katha.localizedHosting(lang)),
+                        
+                        if (katha.localizedDescription(lang).isNotEmpty) ...[
+                          const SizedBox(height: 30),
+                          const Divider(height: 1),
+                          const SizedBox(height: 30),
+                          Text(
+                            "EVENT OVERVIEW",
+                            style: TextStyle(
+                              color: accentBrown,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            katha.localizedDescription(lang),
+                            style: AppTypography.bodyStyle(
+                              context,
+                              fontSize: 16,
+                              color: Colors.black87,
+                              height: 1.7,
+                            ),
+                            textAlign: TextAlign.justify,
+                          ),
+                        ],
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      katha.localizedDescription(lang),
-                      style: AppTypography.bodyStyle(
-                        context,
-                        fontSize: isMobile ? 14 : 16,
-                        color: Colors.black87,
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 40),
-                  Center(child: Container(width: 80, height: 1, color: Colors.grey[200])),
-                  const SizedBox(height: 30),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryTeal,
-                        padding: EdgeInsets.symmetric(horizontal: isMobile ? 30 : 50, vertical: isMobile ? 15 : 20),
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context)!.close,
-                        style: AppTypography.bodyStyle(
-                          context,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                  ),
+
+                  // Footer button
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(30, 0, 30, 30),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 55,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryTeal,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        child: Text(
+                          AppLocalizations.of(context)!.close.toUpperCase(),
+                          style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 2, fontSize: 13),
                         ),
                       ),
                     ),
@@ -468,39 +513,39 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
     );
   }
 
-  Widget _detailRow(String label, String value, bool isMobile) {
+  Widget _detailRowWithIcon(IconData icon, String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 8 : 12),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: isMobile ? 120 : 180,
-            child: Text(
-              label,
-              style: AppTypography.bodyStyle(
-                context,
-                fontWeight: FontWeight.bold,
-                fontSize: isMobile ? 14 : 16,
-                color: primaryTeal.withOpacity(0.8),
-              ),
-            ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: primaryTeal.withValues(alpha: 0.05), shape: BoxShape.circle),
+            child: Icon(icon, color: primaryTeal, size: 20),
           ),
+          const SizedBox(width: 16),
           Expanded(
-            child: Text(
-              value.isNotEmpty ? value : '-',
-              style: AppTypography.bodyStyle(
-                context,
-                fontSize: isMobile ? 14 : 16,
-                color: Colors.black87,
-                height: 1.4,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label.toUpperCase(),
+                  style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 1.2),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value.isNotEmpty ? value : '-',
+                  style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 16, height: 1.3),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
   }
+
 
   String _formatDateRange(UpcomingKatha katha, String lang) {
     if (katha.startDate != null && katha.endDate != null) {
@@ -523,7 +568,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
         children: [
           // Previous Button
           _pageNavButton(
-            AppLocalizations.of(context)!.previous ?? "PREVIOUS", 
+            AppLocalizations.of(context)!.previous,
             currentPage > 1 ? () => setState(() => currentPage--) : null,
             isIcon: true,
             icon: Icons.chevron_left,
@@ -567,7 +612,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
           const SizedBox(width: 20),
           // Next Button
           _pageNavButton(
-            AppLocalizations.of(context)!.next ?? "NEXT", 
+            AppLocalizations.of(context)!.next,
             currentPage < totalPages ? () => setState(() => currentPage++) : null,
             isIcon: true,
             icon: Icons.chevron_right,
