@@ -223,8 +223,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           _buildTextField(_loginPassCtrl, Icons.lock_outline, '••••••••', isPassword: true),
           const SizedBox(height: 30),
           _buildActionButton('Sign In Securely', _handleLogin),
-          const SizedBox(height: 24),
-          _buildInstantAccessSection(),
         ],
       ),
     );
@@ -258,8 +256,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 style: TextStyle(color: primaryTeal, fontWeight: FontWeight.bold, fontSize: 13)),
             ),
           ),
-          const SizedBox(height: 20),
-          _buildInstantAccessSection(),
         ],
       ),
     );

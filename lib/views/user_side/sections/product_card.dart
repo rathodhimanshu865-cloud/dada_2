@@ -18,6 +18,23 @@ class ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<ProductCard> {
   bool _isHovered = false;
+  bool _isQuickViewOpen = false;
+
+  void _openQuickView() async {
+    if (_isQuickViewOpen) return;
+    
+    setState(() => _isQuickViewOpen = true);
+    
+    await showDialog(
+      context: context,
+      barrierDismissible: true, // Ensures clicking outside closes the dialog
+      builder: (context) => QuickViewDialog(product: widget.product),
+    );
+    
+    if (mounted) {
+      setState(() => _isQuickViewOpen = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,39 +90,35 @@ class _ProductCardState extends State<ProductCard> {
                     ),
                   ),
                   
-                  // Quick View Button Overlay (Now at the BOTTOM of the image)
+                  // Quick View Button Overlay (Triggers AUTOMATICALLY on Cursor Move/Hover)
                   if (_isHovered)
                     Positioned(
                       bottom: 0,
                       left: 0,
                       right: 0,
-                      child: Container(
-                        height: 45,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                              Colors.black.withOpacity(0.6),
-                              Colors.transparent,
-                            ],
+                      child: MouseRegion(
+                        onEnter: (_) => _openQuickView(),
+                        child: Container(
+                          height: 45,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [
+                                Colors.black.withOpacity(0.6),
+                                Colors.transparent,
+                              ],
+                            ),
                           ),
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => QuickViewDialog(product: widget.product),
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.white.withOpacity(0.9),
-                            foregroundColor: primaryTeal,
-                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                          ),
-                          child: Text(
-                            'QUICK VIEW',
-                            style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1),
+                          child: Container(
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                            ),
+                            child: Text(
+                              'QUICK VIEW',
+                              style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1, color: primaryTeal),
+                            ),
                           ),
                         ),
                       ),

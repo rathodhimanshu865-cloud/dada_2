@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -58,7 +58,7 @@ class HomePageController extends ChangeNotifier {
         .orderBy('uploadedAt', descending: true)
         .snapshots()
         .listen((snapshot) {
-      realTimePhotos = snapshot.docs.map((doc) => doc.data()).toList();
+      realTimePhotos = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
       notifyListeners();
     }, onError: (err) {
       debugPrint("Photos stream error: $err");
@@ -143,14 +143,24 @@ class HomePageController extends ChangeNotifier {
     try {
       isUploading = true;
       notifyListeners();
-      final result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: false, withData: true);
-      if (result == null || result.files.isEmpty) { isUploading = false; notifyListeners(); return null; }
-      final fileName = result.files.single.name;
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image, 
+        allowMultiple: false,
+      );
+      
+      if (result == null || result.files.isEmpty) { 
+        isUploading = false; 
+        notifyListeners(); 
+        return null; 
+      }
+      
+      final PlatformFile file = result.files.first;
+      final fileName = file.name;
       final uploadName = '${DateTime.now().millisecondsSinceEpoch}_$fileName';
       final reference = _storage.ref('uploads/$uploadName');
       UploadTask task;
-      final fileBytes = result.files.single.bytes;
-      final filePath = result.files.single.path;
+      final fileBytes = file.bytes;
+      final filePath = file.path;
 
       if (kIsWeb || fileBytes != null) {
         if (fileBytes == null) throw Exception("Failed to read file bytes");
@@ -158,8 +168,8 @@ class HomePageController extends ChangeNotifier {
         final mimeType = ext == 'png' ? 'image/png' : ext == 'webp' ? 'image/webp' : 'image/jpeg';
         task = reference.putData(fileBytes, SettableMetadata(contentType: mimeType));
       } else if (filePath != null) {
-        final file = File(filePath);
-        task = reference.putFile(file);
+        final ioFile = File(filePath);
+        task = reference.putFile(ioFile);
       } else {
         throw Exception("No file bytes or path available");
       }
@@ -171,16 +181,22 @@ class HomePageController extends ChangeNotifier {
     } catch (e) {
       debugPrint("Firebase Storage upload error: $e. Trying base64 fallback...");
       try {
-        final result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: false, withData: true);
-        if (result != null && result.files.isNotEmpty && result.files.single.bytes != null) {
-          final bytes = result.files.single.bytes!;
-          final ext = path_helper.extension(result.files.single.name).replaceFirst('.', '').toLowerCase();
-          final mimeType = ext == 'png' ? 'image/png' : ext == 'webp' ? 'image/webp' : 'image/jpeg';
-          final base64Str = base64Encode(bytes);
-          final dataUrl = 'data:$mimeType;base64,$base64Str';
-          isUploading = false;
-          notifyListeners();
-          return dataUrl;
+        FilePickerResult? result = await FilePicker.platform.pickFiles(
+          type: FileType.image, 
+          allowMultiple: false,
+        );
+        if (result != null && result.files.isNotEmpty) {
+          final file = result.files.first;
+          if (file.bytes != null) {
+            final bytes = file.bytes!;
+            final ext = path_helper.extension(file.name).replaceFirst('.', '').toLowerCase();
+            final mimeType = ext == 'png' ? 'image/png' : ext == 'webp' ? 'image/webp' : 'image/jpeg';
+            final base64Str = base64Encode(bytes);
+            final dataUrl = 'data:$mimeType;base64,$base64Str';
+            isUploading = false;
+            notifyListeners();
+            return dataUrl;
+          }
         }
       } catch (fallbackErr) {
         debugPrint("Base64 Fallback error: $fallbackErr");
@@ -242,21 +258,18 @@ class HomePageController extends ChangeNotifier {
   }
 
   /// Translates ALL content fields to Hindi and Gujarati, then publishes to Firestore.
-  /// Call this from the admin "Translate & Publish" button.
   Future<void> translateAndPublish() async {
     isLoading = true;
     notifyListeners();
     try {
       final futures = <Future<void>>[];
 
-      // ── Hero Slides ──────────────────────────────────────────────────────────
       for (final s in heroSection.slides) {
         if (s.badge.isNotEmpty) futures.add(TranslationService.translateToAll(s.badge).then((res) { s.badgeHi = res['hi'] ?? ''; s.badgeGu = res['gu'] ?? ''; }));
         if (s.heading.isNotEmpty) futures.add(TranslationService.translateToAll(s.heading).then((res) { s.headingHi = res['hi'] ?? ''; s.headingGu = res['gu'] ?? ''; }));
         if (s.subtitle.isNotEmpty) futures.add(TranslationService.translateToAll(s.subtitle).then((res) { s.subtitleHi = res['hi'] ?? ''; s.subtitleGu = res['gu'] ?? ''; }));
         if (s.description.isNotEmpty) futures.add(TranslationService.translateToAll(s.description).then((res) { s.descriptionHi = res['hi'] ?? ''; s.descriptionGu = res['gu'] ?? ''; }));
       }
-      // ── About Section ────────────────────────────────────────────────────────
       if (aboutSection.title.isNotEmpty) futures.add(TranslationService.translateToAll(aboutSection.title).then((res) { aboutSection.titleHi = res['hi'] ?? ''; aboutSection.titleGu = res['gu'] ?? ''; }));
       if (aboutSection.tagline.isNotEmpty) futures.add(TranslationService.translateToAll(aboutSection.tagline).then((res) { aboutSection.taglineHi = res['hi'] ?? ''; aboutSection.taglineGu = res['gu'] ?? ''; }));
       if (aboutSection.description.isNotEmpty) futures.add(TranslationService.translateToAll(aboutSection.description).then((res) { aboutSection.descriptionHi = res['hi'] ?? ''; aboutSection.descriptionGu = res['gu'] ?? ''; }));
@@ -265,46 +278,36 @@ class HomePageController extends ChangeNotifier {
         futures.add(TranslationService.translateBatch(aboutSection.paragraphs, 'gu').then((res) => aboutSection.paragraphsGu = res));
       }
       
-      // ── About Dada Page (Biography) ──────────────────────────────────────────
       if (aboutDadaPage.heroTitle.isNotEmpty) futures.add(TranslationService.translateToAll(aboutDadaPage.heroTitle).then((res) { aboutDadaPage.heroTitleHi = res['hi'] ?? ''; aboutDadaPage.heroTitleGu = res['gu'] ?? ''; }));
       if (aboutDadaPage.heroSubtitle.isNotEmpty) futures.add(TranslationService.translateToAll(aboutDadaPage.heroSubtitle).then((res) { aboutDadaPage.heroSubtitleHi = res['hi'] ?? ''; aboutDadaPage.heroSubtitleGu = res['gu'] ?? ''; }));
 
-      // ── Ram Katha ────────────────────────────────────────────────────────────
       if (ramKatha.description1.isNotEmpty) futures.add(TranslationService.translateToAll(ramKatha.description1).then((res) { ramKatha.description1Hi = res['hi'] ?? ''; ramKatha.description1Gu = res['gu'] ?? ''; }));
       if (ramKatha.description2.isNotEmpty) futures.add(TranslationService.translateToAll(ramKatha.description2).then((res) { ramKatha.description2Hi = res['hi'] ?? ''; ramKatha.description2Gu = res['gu'] ?? ''; }));
       
-      // ── Upcoming Kathas ──────────────────────────────────────────────────────
       for (final k in upcomingKathas) {
         if (k.name.isNotEmpty) futures.add(TranslationService.translateToAll(k.name).then((res) { k.nameHi = res['hi'] ?? ''; k.nameGu = res['gu'] ?? ''; }));
         if (k.location.isNotEmpty) futures.add(TranslationService.translateToAll(k.location).then((res) { k.locationHi = res['hi'] ?? ''; k.locationGu = res['gu'] ?? ''; }));
         if (k.dateString.isNotEmpty) futures.add(TranslationService.translateToAll(k.dateString).then((res) { k.dateStringHi = res['hi'] ?? ''; k.dateStringGu = res['gu'] ?? ''; }));
         if (k.description.isNotEmpty) futures.add(TranslationService.translateToAll(k.description).then((res) { k.descriptionHi = res['hi'] ?? ''; k.descriptionGu = res['gu'] ?? ''; }));
       }
-      // ── Featured Quote ───────────────────────────────────────────────────────
       if (homepageData.featuredQuote.quote.isNotEmpty) futures.add(TranslationService.translateToAll(homepageData.featuredQuote.quote).then((res) { homepageData.featuredQuote.quoteHi = res['hi'] ?? ''; homepageData.featuredQuote.quoteGu = res['gu'] ?? ''; }));
       if (homepageData.featuredQuote.author.isNotEmpty) futures.add(TranslationService.translateToAll(homepageData.featuredQuote.author).then((res) { homepageData.featuredQuote.authorHi = res['hi'] ?? ''; homepageData.featuredQuote.authorGu = res['gu'] ?? ''; }));
       
-      // ── Teaching Cards ───────────────────────────────────────────────────────
       for (final t in homepageData.teachings) {
         if (t.title.isNotEmpty) futures.add(TranslationService.translateToAll(t.title).then((res) { t.titleHi = res['hi'] ?? ''; t.titleGu = res['gu'] ?? ''; }));
         if (t.subtitle.isNotEmpty) futures.add(TranslationService.translateToAll(t.subtitle).then((res) { t.subtitleHi = res['hi'] ?? ''; t.subtitleGu = res['gu'] ?? ''; }));
         if (t.description.isNotEmpty) futures.add(TranslationService.translateToAll(t.description).then((res) { t.descriptionHi = res['hi'] ?? ''; t.descriptionGu = res['gu'] ?? ''; }));
       }
-      // ── Testimonials ─────────────────────────────────────────────────────────
       for (final t in homepageData.testimonials) {
         if (t.name.isNotEmpty) futures.add(TranslationService.translateToAll(t.name).then((res) { t.nameHi = res['hi'] ?? ''; t.nameGu = res['gu'] ?? ''; }));
         if (t.feedback.isNotEmpty) futures.add(TranslationService.translateToAll(t.feedback).then((res) { t.feedbackHi = res['hi'] ?? ''; t.feedbackGu = res['gu'] ?? ''; }));
       }
-      // ── Biography Hero & Phases ──────────────────────────────────────────────
-      if (aboutDadaPage.heroTitle.isNotEmpty) futures.add(TranslationService.translateToAll(aboutDadaPage.heroTitle).then((res) { aboutDadaPage.heroTitleHi = res['hi'] ?? ''; aboutDadaPage.heroTitleGu = res['gu'] ?? ''; }));
-      if (aboutDadaPage.heroSubtitle.isNotEmpty) futures.add(TranslationService.translateToAll(aboutDadaPage.heroSubtitle).then((res) { aboutDadaPage.heroSubtitleHi = res['hi'] ?? ''; aboutDadaPage.heroSubtitleGu = res['gu'] ?? ''; }));
       for (final p in aboutDadaPage.phases) {
         if (p.title.isNotEmpty) futures.add(TranslationService.translateToAll(p.title).then((res) { p.titleHi = res['hi'] ?? ''; p.titleGu = res['gu'] ?? ''; }));
         if (p.subtitle.isNotEmpty) futures.add(TranslationService.translateToAll(p.subtitle).then((res) { p.subtitleHi = res['hi'] ?? ''; p.subtitleGu = res['gu'] ?? ''; }));
         if (p.content.isNotEmpty) futures.add(TranslationService.translateToAll(p.content).then((res) { p.contentHi = res['hi'] ?? ''; p.contentGu = res['gu'] ?? ''; }));
       }
       
-      // ── Generic Katha Pages ──────────────────────────────────────────────────
       void translateKathaPage(KathaAboutPageData kPage) {
         if (kPage.heroBadge.isNotEmpty) futures.add(TranslationService.translateToAll(kPage.heroBadge).then((res) { kPage.heroBadgeHi = res['hi'] ?? ''; kPage.heroBadgeGu = res['gu'] ?? ''; }));
         if (kPage.heroTitle.isNotEmpty) futures.add(TranslationService.translateToAll(kPage.heroTitle).then((res) { kPage.heroTitleHi = res['hi'] ?? ''; kPage.heroTitleGu = res['gu'] ?? ''; }));
@@ -327,40 +330,33 @@ class HomePageController extends ChangeNotifier {
       translateKathaPage(deviKathaPage);
       translateKathaPage(shivKathaPage);
 
-      // ── News Items ───────────────────────────────────────────────────────────
       for (final n in homepageData.news) {
         if (n.title.isNotEmpty) futures.add(TranslationService.translateToAll(n.title).then((res) { n.titleHi = res['hi'] ?? ''; n.titleGu = res['gu'] ?? ''; }));
         if (n.category.isNotEmpty) futures.add(TranslationService.translateToAll(n.category).then((res) { n.categoryHi = res['hi'] ?? ''; n.categoryGu = res['gu'] ?? ''; }));
       }
 
-      // ── Full Katha List ──────────────────────────────────────────────────────
       for (final k in allKathas) {
         if (k.topic.isNotEmpty) futures.add(TranslationService.translateToAll(k.topic).then((res) { k.topicHi = res['hi'] ?? ''; k.topicGu = res['gu'] ?? ''; }));
         if (k.location.isNotEmpty) futures.add(TranslationService.translateToAll(k.location).then((res) { k.locationHi = res['hi'] ?? ''; k.locationGu = res['gu'] ?? ''; }));
         if (k.description.isNotEmpty) futures.add(TranslationService.translateToAll(k.description).then((res) { k.descriptionHi = res['hi'] ?? ''; k.descriptionGu = res['gu'] ?? ''; }));
       }
 
-      // ── Footer ───────────────────────────────────────────────────────────────
       if (footer.description.isNotEmpty) futures.add(TranslationService.translateToAll(footer.description).then((res) { footer.descriptionHi = res['hi'] ?? ''; footer.descriptionGu = res['gu'] ?? ''; }));
 
-      // ── Videos (Homepage Latest) ─────────────────────────────────────────────
       for (final v in videos) {
         if (v.title.isNotEmpty) futures.add(TranslationService.translateToAll(v.title).then((res) { v.titleHi = res['hi'] ?? ''; v.titleGu = res['gu'] ?? ''; }));
       }
 
-      // ── Stotra Section ───────────────────────────────────────────────────────
       if (stotraSection.pageTitle.isNotEmpty) futures.add(TranslationService.translateToAll(stotraSection.pageTitle).then((res) { stotraSection.pageTitleHi = res['hi'] ?? ''; stotraSection.pageTitleGu = res['gu'] ?? ''; }));
       for (final s in stotraSection.items) {
         if (s.title.isNotEmpty) futures.add(TranslationService.translateToAll(s.title).then((res) { s.titleHi = res['hi'] ?? ''; s.titleGu = res['gu'] ?? ''; }));
       }
 
-      // ── Galleries ────────────────────────────────────────────────────────────
       if (photoGalleryData.title.isNotEmpty) futures.add(TranslationService.translateToAll(photoGalleryData.title).then((res) { photoGalleryData.titleHi = res['hi'] ?? ''; photoGalleryData.titleGu = res['gu'] ?? ''; }));
       for (final sec in photoGalleryData.sections) {
         if (sec.heading.isNotEmpty) futures.add(TranslationService.translateToAll(sec.heading).then((res) { sec.headingHi = res['hi'] ?? ''; sec.headingGu = res['gu'] ?? ''; }));
       }
       
-      // ── Contact Page ─────────────────────────────────────────────────────────
       if (contactPageData.address.isNotEmpty) futures.add(TranslationService.translateToAll(contactPageData.address).then((res) { contactPageData.addressHi = res['hi'] ?? ''; contactPageData.addressGu = res['gu'] ?? ''; }));
       
       for (final cat in videoGalleryData.categories) {
@@ -374,7 +370,6 @@ class HomePageController extends ChangeNotifier {
     } catch (e) {
       debugPrint('Translation error: $e');
     }
-    // After translating, publish to Firestore database
     await publish();
   }
 

@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 /// Uses the unofficial `translate.googleapis.com` endpoint.
 /// On "Translate & Publish", all text fields are translated once and stored in Firestore.
 class TranslationService {
-  static const List<String> _targetLangs = ['hi', 'gu'];
 
   /// Translate a single text string to [targetLang] (e.g. 'hi', 'gu').
   /// Returns the original text on failure.
