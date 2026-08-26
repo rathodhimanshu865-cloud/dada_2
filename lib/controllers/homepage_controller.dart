@@ -272,6 +272,28 @@ class HomePageController extends ChangeNotifier {
         if (s.subtitle.isNotEmpty) futures.add(TranslationService.translateToAll(s.subtitle).then((res) { s.subtitleHi = res['hi'] ?? ''; s.subtitleGu = res['gu'] ?? ''; }));
         if (s.description.isNotEmpty) futures.add(TranslationService.translateToAll(s.description).then((res) { s.descriptionHi = res['hi'] ?? ''; s.descriptionGu = res['gu'] ?? ''; }));
       }
+
+      // -- General Settings Translations --
+      if (websiteSettings.name.isNotEmpty) {
+        futures.add(TranslationService.translateToAll(websiteSettings.name).then((res) {
+          websiteSettings.nameHi = res['hi'] ?? '';
+          websiteSettings.nameGu = res['gu'] ?? '';
+        }));
+      }
+      final h = websiteSettings.headerSettings;
+      if (h.donateButtonText.isNotEmpty) {
+        futures.add(TranslationService.translateToAll(h.donateButtonText).then((res) {
+          h.donateButtonTextHi = res['hi'] ?? '';
+          h.donateButtonTextGu = res['gu'] ?? '';
+        }));
+      }
+      if (h.announcementBarText.isNotEmpty) {
+        futures.add(TranslationService.translateToAll(h.announcementBarText).then((res) {
+          h.announcementBarTextHi = res['hi'] ?? '';
+          h.announcementBarTextGu = res['gu'] ?? '';
+        }));
+      }
+
       if (aboutSection.title.isNotEmpty) futures.add(TranslationService.translateToAll(aboutSection.title).then((res) { aboutSection.titleHi = res['hi'] ?? ''; aboutSection.titleGu = res['gu'] ?? ''; }));
       if (aboutSection.tagline.isNotEmpty) futures.add(TranslationService.translateToAll(aboutSection.tagline).then((res) { aboutSection.taglineHi = res['hi'] ?? ''; aboutSection.taglineGu = res['gu'] ?? ''; }));
       if (aboutSection.description.isNotEmpty) futures.add(TranslationService.translateToAll(aboutSection.description).then((res) { aboutSection.descriptionHi = res['hi'] ?? ''; aboutSection.descriptionGu = res['gu'] ?? ''; }));

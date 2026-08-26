@@ -108,6 +108,7 @@ class _UserHeaderState extends State<UserHeader>
         _scrollOffset > 50 &&
         settings.stickyHeaderEnabled;
     final String currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
     final l10n = AppLocalizations.of(context)!;
 
     final double headerHeight = isSticky ? 75 : 95;
@@ -139,7 +140,7 @@ class _UserHeaderState extends State<UserHeader>
           if (settings.announcementBarText.isNotEmpty &&
               !isSticky &&
               !widget.productPage)
-            _buildAnnouncementBar(settings.announcementBarText),
+            _buildAnnouncementBar(settings.localizedAnnouncementBarText(lang)),
 
           Material(
             color: Colors.transparent,
@@ -174,7 +175,7 @@ class _UserHeaderState extends State<UserHeader>
                     ),
                     child: Row(
                       children: [
-                        _buildBranding(logoSize, isSticky, navTextColor),
+                        _buildBranding(logoSize, isSticky, navTextColor, lang),
                         const Spacer(),
                         if (!isMobile) ...[
                           Flexible(
@@ -198,6 +199,7 @@ class _UserHeaderState extends State<UserHeader>
                               isSticky,
                               settings,
                               navTextColor,
+                              lang,
                             ),
                           ),
                         ] else ...[
@@ -212,6 +214,7 @@ class _UserHeaderState extends State<UserHeader>
                               l10n,
                               currentRoute,
                               activeNavColor,
+                              lang,
                             ),
                           ),
                         ],
@@ -232,6 +235,7 @@ class _UserHeaderState extends State<UserHeader>
     AppLocalizations l10n,
     String currentRoute,
     Color activeColor,
+    String lang,
   ) {
     showModalBottomSheet(
       context: context,
@@ -495,11 +499,11 @@ class _UserHeaderState extends State<UserHeader>
     );
   }
 
-  Widget _buildBranding(double logoSize, bool isSticky, Color textColor) {
-    return _buildLogo(logoSize, isSticky);
+  Widget _buildBranding(double logoSize, bool isSticky, Color textColor, String lang) {
+    return _buildLogo(logoSize, isSticky, lang);
   }
 
-  Widget _buildLogo(double size, bool isSticky) {
+  Widget _buildLogo(double size, bool isSticky, String lang) {
     return GestureDetector(
       onTap: _handleLogoTap,
       child: Hero(
@@ -535,8 +539,8 @@ class _UserHeaderState extends State<UserHeader>
             child: widget.controller.websiteSettings.logoUrl.isEmpty
                 ? Center(
                     child: Text(
-                      widget.controller.websiteSettings.name.isNotEmpty 
-                        ? widget.controller.websiteSettings.name[0].toUpperCase() 
+                      widget.controller.websiteSettings.localizedName(lang).isNotEmpty 
+                        ? widget.controller.websiteSettings.localizedName(lang)[0].toUpperCase()
                         : "D",
                       style: TextStyle(color: templeGold, fontWeight: FontWeight.bold, fontSize: size * 0.4),
                     ),
@@ -751,6 +755,7 @@ class _UserHeaderState extends State<UserHeader>
     bool isSticky,
     HeaderSettings settings,
     Color textColor,
+    String lang,
   ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -766,7 +771,7 @@ class _UserHeaderState extends State<UserHeader>
         ],
         if (settings.donateButtonEnabled) ...[
           const SizedBox(width: 15),
-          _buildDonateButton(settings),
+          _buildDonateButton(settings, lang),
         ],
       ],
     );
@@ -994,7 +999,7 @@ class _UserHeaderState extends State<UserHeader>
     );
   }
 
-  Widget _buildDonateButton(HeaderSettings settings) {
+  Widget _buildDonateButton(HeaderSettings settings, String lang) {
     return ElevatedButton(
       onPressed: () {
         if (settings.donateButtonUrl.isNotEmpty) {
@@ -1009,7 +1014,7 @@ class _UserHeaderState extends State<UserHeader>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       ),
       child: Text(
-        settings.donateButtonText.toUpperCase(),
+        settings.localizedDonateButtonText(lang).toUpperCase(),
         style: AppTypography.bodyStyle(
           context,
           fontWeight: FontWeight.w900,

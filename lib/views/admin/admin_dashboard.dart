@@ -1,6 +1,7 @@
 ﻿import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../models/homepage_model.dart';
 import 'order_management_view.dart';
@@ -14,6 +15,7 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   int currentMenuIndex = 0;
+  bool _isSidebarVisible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -23,37 +25,62 @@ class _AdminDashboardState extends State<AdminDashboard> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    bool isMobile = MediaQuery.of(context).size.width <= 900;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ADMIN PANEL', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        title: const Text('ADMIN PORTAL', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
         centerTitle: false,
+        leading: IconButton(
+          icon: Icon(_isSidebarVisible ? Icons.menu_open : Icons.menu),
+          onPressed: () {
+            if (isMobile) {
+              Scaffold.of(context).openDrawer();
+            } else {
+              setState(() => _isSidebarVisible = !_isSidebarVisible);
+            }
+          },
+        ),
         actions: [
-          if (MediaQuery.of(context).size.width > 600)
+          if (MediaQuery.of(context).size.width > 700)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: ElevatedButton.icon(
                 onPressed: controller.translateAndPublish,
-                icon: const Icon(Icons.auto_awesome, size: 16),
-                label: const Text('PUBLISH ALL', style: TextStyle(fontSize: 12)),
+                icon: const Icon(Icons.auto_awesome, size: 14),
+                label: const Text('PUBLISH ALL', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber, 
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
               ),
             ),
-          IconButton(onPressed: controller.loadData, icon: const Icon(Icons.refresh)),
-          if (MediaQuery.of(context).size.width <= 600)
-            IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () => Scaffold.of(context).openDrawer(),
+          const SizedBox(width: 8),
+          IconButton(
+            tooltip: 'Refresh Data',
+            onPressed: controller.loadData, 
+            icon: const Icon(Icons.refresh, size: 20)
+          ),
+          if (MediaQuery.of(context).size.width <= 700)
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (v) {
+                if (v == 'publish') controller.translateAndPublish();
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(value: 'publish', child: Text('Publish All Changes')),
+              ],
             ),
+          const SizedBox(width: 8),
         ],
       ),
-      drawer: MediaQuery.of(context).size.width <= 900 ? Drawer(child: _buildSidebar()) : null,
+      drawer: isMobile ? Drawer(child: _buildSidebar(isMobile)) : null,
       body: Row(
         children: [
-          if (MediaQuery.of(context).size.width > 900) _buildSidebar(),
+          if (!isMobile && _isSidebarVisible) _buildSidebar(isMobile),
           Expanded(
             child: Container(
               color: Colors.grey.shade50,
@@ -65,7 +92,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildSidebar() {
+  Widget _buildSidebar(bool isMobile) {
     final menus = [
       {'title': 'General Settings', 'icon': Icons.settings},
       {'title': 'Hero Slider', 'icon': Icons.burst_mode},
@@ -92,7 +119,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
           leading: Icon(menus[i]['icon'] as IconData, color: currentMenuIndex == i ? Colors.amber : Colors.white60),
           title: Text(menus[i]['title'] as String, style: TextStyle(color: currentMenuIndex == i ? Colors.white : Colors.white70, fontWeight: currentMenuIndex == i ? FontWeight.bold : FontWeight.normal)),
           selected: currentMenuIndex == i,
-          onTap: () => setState(() => currentMenuIndex = i),
+          onTap: () {
+            setState(() {
+              currentMenuIndex = i;
+              if (!isMobile) _isSidebarVisible = false; // Hide sidebar when section selected
+            });
+            if (isMobile) Navigator.pop(context);
+          },
         ),
       ),
     );
@@ -120,12 +153,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _sectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(top: 40, bottom: 20),
+      padding: const EdgeInsets.only(top: 32, bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
-          const Divider(thickness: 2, color: Colors.black),
+          Text(
+            title, 
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1.0, color: Color(0xFF0F4C5C)),
+            softWrap: true,
+          ),
+          const SizedBox(height: 8),
+          Container(height: 3, width: 60, decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(2))),
         ],
       ),
     );
@@ -164,31 +202,109 @@ class _AdminDashboardState extends State<AdminDashboard> {
         onChanged: onChanged,
         activeColor: Colors.amber,
         contentPadding: EdgeInsets.zero,
+        dense: true,
       ),
     );
   }
 
   Widget _buildImageField(String label, String currentUrl, Function(String) onUploaded) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 20),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            if (currentUrl.isNotEmpty) Image.network(currentUrl, width: 60, height: 60, fit: BoxFit.cover),
-            const SizedBox(width: 16),
-            Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold))),
-            ElevatedButton(
-              onPressed: () async {
-                final url = await Provider.of<HomePageController>(context, listen: false).uploadPhotoFromFile();
-                if (url != null) onUploaded(url);
-              },
-              child: const Text('Upload'),
+    final TextEditingController linkController = TextEditingController(text: currentUrl);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        bool useVertical = constraints.maxWidth < 600;
+        
+        Widget imageWidget = currentUrl.isNotEmpty 
+          ? Image.network(
+              currentUrl, 
+              width: 100, 
+              height: 100, 
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 100, 
+                height: 100, 
+                color: Colors.grey.shade100,
+                child: const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 32),
+              ),
+            )
+          : Container(
+              width: 100, 
+              height: 100, 
+              color: Colors.grey.shade100,
+              child: const Icon(Icons.image_outlined, color: Colors.grey, size: 32),
+            );
+
+        return Card(
+          margin: const EdgeInsets.only(bottom: 24),
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade200)),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F4C5C))),
+                const SizedBox(height: 16),
+                if (useVertical) ...[
+                  Center(child: ClipRRect(borderRadius: BorderRadius.circular(12), child: imageWidget)),
+                  const SizedBox(height: 20),
+                ],
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!useVertical) ...[
+                      ClipRRect(borderRadius: BorderRadius.circular(12), child: imageWidget),
+                      const SizedBox(width: 24),
+                    ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Paste Image URL', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: linkController,
+                            onChanged: onUploaded,
+                            decoration: InputDecoration(
+                              hintText: 'https://example.com/image.jpg',
+                              isDense: true,
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text('OR Upload from PC', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                          const SizedBox(height: 8),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              final url = await Provider.of<HomePageController>(context, listen: false).uploadPhotoFromFile();
+                              if (url != null) onUploaded(url);
+                            },
+                            icon: const Icon(Icons.computer, size: 18),
+                            label: const Text('SELECT FROM PC'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey.shade100,
+                              foregroundColor: Colors.black87,
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
+  }
+
+  EdgeInsets _responsivePadding(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    if (width < 600) return const EdgeInsets.all(16);
+    if (width < 1200) return const EdgeInsets.all(24);
+    return const EdgeInsets.all(40);
   }
 
   Widget _generalSettingsView(HomePageController controller) {
@@ -278,7 +394,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _heroSliderView(HomePageController controller) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      padding: _responsivePadding(context).add(const EdgeInsets.only(bottom: 100)),
       children: [
         _sectionHeader('HOMEPAGE HERO SLIDER'),
         ...controller.heroSection.slides.asMap().entries.map((entry) {
@@ -309,7 +425,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget _biographyView(HomePageController controller) {
     final b = controller.aboutDadaPage;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      padding: _responsivePadding(context).add(const EdgeInsets.only(bottom: 100)),
       children: [
         _sectionHeader('BIOGRAPHY PAGE CONTENT'),
         _buildField('Hero Title', b.heroTitle, (v) => b.heroTitle = v),
@@ -370,7 +486,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _singleKathaPageView(KathaAboutPageData k) {
     return ListView(
-      padding: const EdgeInsets.all(40),
+      padding: _responsivePadding(context),
       children: [
         _buildField('Hero Badge', k.heroBadge, (v) => k.heroBadge = v),
         _buildField('Hero Title', k.heroTitle, (v) => k.heroTitle = v),
@@ -385,7 +501,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _upcomingKathasView(HomePageController controller) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      padding: _responsivePadding(context).add(const EdgeInsets.only(bottom: 100)),
       children: [
         _sectionHeader('UPCOMING KATHAS'),
         ...controller.upcomingKathas.asMap().entries.map((entry) {
@@ -417,7 +533,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _newsView(HomePageController controller) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      padding: _responsivePadding(context).add(const EdgeInsets.only(bottom: 100)),
       children: [
         _sectionHeader('LATEST NEWS'),
         ...controller.homepageData.news.asMap().entries.map((entry) => Card(
@@ -435,7 +551,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _kathaListView(HomePageController controller) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      padding: _responsivePadding(context).add(const EdgeInsets.only(bottom: 100)),
       children: [
         _sectionHeader('FULL KATHA ARCHIVE'),
         ...controller.allKathas.asMap().entries.map((entry) => Card(
@@ -453,7 +569,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _photoGalleryView(HomePageController controller) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      padding: _responsivePadding(context).add(const EdgeInsets.only(bottom: 100)),
       children: [
         _sectionHeader('PHOTO GALLERY UPLOAD'),
         ElevatedButton.icon(
@@ -483,7 +599,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _stotraView(HomePageController controller) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(40, 40, 40, 100),
+      padding: _responsivePadding(context).add(const EdgeInsets.only(bottom: 100)),
       children: [
         _sectionHeader('STOTRA / BHAJAN'),
         ...controller.stotraSection.items.asMap().entries.map((entry) => Card(

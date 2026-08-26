@@ -113,7 +113,7 @@ class UserFooter extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              controller.websiteSettings.name.toUpperCase(),
+                              controller.websiteSettings.localizedName(lang).toUpperCase(),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: 2, fontFamily: 'serif'),

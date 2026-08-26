@@ -1,5 +1,4 @@
 
-
 class HeaderSettings {
   bool stickyHeaderEnabled;
   bool searchVisibility;
@@ -10,6 +9,10 @@ class HeaderSettings {
   String headerBackgroundColor;
   List<String> languageOptions;
 
+  // Translations
+  String donateButtonTextHi; String donateButtonTextGu;
+  String announcementBarTextHi; String announcementBarTextGu;
+
   HeaderSettings({
     this.stickyHeaderEnabled = true,
     this.searchVisibility = true,
@@ -19,7 +22,12 @@ class HeaderSettings {
     this.announcementBarText = '',
     this.headerBackgroundColor = '#FAF8F4',
     this.languageOptions = const ['English', 'Gujarati', 'Hindi'],
+    this.donateButtonTextHi = '', this.donateButtonTextGu = '',
+    this.announcementBarTextHi = '', this.announcementBarTextGu = '',
   });
+
+  String localizedDonateButtonText(String lang) => lang == 'hi' && donateButtonTextHi.isNotEmpty ? donateButtonTextHi : lang == 'gu' && donateButtonTextGu.isNotEmpty ? donateButtonTextGu : donateButtonText;
+  String localizedAnnouncementBarText(String lang) => lang == 'hi' && announcementBarTextHi.isNotEmpty ? announcementBarTextHi : lang == 'gu' && announcementBarTextGu.isNotEmpty ? announcementBarTextGu : announcementBarText;
 
   Map<String, dynamic> toMap() => {
     'stickyHeaderEnabled': stickyHeaderEnabled,
@@ -30,6 +38,8 @@ class HeaderSettings {
     'announcementBarText': announcementBarText,
     'headerBackgroundColor': headerBackgroundColor,
     'languageOptions': languageOptions,
+    'donateButtonText_hi': donateButtonTextHi, 'donateButtonText_gu': donateButtonTextGu,
+    'announcementBarText_hi': announcementBarTextHi, 'announcementBarText_gu': announcementBarTextGu,
   };
 
   factory HeaderSettings.fromMap(Map<String, dynamic> map) => HeaderSettings(
@@ -41,6 +51,8 @@ class HeaderSettings {
     announcementBarText: map['announcementBarText'] ?? '',
     headerBackgroundColor: map['headerBackgroundColor'] ?? '#FAF8F4',
     languageOptions: List<String>.from(map['languageOptions'] ?? ['English', 'Gujarati', 'Hindi']),
+    donateButtonTextHi: map['donateButtonText_hi'] ?? '', donateButtonTextGu: map['donateButtonText_gu'] ?? '',
+    announcementBarTextHi: map['announcementBarText_hi'] ?? '', announcementBarTextGu: map['announcementBarText_gu'] ?? '',
   );
 }
 
@@ -50,18 +62,25 @@ class WebsiteSettings {
   HeaderSettings headerSettings;
   List<String> supportedPaymentMethods;
 
+  // Translations
+  String nameHi; String nameGu;
+
   WebsiteSettings({
     this.name = '',
     this.logoUrl = '',
     HeaderSettings? headerSettings,
     this.supportedPaymentMethods = const ['COD', 'UPI', 'Card', 'Net Banking'],
+    this.nameHi = '', this.nameGu = '',
   }) : headerSettings = headerSettings ?? HeaderSettings();
+
+  String localizedName(String lang) => lang == 'hi' && nameHi.isNotEmpty ? nameHi : lang == 'gu' && nameGu.isNotEmpty ? nameGu : name;
 
   Map<String, dynamic> toMap() => {
         'name': name,
         'logoUrl': logoUrl,
         'headerSettings': headerSettings.toMap(),
         'supportedPaymentMethods': supportedPaymentMethods,
+        'name_hi': nameHi, 'name_gu': nameGu,
       };
 
   factory WebsiteSettings.fromMap(Map<String, dynamic> map) => WebsiteSettings(
@@ -71,6 +90,7 @@ class WebsiteSettings {
           ? HeaderSettings.fromMap(map['headerSettings']) 
           : HeaderSettings(),
         supportedPaymentMethods: List<String>.from(map['supportedPaymentMethods'] ?? ['COD', 'UPI', 'Card', 'Net Banking']),
+        nameHi: map['name_hi'] ?? '', nameGu: map['name_gu'] ?? '',
       );
 }
 
@@ -145,7 +165,6 @@ class HeroSection {
   Map<String, dynamic> toMap() => {'slides': slides.map((e) => e.toMap()).toList()};
   
   factory HeroSection.fromMap(Map<String, dynamic> map) {
-    // Migration logic: Check for 'slides' first, then fallback to 'bannerUrls'
     if (map['slides'] != null) {
       return HeroSection(
         slides: (map['slides'] as List).map((e) => HeroSlide.fromMap(e)).toList(),
@@ -309,8 +328,6 @@ class HomepageData {
     news: (map['news'] as List? ?? []).map((e) => NewsItem.fromMap(e)).toList(),
   );
 }
-
-// ... Rest of existing models enhanced ...
 
 class UpcomingKatha {
   String kathaNumber;
