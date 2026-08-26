@@ -51,6 +51,8 @@ class UserFooter extends StatelessWidget {
                         children: [
                           Text(
                             controller.websiteSettings.name.toUpperCase(),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: 2, fontFamily: 'serif'),
                           ),
                           const SizedBox(height: 30),
@@ -112,6 +114,8 @@ class UserFooter extends StatelessWidget {
                           children: [
                             Text(
                               controller.websiteSettings.name.toUpperCase(),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: 2, fontFamily: 'serif'),
                             ),
                             const SizedBox(height: 30),

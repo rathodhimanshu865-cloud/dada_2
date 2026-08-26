@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/language_controller.dart';
@@ -176,19 +177,28 @@ class _UserHeaderState extends State<UserHeader>
                         _buildBranding(logoSize, isSticky, navTextColor),
                         const Spacer(),
                         if (!isMobile) ...[
-                          _buildNavigation(
-                            l10n,
-                            currentRoute,
-                            isSticky,
-                            navTextColor,
-                            activeNavColor,
+                          Flexible(
+                            flex: 10,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: _buildNavigation(
+                                l10n,
+                                currentRoute,
+                                isSticky,
+                                navTextColor,
+                                activeNavColor,
+                              ),
+                            ),
                           ),
                           const Spacer(),
-                          _buildActionControls(
-                            l10n,
-                            isSticky,
-                            settings,
-                            navTextColor,
+                          Flexible(
+                            flex: 5,
+                            child: _buildActionControls(
+                              l10n,
+                              isSticky,
+                              settings,
+                              navTextColor,
+                            ),
                           ),
                         ] else ...[
                           IconButton(
@@ -523,7 +533,14 @@ class _UserHeaderState extends State<UserHeader>
                   : null,
             ),
             child: widget.controller.websiteSettings.logoUrl.isEmpty
-                ? Icon(Icons.person, color: templeGold, size: size * 0.6)
+                ? Center(
+                    child: Text(
+                      widget.controller.websiteSettings.name.isNotEmpty 
+                        ? widget.controller.websiteSettings.name[0].toUpperCase() 
+                        : "D",
+                      style: TextStyle(color: templeGold, fontWeight: FontWeight.bold, fontSize: size * 0.4),
+                    ),
+                  )
                 : null,
           ),
         ),
@@ -979,7 +996,11 @@ class _UserHeaderState extends State<UserHeader>
 
   Widget _buildDonateButton(HeaderSettings settings) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+        if (settings.donateButtonUrl.isNotEmpty) {
+          launchUrl(Uri.parse(settings.donateButtonUrl), mode: LaunchMode.externalApplication);
+        }
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: templeGold,
         foregroundColor: Colors.white,
@@ -1003,19 +1024,21 @@ class _UserHeaderState extends State<UserHeader>
   Widget _buildAnnouncementBar(String text) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      constraints: const BoxConstraints(minHeight: 35),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [templeGold, const Color(0xFFD9A66B)]),
       ),
       child: Center(
         child: Text(
           text,
+          textAlign: TextAlign.center,
           style: AppTypography.bodyStyle(
             context,
             color: Colors.white,
             fontSize: 12,
             fontWeight: FontWeight.w800,
-            letterSpacing: 1.5,
+            letterSpacing: 1.1,
           ),
         ),
       ),

@@ -1,4 +1,5 @@
 ﻿import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/foundation.dart' show Uint8List;
@@ -142,26 +143,26 @@ class HomePageController extends ChangeNotifier {
     try {
       isUploading = true;
       notifyListeners();
-      // Using dynamic call to bypass compiler's strict check on broken environment cache
+      // Using dynamic to dodge weird compilation issues with file_picker versions
       final dynamic result = await (FilePicker as dynamic).platform.pickFiles(
         type: FileType.image, 
         allowMultiple: false,
         withData: true,
       );
       
-      if (result == null || result.files.isEmpty) { 
-        isUploading = false; 
-        notifyListeners(); 
-        return null; 
-      }
+      if (result == null) { isUploading = false; notifyListeners(); return null; }
       
-      final dynamic file = result.files.first;
+      final dynamic files = result.files;
+      if (files == null || (files as List).isEmpty) { isUploading = false; notifyListeners(); return null; }
+      
+      final dynamic file = files.first;
       final String fileName = file.name;
+      final String? filePath = file.path;
+      final Uint8List? fileBytes = file.bytes;
+
       final uploadName = '${DateTime.now().millisecondsSinceEpoch}_$fileName';
       final reference = _storage.ref('uploads/$uploadName');
       UploadTask task;
-      final Uint8List? fileBytes = file.bytes;
-      final String? filePath = file.path;
 
       if (kIsWeb || fileBytes != null) {
         if (fileBytes == null) throw Exception("Failed to read file bytes");
@@ -180,7 +181,28 @@ class HomePageController extends ChangeNotifier {
       notifyListeners();
       return url;
     } catch (e) {
-      debugPrint("Firebase Storage upload error: $e.");
+      debugPrint("Firebase Storage upload error: $e. Trying base64 fallback...");
+      try {
+        final dynamic result = await (FilePicker as dynamic).platform.pickFiles(type: FileType.image, allowMultiple: false, withData: true);
+        if (result != null) {
+          final dynamic files = result.files;
+          if (files != null && (files as List).isNotEmpty) {
+            final dynamic file = files.first;
+            final Uint8List? bytes = file.bytes;
+            if (bytes != null) {
+              final ext = path_helper.extension(file.name).replaceFirst('.', '').toLowerCase();
+              final mimeType = ext == 'png' ? 'image/png' : ext == 'webp' ? 'image/webp' : 'image/jpeg';
+              final base64Str = base64Encode(bytes);
+              final dataUrl = 'data:$mimeType;base64,$base64Str';
+              isUploading = false;
+              notifyListeners();
+              return dataUrl;
+            }
+          }
+        }
+      } catch (fallbackErr) {
+        debugPrint("Base64 Fallback error: $fallbackErr");
+      }
       isUploading = false;
       notifyListeners();
       return null;

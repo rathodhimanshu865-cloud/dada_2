@@ -1,11 +1,9 @@
 ﻿import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../models/homepage_model.dart';
 import 'order_management_view.dart';
-import 'product_management_view.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -27,56 +25,42 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ADMIN CONTROL CENTER', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        title: const Text('ADMIN PANEL', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        centerTitle: false,
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: ElevatedButton.icon(
-              onPressed: controller.translateAndPublish,
-              icon: const Icon(Icons.auto_awesome, size: 16),
-              label: const Text('PUBLISH ALL', style: TextStyle(fontSize: 12)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber, 
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+          if (MediaQuery.of(context).size.width > 600)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: ElevatedButton.icon(
+                onPressed: controller.translateAndPublish,
+                icon: const Icon(Icons.auto_awesome, size: 16),
+                label: const Text('PUBLISH ALL', style: TextStyle(fontSize: 12)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber, 
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
           IconButton(onPressed: controller.loadData, icon: const Icon(Icons.refresh)),
+          if (MediaQuery.of(context).size.width <= 600)
+            IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          bool isWide = constraints.maxWidth > 900;
-          return Row(
-            children: [
-              if (isWide) _buildSidebar(),
-              Expanded(
-                child: isWide 
-                  ? _buildMainContent(controller)
-                  : Column(
-                      children: [
-                        _buildMobileMenuToggle(),
-                        Expanded(child: _buildMainContent(controller)),
-                      ],
-                    ),
-              ),
-            ],
-          );
-        }
-      ),
       drawer: MediaQuery.of(context).size.width <= 900 ? Drawer(child: _buildSidebar()) : null,
-    );
-  }
-
-  Widget _buildMobileMenuToggle() {
-    return Container(
-      color: const Color(0xFF1A1A1A),
-      child: ListTile(
-        leading: const Icon(Icons.menu, color: Colors.amber),
-        title: const Text('OPEN NAVIGATION', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-        onTap: () => Scaffold.of(context).openDrawer(),
+      body: Row(
+        children: [
+          if (MediaQuery.of(context).size.width > 900) _buildSidebar(),
+          Expanded(
+            child: Container(
+              color: Colors.grey.shade50,
+              child: _buildMainContent(controller),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -96,7 +80,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
       {'title': 'Stotra / Bhajan', 'icon': Icons.music_note},
       {'title': 'Contact / Inquiries', 'icon': Icons.contact_mail},
       {'title': 'Footer Settings', 'icon': Icons.south},
-      {'title': 'Product Management', 'icon': Icons.shopping_bag},
       {'title': 'Orders / Store', 'icon': Icons.shopping_cart},
     ];
 
@@ -130,8 +113,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 10: return _stotraView(controller);
       case 11: return _contactPageView(controller);
       case 12: return _footerSettingsView(controller);
-      case 13: return const ProductManagementView();
-      case 14: return const OrderManagementView();
+      case 13: return const OrderManagementView();
       default: return const Center(child: Text('Select a menu'));
     }
   }
@@ -152,11 +134,36 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget _buildField(String label, String value, Function(String) onChanged, {int maxLines = 1}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
-      child: TextField(
-        controller: TextEditingController(text: value)..selection = TextSelection.collapsed(offset: value.length),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: TextEditingController(text: value)..selection = TextSelection.collapsed(offset: value.length),
+            onChanged: onChanged,
+            maxLines: maxLines,
+            style: const TextStyle(fontSize: 14),
+            decoration: InputDecoration(
+              isDense: true,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggle(String label, bool value, Function(bool) onChanged) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: SwitchListTile(
+        title: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+        value: value,
         onChanged: onChanged,
-        maxLines: maxLines,
-        decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+        activeColor: Colors.amber,
+        contentPadding: EdgeInsets.zero,
       ),
     );
   }
@@ -186,13 +193,85 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _generalSettingsView(HomePageController controller) {
     final s = controller.websiteSettings;
+    final h = s.headerSettings;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 700;
+
     return ListView(
-      padding: const EdgeInsets.all(40),
+      padding: EdgeInsets.all(isMobile ? 16 : 40),
       children: [
         _sectionHeader('GENERAL WEBSITE SETTINGS'),
-        _buildImageField('Website Logo', s.logoUrl, (v) => setState(() => s.logoUrl = v)),
-        _buildField('Announcement Bar Text', s.headerSettings.announcementBarText, (v) => s.headerSettings.announcementBarText = v),
-        _buildField('Donate Button Text', s.headerSettings.donateButtonText, (v) => s.headerSettings.donateButtonText = v),
+        Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade200)),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                _buildField('Organization / Website Name', s.name, (v) => setState(() => s.name = v)),
+                _buildImageField('Website Logo', s.logoUrl, (v) => setState(() => s.logoUrl = v)),
+              ],
+            ),
+          ),
+        ),
+        
+        const SizedBox(height: 32),
+        _sectionHeader('HEADER & NAVIGATION SETTINGS'),
+        Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade200)),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                _buildToggle('Enable Sticky Header', h.stickyHeaderEnabled, (v) => setState(() => h.stickyHeaderEnabled = v)),
+                const Divider(height: 32),
+                _buildToggle('Show Search in Header', h.searchVisibility, (v) => setState(() => h.searchVisibility = v)),
+                const Divider(height: 32),
+                _buildField('Announcement Bar Text', h.announcementBarText, (v) => setState(() => h.announcementBarText = v)),
+                const Divider(height: 32),
+                _buildToggle('Enable Donate Button', h.donateButtonEnabled, (v) => setState(() => h.donateButtonEnabled = v)),
+                if (h.donateButtonEnabled) ...[
+                  const SizedBox(height: 16),
+                  _buildField('Donate Button Text', h.donateButtonText, (v) => setState(() => h.donateButtonText = v)),
+                  _buildField('Donate Button URL', h.donateButtonUrl, (v) => setState(() => h.donateButtonUrl = v)),
+                ],
+                const Divider(height: 32),
+                _buildField('Header Background Color (Hex)', h.headerBackgroundColor, (v) => setState(() => h.headerBackgroundColor = v)),
+                const Divider(height: 32),
+                _buildField('Supported Payment Methods (Comma Separated)', s.supportedPaymentMethods.join(', '), (v) {
+                  setState(() => s.supportedPaymentMethods = v.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList());
+                }),
+              ],
+            ),
+          ),
+        ),
+        
+        const SizedBox(height: 48),
+        Center(
+          child: SizedBox(
+            width: isMobile ? double.infinity : 300,
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                await controller.publish();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Settings Saved Successfully!')),
+                  );
+                }
+              },
+              icon: const Icon(Icons.save_rounded),
+              label: const Text('SAVE GLOBAL SETTINGS', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F4C5C),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 100),
       ],
     );
   }
@@ -383,9 +462,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
           onPressed: () async {
             final dynamic result = await (FilePicker as dynamic).platform.pickFiles(type: FileType.image, allowMultiple: true, withData: true);
             if (result != null) {
-              for (var file in result.files) {
-                if (file.bytes != null) {
-                  controller.uploadPhotoWithProgress(file.name, file.bytes!).listen((p) {});
+              final dynamic files = result.files;
+              if (files != null) {
+                for (var file in files) {
+                  if (file.bytes != null) {
+                    controller.uploadPhotoWithProgress(file.name, file.bytes!).listen((p) {});
+                  }
                 }
               }
             }
