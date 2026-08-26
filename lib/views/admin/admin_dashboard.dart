@@ -1,12 +1,11 @@
 ﻿import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../models/homepage_model.dart';
-import 'about_profile_management.dart';
 import 'order_management_view.dart';
+import 'product_management_view.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -17,7 +16,6 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   int currentMenuIndex = 0;
-  final Map<String, double> _uploadProgress = {};
 
   @override
   Widget build(BuildContext context) {
@@ -29,23 +27,56 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ADMIN CONTROL CENTER'),
+        title: const Text('ADMIN CONTROL CENTER', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         actions: [
-          ElevatedButton.icon(
-            onPressed: controller.translateAndPublish,
-            icon: const Icon(Icons.auto_awesome),
-            label: const Text('TRANSLATE & PUBLISH ALL'),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.amber, foregroundColor: Colors.black),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: ElevatedButton.icon(
+              onPressed: controller.translateAndPublish,
+              icon: const Icon(Icons.auto_awesome, size: 16),
+              label: const Text('PUBLISH ALL', style: TextStyle(fontSize: 12)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber, 
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
+            ),
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: 8),
           IconButton(onPressed: controller.loadData, icon: const Icon(Icons.refresh)),
         ],
       ),
-      body: Row(
-        children: [
-          _buildSidebar(),
-          Expanded(child: _buildMainContent(controller)),
-        ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isWide = constraints.maxWidth > 900;
+          return Row(
+            children: [
+              if (isWide) _buildSidebar(),
+              Expanded(
+                child: isWide 
+                  ? _buildMainContent(controller)
+                  : Column(
+                      children: [
+                        _buildMobileMenuToggle(),
+                        Expanded(child: _buildMainContent(controller)),
+                      ],
+                    ),
+              ),
+            ],
+          );
+        }
+      ),
+      drawer: MediaQuery.of(context).size.width <= 900 ? Drawer(child: _buildSidebar()) : null,
+    );
+  }
+
+  Widget _buildMobileMenuToggle() {
+    return Container(
+      color: const Color(0xFF1A1A1A),
+      child: ListTile(
+        leading: const Icon(Icons.menu, color: Colors.amber),
+        title: const Text('OPEN NAVIGATION', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+        onTap: () => Scaffold.of(context).openDrawer(),
       ),
     );
   }
@@ -65,6 +96,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       {'title': 'Stotra / Bhajan', 'icon': Icons.music_note},
       {'title': 'Contact / Inquiries', 'icon': Icons.contact_mail},
       {'title': 'Footer Settings', 'icon': Icons.south},
+      {'title': 'Product Management', 'icon': Icons.shopping_bag},
       {'title': 'Orders / Store', 'icon': Icons.shopping_cart},
     ];
 
@@ -98,7 +130,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 10: return _stotraView(controller);
       case 11: return _contactPageView(controller);
       case 12: return _footerSettingsView(controller);
-      case 13: return const OrderManagementView();
+      case 13: return const ProductManagementView();
+      case 14: return const OrderManagementView();
       default: return const Center(child: Text('Select a menu'));
     }
   }
@@ -348,7 +381,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           icon: const Icon(Icons.upload),
           label: const Text('UPLOAD NEW PHOTOS'),
           onPressed: () async {
-            FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: true);
+            final dynamic result = await (FilePicker as dynamic).platform.pickFiles(type: FileType.image, allowMultiple: true, withData: true);
             if (result != null) {
               for (var file in result.files) {
                 if (file.bytes != null) {
