@@ -318,6 +318,13 @@ class _UserHeaderState extends State<UserHeader>
                       Navigator.pushNamed(context, '/upcoming_ram_kathas');
                     },
                   ),
+                  ListTile(
+                    title: const Text('TRACK SHIPMENT'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/track');
+                    },
+                  ),
                 ],
               ),
               ListTile(
