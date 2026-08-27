@@ -358,7 +358,7 @@ class CartDrawer extends StatelessWidget {
                   Navigator.pushNamed(context, '/checkout');
                 } else {
                   Navigator.pop(context);
-                  Navigator.pushNamed(context, '/login');
+                  Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Please login to proceed to checkout'),

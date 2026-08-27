@@ -58,7 +58,7 @@ class HomePageController extends ChangeNotifier {
         .orderBy('uploadedAt', descending: true)
         .snapshots()
         .listen((snapshot) {
-      realTimePhotos = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+      realTimePhotos = snapshot.docs.map((doc) => doc.data()).toList();
       notifyListeners();
     }, onError: (err) {
       debugPrint("Photos stream error: $err");

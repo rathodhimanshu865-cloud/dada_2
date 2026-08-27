@@ -368,7 +368,7 @@ class _QuickViewDialogState extends State<QuickViewDialog> {
             Navigator.pushNamed(context, '/checkout');
           } else {
             Navigator.pop(context);
-            Navigator.pushNamed(context, '/login');
+            Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
           }
         },
         style: ElevatedButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0),

@@ -88,6 +88,21 @@ class MyApp extends StatelessWidget {
         Locale('hi'),
       ],
       locale: languageController.locale,
+      builder: (context, child) {
+        return Stack(
+          children: [
+            child!,
+            Consumer<AuthController>(
+              builder: (context, auth, _) {
+                if (auth.showLoginPortal) {
+                  return const LoginPage();
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+          ],
+        );
+      },
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,
@@ -187,7 +202,6 @@ class MyApp extends StatelessWidget {
         '/cart': (context) => const CartPage(),
         '/checkout': (context) => const CheckoutPage(),
         '/track': (context) => const TrackShipmentPage(),
-        '/login': (context) => const LoginPage(),
         '/admin_login': (context) => const AdminLoginPage(),
         '/admin_dashboard': (context) => const AdminDashboard(),
       },

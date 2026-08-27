@@ -435,7 +435,7 @@ class _UserHeaderState extends State<UserHeader>
                       : 'LOGIN / SIGN UP',
                   style: TextStyle(
                     color:
-                        currentRoute == '/my_orders' || currentRoute == '/login'
+                        currentRoute == '/my_orders'
                         ? activeColor
                         : darkCharcoal,
                     fontWeight: FontWeight.bold,
@@ -449,7 +449,7 @@ class _UserHeaderState extends State<UserHeader>
                   ).isAuthenticated) {
                     Navigator.pushNamed(context, '/my_orders');
                   } else {
-                    Navigator.pushNamed(context, '/login');
+                    Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
                   }
                 },
               ),
@@ -834,10 +834,13 @@ class _UserHeaderState extends State<UserHeader>
 
   Widget _buildAuthButton(Color textColor) {
     final auth = Provider.of<AuthController>(context);
+    final String currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
     return PopupMenuButton<String>(
       icon: Icon(Icons.person_outline, color: textColor),
       onSelected: (v) {
-        if (v == 'login') Navigator.pushNamed(context, '/login');
+        if (v == 'login') {
+          Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
+        }
         if (v == 'orders') Navigator.pushNamed(context, '/my_orders');
         if (v == 'logout') auth.logout();
       },

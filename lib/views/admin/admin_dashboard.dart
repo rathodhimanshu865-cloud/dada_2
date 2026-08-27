@@ -138,7 +138,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
           onTap: () {
             setState(() {
               currentMenuIndex = i;
-              if (!isMobile) _isSidebarVisible = false; 
             });
             if (isMobile) Navigator.pop(context);
           },

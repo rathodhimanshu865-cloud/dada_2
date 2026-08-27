@@ -6,9 +6,16 @@ class AuthController extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? _user;
+  bool _showLoginPortal = false;
 
   User? get user => _user;
   bool get isAuthenticated => _user != null;
+  bool get showLoginPortal => _showLoginPortal;
+
+  void toggleLoginPortal(bool show) {
+    _showLoginPortal = show;
+    notifyListeners();
+  }
 
   AuthController() {
     _auth.authStateChanges().listen((User? user) {

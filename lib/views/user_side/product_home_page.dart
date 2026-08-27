@@ -179,20 +179,20 @@ class ProductHomePage extends StatelessWidget {
                   ),
                   child: InkWell(
                     onTap: () {
-                      Provider.of<ProductController>(context, listen: false).selectCategory(cat['title']! as String);
+                      Provider.of<ProductController>(context, listen: false).selectCategory(cat['title']!);
                       Navigator.pushNamed(context, '/catalogue');
                     },
                     child: Row(
                       children: [
-                        Text(cat['icon']! as String, style: const TextStyle(fontSize: 32)),
+                        Text(cat['icon']!, style: const TextStyle(fontSize: 32)),
                         const SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(cat['title']! as String, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 16, color: const Color(0xFF2B2B2B))),
-                              Text(cat['items']! as String, style: AppTypography.bodyStyle(context, fontSize: 12, color: Colors.grey.shade500)),
+                              Text(cat['title']!, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 16, color: const Color(0xFF2B2B2B))),
+                              Text(cat['items']!, style: AppTypography.bodyStyle(context, fontSize: 12, color: Colors.grey.shade500)),
                             ],
                           ),
                         ),

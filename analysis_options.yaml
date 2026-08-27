@@ -11,6 +11,12 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+  errors:
+    deprecated_member_use: ignore
+    unused_element: ignore
+    unused_field: ignore
+    unused_local_variable: ignore
+    dead_code: ignore
 
 linter:
   rules:
@@ -18,9 +24,4 @@ linter:
     prefer_const_constructors: false
     prefer_const_literals_to_create_immutables: false
     prefer_const_constructors_in_immutables: false
-    deprecated_member_use: false
     use_build_context_synchronously: false
-    unused_element: false
-    unused_field: false
-    unused_local_variable: false
-    dead_code: false

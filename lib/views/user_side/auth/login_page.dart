@@ -29,7 +29,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    // Defaulting to "Create New Account" (index 1) as requested
     _tabController = TabController(length: 2, vsync: this, initialIndex: 1);
   }
 
@@ -50,7 +49,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     try {
       await Provider.of<AuthController>(context, listen: false)
           .login(_loginEmailCtrl.text.trim(), _loginPassCtrl.text.trim());
-      if (mounted) Navigator.pop(context);
+      if (mounted) {
+         Provider.of<AuthController>(context, listen: false).toggleLoginPortal(false);
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -100,54 +101,74 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.05),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40),
+    final auth = Provider.of<AuthController>(context, listen: false);
+
+    return Material(
+      color: Colors.transparent,
+      child: Stack(
+        children: [
+          // Backdrop
+          GestureDetector(
+            onTap: () => auth.toggleLoginPortal(false),
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 450),
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 40, offset: const Offset(0, 10)),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 24),
-                  _buildOverlappingSwitcher(),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 400),
-                    transitionBuilder: (child, animation) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: SlideTransition(
-                          position: animation.drive(Tween(begin: const Offset(0, 0.05), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut))),
-                          child: child,
+              color: Colors.black54,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+          ),
+          
+          // Portal Box
+          Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: GestureDetector(
+                  onTap: () {}, // Prevent tap from closing when clicking inside the box
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 450),
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 40, offset: const Offset(0, 10)),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildHeader(auth),
+                        const SizedBox(height: 24),
+                        _buildOverlappingSwitcher(),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 400),
+                          transitionBuilder: (child, animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: SlideTransition(
+                                position: animation.drive(Tween(begin: const Offset(0, 0.05), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut))),
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: _tabController.index == 0 
+                              ? _buildLoginForm() 
+                              : _buildSignupForm(),
                         ),
-                      );
-                    },
-                    child: _tabController.index == 0 
-                        ? _buildLoginForm() 
-                        : _buildSignupForm(),
+                        _buildFooter(),
+                      ],
+                    ),
                   ),
-                  _buildFooter(),
-                ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AuthController auth) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(32),
@@ -172,7 +193,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 ),
               ),
               IconButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => auth.toggleLoginPortal(false),
                 icon: const Icon(Icons.close, color: Colors.white70),
               ),
             ],

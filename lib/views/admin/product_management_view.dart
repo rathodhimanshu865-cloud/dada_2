@@ -18,10 +18,10 @@ class _ProductManagementViewState extends State<ProductManagementView> {
   Widget build(BuildContext context) {
     return Container(
       color: bgCream,
-      child: Row(
+      child: Column(
         children: [
-          // Nested Sidebar for Product Management
-          _buildNestedSidebar(),
+          // New Top Navigation Bar instead of Nested Sidebar
+          _buildTopNavigationBar(),
           // Main Dashboard Content
           Expanded(
             child: SingleChildScrollView(
@@ -34,7 +34,7 @@ class _ProductManagementViewState extends State<ProductManagementView> {
     );
   }
 
-  Widget _buildNestedSidebar() {
+  Widget _buildTopNavigationBar() {
     final items = [
       {'title': 'Dashboard', 'icon': Icons.dashboard_outlined},
       {'title': 'Products', 'icon': Icons.shopping_bag_outlined, 'badge': '27'},
@@ -49,83 +49,100 @@ class _ProductManagementViewState extends State<ProductManagementView> {
     ];
 
     return Container(
-      width: 260,
+      height: 70,
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFF9F6F0), // Matches image better than pure white
-        border: Border(right: BorderSide(color: Colors.grey.shade200)),
+        color: const Color(0xFFF9F6F0),
+        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
       ),
-      child: Column(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
         children: [
-          const SizedBox(height: 20),
+          // Profile Info
           _buildAdminProfile(),
-          const Divider(height: 40),
+          const VerticalDivider(width: 40, indent: 15, endIndent: 15),
+          // Horizontal Menu Items
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: items.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 4),
-              itemBuilder: (context, i) {
-                bool active = _activeSubMenu == i;
-                return ListTile(
-                  onTap: () => setState(() => _activeSubMenu = i),
-                  leading: Icon(items[i]['icon'] as IconData, color: active ? Colors.white : Colors.grey, size: 20),
-                  title: Text(
-                    items[i]['title'] as String,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: active ? FontWeight.bold : FontWeight.normal,
-                      color: active ? Colors.white : Colors.black87,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: items.asMap().entries.map((e) {
+                  int i = e.key;
+                  bool active = _activeSubMenu == i;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: InkWell(
+                      onTap: () => setState(() => _activeSubMenu = i),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: active ? primaryTeal : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(items[i]['icon'] as IconData, color: active ? Colors.white : Colors.grey, size: 18),
+                            const SizedBox(width: 8),
+                            Text(
+                              items[i]['title'] as String,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: active ? FontWeight.bold : FontWeight.normal,
+                                color: active ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                            if (items[i]['badge'] != null) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: active ? Colors.white.withOpacity(0.2) : Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  items[i]['badge'] as String,
+                                  style: TextStyle(fontSize: 10, color: active ? Colors.white : Colors.grey),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  trailing: items[i]['badge'] != null 
-                    ? Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(color: active ? Colors.white.withOpacity(0.2) : Colors.grey.shade100, borderRadius: BorderRadius.circular(10)),
-                        child: Text(items[i]['badge'] as String, style: TextStyle(fontSize: 10, color: active ? Colors.white : Colors.grey)),
-                      )
-                    : null,
-                  selected: active,
-                  selectedTileColor: primaryTeal,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                );
-              },
+                  );
+                }).toList(),
+              ),
             ),
           ),
-          _buildSidebarFooter(),
+          const VerticalDivider(width: 40, indent: 15, endIndent: 15),
+          // Reset Button
+          TextButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.refresh, size: 16),
+            label: const Text('Reset Demo', style: TextStyle(fontSize: 11)),
+            style: TextButton.styleFrom(foregroundColor: Colors.grey),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildAdminProfile() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          CircleAvatar(backgroundColor: primaryTeal, radius: 18, child: const Text('HR', style: TextStyle(color: Colors.white, fontSize: 12))),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Himanshu Rathod', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-              Text('Chief Seva Admin', style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSidebarFooter() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: TextButton.icon(
-        onPressed: () {},
-        icon: const Icon(Icons.refresh, size: 16),
-        label: const Text('Reset Demo Seed Data', style: TextStyle(fontSize: 11)),
-        style: TextButton.styleFrom(foregroundColor: Colors.grey),
-      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CircleAvatar(backgroundColor: primaryTeal, radius: 16, child: const Text('HR', style: TextStyle(color: Colors.white, fontSize: 10))),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Himanshu Rathod', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+            Text('Chief Seva Admin', style: TextStyle(color: Colors.grey.shade500, fontSize: 10)),
+          ],
+        ),
+      ],
     );
   }
 
