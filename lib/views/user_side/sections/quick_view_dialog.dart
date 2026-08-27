@@ -32,11 +32,9 @@ class _QuickViewDialogState extends State<QuickViewDialog> {
   @override
   void initState() {
     super.initState();
-    _productImages = [
-      widget.product.imageUrl,
-      'https://via.placeholder.com/600x800/FAF8F4/0F4C5C?text=Side+View',
-      'https://via.placeholder.com/600x800/F0F0F0/0F4C5C?text=Detail+Shot',
-    ];
+    _productImages = widget.product.imageUrls.isNotEmpty 
+      ? widget.product.imageUrls 
+      : ['https://via.placeholder.com/600x800/FAF8F4/0F4C5C?text=No+Image'];
   }
 
   @override
@@ -101,7 +99,7 @@ class _QuickViewDialogState extends State<QuickViewDialog> {
             child: Text('QUICK VIEW', style: AppTypography.bodyStyle(context, color: teal, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
           ),
           const SizedBox(width: 16),
-          Text('SKU: DADA-KCH-001', style: AppTypography.bodyStyle(context, color: Colors.grey.shade500, fontSize: 12, fontWeight: FontWeight.w600)),
+          Text('SKU: DADA-PROD-${widget.product.id.substring(0, 4).toUpperCase()}', style: AppTypography.bodyStyle(context, color: Colors.grey.shade500, fontSize: 12, fontWeight: FontWeight.w600)),
           const Spacer(),
           IconButton(
             onPressed: () => Navigator.pop(context),
@@ -130,18 +128,19 @@ class _QuickViewDialogState extends State<QuickViewDialog> {
                 ),
               ),
             ),
-            Positioned(
-              top: 20,
-              left: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                decoration: BoxDecoration(
-                  color: gold,
-                  borderRadius: const BorderRadius.horizontal(right: Radius.circular(20)),
+            if (widget.product.isPopular)
+              Positioned(
+                top: 20,
+                left: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: gold,
+                    borderRadius: const BorderRadius.horizontal(right: Radius.circular(20)),
+                  ),
+                  child: const Text('BESTSELLER', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
                 ),
-                child: const Text('BESTSELLER', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
               ),
-            ),
           ],
         ),
         const SizedBox(height: 20),
@@ -194,12 +193,12 @@ class _QuickViewDialogState extends State<QuickViewDialog> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(color: teal.withOpacity(0.05), borderRadius: BorderRadius.circular(4)),
-          child: Text(widget.product.category.toUpperCase(), style: AppTypography.bodyStyle(context, color: teal, fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 1.5)),
+          child: Text(widget.product.categoryId.toUpperCase(), style: AppTypography.bodyStyle(context, color: teal, fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 1.5)),
         ),
         const SizedBox(height: 15),
-        Text(widget.product.title, style: AppTypography.headingStyle(context, fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black)),
+        Text(widget.product.name, style: AppTypography.headingStyle(context, fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black)),
         const SizedBox(height: 8),
-        Text('Crystal Clear Acrylic with High-Definition Sacred Darshan & Heavy-Duty Golden Ring', style: AppTypography.bodyStyle(context, color: Colors.grey.shade600, fontSize: 14, height: 1.5)),
+        Text('Sacred Consecrated spiritual offering to bring positive energy and spiritual upliftment.', style: AppTypography.bodyStyle(context, color: Colors.grey.shade600, fontSize: 14, height: 1.5)),
         const SizedBox(height: 20),
         Row(
           children: [
@@ -213,27 +212,40 @@ class _QuickViewDialogState extends State<QuickViewDialog> {
         const SizedBox(height: 25),
         Row(
           children: [
-            Text('₹${widget.product.price.toInt()}', style: AppTypography.headingStyle(context, fontSize: 32, color: teal, fontWeight: FontWeight.w900)),
-            const SizedBox(width: 12),
-            Text('₹${widget.product.originalPrice.toInt()}', style: TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey.shade400, fontSize: 18)),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(4), border: Border.all(color: Colors.green.shade100)),
-              child: const Text('34% OFF', style: TextStyle(color: Colors.green, fontWeight: FontWeight.w900, fontSize: 11)),
-            ),
+            if (widget.product.discountPrice != null) ...[
+              Text('₹${widget.product.discountPrice!.toInt()}', style: AppTypography.headingStyle(context, fontSize: 32, color: teal, fontWeight: FontWeight.w900)),
+              const SizedBox(width: 12),
+              Text('₹${widget.product.price.toInt()}', style: TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey.shade400, fontSize: 18)),
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(4), border: Border.all(color: Colors.green.shade100)),
+                child: Text(
+                  '${((widget.product.price - widget.product.discountPrice!) / widget.product.price * 100).toInt()}% OFF', 
+                  style: const TextStyle(color: Colors.green, fontWeight: FontWeight.w900, fontSize: 11)
+                ),
+              ),
+            ] else
+              Text('₹${widget.product.price.toInt()}', style: AppTypography.headingStyle(context, fontSize: 32, color: teal, fontWeight: FontWeight.w900)),
           ],
         ),
         const SizedBox(height: 20),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(6), border: Border.all(color: const Color(0xFFD1FAE5))),
+          decoration: BoxDecoration(
+            color: widget.product.isAvailable ? const Color(0xFFECFDF5) : const Color(0xFFFEF2F2), 
+            borderRadius: BorderRadius.circular(6), 
+            border: Border.all(color: widget.product.isAvailable ? const Color(0xFFD1FAE5) : const Color(0xFFFEE2E2))
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
+              Container(width: 8, height: 8, decoration: BoxDecoration(color: widget.product.isAvailable ? const Color(0xFF10B981) : Colors.red, shape: BoxShape.circle)),
               const SizedBox(width: 8),
-              Text('In Stock (85 available) • Fast 24hr Dispatch', style: AppTypography.bodyStyle(context, color: const Color(0xFF065F46), fontSize: 12, fontWeight: FontWeight.bold)),
+              Text(
+                widget.product.isAvailable ? 'In Stock (${widget.product.stockCount} available) • Fast 24hr Dispatch' : 'Out of Stock', 
+                style: AppTypography.bodyStyle(context, color: widget.product.isAvailable ? const Color(0xFF065F46) : Colors.red.shade900, fontSize: 12, fontWeight: FontWeight.bold)
+              ),
             ],
           ),
         ),
@@ -318,21 +330,27 @@ class _QuickViewDialogState extends State<QuickViewDialog> {
   }
 
   Widget _buildAddButton(BuildContext context, Color teal, CartController cart) {
+    double currentPrice = widget.product.discountPrice ?? widget.product.price;
     return SizedBox(
       height: 55,
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: (widget.product.isAvailable && widget.product.stockCount > 0) ? () {
           cart.addToCart(widget.product, _quantity);
           Navigator.pop(context);
           Scaffold.of(context).openEndDrawer();
-        },
+        } : null,
         style: ElevatedButton.styleFrom(backgroundColor: teal, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.shopping_bag_outlined, size: 18),
             const SizedBox(width: 12),
-            Text('ADD TO BAG • ₹${(widget.product.price * _quantity).toInt()}', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5, color: Colors.white)),
+            Text(
+              (widget.product.isAvailable && widget.product.stockCount > 0) 
+                ? 'ADD TO BAG • ₹${(currentPrice * _quantity).toInt()}'
+                : 'OUT OF STOCK', 
+              style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5, color: Colors.white)
+            ),
           ],
         ),
       ),

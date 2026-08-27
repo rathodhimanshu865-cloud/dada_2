@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
+import '../../../controllers/auth_controller.dart';
 import '../../../utils/app_typography.dart';
 
 class AdminLoginPage extends StatefulWidget {
@@ -10,23 +12,45 @@ class AdminLoginPage extends StatefulWidget {
 }
 
 class _AdminLoginPageState extends State<AdminLoginPage> {
-  final _userController = TextEditingController();
+  final _emailController = TextEditingController(); // Changed from username to email
   final _passController = TextEditingController();
   bool _obscurePass = true;
+  bool _isLoading = false;
 
   final Color primaryTeal = const Color(0xFF0F4C5C);
   final Color accentGold = const Color(0xFFC89A5B);
 
-  void _login() {
-    if (_userController.text == 'admin' && _passController.text == 'dada123') {
-      Navigator.pushReplacementNamed(context, '/admin_dashboard');
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.invalidCredentials),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+  Future<void> _login() async {
+    setState(() => _isLoading = true);
+    try {
+      final auth = Provider.of<AuthController>(context, listen: false);
+      await auth.login(_emailController.text.trim(), _passController.text.trim());
+      
+      if (mounted) {
+        if (auth.isAdmin) {
+          Navigator.pushReplacementNamed(context, '/admin_dashboard');
+        } else {
+          // If not an admin, logout or show error
+          await auth.logout();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Access Denied: You do not have administrator privileges.'),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login Failed: ${e.toString()}'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -81,8 +105,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLabel(AppLocalizations.of(context)!.username),
-                      _buildTextField(_userController, Icons.person_outline, 'admin'),
+                      _buildLabel(AppLocalizations.of(context)!.email), // Changed label
+                      _buildTextField(_emailController, Icons.email_outlined, 'admin@example.com'),
                       const SizedBox(height: 24),
                       _buildLabel(AppLocalizations.of(context)!.password),
                       _buildTextField(_passController, Icons.lock_outline, '••••••••', isPassword: true),
@@ -91,17 +115,19 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                         width: double.infinity,
                         height: 55,
                         child: ElevatedButton(
-                          onPressed: _login,
+                          onPressed: _isLoading ? null : _login,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryTeal,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             elevation: 0,
                           ),
-                          child: Text(
-                            AppLocalizations.of(context)!.login.toUpperCase(),
-                            style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5),
-                          ),
+                          child: _isLoading 
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : Text(
+                                AppLocalizations.of(context)!.login.toUpperCase(),
+                                style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                              ),
                         ),
                       ),
                       const SizedBox(height: 24),

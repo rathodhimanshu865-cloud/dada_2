@@ -6,10 +6,13 @@ class AuthController extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? _user;
+  String? _role;
   bool _showLoginPortal = false;
 
   User? get user => _user;
+  String? get role => _role;
   bool get isAuthenticated => _user != null;
+  bool get isAdmin => _role?.toLowerCase() == 'admin';
   bool get showLoginPortal => _showLoginPortal;
 
   void toggleLoginPortal(bool show) {
@@ -18,10 +21,31 @@ class AuthController extends ChangeNotifier {
   }
 
   AuthController() {
-    _auth.authStateChanges().listen((User? user) {
+    _auth.authStateChanges().listen((User? user) async {
+      debugPrint("Auth State Change: User ${user?.email}");
       _user = user;
+      if (user != null) {
+        await _fetchUserRole(user.uid);
+      } else {
+        _role = null;
+      }
       notifyListeners();
     });
+  }
+
+  Future<void> _fetchUserRole(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) {
+        _role = doc.data()?['role'];
+        debugPrint("User Role Fetched: $_role");
+      } else {
+        debugPrint("No user document found in Firestore for UID: $uid");
+        _role = null;
+      }
+    } catch (e) {
+      debugPrint("Error fetching user role: $e");
+    }
   }
 
   Future<void> signUp({
@@ -36,10 +60,12 @@ class AuthController extends ChangeNotifier {
       await _firestore.collection('users').doc(credential.user!.uid).set({
         'uid': credential.user!.uid,
         'email': email,
-        'fullName': fullName,
+        'name': fullName, // Changed from fullName to name as per instructions
         'phone': phone,
-        'createdAt': FieldValue.serverTimestamp(),
+        'profileImage': '', // Added field
         'role': 'user',
+        'createdAt': FieldValue.serverTimestamp(),
+        'isActive': true, // Added field
       });
     }
   }
@@ -47,13 +73,13 @@ class AuthController extends ChangeNotifier {
   Future<void> login(String email, String password) async {
     final credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
     if (credential.user != null) {
+      await _fetchUserRole(credential.user!.uid);
       await _firestore.collection('users').doc(credential.user!.uid).update({
         'lastLogin': FieldValue.serverTimestamp(),
       }).catchError((e) {
-        // If the document doesn't exist (e.g. for old users), you might want to set it instead of update.
-        // But for now, we'll just ignore the error if it fails to update the timestamp.
         debugPrint("Error updating lastLogin: $e");
       });
+      notifyListeners();
     }
   }
 

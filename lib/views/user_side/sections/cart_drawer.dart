@@ -213,18 +213,25 @@ class CartDrawer extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  item.product.imageUrl,
-                  width: 70,
-                  height: 70,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    width: 70,
-                    height: 70,
-                    color: Colors.grey.shade100,
-                    child: const Icon(Icons.broken_image_outlined, size: 20, color: Colors.grey),
-                  ),
-                ),
+                child: item.product.imageUrls.isNotEmpty 
+                  ? Image.network(
+                      item.product.imageUrls[0],
+                      width: 70,
+                      height: 70,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 70,
+                        height: 70,
+                        color: Colors.grey.shade100,
+                        child: const Icon(Icons.broken_image_outlined, size: 20, color: Colors.grey),
+                      ),
+                    )
+                  : Container(
+                      width: 70,
+                      height: 70,
+                      color: Colors.grey.shade100,
+                      child: const Icon(Icons.image_outlined, size: 20, color: Colors.grey),
+                    ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -236,7 +243,7 @@ class CartDrawer extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            item.product.title,
+                            item.product.name,
                             style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 15),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,

@@ -131,11 +131,13 @@ class WishlistPage extends StatelessWidget {
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                    child: Image.network(
-                      product.imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (c, e, s) => Container(color: Colors.grey.shade50, child: const Icon(Icons.broken_image_outlined, color: Colors.grey)),
-                    ),
+                    child: product.imageUrls.isNotEmpty
+                      ? Image.network(
+                          product.imageUrls[0],
+                          fit: BoxFit.cover,
+                          errorBuilder: (c, e, s) => Container(color: Colors.grey.shade50, child: const Icon(Icons.broken_image_outlined, color: Colors.grey)),
+                        )
+                      : Container(color: Colors.grey.shade50, child: const Icon(Icons.image_outlined, color: Colors.grey)),
                   ),
                 ),
                 Positioned(
@@ -159,12 +161,12 @@ class WishlistPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product.category.toUpperCase(),
+                  product.categoryId.toUpperCase(),
                   style: TextStyle(color: Colors.grey.shade500, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  product.title,
+                  product.name,
                   style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

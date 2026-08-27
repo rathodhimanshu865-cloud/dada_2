@@ -19,9 +19,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   final _signupPhoneCtrl = TextEditingController();
   final _signupEmailCtrl = TextEditingController();
   final _signupPassCtrl = TextEditingController();
+  final _signupConfirmPassCtrl = TextEditingController(); // Added
   
   bool _isLoading = false;
   bool _obscurePass = true;
+  bool _obscureConfirmPass = true; // Added
 
   final Color primaryTeal = const Color(0xFF0F4C5C);
   final Color accentGold = const Color(0xFFC89A5B);
@@ -41,16 +43,21 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     _signupPhoneCtrl.dispose();
     _signupEmailCtrl.dispose();
     _signupPassCtrl.dispose();
+    _signupConfirmPassCtrl.dispose(); // Added
     super.dispose();
   }
 
   Future<void> _handleLogin() async {
     setState(() => _isLoading = true);
     try {
-      await Provider.of<AuthController>(context, listen: false)
-          .login(_loginEmailCtrl.text.trim(), _loginPassCtrl.text.trim());
+      final auth = Provider.of<AuthController>(context, listen: false);
+      await auth.login(_loginEmailCtrl.text.trim(), _loginPassCtrl.text.trim());
+      
       if (mounted) {
-         Provider.of<AuthController>(context, listen: false).toggleLoginPortal(false);
+        auth.toggleLoginPortal(false);
+        if (auth.isAdmin) {
+          Navigator.pushNamedAndRemoveUntil(context, '/admin_dashboard', (route) => false);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -64,39 +71,87 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   Future<void> _handleSignup() async {
+    final name = _signupNameCtrl.text.trim();
+    final phone = _signupPhoneCtrl.text.trim();
+    final email = _signupEmailCtrl.text.trim();
+    final password = _signupPassCtrl.text.trim();
+    final confirmPassword = _signupConfirmPassCtrl.text.trim();
+
+    // Validations
+    if (name.isEmpty || phone.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      _showError('All fields are required');
+      return;
+    }
+
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(email)) {
+      _showError('Please enter a valid email address');
+      return;
+    }
+
+    final phoneRegex = RegExp(r'^\+?[0-9]{10,12}$');
+    if (!phoneRegex.hasMatch(phone)) {
+      _showError('Please enter a valid phone number (10-12 digits)');
+      return;
+    }
+
+    if (password.length < 8) {
+      _showError('Password must be at least 8 characters long');
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showError('Passwords do not match');
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
       await Provider.of<AuthController>(context, listen: false).signUp(
-        email: _signupEmailCtrl.text.trim(),
-        password: _signupPassCtrl.text.trim(),
-        fullName: _signupNameCtrl.text.trim(),
-        phone: _signupPhoneCtrl.text.trim(),
+        email: email,
+        password: password,
+        fullName: name,
+        phone: phone,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Account Created Successfully! Please Login.'),
+            content: Text('Account Created Successfully!'),
             backgroundColor: Colors.green,
           ),
         );
-        _loginEmailCtrl.text = _signupEmailCtrl.text;
-        _tabController.animateTo(0); // Switch to login tab
+        // After registration, automatically sign in and navigate to home screen
+        Provider.of<AuthController>(context, listen: false).toggleLoginPortal(false);
       }
     } catch (e) {
       if (mounted) {
-        String errorMessage = e.toString();
-        if (e is FirebaseAuthException && e.code == 'email-already-in-use') {
-          errorMessage = 'Account already exists with this email. Please log in.';
-          _loginEmailCtrl.text = _signupEmailCtrl.text;
-          _tabController.animateTo(0);
+        String errorMessage = 'Registration Failed';
+        if (e is FirebaseAuthException) {
+          switch (e.code) {
+            case 'email-already-in-use':
+              errorMessage = 'The email address is already in use by another account.';
+              break;
+            case 'invalid-email':
+              errorMessage = 'The email address is not valid.';
+              break;
+            case 'weak-password':
+              errorMessage = 'The password is too weak.';
+              break;
+            default:
+              errorMessage = e.message ?? errorMessage;
+          }
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage), backgroundColor: Colors.redAccent),
-        );
+        _showError(errorMessage);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.redAccent),
+    );
   }
 
   @override
@@ -324,6 +379,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           const SizedBox(height: 16),
           _buildFieldLabel('Secure Password'),
           _buildTextField(_signupPassCtrl, Icons.lock_outline, '••••••••', isPassword: true),
+          const SizedBox(height: 16),
+          _buildFieldLabel('Confirm Password'),
+          _buildTextField(_signupConfirmPassCtrl, Icons.lock_outline, '••••••••', isPassword: true, isConfirm: true),
           const SizedBox(height: 32),
           _buildActionButton('Join the Community', _handleSignup),
         ],
@@ -341,7 +399,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildTextField(TextEditingController ctrl, IconData icon, String hint, {bool isPassword = false}) {
+  Widget _buildTextField(TextEditingController ctrl, IconData icon, String hint, {bool isPassword = false, bool isConfirm = false}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -350,7 +408,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       ),
       child: TextField(
         controller: ctrl,
-        obscureText: isPassword && _obscurePass,
+        obscureText: isPassword && (isConfirm ? _obscureConfirmPass : _obscurePass),
         style: const TextStyle(fontSize: 14),
         decoration: InputDecoration(
           hintText: hint,
@@ -358,8 +416,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           prefixIcon: Icon(icon, size: 18, color: primaryTeal.withOpacity(0.5)),
           suffixIcon: isPassword 
               ? IconButton(
-                  icon: Icon(_obscurePass ? Icons.visibility_off : Icons.visibility, size: 18, color: Colors.grey),
-                  onPressed: () => setState(() => _obscurePass = !_obscurePass),
+                  icon: Icon((isConfirm ? _obscureConfirmPass : _obscurePass) ? Icons.visibility_off : Icons.visibility, size: 18, color: Colors.grey),
+                  onPressed: () => setState(() {
+                    if (isConfirm) {
+                      _obscureConfirmPass = !_obscureConfirmPass;
+                    } else {
+                      _obscurePass = !_obscurePass;
+                    }
+                  }),
                 ) 
               : null,
           border: InputBorder.none,

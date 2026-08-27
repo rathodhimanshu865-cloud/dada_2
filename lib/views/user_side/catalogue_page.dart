@@ -35,7 +35,7 @@ class CataloguePage extends StatelessWidget {
   Widget _buildHeroBanner(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFF0F4C5C), // Dark Teal
+      color: const Color(0xFF0F4C5C),
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
       child: Center(
         child: ConstrainedBox(
@@ -43,7 +43,6 @@ class CataloguePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Breadcrumb / Tag
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 decoration: BoxDecoration(
@@ -56,7 +55,6 @@ class CataloguePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              // Main Heading
               Text(
                 'Sacred Photo Keychains, Temples, Padukas & Holy Granths',
                 textAlign: TextAlign.center,
@@ -68,7 +66,6 @@ class CataloguePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              // Subtitle
               Text(
                 'Authentic handcrafted and consecrated items from Pu. Dada\'s ashram to grace your space.\nAll proceeds support charitable causes and ashram activities.',
                 textAlign: TextAlign.center,
@@ -79,7 +76,6 @@ class CataloguePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              // Checkmarks row
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -100,7 +96,7 @@ class CataloguePage extends StatelessWidget {
   Widget _checkMarkItem(String text) {
     return Row(
       children: [
-        const Icon(Icons.check_circle, color: Color(0xFFC89A5B), size: 16), // Temple Gold
+        const Icon(Icons.check_circle, color: Color(0xFFC89A5B), size: 16),
         const SizedBox(width: 8),
         Text(text, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500)),
       ],
@@ -108,18 +104,6 @@ class CataloguePage extends StatelessWidget {
   }
 
   Widget _buildFilterRow(BuildContext context, ProductController prod) {
-    final Map<String, String?> filterIcons = {
-      'All Sacred Products': null,
-      'Keychains': '🔑',
-      'Acrylic Photo Frames': '🖼️',
-      'Temple': '⛩️',
-      'Yantras & Malas': '📿',
-      'Idols': '🕉️',
-      'Puja Items': '🪔',
-      'Books & Granths': '📚',
-      'Apparel': '👕',
-    };
-
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
@@ -135,9 +119,6 @@ class CataloguePage extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 12),
                 child: ChoiceChip(
                   label: Text(cat),
-                  avatar: filterIcons[cat] != null
-                      ? Text(filterIcons[cat]!)
-                      : null,
                   selected: isSelected,
                   onSelected: (selected) {
                     if (selected) prod.selectCategory(cat);
@@ -176,7 +157,6 @@ class CataloguePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: isMobile ? CrossAxisAlignment.start : CrossAxisAlignment.center,
             children: [
-              // Search Bar
               Container(
                 width: isMobile ? double.infinity : 300,
                 height: 40,
@@ -192,6 +172,7 @@ class CataloguePage extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: TextField(
+                        onChanged: (v) => prod.performSearch(v),
                         decoration: InputDecoration(
                           hintText: 'Search products by name...',
                           hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
@@ -205,7 +186,6 @@ class CataloguePage extends StatelessWidget {
                 ),
               ),
               if (isMobile) const SizedBox(height: 16),
-              // Sort Dropdown
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -238,11 +218,13 @@ class CataloguePage extends StatelessWidget {
   }
 
   Widget _buildProductGrid(BuildContext context, ProductController prod) {
-    if (prod.filteredProducts.isEmpty) {
+    final products = prod.searchQuery.isEmpty ? prod.filteredProducts : prod.searchResults;
+
+    if (products.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 60),
-          child: Text('No products found in this category.', style: AppTypography.bodyStyle(context, color: Colors.grey)),
+          child: Text('No products found.', style: AppTypography.bodyStyle(context, color: Colors.grey)),
         ),
       );
     }
@@ -259,9 +241,9 @@ class CataloguePage extends StatelessWidget {
             crossAxisSpacing: 20,
             mainAxisSpacing: 30,
           ),
-          itemCount: prod.filteredProducts.length,
+          itemCount: products.length,
           itemBuilder: (context, index) {
-            return ProductCard(product: prod.filteredProducts[index]);
+            return ProductCard(product: products[index]);
           },
         ),
       ),

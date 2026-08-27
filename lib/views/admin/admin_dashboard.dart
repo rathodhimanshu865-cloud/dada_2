@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../controllers/auth_controller.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../models/homepage_model.dart';
@@ -24,6 +25,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthController>(context);
+    
+    // Safety check: redirect to home if not admin
+    if (!auth.isAdmin) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final controller = Provider.of<HomePageController>(context);
     final prof = Provider.of<ProfileController>(context);
     final bool globalLoading = controller.isLoading || prof.isLoading;

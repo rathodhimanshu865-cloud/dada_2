@@ -27,7 +27,7 @@ class _ProductCardState extends State<ProductCard> {
     
     await showDialog(
       context: context,
-      barrierDismissible: true, // Ensures clicking outside closes the dialog
+      barrierDismissible: true,
       builder: (context) => QuickViewDialog(product: widget.product),
     );
     
@@ -64,10 +64,9 @@ class _ProductCardState extends State<ProductCard> {
               onExit: (_) => setState(() => _isHovered = false),
               child: Stack(
                 children: [
-                  // Clicking the Image now opens the Full Product Details Page
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/product_details');
+                      Navigator.pushNamed(context, '/product_details', arguments: widget.product.id);
                     },
                     child: Container(
                       width: double.infinity,
@@ -78,19 +77,23 @@ class _ProductCardState extends State<ProductCard> {
                       ),
                       child: ClipRRect(
                         borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                        child: Image.network(
-                          widget.product.imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            color: Colors.grey.shade50,
-                            child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
-                          ),
-                        ),
+                        child: widget.product.imageUrls.isNotEmpty 
+                          ? Image.network(
+                              widget.product.imageUrls[0],
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                color: Colors.grey.shade50,
+                                child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
+                              ),
+                            )
+                          : Container(
+                              color: Colors.grey.shade50,
+                              child: const Icon(Icons.image_outlined, color: Colors.grey),
+                            ),
                       ),
                     ),
                   ),
                   
-                  // Quick View Button Overlay (Triggers AUTOMATICALLY on Cursor Move/Hover)
                   if (_isHovered)
                     Positioned(
                       bottom: 0,
@@ -101,20 +104,9 @@ class _ProductCardState extends State<ProductCard> {
                         child: Container(
                           height: 45,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                              colors: [
-                                Colors.black.withOpacity(0.6),
-                                Colors.transparent,
-                              ],
-                            ),
+                            color: Colors.white.withOpacity(0.9),
                           ),
-                          child: Container(
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.9),
-                            ),
+                          child: Center(
                             child: Text(
                               'QUICK VIEW',
                               style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1, color: primaryTeal),
@@ -124,18 +116,35 @@ class _ProductCardState extends State<ProductCard> {
                       ),
                     ),
 
-                  if (widget.showBadge && widget.product.isNew)
+                  if (widget.showBadge && widget.product.isFeatured)
                     Positioned(
                       top: 10,
                       left: 10,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade700,
+                          color: const Color(0xFFC89A5B),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text(
-                          'NEW',
+                          'FEATURED',
+                          style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  
+                  if (!widget.product.isAvailable || widget.product.stockCount <= 0)
+                    Positioned(
+                      top: 40,
+                      left: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade700,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'OUT OF STOCK',
                           style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -178,7 +187,7 @@ class _ProductCardState extends State<ProductCard> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        widget.product.category,
+                        widget.product.categoryId.toUpperCase(),
                         style: TextStyle(color: Colors.grey.shade500, fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                       Row(
@@ -192,31 +201,53 @@ class _ProductCardState extends State<ProductCard> {
                   ),
                   const SizedBox(height: 6),
                   InkWell(
-                    onTap: () => Navigator.pushNamed(context, '/product_details'),
+                    onTap: () => Navigator.pushNamed(context, '/product_details', arguments: widget.product.id),
                     child: Text(
-                      widget.product.title,
+                      widget.product.name,
                       style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 15, color: const Color(0xFF2B2B2B)),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Text(
-                    '₹ ${widget.product.price.toStringAsFixed(2)}',
-                    style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18, color: primaryTeal),
+                  Row(
+                    children: [
+                      if (widget.product.discountPrice != null) ...[
+                        Text(
+                          '₹ ${widget.product.discountPrice!.toStringAsFixed(2)}',
+                          style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18, color: primaryTeal),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '₹ ${widget.product.price.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                      ] else
+                        Text(
+                          '₹ ${widget.product.price.toStringAsFixed(2)}',
+                          style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18, color: primaryTeal),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: (widget.product.isAvailable && widget.product.stockCount > 0) ? () {
                       cart.addToCart(widget.product, 1);
                       Scaffold.of(context).openEndDrawer();
-                    },
+                    } : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryTeal,
                       minimumSize: const Size(double.infinity, 36),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                     ),
-                    child: Text('ADD TO CART', style: AppTypography.bodyStyle(context, color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      (widget.product.isAvailable && widget.product.stockCount > 0) ? 'ADD TO CART' : 'UNAVAILABLE', 
+                      style: AppTypography.bodyStyle(context, color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)
+                    ),
                   ),
                 ],
               ),

@@ -191,6 +191,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get adminLogin => 'एडमिन लॉगिन';
 
   @override
+  String get email => 'ईमेल';
+
+  @override
   String get username => 'यूज़रनाम';
 
   @override

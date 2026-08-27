@@ -301,18 +301,25 @@ class _CheckoutPageState extends State<CheckoutPage> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
-                  child: Image.network(
-                    item.product.imageUrl,
-                    width: 40,
-                    height: 40,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 40,
-                      height: 40,
-                      color: Colors.grey.shade100,
-                      child: const Icon(Icons.broken_image_outlined, size: 20, color: Colors.grey),
-                    ),
-                  ),
+                  child: item.product.imageUrls.isNotEmpty
+                      ? Image.network(
+                          item.product.imageUrls[0],
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            width: 40,
+                            height: 40,
+                            color: Colors.grey.shade100,
+                            child: const Icon(Icons.broken_image_outlined, size: 20, color: Colors.grey),
+                          ),
+                        )
+                      : Container(
+                          width: 40,
+                          height: 40,
+                          color: Colors.grey.shade100,
+                          child: const Icon(Icons.image_outlined, size: 20, color: Colors.grey),
+                        ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -320,7 +327,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.product.title,
+                        item.product.name,
                         style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.bold),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

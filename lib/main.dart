@@ -39,6 +39,8 @@ import 'controllers/language_controller.dart';
 import 'controllers/profile_controller.dart';
 import 'controllers/auth_controller.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
@@ -73,6 +75,7 @@ class MyApp extends StatelessWidget {
     final String langCode = languageController.locale.languageCode;
 
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Jignesh Dada Official',
       debugShowCheckedModeBanner: false,
       localizationsDelegates: const [
@@ -177,12 +180,8 @@ class MyApp extends StatelessWidget {
         ),
       ),
       initialRoute: '/',
-      onGenerateRoute: (settings) {
-        // Default routes
-        return null;
-      },
       routes: {
-        '/': (context) => const UserHomePage(),
+        '/': (context) => const RootWrapper(),
         '/about_dada': (context) => const AboutJigneshDadaPage(),
         '/about_katha': (context) => const AboutKathaPage(),
         '/about_devi_katha': (context) => const AboutDeviPage(),
@@ -204,6 +203,24 @@ class MyApp extends StatelessWidget {
         '/track': (context) => const TrackShipmentPage(),
         '/admin_login': (context) => const AdminLoginPage(),
         '/admin_dashboard': (context) => const AdminDashboard(),
+      },
+    );
+  }
+}
+
+class RootWrapper extends StatelessWidget {
+  const RootWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthController>(
+      builder: (context, auth, _) {
+        if (auth.isAuthenticated) {
+          if (auth.isAdmin) {
+            return const AdminDashboard();
+          }
+        }
+        return const UserHomePage();
       },
     );
   }

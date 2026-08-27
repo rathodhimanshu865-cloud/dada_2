@@ -454,6 +454,12 @@ abstract class AppLocalizations {
   /// **'ADMIN LOGIN'**
   String get adminLogin;
 
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
   /// No description provided for @username.
   ///
   /// In en, this message translates to:

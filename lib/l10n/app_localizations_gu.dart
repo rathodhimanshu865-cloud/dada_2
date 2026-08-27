@@ -190,6 +190,9 @@ class AppLocalizationsGu extends AppLocalizations {
   String get adminLogin => 'એડમિન લોગિન';
 
   @override
+  String get email => 'ઇમેઇલ';
+
+  @override
   String get username => 'વપરાશકર્તા નામ';
 
   @override

@@ -23,18 +23,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   final ProductModel _demoProduct = ProductModel(
     id: 'k-01',
-    title: "Dada's Photo Keychain",
-    category: 'Keychains',
-    price: 99.00,
-    originalPrice: 499.00,
-    imageUrl: 'https://via.placeholder.com/600x800/E8DCC4/0F4C5C?text=Main+Image',
+    name: "Dada's Photo Keychain",
+    categoryId: 'Keychains',
+    price: 499.00,
+    discountPrice: 99.00,
+    imageUrls: ['https://via.placeholder.com/600x800/E8DCC4/0F4C5C?text=Main+Image'],
   );
-
-  final List<String> _productImages = [
-    'https://via.placeholder.com/600x800/E8DCC4/0F4C5C?text=Main+Image',
-    'https://via.placeholder.com/600x800/FAF8F4/0F4C5C?text=Side+View',
-    'https://via.placeholder.com/600x800/F0F0F0/0F4C5C?text=Detail+Shot',
-  ];
 
   final List<Color> _availableColors = [
     const Color(0xFFE8DCC4),
@@ -84,6 +78,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     final Color primaryTeal = const Color(0xFF0F4C5C);
     final Color accentGold = const Color(0xFFC89A5B);
 
+    // In a real implementation, we would fetch the product by ID from arguments
+    // final String? productId = ModalRoute.of(context)?.settings.arguments as String?;
+    final product = _demoProduct; 
+    final productImages = product.imageUrls.isNotEmpty ? product.imageUrls : ['https://via.placeholder.com/600x800/E8DCC4/0F4C5C?text=No+Image'];
+
     return ProductCartLayout(
       controller: homeController,
       child: SingleChildScrollView(
@@ -97,7 +96,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildBreadcrumbs(context),
+                      _buildBreadcrumbs(context, product.categoryId),
                       const SizedBox(height: 30),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +107,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             child: Column(
                               children: [
                                 GestureDetector(
-                                  onTap: () => _showLargeImage(context, _productImages[_selectedImageIndex]),
+                                  onTap: () => _showLargeImage(context, productImages[_selectedImageIndex]),
                                   child: Stack(
                                     children: [
                                       Container(
@@ -117,17 +116,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                           color: Colors.white,
                                           borderRadius: BorderRadius.circular(8),
                                           border: Border.all(color: Colors.grey.shade200),
-                                          image: DecorationImage(
-                                            image: NetworkImage(_productImages[_selectedImageIndex]),
-                                            fit: BoxFit.cover,
-                                          ),
                                         ),
-                                      ),
-                                      Positioned.fill(
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(8),
                                           child: Image.network(
-                                            _productImages[_selectedImageIndex],
+                                            productImages[_selectedImageIndex],
                                             fit: BoxFit.cover,
                                             errorBuilder: (context, error, stackTrace) => Container(
                                               color: Colors.grey.shade50,
@@ -136,22 +129,23 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                           ),
                                         ),
                                       ),
-                                      Positioned(
-                                        top: 20,
-                                        left: 20,
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                          decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(4)),
-                                          child: const Text('NEW', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                                      if (product.isFeatured)
+                                        Positioned(
+                                          top: 20,
+                                          left: 20,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                            decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(4)),
+                                            child: const Text('FEATURED', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                                          ),
                                         ),
-                                      ),
                                     ],
                                   ),
                                 ),
                                 const SizedBox(height: 20),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  children: _productImages.asMap().entries.map((e) {
+                                  children: productImages.asMap().entries.map((e) {
                                     return GestureDetector(
                                       onTap: () => setState(() => _selectedImageIndex = e.key),
                                       child: Container(
@@ -193,7 +187,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                 ),
                                 const SizedBox(height: 15),
                                 Text(
-                                  _demoProduct.title,
+                                  product.name,
                                   style: AppTypography.headingStyle(context, fontSize: 36, fontWeight: FontWeight.w900),
                                 ),
                                 const SizedBox(height: 10),
@@ -207,15 +201,21 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                 const SizedBox(height: 25),
                                 Row(
                                   children: [
-                                    Text('₹ ${_demoProduct.price}', style: AppTypography.headingStyle(context, fontSize: 32, color: primaryTeal, fontWeight: FontWeight.bold)),
-                                    const SizedBox(width: 15),
-                                    Text('₹ ${_demoProduct.originalPrice}', style: TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey.shade400, fontSize: 20)),
-                                    const SizedBox(width: 15),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                      decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(4)),
-                                      child: const Text('SAVE 80%', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 12)),
-                                    ),
+                                    if (product.discountPrice != null) ...[
+                                      Text('₹ ${product.discountPrice}', style: AppTypography.headingStyle(context, fontSize: 32, color: primaryTeal, fontWeight: FontWeight.bold)),
+                                      const SizedBox(width: 15),
+                                      Text('₹ ${product.price}', style: TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey.shade400, fontSize: 20)),
+                                      const SizedBox(width: 15),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                        decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(4)),
+                                        child: Text(
+                                          'SAVE ${((product.price - product.discountPrice!) / product.price * 100).toInt()}%', 
+                                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 12)
+                                        ),
+                                      ),
+                                    ] else
+                                      Text('₹ ${product.price}', style: AppTypography.headingStyle(context, fontSize: 32, color: primaryTeal, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                                 const Divider(height: 50),
@@ -266,13 +266,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                   children: [
                                     _buildQuantitySelector(context),
                                     const SizedBox(width: 20),
-                                    Expanded(child: _buildAddToCartButton(context, cartController, primaryTeal)),
+                                    Expanded(child: _buildAddToCartButton(context, cartController, primaryTeal, product)),
                                     const SizedBox(width: 15),
-                                    _buildDetailsWishlistButton(context),
+                                    _buildDetailsWishlistButton(context, product.id),
                                   ],
                                 ),
                                 const SizedBox(height: 15),
-                                _buildBuyItNowButton(context, accentGold),
+                                _buildBuyItNowButton(context, accentGold, product),
                                 const SizedBox(height: 30),
                                 _buildTrustIndicators(context),
                                 const SizedBox(height: 40),
@@ -292,7 +292,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             
             // Recommendation Grids
             _buildProductGrid(context, "Similar & Related Devotional Items", primaryTeal),
-            _buildProductGrid(context, "More From Keychains", primaryTeal),
+            _buildProductGrid(context, "More From ${product.categoryId}", primaryTeal),
             _buildProductGrid(context, "Recently Viewed Sacred Products", primaryTeal),
             
             const SizedBox(height: 100),
@@ -302,12 +302,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildBreadcrumbs(BuildContext context) {
+  Widget _buildBreadcrumbs(BuildContext context, String category) {
     return Row(
       children: [
         Text('HOME / ', style: AppTypography.bodyStyle(context, fontSize: 11, color: Colors.grey, letterSpacing: 1)),
         Text('PRODUCT / ', style: AppTypography.bodyStyle(context, fontSize: 11, color: Colors.grey, letterSpacing: 1)),
-        Text('KEYCHAINS', style: AppTypography.bodyStyle(context, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
+        Text(category.toUpperCase(), style: AppTypography.bodyStyle(context, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
       ],
     );
   }
@@ -327,12 +327,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildAddToCartButton(BuildContext context, CartController cart, Color color) {
+  Widget _buildAddToCartButton(BuildContext context, CartController cart, Color color, ProductModel product) {
     return SizedBox(
       height: 55,
       child: ElevatedButton(
         onPressed: () {
-          cart.addToCart(_demoProduct, _quantity);
+          cart.addToCart(product, _quantity);
           Scaffold.of(context).openEndDrawer();
         },
         style: ElevatedButton.styleFrom(backgroundColor: color, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), elevation: 0),
@@ -341,12 +341,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildDetailsWishlistButton(BuildContext context) {
+  Widget _buildDetailsWishlistButton(BuildContext context, String productId) {
     return Consumer<ProductController>(
       builder: (context, prodCtrl, child) {
-        bool isLiked = prodCtrl.isLiked(_demoProduct.id);
+        bool isLiked = prodCtrl.isLiked(productId);
         return GestureDetector(
-          onTap: () => prodCtrl.toggleLike(_demoProduct.id),
+          onTap: () => prodCtrl.toggleLike(productId),
           child: Container(
             height: 55,
             width: 55,
@@ -365,7 +365,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildBuyItNowButton(BuildContext context, Color gold) {
+  Widget _buildBuyItNowButton(BuildContext context, Color gold, ProductModel product) {
     return SizedBox(
       width: double.infinity,
       height: 55,
@@ -373,7 +373,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         onPressed: () {
           final auth = Provider.of<AuthController>(context, listen: false);
           if (auth.isAuthenticated) {
-            Provider.of<CartController>(context, listen: false).addToCart(_demoProduct, _quantity);
+            Provider.of<CartController>(context, listen: false).addToCart(product, _quantity);
             Navigator.pushNamed(context, '/checkout');
           } else {
             Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
@@ -438,7 +438,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             height: 150,
             child: TabBarView(
               children: [
-                Text("This divine keychain features a high-definition photo of Pu. Jignesh Dada, encased in premium crystal-clear acrylic. It is designed to be a constant reminder of faith and devotion.", style: AppTypography.bodyStyle(context, color: Colors.grey.shade700, height: 1.8)),
+                Text("This divine spiritual item is encased in premium materials. It is designed to be a constant reminder of faith and devotion.", style: AppTypography.bodyStyle(context, color: Colors.grey.shade700, height: 1.8)),
                 Text("Orders are processed within 24 hours. We use express air shipping to ensure your sacred items reach you as fast as possible.", style: AppTypography.bodyStyle(context, color: Colors.grey.shade700, height: 1.8)),
                 Text("Due to the sacred nature of our products, we only accept returns for items damaged during transit.", style: AppTypography.bodyStyle(context, color: Colors.grey.shade700, height: 1.8)),
                 Text("Join 100+ devotees who have shared their blessings.", style: AppTypography.bodyStyle(context, color: Colors.grey.shade700, height: 1.8)),
@@ -533,8 +533,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Widget _gridCard(BuildContext context, Color color) {
-    // Note: Since this is a dummy card, we use a fixed ID or similar logic for testing.
-    // In a real app, you'd pass a ProductModel here.
     return Container(
       decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade100), borderRadius: BorderRadius.circular(8)),
       child: Column(
@@ -555,10 +553,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   top: 10,
                   right: 10,
                   child: GestureDetector(
-                    onTap: () {
-                      // Logic to toggle like for this specific dummy item
-                      // In real app: prodCtrl.toggleLike(product.id);
-                    },
+                    onTap: () {},
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),

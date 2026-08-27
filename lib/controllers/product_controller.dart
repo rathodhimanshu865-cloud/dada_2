@@ -1,119 +1,121 @@
+import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../models/product_model.dart';
+import '../models/category_model.dart';
+import '../models/store_config_model.dart';
+import '../repositories/product_repository.dart';
 
 class ProductController extends ChangeNotifier {
-  String _selectedCategory = 'All Sacred Products';
+  final ProductRepository _repository = ProductRepository();
 
+  // Streams for each section
+  late Stream<StoreConfigModel> storeConfigStream;
+  late Stream<List<CategoryModel>> categoriesStream;
+  late Stream<List<ProductModel>> featuredProductsStream;
+  late Stream<List<ProductModel>> latestProductsStream;
+  late Stream<List<ProductModel>> popularProductsStream;
+
+  // Search state
+  List<ProductModel> _searchResults = [];
+  bool _isSearching = false;
+  String _searchQuery = '';
+  
+  // Legacy fields for existing UI compatibility
+  List<ProductModel> _allProducts = [];
+  List<String> _categories = ['All Sacred Products'];
+  String _selectedCategory = 'All Sacred Products';
+  bool _isLoading = false;
+
+  List<ProductModel> get searchResults => _searchResults;
+  bool get isSearching => _isSearching;
+  String get searchQuery => _searchQuery;
+  
+  List<ProductModel> get allProducts => _allProducts;
+  List<String> get categories => _categories;
   String get selectedCategory => _selectedCategory;
+  bool get isLoading => _isLoading;
+
+  ProductController() {
+    _initStreams();
+    fetchProducts();
+    fetchCategories();
+  }
+
+  void _initStreams() {
+    storeConfigStream = _repository.getStoreConfig();
+    categoriesStream = _repository.getCategories();
+    featuredProductsStream = _repository.getFeaturedProducts();
+    latestProductsStream = _repository.getLatestProducts();
+    popularProductsStream = _repository.getPopularProducts();
+  }
+
+  Future<void> fetchProducts() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection('products')
+          .orderBy('createdAt', descending: true)
+          .get();
+      _allProducts = snapshot.docs.map((doc) => ProductModel.fromFirestore(doc)).toList();
+    } catch (e) {
+      debugPrint("Error fetching products: $e");
+    }
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> fetchCategories() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection('categories').get();
+      List<String> fetchedCategories = snapshot.docs.map((doc) => doc.data()['name'] as String).toList();
+      _categories = ['All Sacred Products', ...fetchedCategories];
+    } catch (e) {
+      debugPrint("Error fetching categories: $e");
+    }
+    notifyListeners();
+  }
 
   void selectCategory(String category) {
     _selectedCategory = category;
     notifyListeners();
   }
 
-  List<String> get categories => [
-    'All Sacred Products',
-    'Keychains',
-    'Acrylic Photo Frames',
-    'Temple',
-    'Yantras & Malas',
-    'Idols',
-    'Puja Items',
-    'Books & Granths',
-    'Apparel',
-  ];
-
-  List<ProductModel> get allProducts => [
-    ProductModel(
-      id: '1',
-      title: 'Devotee Keychain',
-      category: 'Keychains',
-      price: 150.0,
-      originalPrice: 200.0,
-      imageUrl: 'https://via.placeholder.com/300x300/E8DCC4/0F4C5C?text=Keychain',
-      isNew: true,
-    ),
-    ProductModel(
-      id: '2',
-      title: 'Sacred Acrylic Frame',
-      category: 'Acrylic Photo Frames',
-      price: 500.0,
-      originalPrice: 650.0,
-      imageUrl: 'https://via.placeholder.com/300x300/E8DCC4/0F4C5C?text=Frame',
-      isNew: true,
-    ),
-    ProductModel(
-      id: '3',
-      title: 'Divine Temple Model',
-      category: 'Temple',
-      price: 1200.0,
-      originalPrice: 1500.0,
-      imageUrl: 'https://via.placeholder.com/300x300/E8DCC4/0F4C5C?text=Temple',
-    ),
-    ProductModel(
-      id: '4',
-      title: 'Divine Paduka / Footprints',
-      category: 'Temple',
-      price: 350.0,
-      originalPrice: 400.0,
-      imageUrl: 'https://via.placeholder.com/300x300/E8DCC4/0F4C5C?text=Paduka',
-      isNew: true,
-    ),
-    ProductModel(
-      id: '5',
-      title: 'Yantra for Peace',
-      category: 'Yantras & Malas',
-      price: 250.0,
-      originalPrice: 300.0,
-      imageUrl: 'https://via.placeholder.com/300x300/E8DCC4/0F4C5C?text=Yantra',
-    ),
-    ProductModel(
-      id: '6',
-      title: 'Radha Krishna Idol',
-      category: 'Idols',
-      price: 800.0,
-      originalPrice: 1000.0,
-      imageUrl: 'https://via.placeholder.com/300x300/E8DCC4/0F4C5C?text=Idol',
-      isNew: true,
-    ),
-    ProductModel(
-      id: '7',
-      title: 'Bhagvat Gita',
-      category: 'Books & Granths',
-      price: 450.0,
-      originalPrice: 500.0,
-      imageUrl: 'https://via.placeholder.com/300x300/E8DCC4/0F4C5C?text=Book',
-    ),
-    ProductModel(
-      id: '8',
-      title: 'Sacred Kurta',
-      category: 'Apparel',
-      price: 1200.0,
-      originalPrice: 1500.0,
-      imageUrl: 'https://via.placeholder.com/300x300/E8DCC4/0F4C5C?text=Apparel',
-    ),
-    ProductModel(
-      id: '9',
-      title: 'Sacred Incense Sticks',
-      category: 'Puja Items',
-      price: 150.0,
-      originalPrice: 200.0,
-      imageUrl: 'https://via.placeholder.com/300x300/E8DCC4/0F4C5C?text=Incense',
-      isNew: true,
-    ),
-  ];
-
   List<ProductModel> get filteredProducts {
     if (_selectedCategory == 'All Sacred Products') {
-      return allProducts;
+      return _allProducts;
     }
-    return allProducts.where((p) => p.category == _selectedCategory).toList();
+    return _allProducts.where((p) => p.categoryId == _selectedCategory).toList();
+  }
+  
+  List<ProductModel> get wishlistProducts {
+    return _allProducts.where((p) => _wishlistIds.contains(p.id)).toList();
   }
 
-  List<ProductModel> get featuredProducts => allProducts.take(4).toList();
+  Future<void> performSearch(String query) async {
+    _searchQuery = query;
+    if (query.isEmpty) {
+      _searchResults = [];
+      _isSearching = false;
+      notifyListeners();
+      return;
+    }
+
+    _isSearching = true;
+    notifyListeners();
+
+    try {
+      _searchResults = await _repository.searchProducts(query);
+    } catch (e) {
+      debugPrint("Search error: $e");
+      _searchResults = [];
+    } finally {
+      _isSearching = false;
+      notifyListeners();
+    }
+  }
 
   final List<String> _wishlistIds = [];
-
   List<String> get wishlistIds => _wishlistIds;
 
   bool isLiked(String productId) => _wishlistIds.contains(productId);
@@ -125,17 +127,5 @@ class ProductController extends ChangeNotifier {
       _wishlistIds.add(productId);
     }
     notifyListeners();
-  }
-
-  List<ProductModel> get wishlistProducts {
-    return allProducts.where((p) => _wishlistIds.contains(p.id)).toList();
-  }
-
-  List<ProductModel> searchProducts(String query) {
-    if (query.isEmpty) return [];
-    return allProducts.where((p) {
-      return p.title.toLowerCase().contains(query.toLowerCase()) ||
-             p.category.toLowerCase().contains(query.toLowerCase());
-    }).toList();
   }
 }
