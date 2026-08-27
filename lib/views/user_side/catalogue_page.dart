@@ -2,13 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/product_controller.dart';
-import '../../controllers/cart_controller.dart';
+import '../../models/product_model.dart';
 import 'sections/product_cart_layout.dart';
 import 'sections/product_card.dart';
 import '../../utils/app_typography.dart';
 
-class CataloguePage extends StatelessWidget {
+class CataloguePage extends StatefulWidget {
   const CataloguePage({super.key});
+
+  @override
+  State<CataloguePage> createState() => _CataloguePageState();
+}
+
+class _CataloguePageState extends State<CataloguePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final String? categoryId = ModalRoute.of(context)?.settings.arguments as String?;
+      final prodController = Provider.of<ProductController>(context, listen: false);
+      
+      if (categoryId != null) {
+        prodController.selectCategory(categoryId);
+      } else {
+        prodController.fetchBrowsingProducts(refresh: true);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +45,10 @@ class CataloguePage extends StatelessWidget {
           const SizedBox(height: 20),
           _buildControlsRow(context, productController),
           const SizedBox(height: 30),
-          _buildProductGrid(context, productController),
+          if (productController.isBrowsingLoading && productController.browsingProducts.isEmpty)
+            const Padding(padding: EdgeInsets.symmetric(vertical: 100), child: CircularProgressIndicator())
+          else
+            _buildProductGrid(context, productController),
           const SizedBox(height: 60),
         ],
       ),
@@ -67,7 +90,7 @@ class CataloguePage extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Authentic handcrafted and consecrated items from Pu. Dada\'s ashram to grace your space.\nAll proceeds support charitable causes and ashram activities.',
+                'Authentic handcrafted and consecrated items from Pu. Dada\'s ashram to grace your space.',
                 textAlign: TextAlign.center,
                 style: AppTypography.bodyStyle(
                   context,
@@ -103,7 +126,7 @@ class CataloguePage extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterRow(BuildContext context, ProductController prod) {
+  Widget _buildFilterRow(BuildContext context, dynamic prod) {
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
@@ -113,7 +136,7 @@ class CataloguePage extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
-            children: prod.categories.map((cat) {
+            children: (prod.categories as List<String>).map((cat) {
               bool isSelected = prod.selectedCategory == cat;
               return Padding(
                 padding: const EdgeInsets.only(right: 12),
@@ -121,7 +144,7 @@ class CataloguePage extends StatelessWidget {
                   label: Text(cat),
                   selected: isSelected,
                   onSelected: (selected) {
-                    if (selected) prod.selectCategory(cat);
+                    if (selected) prod.updateFilters(category: cat);
                   },
                   backgroundColor: Colors.white,
                   selectedColor: const Color(0xFF0F4C5C),
@@ -144,7 +167,7 @@ class CataloguePage extends StatelessWidget {
     );
   }
 
-  Widget _buildControlsRow(BuildContext context, ProductController prod) {
+  Widget _buildControlsRow(BuildContext context, dynamic prod) {
     final isMobile = MediaQuery.of(context).size.width < 700;
 
     return Center(
@@ -168,17 +191,17 @@ class CataloguePage extends StatelessWidget {
                 child: Row(
                   children: [
                     const SizedBox(width: 10),
-                    Icon(Icons.search, color: Colors.grey.shade500, size: 18),
+                    const Icon(Icons.search, color: Colors.grey, size: 18),
                     const SizedBox(width: 10),
                     Expanded(
                       child: TextField(
                         onChanged: (v) => prod.performSearch(v),
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Search products by name...',
-                          hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                          hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
                           border: InputBorder.none,
                           isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                          contentPadding: EdgeInsets.symmetric(vertical: 10),
                         ),
                       ),
                     ),
@@ -189,7 +212,7 @@ class CataloguePage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('${prod.filteredProducts.length} items found', style: TextStyle(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.w500)),
+                  Text('${prod.filteredProducts.length} items found', style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500)),
                   const SizedBox(width: 20),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -198,13 +221,13 @@ class CataloguePage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(6),
                       color: Colors.white,
                     ),
-                    child: Row(
+                    child: const Row(
                       children: [
-                        Text('Sort By:', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
-                        const SizedBox(width: 8),
-                        Text('Featured', style: TextStyle(color: Colors.grey.shade800, fontSize: 13, fontWeight: FontWeight.bold)),
-                        const SizedBox(width: 8),
-                        Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey.shade600),
+                        Text('Sort By:', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                        SizedBox(width: 8),
+                        Text('Featured', style: TextStyle(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.bold)),
+                        SizedBox(width: 8),
+                        Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey),
                       ],
                     ),
                   ),
@@ -217,10 +240,10 @@ class CataloguePage extends StatelessWidget {
     );
   }
 
-  Widget _buildProductGrid(BuildContext context, ProductController prod) {
-    final products = prod.searchQuery.isEmpty ? prod.filteredProducts : prod.searchResults;
+  Widget _buildProductGrid(BuildContext context, dynamic prod) {
+    final products = (prod.searchQuery as String).isEmpty ? (prod.browsingProducts as List<ProductModel>) : (prod.searchResults as List<ProductModel>);
 
-    if (products.isEmpty) {
+    if (products.isEmpty && !prod.isBrowsingLoading) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 60),

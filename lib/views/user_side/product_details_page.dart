@@ -6,6 +6,7 @@ import '../../controllers/product_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../models/product_model.dart';
 import 'sections/product_cart_layout.dart';
+import 'sections/product_card.dart';
 import '../../utils/app_typography.dart';
 
 class ProductDetailsPage extends StatefulWidget {
@@ -74,230 +75,229 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Widget build(BuildContext context) {
     final homeController = Provider.of<HomePageController>(context, listen: false);
     final cartController = Provider.of<CartController>(context, listen: false);
+    final productController = Provider.of<ProductController>(context);
     
     final Color primaryTeal = const Color(0xFF0F4C5C);
     final Color accentGold = const Color(0xFFC89A5B);
 
-    // In a real implementation, we would fetch the product by ID from arguments
-    // final String? productId = ModalRoute.of(context)?.settings.arguments as String?;
-    final product = _demoProduct; 
-    final productImages = product.imageUrls.isNotEmpty ? product.imageUrls : ['https://via.placeholder.com/600x800/E8DCC4/0F4C5C?text=No+Image'];
+    final String? productId = ModalRoute.of(context)?.settings.arguments as String?;
 
     return ProductCartLayout(
       controller: homeController,
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1200),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildBreadcrumbs(context, product.categoryId),
-                      const SizedBox(height: 30),
-                      Row(
+      child: StreamBuilder<ProductModel?>(
+        stream: productId != null ? productController.getProductDetails(productId) : Stream.value(_demoProduct),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const SizedBox(
+              height: 600,
+              child: Center(child: CircularProgressIndicator(color: Color(0xFF0F4C5C))),
+            );
+          }
+          
+          final product = snapshot.data ?? _demoProduct;
+          final productImages = product.imageUrls.isNotEmpty ? product.imageUrls : [product.imageUrl];
+
+          if (_selectedImageIndex >= productImages.length) {
+            _selectedImageIndex = 0;
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1200),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Left Side: Image Gallery
-                          Expanded(
-                            flex: 6,
-                            child: Column(
-                              children: [
-                                GestureDetector(
-                                  onTap: () => _showLargeImage(context, productImages[_selectedImageIndex]),
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        height: 700,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: Colors.grey.shade200),
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(8),
-                                          child: Image.network(
-                                            productImages[_selectedImageIndex],
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) => Container(
-                                              color: Colors.grey.shade50,
-                                              child: const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 40),
+                          _buildBreadcrumbs(context, product.category),
+                          const SizedBox(height: 30),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Left Side: Image Gallery
+                              Expanded(
+                                flex: 6,
+                                child: Column(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () => _showLargeImage(context, productImages[_selectedImageIndex]),
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            height: 700,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(color: Colors.grey.shade200),
+                                            ),
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(8),
+                                              child: productImages[_selectedImageIndex].isNotEmpty
+                                                ? Image.network(
+                                                    productImages[_selectedImageIndex],
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (context, error, stackTrace) => Container(
+                                                      color: Colors.grey.shade50,
+                                                      child: const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 40),
+                                                    ),
+                                                  )
+                                                : Container(
+                                                    color: Colors.grey.shade50,
+                                                    child: const Icon(Icons.image_outlined, color: Colors.grey, size: 40),
+                                                  ),
                                             ),
                                           ),
-                                        ),
+                                          if (product.isFeatured)
+                                            Positioned(
+                                              top: 20,
+                                              left: 20,
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                                decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(4)),
+                                                child: const Text('FEATURED', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                                              ),
+                                            ),
+                                        ],
                                       ),
-                                      if (product.isFeatured)
-                                        Positioned(
-                                          top: 20,
-                                          left: 20,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                            decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(4)),
-                                            child: const Text('FEATURED', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: productImages.asMap().entries.map((e) {
-                                    return GestureDetector(
-                                      onTap: () => setState(() => _selectedImageIndex = e.key),
-                                      child: Container(
-                                        margin: const EdgeInsets.symmetric(horizontal: 8),
-                                        width: 100,
-                                        height: 100,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(4),
-                                          border: Border.all(
-                                            color: _selectedImageIndex == e.key ? primaryTeal : Colors.grey.shade200,
-                                            width: 2,
-                                          ),
-                                          image: DecorationImage(image: NetworkImage(e.value), fit: BoxFit.cover),
-                                        ),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 50),
-                          // Right Side: Product Info & Purchase
-                          Expanded(
-                            flex: 5,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(color: accentGold.withOpacity(0.15), borderRadius: BorderRadius.circular(4)),
-                                      child: Text('OFFICIAL STORE', style: AppTypography.bodyStyle(context, color: accentGold, fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 1.5)),
                                     ),
-                                    const Icon(Icons.share_outlined, color: Colors.grey, size: 20),
-                                  ],
-                                ),
-                                const SizedBox(height: 15),
-                                Text(
-                                  product.name,
-                                  style: AppTypography.headingStyle(context, fontSize: 36, fontWeight: FontWeight.w900),
-                                ),
-                                const SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    Row(children: List.generate(5, (i) => Icon(Icons.star, size: 18, color: accentGold))),
-                                    const SizedBox(width: 10),
-                                    Text('120 Reviews', style: AppTypography.bodyStyle(context, fontSize: 14, color: Colors.grey.shade600)),
-                                  ],
-                                ),
-                                const SizedBox(height: 25),
-                                Row(
-                                  children: [
-                                    if (product.discountPrice != null) ...[
-                                      Text('₹ ${product.discountPrice}', style: AppTypography.headingStyle(context, fontSize: 32, color: primaryTeal, fontWeight: FontWeight.bold)),
-                                      const SizedBox(width: 15),
-                                      Text('₹ ${product.price}', style: TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey.shade400, fontSize: 20)),
-                                      const SizedBox(width: 15),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                        decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(4)),
-                                        child: Text(
-                                          'SAVE ${((product.price - product.discountPrice!) / product.price * 100).toInt()}%', 
-                                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 12)
-                                        ),
+                                    const SizedBox(height: 20),
+                                    if (productImages.length > 1)
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: productImages.asMap().entries.map((e) {
+                                          return GestureDetector(
+                                            onTap: () => setState(() => _selectedImageIndex = e.key),
+                                            child: Container(
+                                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                                              width: 100,
+                                              height: 100,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(4),
+                                                border: Border.all(
+                                                  color: _selectedImageIndex == e.key ? primaryTeal : Colors.grey.shade200,
+                                                  width: 2,
+                                                ),
+                                                image: e.value.isNotEmpty ? DecorationImage(image: NetworkImage(e.value), fit: BoxFit.cover) : null,
+                                              ),
+                                              child: e.value.isEmpty ? const Icon(Icons.image_outlined, color: Colors.grey) : null,
+                                            ),
+                                          );
+                                        }).toList(),
                                       ),
-                                    ] else
-                                      Text('₹ ${product.price}', style: AppTypography.headingStyle(context, fontSize: 32, color: primaryTeal, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
-                                const Divider(height: 50),
-                                // Color Selector
-                                Text('COLOR', style: AppTypography.bodyStyle(context, fontSize: 13, fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 15),
-                                Row(
-                                  children: _availableColors.asMap().entries.map((e) {
-                                    return GestureDetector(
-                                      onTap: () => setState(() => _selectedColorIndex = e.key),
-                                      child: Container(
-                                        margin: const EdgeInsets.only(right: 15),
-                                        width: 32,
-                                        height: 32,
-                                        decoration: BoxDecoration(
-                                          color: e.value,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: _selectedColorIndex == e.key ? primaryTeal : Colors.grey.shade300, width: 2),
-                                        ),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                                const SizedBox(height: 30),
-                                // Size Selector
-                                Text('SIZE', style: AppTypography.bodyStyle(context, fontSize: 13, fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 15),
-                                Row(
-                                  children: _availableSizes.asMap().entries.map((e) {
-                                    return GestureDetector(
-                                      onTap: () => setState(() => _selectedSizeIndex = e.key),
-                                      child: Container(
-                                        margin: const EdgeInsets.only(right: 15),
-                                        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
-                                        decoration: BoxDecoration(
-                                          color: _selectedSizeIndex == e.key ? primaryTeal : Colors.white,
-                                          border: Border.all(color: _selectedSizeIndex == e.key ? primaryTeal : Colors.grey.shade300),
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        child: Text(e.value, style: AppTypography.bodyStyle(context, color: _selectedSizeIndex == e.key ? Colors.white : Colors.black, fontWeight: FontWeight.bold, fontSize: 14)),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                                const SizedBox(height: 40),
-                                // Quantity and Add to Bag
-                                Row(
+                              ),
+                              const SizedBox(width: 50),
+                              // Right Side: Product Info & Purchase
+                              Expanded(
+                                flex: 5,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildQuantitySelector(context),
-                                    const SizedBox(width: 20),
-                                    Expanded(child: _buildAddToCartButton(context, cartController, primaryTeal, product)),
-                                    const SizedBox(width: 15),
-                                    _buildDetailsWishlistButton(context, product.id),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(color: accentGold.withOpacity(0.15), borderRadius: BorderRadius.circular(4)),
+                                          child: Text('OFFICIAL STORE', style: AppTypography.bodyStyle(context, color: accentGold, fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 1.5)),
+                                        ),
+                                        const Icon(Icons.share_outlined, color: Colors.grey, size: 20),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 15),
+                                    Text(
+                                      product.name,
+                                      style: AppTypography.headingStyle(context, fontSize: 36, fontWeight: FontWeight.w900),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Row(children: List.generate(5, (i) => Icon(Icons.star, size: 18, color: accentGold))),
+                                        const SizedBox(width: 10),
+                                        const Text('4.9 Rating', style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 25),
+                                    Row(
+                                      children: [
+                                        if (product.discountPrice != null) ...[
+                                          Text('₹ ${product.discountPrice}', style: AppTypography.headingStyle(context, fontSize: 32, color: primaryTeal, fontWeight: FontWeight.bold)),
+                                          const SizedBox(width: 15),
+                                          Text('₹ ${product.price}', style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey, fontSize: 20)),
+                                          const SizedBox(width: 15),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                            decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(4)),
+                                            child: Text(
+                                              'SAVE ${((product.price - product.discountPrice!) / product.price * 100).toInt()}%', 
+                                              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 12)
+                                            ),
+                                          ),
+                                        ] else
+                                          Text('₹ ${product.price}', style: AppTypography.headingStyle(context, fontSize: 32, color: primaryTeal, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: product.isAvailable ? const Color(0xFFECFDF5) : const Color(0xFFFEF2F2), 
+                                        borderRadius: BorderRadius.circular(6), 
+                                        border: Border.all(color: product.isAvailable ? const Color(0xFFD1FAE5) : const Color(0xFFFEE2E2))
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(width: 8, height: 8, decoration: BoxDecoration(color: product.isAvailable ? const Color(0xFF10B981) : Colors.red, shape: BoxShape.circle)),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            product.isAvailable ? 'In Stock (${product.stock} available) • Fast Dispatch' : 'Currently Unavailable', 
+                                            style: AppTypography.bodyStyle(context, color: product.isAvailable ? const Color(0xFF065F46) : Colors.red.shade900, fontSize: 12, fontWeight: FontWeight.bold)
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Divider(height: 50),
+                                    // Actions row
+                                    Row(
+                                      children: [
+                                        _buildQuantitySelector(context),
+                                        const SizedBox(width: 20),
+                                        Expanded(child: _buildAddToCartButton(context, cartController, primaryTeal, product)),
+                                        const SizedBox(width: 15),
+                                        _buildDetailsWishlistButton(context, product.id),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 15),
+                                    _buildBuyItNowButton(context, accentGold, product),
+                                    const SizedBox(height: 30),
+                                    _buildTrustIndicators(context),
+                                    const SizedBox(height: 40),
+                                    _buildDetailedTabs(context, primaryTeal, product),
                                   ],
                                 ),
-                                const SizedBox(height: 15),
-                                _buildBuyItNowButton(context, accentGold, product),
-                                const SizedBox(height: 30),
-                                _buildTrustIndicators(context),
-                                const SizedBox(height: 40),
-                                _buildDetailedTabs(context, primaryTeal),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
+                          const SizedBox(height: 80),
                         ],
                       ),
-                      const SizedBox(height: 80),
-                      _buildBundleSection(context, primaryTeal),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+                
+                // Recommendation Grids
+                _buildProductGrid(context, "More From ${product.category}", primaryTeal, product.categoryId),
+                
+                const SizedBox(height: 100),
+              ],
             ),
-            
-            // Recommendation Grids
-            _buildProductGrid(context, "Similar & Related Devotional Items", primaryTeal),
-            _buildProductGrid(context, "More From ${product.categoryId}", primaryTeal),
-            _buildProductGrid(context, "Recently Viewed Sacred Products", primaryTeal),
-            
-            const SizedBox(height: 100),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -331,10 +331,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     return SizedBox(
       height: 55,
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: product.isAvailable ? () {
           cart.addToCart(product, _quantity);
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to Bag!'), duration: Duration(seconds: 2)));
           Scaffold.of(context).openEndDrawer();
-        },
+        } : null,
         style: ElevatedButton.styleFrom(backgroundColor: color, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), elevation: 0),
         child: Text('ADD TO BAG', style: AppTypography.bodyStyle(context, color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.5)),
       ),
@@ -370,7 +371,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       width: double.infinity,
       height: 55,
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: product.isAvailable ? () {
           final auth = Provider.of<AuthController>(context, listen: false);
           if (auth.isAuthenticated) {
             Provider.of<CartController>(context, listen: false).addToCart(product, _quantity);
@@ -384,7 +385,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
             );
           }
-        },
+        } : null,
         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFFD700), foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), elevation: 0),
         child: Text('BUY IT NOW', style: AppTypography.bodyStyle(context, color: Colors.black, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.5)),
       ),
@@ -396,8 +397,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _trustItem(Icons.verified_user_outlined, '100% Consecrated'),
-        _trustItem(Icons.local_shipping_outlined, 'Sacred Safe Dispatch'),
-        _trustItem(Icons.assignment_return_outlined, 'Devotional Blessing'),
+        _trustItem(Icons.local_shipping_outlined, 'Safe Dispatch'),
+        _trustItem(Icons.assignment_return_outlined, 'Devotional Item'),
       ],
     );
   }
@@ -412,7 +413,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildDetailedTabs(BuildContext context, Color teal) {
+  Widget _buildDetailedTabs(BuildContext context, Color teal, ProductModel product) {
     return DefaultTabController(
       length: 4,
       child: Column(
@@ -438,10 +439,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             height: 150,
             child: TabBarView(
               children: [
-                Text("This divine spiritual item is encased in premium materials. It is designed to be a constant reminder of faith and devotion.", style: AppTypography.bodyStyle(context, color: Colors.grey.shade700, height: 1.8)),
-                Text("Orders are processed within 24 hours. We use express air shipping to ensure your sacred items reach you as fast as possible.", style: AppTypography.bodyStyle(context, color: Colors.grey.shade700, height: 1.8)),
-                Text("Due to the sacred nature of our products, we only accept returns for items damaged during transit.", style: AppTypography.bodyStyle(context, color: Colors.grey.shade700, height: 1.8)),
-                Text("Join 100+ devotees who have shared their blessings.", style: AppTypography.bodyStyle(context, color: Colors.grey.shade700, height: 1.8)),
+                Text(product.description.isNotEmpty ? product.description : "This divine spiritual item is encased in premium materials.", style: AppTypography.bodyStyle(context, color: Colors.grey.shade700, height: 1.8)),
+                Text("Consecrated items are processed within 24 hours. We ensure safe and respectful delivery to your doorstep.", style: AppTypography.bodyStyle(context, color: Colors.grey.shade700, height: 1.8)),
+                const Text("Due to the sacred nature of our products, we typically accept returns only for transit-damaged goods.", style: TextStyle(height: 1.8)),
+                const Text("Devotees from around the world have cherished this item for their home altars.", style: TextStyle(height: 1.8)),
               ],
             ),
           ),
@@ -450,57 +451,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildBundleSection(BuildContext context, Color teal) {
-    return Container(
-      padding: const EdgeInsets.all(30),
-      decoration: BoxDecoration(color: const Color(0xFFF9F9F9), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('FREQUENTLY CHERISHED TOGETHER', style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 1)),
-          const SizedBox(height: 30),
-          Row(
-            children: [
-              _bundleProduct('https://via.placeholder.com/100', "Dada's Photo Keychain", "₹ 99.00"),
-              const Padding(padding: EdgeInsets.symmetric(horizontal: 20), child: Icon(Icons.add, color: Colors.grey, size: 20)),
-              _bundleProduct('https://via.placeholder.com/100', "Sacred Bhagvat Granth", "₹ 899.00"),
-              const Spacer(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text('Combined Price: ₹ 998.00', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 18)),
-                  const SizedBox(height: 15),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(backgroundColor: teal, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
-                    child: Text('ADD BOTH TO BAG', style: AppTypography.bodyStyle(context, color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildProductGrid(BuildContext context, String title, Color teal, String categoryId) {
+    final productController = Provider.of<ProductController>(context, listen: false);
+    final products = productController.allProducts.where((p) => p.categoryId == categoryId).take(4).toList();
+    if (products.isEmpty) return const SizedBox.shrink();
 
-  Widget _bundleProduct(String url, String title, String price) {
-    return Row(
-      children: [
-        Container(width: 80, height: 80, decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), image: DecorationImage(image: NetworkImage(url), fit: BoxFit.cover))),
-        const SizedBox(width: 15),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 13)),
-            Text(price, style: AppTypography.bodyStyle(context, color: Colors.grey.shade600, fontSize: 12)),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProductGrid(BuildContext context, String title, Color teal) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 60),
@@ -514,80 +469,28 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(title, style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.bold)),
-                  Text('VIEW ALL >', style: AppTypography.bodyStyle(context, color: teal, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1)),
+                  TextButton(
+                    onPressed: () => Navigator.pushNamed(context, '/catalogue', arguments: categoryId),
+                    child: Text('VIEW ALL >', style: AppTypography.bodyStyle(context, color: teal, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1)),
+                  ),
                 ],
               ),
               const SizedBox(height: 40),
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, childAspectRatio: 0.7, crossAxisSpacing: 25, mainAxisSpacing: 25),
-                itemCount: 4,
-                itemBuilder: (context, index) => _gridCard(context, teal),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4, 
+                  childAspectRatio: 0.7, 
+                  crossAxisSpacing: 25, 
+                  mainAxisSpacing: 25
+                ),
+                itemCount: products.length,
+                itemBuilder: (context, index) => ProductCard(product: products[index]),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _gridCard(BuildContext context, Color color) {
-    return Container(
-      decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade100), borderRadius: BorderRadius.circular(8)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                      image: DecorationImage(image: NetworkImage('https://via.placeholder.com/300x400/E8DCC4/0F4C5C'), fit: BoxFit.cover),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
-                      child: const Icon(Icons.favorite_border, size: 14, color: Colors.grey),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Divine Sacred Product', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 14)),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text('₹ 299.00', style: AppTypography.bodyStyle(context, color: color, fontWeight: FontWeight.w900)),
-                    const SizedBox(width: 8),
-                    Text('₹ 499', style: TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey.shade400, fontSize: 12)),
-                  ],
-                ),
-                const SizedBox(height: 15),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(backgroundColor: color, minimumSize: const Size(double.infinity, 36), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
-                  child: const Text('ADD TO BAG', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

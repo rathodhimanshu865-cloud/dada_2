@@ -213,15 +213,8 @@ class RootWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthController>(
-      builder: (context, auth, _) {
-        if (auth.isAuthenticated) {
-          if (auth.isAdmin) {
-            return const AdminDashboard();
-          }
-        }
-        return const UserHomePage();
-      },
-    );
+    // Always show the User Home Page first as per the new requirement.
+    // The admin will navigate to the dashboard manually via the login portal.
+    return const UserHomePage();
   }
 }

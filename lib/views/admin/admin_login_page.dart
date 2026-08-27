@@ -133,7 +133,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                       const SizedBox(height: 24),
                       Center(
                         child: TextButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false),
                           child: Text('Back to Website', style: TextStyle(color: accentGold, fontWeight: FontWeight.bold)),
                         ),
                       ),

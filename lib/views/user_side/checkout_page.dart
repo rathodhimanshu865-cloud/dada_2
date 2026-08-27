@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../controllers/homepage_controller.dart';
 import '../../controllers/cart_controller.dart';
 import '../../utils/app_typography.dart';
 
@@ -28,7 +27,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   final Color primaryTeal = const Color(0xFF0F4C5C);
   final Color accentGold = const Color(0xFFC89A5B);
-  final Color actionColor = const Color(0xFF071C21);
 
   @override
   void dispose() {
@@ -301,9 +299,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
-                  child: item.product.imageUrls.isNotEmpty
+                  child: item.imageUrl.isNotEmpty
                       ? Image.network(
-                          item.product.imageUrls[0],
+                          item.imageUrl,
                           width: 40,
                           height: 40,
                           fit: BoxFit.cover,
@@ -327,7 +325,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.product.name,
+                        item.productName,
                         style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.bold),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -340,7 +338,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text('₹${(item.product.price * item.quantity).toStringAsFixed(2)}', style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.bold)),
+                Text('₹${(item.price * item.quantity).toStringAsFixed(2)}', style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.bold)),
               ],
             ),
           )),

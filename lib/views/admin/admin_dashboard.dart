@@ -140,19 +140,34 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return Container(
       width: 280,
       color: const Color(0xFF1A1A1A),
-      child: ListView.builder(
-        itemCount: menus.length,
-        itemBuilder: (context, i) => ListTile(
-          leading: Icon(menus[i]['icon'] as IconData, color: currentMenuIndex == i ? Colors.amber : Colors.white60),
-          title: Text(menus[i]['title'] as String, style: TextStyle(color: currentMenuIndex == i ? Colors.white : Colors.white70, fontWeight: currentMenuIndex == i ? FontWeight.bold : FontWeight.normal)),
-          selected: currentMenuIndex == i,
-          onTap: () {
-            setState(() {
-              currentMenuIndex = i;
-            });
-            if (isMobile) Navigator.pop(context);
-          },
-        ),
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: menus.length,
+              itemBuilder: (context, i) => ListTile(
+                leading: Icon(menus[i]['icon'] as IconData, color: currentMenuIndex == i ? Colors.amber : Colors.white60),
+                title: Text(menus[i]['title'] as String, style: TextStyle(color: currentMenuIndex == i ? Colors.white : Colors.white70, fontWeight: currentMenuIndex == i ? FontWeight.bold : FontWeight.normal)),
+                selected: currentMenuIndex == i,
+                onTap: () {
+                  setState(() {
+                    currentMenuIndex = i;
+                  });
+                  if (isMobile) Navigator.pop(context);
+                },
+              ),
+            ),
+          ),
+          const Divider(color: Colors.white12, height: 1),
+          ListTile(
+            leading: const Icon(Icons.public, color: Colors.blueAccent),
+            title: const Text('BACK TO WEBSITE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1)),
+            onTap: () {
+              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+            },
+          ),
+          const SizedBox(height: 10),
+        ],
       ),
     );
   }

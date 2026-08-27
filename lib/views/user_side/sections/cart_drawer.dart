@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../models/cart_model.dart';
 import '../../../controllers/cart_controller.dart';
 import '../../../controllers/auth_controller.dart';
 import '../../../utils/app_typography.dart';
@@ -213,9 +214,9 @@ class CartDrawer extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: item.product.imageUrls.isNotEmpty 
+                child: item.imageUrl.isNotEmpty 
                   ? Image.network(
-                      item.product.imageUrls[0],
+                      item.imageUrl,
                       width: 70,
                       height: 70,
                       fit: BoxFit.cover,
@@ -243,14 +244,14 @@ class CartDrawer extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            item.product.name,
+                            item.productName,
                             style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 15),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         IconButton(
-                          onPressed: () => cart.removeItem(item.product.id),
+                          onPressed: () => cart.removeItem(item.productId),
                           icon: const Icon(Icons.delete_outline, size: 20, color: Colors.grey),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
@@ -268,7 +269,7 @@ class CartDrawer extends StatelessWidget {
                       children: [
                         _buildQuantityToggle(context, cart, item),
                         Text(
-                          '₹${(item.product.price * item.quantity).toStringAsFixed(2)}',
+                          '₹${(item.price * item.quantity).toStringAsFixed(2)}',
                           style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 15),
                         ),
                       ],
@@ -283,7 +284,7 @@ class CartDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildQuantityToggle(BuildContext context, CartController cart, item) {
+  Widget _buildQuantityToggle(BuildContext context, CartController cart, CartItem item) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF9F9F9),
@@ -292,14 +293,14 @@ class CartDrawer extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            onPressed: () => cart.updateQuantity(item.product.id, -1),
+            onPressed: () => cart.updateQuantity(item.productId, -1),
             icon: const Icon(Icons.remove, size: 14),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
           ),
           Text('${item.quantity}', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 13)),
           IconButton(
-            onPressed: () => cart.updateQuantity(item.product.id, 1),
+            onPressed: () => cart.updateQuantity(item.productId, 1),
             icon: const Icon(Icons.add, size: 14),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
