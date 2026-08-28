@@ -2,27 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'cms_views_helper.dart';
+import '../../controllers/homepage_controller.dart';
 import '../../controllers/dashboard_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../models/product_model.dart';
 import '../../models/category_model.dart';
 import '../../models/order_model.dart';
 import '../../utils/app_typography.dart';
+import 'order_management_view.dart';
+import 'admin_users_view.dart';
+import 'admin_notifications_view.dart';
+import 'admin_settings_view.dart';
 
 class ProductManagementView extends StatefulWidget {
-  const ProductManagementView({super.key});
+  final int initialTab;
+  const ProductManagementView({super.key, this.initialTab = 0});
 
   @override
   State<ProductManagementView> createState() => _ProductManagementViewState();
 }
 
 class _ProductManagementViewState extends State<ProductManagementView> {
-  int _activeSubMenu = 0;
+  late int _activeSubMenu;
   final Color primaryTeal = const Color(0xFF0F4C5C);
   final Color templeGold = const Color(0xFFC89A5B);
   final Color bgCream = const Color(0xFFFDFBF7);
 
   final TextEditingController _searchCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _activeSubMenu = widget.initialTab;
+  }
 
   @override
   void dispose() {
@@ -57,13 +70,28 @@ class _ProductManagementViewState extends State<ProductManagementView> {
       {'title': 'Dashboard', 'icon': Icons.dashboard_outlined},
       {'title': 'Products', 'icon': Icons.shopping_bag_outlined, 'badge': '${stats.totalProducts}'},
       {'title': 'Categories', 'icon': Icons.category_outlined, 'badge': '${stats.totalCategories}'},
-      {'title': 'Inventory & Stock', 'icon': Icons.inventory_2_outlined},
-      {'title': 'Orders & Dispatch', 'icon': Icons.local_shipping_outlined, 'badge': '${stats.totalOrders}'},
-      {'title': 'Payments & COD', 'icon': Icons.payments_outlined},
-      {'title': 'Devotees / Users', 'icon': Icons.people_outline, 'badge': '${stats.totalUsers}'},
-      {'title': 'Coupons & Offers', 'icon': Icons.local_offer_outlined},
-      {'title': 'Reviews & Blessings', 'icon': Icons.star_outline},
-      {'title': 'Store & Seva Settings', 'icon': Icons.settings_outlined},
+      {'title': 'Inventory', 'icon': Icons.inventory_2_outlined},
+      {'title': 'Orders', 'icon': Icons.local_shipping_outlined, 'badge': '${stats.totalOrders}'},
+      {'title': 'Users', 'icon': Icons.people_outline, 'badge': '${stats.totalUsers}'},
+      {'title': 'Notifications', 'icon': Icons.notifications_outlined},
+      {'title': 'Payments', 'icon': Icons.payments_outlined},
+      {'title': 'Coupons', 'icon': Icons.local_offer_outlined},
+      {'title': 'Reviews', 'icon': Icons.star_outline},
+      {'title': 'Store Settings', 'icon': Icons.settings_outlined},
+      // CMS Content Sections (Consolidated into header for easy access)
+      {'title': 'General CMS', 'icon': Icons.web_outlined},
+      {'title': 'Hero', 'icon': Icons.burst_mode},
+      {'title': 'Bio', 'icon': Icons.person_outline},
+      {'title': 'Katha Pages', 'icon': Icons.menu_book},
+      {'title': 'Events', 'icon': Icons.event},
+      {'title': 'Home CMS', 'icon': Icons.home_outlined},
+      {'title': 'News', 'icon': Icons.newspaper},
+      {'title': 'Archive', 'icon': Icons.list_alt},
+      {'title': 'Photos', 'icon': Icons.photo_library},
+      {'title': 'Videos', 'icon': Icons.video_library},
+      {'title': 'Stotra', 'icon': Icons.music_note},
+      {'title': 'Contact', 'icon': Icons.contact_mail},
+      {'title': 'Footer', 'icon': Icons.south},
     ];
 
     return Container(
@@ -182,18 +210,27 @@ class _ProductManagementViewState extends State<ProductManagementView> {
       ));
     }
 
-    switch (_activeSubMenu) {
-      case 0: return _buildDashboard(dashCtrl);
-      case 1: return _buildProductsList(prodCtrl);
-      case 2: return _buildCategoriesGrid(prodCtrl);
-      case 3: return _buildInventoryStockView(prodCtrl);
-      case 4: return _buildOrdersDispatchView();
-      case 5: return _buildPaymentsSettlementView(dashCtrl);
-      case 6: return _buildDevoteesUserView();
-      case 7: return _buildCouponsOffersView();
-      case 8: return _buildReviewsBlessingsView();
-      case 9: return _buildStoreSevaSettingsView();
-      default: return const Center(child: Text('Section coming soon'));
+    final homeController = Provider.of<HomePageController>(context, listen: false);
+
+    // Dynamic routing for the "Super Header"
+    if (_activeSubMenu <= 10) {
+      switch (_activeSubMenu) {
+        case 0: return _buildDashboard(dashCtrl);
+        case 1: return _buildProductsList(prodCtrl);
+        case 2: return _buildCategoriesGrid(prodCtrl);
+        case 3: return _buildInventoryStockView(prodCtrl);
+        case 4: return const OrderManagementView();
+        case 5: return const AdminUsersView();
+        case 6: return const AdminNotificationsView();
+        case 7: return _buildPaymentsSettlementView(dashCtrl);
+        case 8: return _buildCouponsOffersView();
+        case 9: return _buildReviewsBlessingsView();
+        case 10: return const AdminSettingsView();
+        default: return const Center(child: Text('Section coming soon'));
+      }
+    } else {
+      // Map CMS indices (starting from 11 in this view) to helper's indices (starting from 0)
+      return CMSViewsHelper.buildCMSView(_activeSubMenu - 11, homeController, context, {}, (fn) => setState(fn));
     }
   }
 
@@ -531,7 +568,7 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                       style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
                     const SizedBox(height: 4),
                     Text('Add, edit, adjust stock, and manage sacred product listings.', 
-                      style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                      style: TextStyle(color: Colors.grey.shade50, fontSize: 13)),
                   ],
                 ),
                 _actionBtn('+ ADD NEW PRODUCT', templeGold, Icons.add, onTap: () => _showProductDialog()),
@@ -574,7 +611,7 @@ class _ProductManagementViewState extends State<ProductManagementView> {
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: prodCtrl.selectedCategory,
+                value: prodCtrl.categoryObjects.any((c) => c.name == prodCtrl.selectedCategory) ? prodCtrl.selectedCategory : 'All Sacred Products',
                 style: const TextStyle(fontSize: 13, color: Colors.black87),
                 items: prodCtrl.categories.map((String value) {
                   return DropdownMenuItem<String>(value: value, child: Text(value));
@@ -803,10 +840,6 @@ class _ProductManagementViewState extends State<ProductManagementView> {
     );
   }
 
-  Widget _buildOrdersDispatchView() {
-    return const Center(child: Text('Orders Section (Handled by OrderManagementView)'));
-  }
-
   Widget _buildPaymentsSettlementView(DashboardController controller) {
     final stats = controller.stats;
     return Column(
@@ -833,7 +866,6 @@ class _ProductManagementViewState extends State<ProductManagementView> {
   Widget _buildDevoteesUserView() { return const Center(child: Text('Devotee User Management')); }
   Widget _buildCouponsOffersView() { return const Center(child: Text('Coupons & Devotional Offers')); }
   Widget _buildReviewsBlessingsView() { return const Center(child: Text('Devotee Reviews & Blessings')); }
-  Widget _buildStoreSevaSettingsView() { return const Center(child: Text('Store & Seva Configuration')); }
 
   // --- CRUD Dialogs ---
 
@@ -892,7 +924,6 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                       ])),
                       InkWell(onTap: isUploading ? null : () async {
                         final picker = ImagePicker();
-                        // Optimize images: maxWidth, maxHeight, imageQuality
                         final img = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1080, maxHeight: 1080, imageQuality: 85);
                         if (img != null) {
                           final productId = isEdit ? product.id : 'new_${DateTime.now().millisecondsSinceEpoch}';
@@ -1116,5 +1147,18 @@ class _ProductManagementViewState extends State<ProductManagementView> {
         ),
       );
     }
+  }
+
+  Widget _summaryRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 14)),
+          Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
   }
 }

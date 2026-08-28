@@ -921,7 +921,6 @@ class _UserHeaderState extends State<UserHeader>
         if (v == 'login') {
           Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
         }
-        if (v == 'profile') Navigator.pushNamed(context, '/profile');
         if (v == 'orders') Navigator.pushNamed(context, '/my_orders');
         if (v == 'logout') {
           await auth.logout();
@@ -937,16 +936,6 @@ class _UserHeaderState extends State<UserHeader>
       },
       itemBuilder: (context) => auth.isAuthenticated
           ? [
-              PopupMenuItem(
-                value: 'profile',
-                child: Row(
-                  children: const [
-                    Icon(Icons.person_outline, size: 18),
-                    SizedBox(width: 10),
-                    Text('My Profile'),
-                  ],
-                ),
-              ),
               PopupMenuItem(
                 value: 'orders',
                 child: Row(

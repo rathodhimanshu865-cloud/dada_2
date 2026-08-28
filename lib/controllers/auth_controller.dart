@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -8,12 +9,18 @@ import 'dart:io';
 
 class AuthController extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  late final FirebaseAuth _adminAuth;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   
   User? _user;
   UserModel? _userModel;
   String? _role;
+
+  // Separate Admin State
+  User? _adminUser;
+  String? _adminRole;
+
   bool _showLoginPortal = false;
   bool _isLoading = false;
   bool _isInitialized = false;
@@ -24,6 +31,11 @@ class AuthController extends ChangeNotifier {
   String? get role => _role;
   bool get isAuthenticated => _user != null;
   bool get isAdmin => _role?.toLowerCase() == 'admin';
+
+  // Admin Getters
+  User? get adminUser => _adminUser;
+  bool get isAdminAuthenticated => _adminUser != null && _adminRole?.toLowerCase() == 'admin';
+
   bool get showLoginPortal => _showLoginPortal;
   bool get isLoading => _isLoading;
   bool get isInitialized => _isInitialized;
@@ -41,6 +53,9 @@ class AuthController extends ChangeNotifier {
   }
 
   AuthController() {
+    // Initialize Admin Auth with the secondary app
+    _adminAuth = FirebaseAuth.instanceFor(app: Firebase.app('AdminApp'));
+
     _auth.authStateChanges().listen((User? user) async {
       debugPrint("Auth State Change: User ${user?.email}");
       _user = user;
@@ -53,6 +68,31 @@ class AuthController extends ChangeNotifier {
       _isInitialized = true;
       notifyListeners();
     });
+
+    // Listen to Admin Auth State
+    _adminAuth.authStateChanges().listen((User? user) async {
+      debugPrint("Admin Auth State Change: Admin ${user?.email}");
+      _adminUser = user;
+      if (user != null) {
+        _adminRole = await _getRoleOnly(user.uid);
+      } else {
+        _adminRole = null;
+      }
+      notifyListeners();
+    });
+  }
+
+  Future<String?> _getRoleOnly(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) {
+        final data = doc.data();
+        return data?['role'] as String?;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<void> _fetchUserRole(String uid) async {
@@ -200,12 +240,45 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  Future<void> adminLogin(String email, String password) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final credential = await _adminAuth.signInWithEmailAndPassword(email: email, password: password);
+      if (credential.user != null) {
+        final role = await _getRoleOnly(credential.user!.uid);
+        if (role?.toLowerCase() != 'admin') {
+          await _adminAuth.signOut();
+          _errorMessage = "Access Denied: You do not have administrator privileges.";
+          throw Exception(_errorMessage);
+        }
+        _adminRole = role;
+      }
+    } catch (e) {
+      debugPrint("Admin Login error: $e");
+      if (_errorMessage == null) _errorMessage = "Login failed. Invalid email or password.";
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> logout() async {
     await _auth.signOut();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('cached_profile_data');
     _userModel = null;
     _role = null;
+    notifyListeners();
+  }
+
+  Future<void> adminLogout() async {
+    await _adminAuth.signOut();
+    _adminUser = null;
+    _adminRole = null;
     notifyListeners();
   }
 }

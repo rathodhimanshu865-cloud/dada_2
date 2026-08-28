@@ -38,7 +38,7 @@ class AdminGuard extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    if (!auth.isAdmin) {
+    if (!auth.isAdminAuthenticated) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
       });
@@ -57,7 +57,7 @@ class AdminLoginGuard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthController>(context);
-    if (auth.isAdmin) {
+    if (auth.isAdminAuthenticated) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacementNamed(context, '/admin_dashboard');
       });

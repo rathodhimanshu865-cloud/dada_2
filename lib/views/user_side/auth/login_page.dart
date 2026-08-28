@@ -64,10 +64,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       }
       if (mounted) {
         auth.toggleLoginPortal(false);
-        if (auth.isAdmin) {
-          Navigator.pushNamedAndRemoveUntil(context, '/admin_dashboard', (route) => false);
-        }
-        // For regular users: portal closes, they stay on current page
+        // Both User and Admin stay on the User-side panel (Home Page) by default as per request.
+        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
       }
     } catch (e) {
       if (mounted) {

@@ -55,6 +55,17 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final savedLanguageCode = prefs.getString('selected_locale') ?? 'en';
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
+  // Initialize Secondary Firebase App for Admin Session
+  try {
+    await Firebase.initializeApp(
+      name: 'AdminApp',
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint("AdminApp already initialized or failed: $e");
+  }
+
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
@@ -277,11 +288,12 @@ class RootWrapper extends StatelessWidget {
           );
         }
 
-        if (auth.isAdmin) {
-          return const AdminDashboard();
+        if (auth.isAdmin || auth.isAdminAuthenticated) {
+          // Both User and Admin see UserHomePage by default as per request.
+          return const UserHomePage();
         }
 
-        if (!auth.isAuthenticated) {
+        if (!auth.isAuthenticated && !auth.isAdminAuthenticated) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             auth.toggleLoginPortal(true);
           });

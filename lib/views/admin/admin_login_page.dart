@@ -35,25 +35,11 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     setState(() => _isLoading = true);
     try {
       final auth = Provider.of<AuthController>(context, listen: false);
-      await auth.login(email, password);
+      await auth.adminLogin(email, password);
       
-      // Auth state change is async — wait a moment for role to be fetched
-      if (auth.role == null) {
-        await Future.delayed(const Duration(milliseconds: 600));
-      }
-
       if (mounted) {
-        if (auth.isAdmin) {
+        if (auth.isAdminAuthenticated) {
           Navigator.pushReplacementNamed(context, '/admin_dashboard');
-        } else {
-          // If not an admin, logout and show error
-          await auth.logout();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Access Denied: You do not have administrator privileges.'),
-              backgroundColor: Colors.redAccent,
-            ),
-          );
         }
       }
     } on FirebaseAuthException catch (e) {
