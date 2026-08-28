@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/cart_controller.dart';
+import '../../controllers/order_controller.dart';
+import '../../controllers/notification_controller.dart';
+import '../../controllers/auth_controller.dart';
 import '../../utils/app_typography.dart';
 
 class CheckoutPage extends StatefulWidget {
@@ -13,7 +16,7 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   final _formKey = GlobalKey<FormState>();
   int _currentStep = 1;
-  String _deliveryMode = 'express';
+  String _paymentMethod = 'COD';
 
   // Controllers for details
   final _nameCtrl = TextEditingController();
@@ -41,11 +44,62 @@ class _CheckoutPageState extends State<CheckoutPage> {
     super.dispose();
   }
 
+  Future<void> _handlePlaceOrder() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final cartController = Provider.of<CartController>(context, listen: false);
+    final orderController = Provider.of<OrderController>(context, listen: false);
+
+    final orderId = await orderController.placeOrder(
+      name: _nameCtrl.text.trim(),
+      phone: _phoneCtrl.text.trim(),
+      email: _emailCtrl.text.trim(),
+      address: _addressCtrl.text.trim(),
+      city: _cityCtrl.text.trim(),
+      state: _stateCtrl.text.trim(),
+      pincode: _pinCtrl.text.trim(),
+      cartItems: cartController.items,
+      subtotal: cartController.subtotal,
+      deliveryCharge: cartController.shippingFee,
+      tax: cartController.tax,
+      total: cartController.total,
+      paymentMethod: _paymentMethod,
+      note: _noteCtrl.text.trim(),
+    );
+
+    if (mounted) {
+      if (orderId != null) {
+        await cartController.clearCart();
+        
+        // Send Notification
+        final auth = Provider.of<AuthController>(context, listen: false);
+        if (auth.user != null) {
+          await Provider.of<NotificationController>(context, listen: false)
+              .sendOrderNotification(
+            userId: auth.user!.uid,
+            orderId: orderId,
+            status: 'Pending',
+          );
+        }
+
+        setState(() => _currentStep = 3);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Order Placed Successfully!'), backgroundColor: Colors.green),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to place order.'), backgroundColor: Colors.redAccent),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cartController = Provider.of<CartController>(context);
+    final orderController = Provider.of<OrderController>(context);
     
-    if (cartController.items.isEmpty) {
+    if (_currentStep < 3 && cartController.items.isEmpty) {
       return Scaffold(
         body: Center(
           child: Column(
@@ -55,10 +109,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               const SizedBox(height: 20),
               Text('Your bag is empty', style: AppTypography.headingStyle(context, fontSize: 24)),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => Navigator.pushNamed(context, '/product'),
-                child: const Text('Back to Products'),
-              ),
+              ElevatedButton(onPressed: () => Navigator.pushNamed(context, '/product'), child: const Text('Back to Products')),
             ],
           ),
         ),
@@ -74,12 +125,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
             child: Container(
               constraints: const BoxConstraints(maxWidth: 900),
               margin: const EdgeInsets.symmetric(horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 40, offset: const Offset(0, 10))],
-              ),
-              child: Form(
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 40, offset: const Offset(0, 10))]),
+              child: _currentStep == 3 ? _buildSuccessView() : Form(
                 key: _formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -88,24 +135,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     _buildStepper(),
                     LayoutBuilder(
                       builder: (context, constraints) {
-                        if (constraints.maxWidth < 650) {
-                          return Column(
-                            children: [
-                              _buildOrderSummary(context, cartController),
-                              _buildDeliveryForm(),
-                            ],
-                          );
-                        }
+                        bool isMobile = constraints.maxWidth < 650;
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(flex: 3, child: _buildDeliveryForm()),
-                            Expanded(flex: 2, child: _buildOrderSummary(context, cartController)),
+                            Expanded(flex: 3, child: _currentStep == 1 ? _buildDeliveryForm() : _buildPaymentForm()),
+                            if (!isMobile) Expanded(flex: 2, child: _buildOrderSummary(context, cartController)),
                           ],
                         );
                       },
                     ),
-                    _buildFooterActions(),
+                    _buildFooterActions(orderController),
                     _buildBottomBar(),
                   ],
                 ),
@@ -143,9 +183,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _stepItem(1, 'Delivery Address', isActive: _currentStep == 1),
-          _stepItem(2, 'Payment Options', isActive: _currentStep == 2),
-          _stepItem(3, 'Order Placed', isActive: _currentStep == 3),
+          _stepItem(1, 'Address', isActive: _currentStep == 1),
+          _stepItem(2, 'Payment', isActive: _currentStep == 2),
+          _stepItem(3, 'Placed', isActive: _currentStep == 3),
         ],
       ),
     );
@@ -155,8 +195,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Row(
       children: [
         Container(
-          width: 24,
-          height: 24,
+          width: 24, height: 24,
           decoration: BoxDecoration(shape: BoxShape.circle, color: isActive ? primaryTeal : Colors.grey.shade200),
           alignment: Alignment.center,
           child: Text('$index', style: TextStyle(color: isActive ? Colors.white : Colors.grey, fontSize: 11, fontWeight: FontWeight.bold)),
@@ -173,248 +212,95 @@ class _CheckoutPageState extends State<CheckoutPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Devotee Delivery Details', style: AppTypography.headingStyle(context, fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Text('Enter your address for consecrated dispatch and sacred blessings updates.', style: AppTypography.bodyStyle(context, color: Colors.grey.shade600, fontSize: 14)),
+          Text('Delivery Details', style: AppTypography.headingStyle(context, fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 30),
-          Row(
-            children: [
-              Expanded(child: _formField('Devotee Full Name *', 'Himanshu Rathod', controller: _nameCtrl)),
-              const SizedBox(width: 20),
-              Expanded(child: _formField('WhatsApp / Phone Number *', '+91 98765 43210', controller: _phoneCtrl)),
-            ],
-          ),
+          _formField('Full Name *', 'Himanshu Rathod', controller: _nameCtrl),
           const SizedBox(height: 20),
-          _formField('Email Address (for Digital Tax Invoice) *', 'rathodhimanshu865@gmail.com', controller: _emailCtrl),
+          _formField('Phone *', '+91 98765 43210', controller: _phoneCtrl),
           const SizedBox(height: 20),
-          _formField('House / Flat No., Society & Street Address *', 'B-402, Radhe Krishna Residency, Near Temple Road', controller: _addressCtrl),
+          _formField('Email *', 'devotee@example.com', controller: _emailCtrl),
           const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(child: _formField('City *', 'Ahmedabad', controller: _cityCtrl)),
-              const SizedBox(width: 20),
-              Expanded(child: _formField('State *', 'Gujarat', controller: _stateCtrl)),
-              const SizedBox(width: 20),
-              Expanded(child: _formField('Pincode *', '380015', controller: _pinCtrl)),
-            ],
-          ),
-          const SizedBox(height: 30),
-          Text('Select Delivery Mode', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 14)),
-          const SizedBox(height: 15),
-          Row(
-            children: [
-              Expanded(child: _deliveryOption('standard', 'Standard Sacred Delivery (4-6 Days)', '₹ 49')),
-              const SizedBox(width: 15),
-              Expanded(child: _deliveryOption('express', 'Express Air Dispatch (2-3 Days)', '₹ 99 • Priority tamper-proof pack', isFast: true)),
-            ],
-          ),
-          const SizedBox(height: 30),
-          _formField('Special Devotional Packing Note (Optional)', 'Please pack with consecrated Ganga Jal vial...', controller: _noteCtrl, maxLines: 2),
+          _formField('Address *', 'House No, Street...', controller: _addressCtrl, maxLines: 2),
+          const SizedBox(height: 20),
+          Row(children: [
+            Expanded(child: _formField('City *', 'Ahmedabad', controller: _cityCtrl)),
+            const SizedBox(width: 20),
+            Expanded(child: _formField('State *', 'Gujarat', controller: _stateCtrl)),
+          ]),
+          const SizedBox(height: 20),
+          _formField('Pincode *', '380015', controller: _pinCtrl),
+          const SizedBox(height: 20),
+          _formField('Note (Optional)', 'Notes...', controller: _noteCtrl, maxLines: 2),
         ],
       ),
     );
   }
 
-  Widget _formField(String label, String hint, {required TextEditingController controller, int maxLines = 1}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade800)),
-        const SizedBox(height: 10),
-        TextFormField(
-          controller: controller,
-          maxLines: maxLines,
-          style: const TextStyle(fontSize: 14),
-          validator: (v) => v == null || v.isEmpty ? 'This field is required' : null,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: Colors.grey.shade300, fontSize: 14),
-            filled: true,
-            fillColor: Colors.grey.shade50,
-            contentPadding: const EdgeInsets.all(16),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade200)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade200)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: primaryTeal, width: 1.5)),
-          ),
-        ),
-      ],
+  Widget _buildPaymentForm() {
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Payment Method', style: AppTypography.headingStyle(context, fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 30),
+          _paymentOption('COD', 'Cash on Delivery', 'Pay when delivered.', Icons.handshake_outlined),
+          const SizedBox(height: 20),
+          _paymentOption('UPI', 'UPI / Online Payment', 'Secure online payment.', Icons.qr_code_scanner_outlined),
+        ],
+      ),
     );
   }
 
-  Widget _deliveryOption(String value, String label, String sub, {bool isFast = false}) {
-    bool selected = _deliveryMode == value;
+  Widget _paymentOption(String value, String title, String sub, IconData icon) {
+    bool selected = _paymentMethod == value;
     return GestureDetector(
-      onTap: () => setState(() => _deliveryMode = value),
+      onTap: () => setState(() => _paymentMethod = value),
       child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: selected ? primaryTeal : Colors.grey.shade200, width: selected ? 1.5 : 1),
-          color: selected ? primaryTeal.withOpacity(0.02) : Colors.white,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off, color: selected ? primaryTeal : Colors.grey.shade300, size: 18),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(child: Text(label, style: AppTypography.bodyStyle(context, fontSize: 13, fontWeight: FontWeight.bold))),
-                      if (isFast) Container(margin: const EdgeInsets.only(left: 8), padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: accentGold, borderRadius: BorderRadius.circular(4)), child: const Text('FAST', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900))),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(sub, style: AppTypography.bodyStyle(context, fontSize: 11, color: Colors.grey.shade500)),
-                ],
-              ),
-            ),
-          ],
-        ),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: selected ? primaryTeal : Colors.grey.shade200, width: selected ? 2 : 1), color: selected ? primaryTeal.withOpacity(0.02) : Colors.white),
+        child: Row(children: [Icon(icon, color: selected ? primaryTeal : Colors.grey, size: 24), const SizedBox(width: 20), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)), Text(sub, style: TextStyle(color: Colors.grey.shade500, fontSize: 12))])), Icon(selected ? Icons.check_circle : Icons.circle_outlined, color: selected ? primaryTeal : Colors.grey.shade300, size: 20)]),
       ),
     );
   }
 
   Widget _buildOrderSummary(BuildContext context, CartController cart) {
-    bool isMobile = MediaQuery.of(context).size.width < 650;
     return Container(
-      margin: EdgeInsets.only(
-        top: 32,
-        right: isMobile ? 32 : 32,
-        left: isMobile ? 32 : 0,
-      ),
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100)),
+      decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Order Summary', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 20),
-          ...cart.items.map((item) => Padding(
-            padding: const EdgeInsets.only(bottom: 15),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: item.imageUrl.isNotEmpty
-                      ? Image.network(
-                          item.imageUrl,
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            width: 40,
-                            height: 40,
-                            color: Colors.grey.shade100,
-                            child: const Icon(Icons.broken_image_outlined, size: 20, color: Colors.grey),
-                          ),
-                        )
-                      : Container(
-                          width: 40,
-                          height: 40,
-                          color: Colors.grey.shade100,
-                          child: const Icon(Icons.image_outlined, size: 20, color: Colors.grey),
-                        ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.productName,
-                        style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        'Qty: ${item.quantity}',
-                        style: AppTypography.bodyStyle(context, fontSize: 11, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text('₹${(item.price * item.quantity).toStringAsFixed(2)}', style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.bold)),
-              ],
-            ),
-          )),
+          Text('Summary', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const Divider(height: 30),
-          _summaryItem('Subtotal', '₹${cart.subtotal.toStringAsFixed(2)}'),
-          _summaryItem('Shipping', '₹${cart.shippingFee.toStringAsFixed(2)}'),
-          _summaryItem('Taxes (8%)', '₹${cart.tax.toStringAsFixed(2)}'),
-          const Divider(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Total Amount', style: AppTypography.headingStyle(context, fontSize: 16, fontWeight: FontWeight.bold)),
-              Text('₹${cart.total.toStringAsFixed(2)}', style: AppTypography.headingStyle(context, fontSize: 16, fontWeight: FontWeight.bold, color: primaryTeal)),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(8)),
-            child: Row(
-              children: [
-                Icon(Icons.verified, color: Colors.green.shade700, size: 16),
-                const SizedBox(width: 8),
-                Expanded(child: Text('Consecrated items with divine energy will be dispatched.', style: TextStyle(color: Colors.green.shade700, fontSize: 10, fontWeight: FontWeight.bold))),
-              ],
-            ),
-          ),
+          _summaryRow('Subtotal', '₹${cart.subtotal.toStringAsFixed(2)}'),
+          _summaryRow('Shipping', '₹${cart.shippingFee.toStringAsFixed(2)}'),
+          _summaryRow('Taxes', '₹${cart.tax.toStringAsFixed(2)}'),
+          const Divider(),
+          _summaryRow('Total', '₹${cart.total.toStringAsFixed(2)}', isBold: true),
         ],
       ),
     );
   }
 
-  Widget _summaryItem(String label, String value) {
+  Widget _summaryRow(String label, String value, {bool isBold = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)), Text(value, style: TextStyle(fontSize: 13, fontWeight: isBold ? FontWeight.bold : FontWeight.normal))]),
+    );
+  }
+
+  Widget _buildFooterActions(OrderController orderController) {
+    return Padding(
+      padding: const EdgeInsets.all(32),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: AppTypography.bodyStyle(context, fontSize: 13, color: Colors.grey.shade600)),
-          Text(value, style: AppTypography.bodyStyle(context, fontSize: 13, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFooterActions() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 32, right: 32, bottom: 32),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          SizedBox(
-            width: 280,
-            height: 55,
-            child: ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  // Final order logic
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order processing...'), backgroundColor: Color(0xFF0F4C5C)));
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryTeal,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Proceed to Payment Options', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
-                  const SizedBox(width: 10),
-                  const Icon(Icons.arrow_forward, size: 18),
-                ],
-              ),
-            ),
+          if (_currentStep == 2) TextButton.icon(onPressed: () => setState(() => _currentStep = 1), icon: const Icon(Icons.arrow_back), label: const Text('Back')),
+          ElevatedButton(
+            onPressed: orderController.isLoading ? null : () { if (_currentStep == 1) { if (_formKey.currentState!.validate()) setState(() => _currentStep = 2); } else _handlePlaceOrder(); },
+            style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white),
+            child: orderController.isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(_currentStep == 1 ? 'Next' : 'Complete Order'),
           ),
         ],
       ),
@@ -422,18 +308,35 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildBottomBar() {
+    return Container(padding: const EdgeInsets.all(16), child: const Center(child: Text('Secure Checkout', style: TextStyle(fontSize: 10, color: Colors.grey))));
+  }
+
+  Widget _buildSuccessView() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-      decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)), border: Border(top: BorderSide(color: Colors.grey.shade100))),
-      child: Row(
-        children: [
-          const Icon(Icons.security, size: 14, color: Colors.green),
-          const SizedBox(width: 8),
-          Text('256-Bit SSL Encrypted & RBI Verified Checkout', style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontWeight: FontWeight.w600)),
-          const Spacer(),
-          Text('Support: +91 98765 43210', style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontWeight: FontWeight.w600)),
-        ],
-      ),
+      padding: const EdgeInsets.all(48),
+      child: Column(children: [
+        const Icon(Icons.check_circle_outline, color: Colors.green, size: 80),
+        const SizedBox(height: 24),
+        Text('Order Placed!', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 40),
+        ElevatedButton(onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/product', (route) => false), child: const Text('Continue Shopping')),
+        TextButton(onPressed: () => Navigator.pushNamed(context, '/my_orders'), child: const Text('View Orders')),
+      ]),
+    );
+  }
+
+  Widget _formField(String label, String hint, {required TextEditingController controller, int maxLines = 1}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        TextFormField(
+          controller: controller, maxLines: maxLines,
+          validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+          decoration: InputDecoration(hintText: hint, filled: true, fillColor: Colors.grey.shade50, border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
+        ),
+      ],
     );
   }
 }

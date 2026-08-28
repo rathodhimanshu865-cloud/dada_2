@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../models/product_model.dart';
 import '../models/category_model.dart';
@@ -8,6 +10,8 @@ import '../repositories/product_repository.dart';
 
 class ProductController extends ChangeNotifier {
   final ProductRepository _repository = ProductRepository();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // Streams for sections
   late Stream<StoreConfigModel> storeConfigStream;
@@ -55,13 +59,44 @@ class ProductController extends ChangeNotifier {
   List<ProductModel> _allProductsCache = [];
   List<ProductModel> get allProducts => _allProductsCache;
 
-  final List<String> _wishlistIds = [];
+  List<String> _wishlistIds = [];
   List<String> get wishlistIds => _wishlistIds;
+  StreamSubscription? _wishlistSubscription;
 
   ProductController() {
     _initStreams();
     fetchCategories();
     _loadInitialData();
+    _listenToAuth();
+  }
+
+  void _listenToAuth() {
+    _auth.authStateChanges().listen((user) {
+      if (user != null) {
+        _startWishlistSubscription(user.uid);
+      } else {
+        _stopWishlistSubscription();
+      }
+    });
+  }
+
+  void _startWishlistSubscription(String uid) {
+    _wishlistSubscription?.cancel();
+    _wishlistSubscription = _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('wishlist')
+        .snapshots()
+        .listen((snapshot) {
+      _wishlistIds = snapshot.docs.map((doc) => doc.id).toList();
+      notifyListeners();
+    });
+  }
+
+  void _stopWishlistSubscription() {
+    _wishlistSubscription?.cancel();
+    _wishlistIds = [];
+    notifyListeners();
   }
 
   void _initStreams() {
@@ -231,12 +266,66 @@ class ProductController extends ChangeNotifier {
 
   bool isLiked(String productId) => _wishlistIds.contains(productId);
 
-  void toggleLike(String productId) {
-    if (_wishlistIds.contains(productId)) {
-      _wishlistIds.remove(productId);
-    } else {
-      _wishlistIds.add(productId);
+  Future<void> toggleLike(String productId) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      // Potentially show login prompt or just return
+      return;
     }
-    notifyListeners();
+
+    final docRef = _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('wishlist')
+        .doc(productId);
+
+    if (_wishlistIds.contains(productId)) {
+      await docRef.delete();
+    } else {
+      await docRef.set({
+        'addedAt': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _wishlistSubscription?.cancel();
+    super.dispose();
+  }
+
+  // --- Admin CRUD Operations ---
+
+  Future<void> addProduct(ProductModel product) async {
+    await _repository.addProduct(product);
+  }
+
+  Future<void> updateProduct(ProductModel product) async {
+    await _repository.updateProduct(product);
+  }
+
+  Future<void> deleteProduct(String productId) async {
+    await _repository.deleteProduct(productId);
+  }
+
+  Future<String> uploadImage(File file, String productId) async {
+    return await _repository.uploadProductImage(file, productId);
+  }
+
+  Stream<List<ProductModel>> getAdminProducts() {
+    return _repository.getAdminProducts();
+  }
+
+  // Category CRUD
+  Future<void> addCategory(CategoryModel category) async {
+    await _repository.addCategory(category);
+  }
+
+  Future<void> updateCategory(CategoryModel category) async {
+    await _repository.updateCategory(category);
+  }
+
+  Future<void> deleteCategory(String categoryId) async {
+    await _repository.deleteCategory(categoryId);
   }
 }

@@ -23,6 +23,8 @@ import 'views/user_side/wishlist_page.dart';
 import 'views/user_side/pu_dada_teachings_page.dart';
 import 'views/user_side/cart_page.dart';
 import 'views/user_side/checkout_page.dart';
+import 'views/user_side/my_orders_page.dart';
+import 'views/user_side/profile/user_profile_page.dart';
 import 'views/user_side/track_shipment_page.dart';
 import 'views/admin/admin_login_page.dart';
 import 'views/admin/admin_dashboard.dart';
@@ -35,6 +37,9 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import 'controllers/cart_controller.dart';
 import 'controllers/product_controller.dart';
+import 'controllers/order_controller.dart';
+import 'controllers/notification_controller.dart';
+import 'controllers/dashboard_controller.dart';
 import 'controllers/language_controller.dart';
 import 'controllers/profile_controller.dart';
 import 'controllers/auth_controller.dart';
@@ -55,6 +60,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AuthController()),
         ChangeNotifierProvider(create: (_) => CartController()),
         ChangeNotifierProvider(create: (_) => ProductController()),
+        ChangeNotifierProvider(create: (_) => OrderController()),
+        ChangeNotifierProvider(create: (_) => NotificationController()),
+        ChangeNotifierProvider(create: (_) => DashboardController()),
       ],
       child: const MyApp(),
     ),
@@ -197,9 +205,11 @@ class MyApp extends StatelessWidget {
         '/product_details': (context) => const ProductDetailsPage(),
         '/catalogue': (context) => const CataloguePage(),
         '/wishlist': (context) => const WishlistPage(),
+        '/profile': (context) => const UserProfilePage(),
         '/teachings': (context) => const PuDadaTeachingsPage(),
         '/cart': (context) => const CartPage(),
         '/checkout': (context) => const CheckoutPage(),
+        '/my_orders': (context) => const MyOrdersPage(),
         '/track': (context) => const TrackShipmentPage(),
         '/admin_login': (context) => const AdminLoginPage(),
         '/admin_dashboard': (context) => const AdminDashboard(),

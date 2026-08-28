@@ -17,17 +17,15 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  int currentMenuIndex = 0;
+  int currentMenuIndex = 13; // Default to Product Management as it contains the dashboard logic now
   bool _isSidebarVisible = true;
 
-  // Track individual field loading states for inline translation animation
   final Map<String, bool> _fieldLoading = {};
 
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthController>(context);
     
-    // Safety check: redirect to home if not admin
     if (!auth.isAdmin) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
@@ -90,16 +88,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
             onPressed: controller.loadData, 
             icon: const Icon(Icons.refresh, size: 20)
           ),
-          if (MediaQuery.of(context).size.width <= 750)
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
-              onSelected: (v) {
-                if (v == 'publish') controller.translateAndPublish();
-              },
-              itemBuilder: (context) => [
-                const PopupMenuItem(value: 'publish', child: Text('Translate & Publish All')),
-              ],
-            ),
           const SizedBox(width: 8),
         ],
       ),

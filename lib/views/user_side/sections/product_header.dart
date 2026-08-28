@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../controllers/cart_controller.dart';
 import '../../../controllers/product_controller.dart';
+import '../../../controllers/notification_controller.dart';
+import 'notification_drawer.dart';
 import '../../../models/product_model.dart';
 import '../../../utils/app_typography.dart';
 
@@ -251,6 +253,8 @@ class _ProductHeaderState extends State<ProductHeader> {
               ),
               Row(
                 children: [
+                  _notificationButton(context, darkCharcoal),
+                  const SizedBox(width: 20),
                   _wishlistButton(context, darkCharcoal),
                   const SizedBox(width: 20),
                   _cartButton(context, darkCharcoal),
@@ -260,6 +264,57 @@ class _ProductHeaderState extends State<ProductHeader> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _notificationButton(BuildContext context, Color color) {
+    return Consumer<NotificationController>(
+      builder: (context, controller, child) {
+        return InkWell(
+          onTap: () => _showNotificationDrawer(context),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(Icons.notifications_none_outlined, color: color, size: 22),
+              if (controller.unreadCount > 0)
+                Positioned(
+                  right: -4, top: -4,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
+                    constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+                    child: Text('${controller.unreadCount}', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showNotificationDrawer(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Notifications',
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, anim1, anim2) {
+        return const Align(
+          alignment: Alignment.centerRight,
+          child: NotificationDrawer(),
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(1, 0),
+            end: Offset.zero,
+          ).animate(anim1),
+          child: child,
+        );
+      },
     );
   }
 

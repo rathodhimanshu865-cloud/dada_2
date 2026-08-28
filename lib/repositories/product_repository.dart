@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io';
 import '../models/product_model.dart';
 import '../models/category_model.dart';
 import '../models/store_config_model.dart';
 
 class ProductRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   // Store Branding
   Stream<StoreConfigModel> getStoreConfig() {
@@ -23,6 +27,14 @@ class ProductRepository {
         .snapshots()
         .map((snapshot) =>
             snapshot.docs.map((doc) => CategoryModel.fromFirestore(doc)).toList());
+  }
+
+  // Admin: Get all products (including inactive)
+  Stream<List<ProductModel>> getAdminProducts() {
+    return _firestore.collection('products')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => ProductModel.fromFirestore(doc)).toList());
   }
 
   // Paginated All Products
@@ -137,5 +149,47 @@ class ProductRepository {
         .doc(productId)
         .snapshots()
         .map((snapshot) => snapshot.exists ? ProductModel.fromFirestore(snapshot) : null);
+  }
+
+  // --- Admin CRUD Operations ---
+
+  Future<void> addProduct(ProductModel product) async {
+    await _firestore.collection('products').doc(product.id).set(product.toFirestore());
+  }
+
+  Future<void> updateProduct(ProductModel product) async {
+    await _firestore.collection('products').doc(product.id).update(product.toFirestore());
+  }
+
+  Future<void> deleteProduct(String productId) async {
+    await _firestore.collection('products').doc(productId).delete();
+  }
+
+  Future<String> uploadProductImage(File imageFile, String productId) async {
+    final ref = _storage.ref().child('products').child(productId).child('${DateTime.now().millisecondsSinceEpoch}.jpg');
+    await ref.putFile(imageFile);
+    return await ref.getDownloadURL();
+  }
+
+  Future<void> deleteProductImage(String imageUrl) async {
+    try {
+      final ref = _storage.refFromURL(imageUrl);
+      await ref.delete();
+    } catch (e) {
+      debugPrint("Error deleting image from storage: $e");
+    }
+  }
+
+  // Category CRUD
+  Future<void> addCategory(CategoryModel category) async {
+    await _firestore.collection('categories').doc(category.id).set(category.toFirestore());
+  }
+
+  Future<void> updateCategory(CategoryModel category) async {
+    await _firestore.collection('categories').doc(category.id).update(category.toFirestore());
+  }
+
+  Future<void> deleteCategory(String categoryId) async {
+    await _firestore.collection('categories').doc(categoryId).delete();
   }
 }

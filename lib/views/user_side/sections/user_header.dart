@@ -8,6 +8,8 @@ import '../../../controllers/language_controller.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../controllers/auth_controller.dart';
 import '../../../controllers/cart_controller.dart';
+import '../../../controllers/notification_controller.dart';
+import 'notification_drawer.dart';
 import '../../../models/homepage_model.dart';
 import '../../../utils/app_typography.dart';
 
@@ -760,6 +762,8 @@ class _UserHeaderState extends State<UserHeader>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        _buildNotificationButton(textColor),
+        const SizedBox(width: 15),
         _buildAuthButton(textColor),
         const SizedBox(width: 15),
         _buildCartButton(textColor),
@@ -774,6 +778,81 @@ class _UserHeaderState extends State<UserHeader>
           _buildDonateButton(settings, lang),
         ],
       ],
+    );
+  }
+
+  Widget _buildNotificationButton(Color textColor) {
+    return Consumer<NotificationController>(
+      builder: (context, controller, child) {
+        return InkWell(
+          onTap: () {
+            if (widget.scaffoldKey != null) {
+              widget.scaffoldKey!.currentState?.openEndDrawer();
+            } else {
+              Scaffold.of(context).openEndDrawer();
+            }
+            // Actually, we want to open a specific drawer or a modal. 
+            // Since CartDrawer is probably using the same endDrawer, 
+            // we should handle multiple drawers or use a different mechanism.
+            // For now, I'll use a specific modal or just show the drawer if I can.
+            // Let's use a ModalBottomSheet or a simple Side Drawer if we can inject it.
+            _showNotificationDrawer(context);
+          },
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(Icons.notifications_none_outlined, color: textColor, size: 24),
+              if (controller.unreadCount > 0)
+                Positioned(
+                  right: -2,
+                  top: -2,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.redAccent,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+                    child: Text(
+                      '${controller.unreadCount}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showNotificationDrawer(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Notifications',
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, anim1, anim2) {
+        return const Align(
+          alignment: Alignment.centerRight,
+          child: NotificationDrawer(),
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(1, 0),
+            end: Offset.zero,
+          ).animate(anim1),
+          child: child,
+        );
+      },
     );
   }
 
@@ -841,11 +920,13 @@ class _UserHeaderState extends State<UserHeader>
         if (v == 'login') {
           Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
         }
+        if (v == 'profile') Navigator.pushNamed(context, '/profile');
         if (v == 'orders') Navigator.pushNamed(context, '/my_orders');
         if (v == 'logout') auth.logout();
       },
       itemBuilder: (context) => auth.isAuthenticated
           ? [
+              const PopupMenuItem(value: 'profile', child: Text('My Profile')),
               const PopupMenuItem(value: 'orders', child: Text('My Orders')),
               const PopupMenuItem(value: 'logout', child: Text('Logout')),
             ]
@@ -872,19 +953,20 @@ class _UserHeaderState extends State<UserHeader>
         elevation: 20,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         color: warmWhite,
-        onSelected: (v) {
-          setState(() => selectedLanguage = v);
-          final languageController = Provider.of<LanguageController>(
-            context,
-            listen: false,
-          );
-          if (v == 'Hindi')
-            languageController.changeLanguage(const Locale('hi'));
-          else if (v == 'Gujarati')
-            languageController.changeLanguage(const Locale('gu'));
-          else
-            languageController.changeLanguage(const Locale('en'));
-        },
+          onSelected: (v) {
+            setState(() => selectedLanguage = v);
+            final languageController = Provider.of<LanguageController>(
+              context,
+              listen: false,
+            );
+            if (v == 'Hindi') {
+              languageController.changeLanguage(const Locale('hi'));
+            } else if (v == 'Gujarati') {
+              languageController.changeLanguage(const Locale('gu'));
+            } else {
+              languageController.changeLanguage(const Locale('en'));
+            }
+          },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(

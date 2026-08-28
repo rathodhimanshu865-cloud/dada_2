@@ -49,6 +49,48 @@ class ProductModel {
     this.salesCount = 0,
   });
 
+  ProductModel copyWith({
+    String? id,
+    String? name,
+    String? nameHi,
+    String? nameGu,
+    String? description,
+    String? descriptionHi,
+    String? descriptionGu,
+    double? price,
+    double? discountPrice,
+    String? categoryId,
+    String? imageUrl,
+    List<String>? imageUrls,
+    int? stock,
+    bool? isFeatured,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    int? salesCount,
+  }) {
+    return ProductModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      nameHi: nameHi ?? this.nameHi,
+      nameGu: nameGu ?? this.nameGu,
+      description: description ?? this.description,
+      descriptionHi: descriptionHi ?? this.descriptionHi,
+      descriptionGu: descriptionGu ?? this.descriptionGu,
+      price: price ?? this.price,
+      discountPrice: discountPrice ?? this.discountPrice,
+      categoryId: categoryId ?? this.categoryId,
+      imageUrl: imageUrl ?? this.imageUrl,
+      imageUrls: imageUrls ?? this.imageUrls,
+      stock: stock ?? this.stock,
+      isFeatured: isFeatured ?? this.isFeatured,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      salesCount: salesCount ?? this.salesCount,
+    );
+  }
+
   factory ProductModel.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return ProductModel(
