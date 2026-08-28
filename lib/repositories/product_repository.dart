@@ -162,13 +162,29 @@ class ProductRepository {
   }
 
   Future<void> deleteProduct(String productId) async {
+    // Delete Firestore document
     await _firestore.collection('products').doc(productId).delete();
+    
+    // Delete images from Storage
+    try {
+      final listResult = await _storage.ref().child('product_images').child(productId).listAll();
+      for (var item in listResult.items) {
+        await item.delete();
+      }
+    } catch (e) {
+      debugPrint("Error deleting product images: $e");
+    }
   }
 
   Future<String> uploadProductImage(File imageFile, String productId) async {
-    final ref = _storage.ref().child('products').child(productId).child('${DateTime.now().millisecondsSinceEpoch}.jpg');
+    final ref = _storage.ref().child('product_images').child(productId).child('${DateTime.now().millisecondsSinceEpoch}.jpg');
     await ref.putFile(imageFile);
     return await ref.getDownloadURL();
+  }
+
+  UploadTask getUploadTask(File imageFile, String productId) {
+    final ref = _storage.ref().child('product_images').child(productId).child('${DateTime.now().millisecondsSinceEpoch}.jpg');
+    return ref.putFile(imageFile);
   }
 
   Future<void> deleteProductImage(String imageUrl) async {
@@ -191,5 +207,14 @@ class ProductRepository {
 
   Future<void> deleteCategory(String categoryId) async {
     await _firestore.collection('categories').doc(categoryId).delete();
+  }
+
+  Future<bool> hasProductsInCategory(String categoryId) async {
+    final snapshot = await _firestore
+        .collection('products')
+        .where('categoryId', isEqualTo: categoryId)
+        .limit(1)
+        .get();
+    return snapshot.docs.isNotEmpty;
   }
 }

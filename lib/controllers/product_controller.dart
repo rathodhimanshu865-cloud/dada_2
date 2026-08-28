@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import '../models/product_model.dart';
 import '../models/category_model.dart';
@@ -312,6 +313,14 @@ class ProductController extends ChangeNotifier {
     return await _repository.uploadProductImage(file, productId);
   }
 
+  UploadTask getUploadTask(File file, String productId) {
+    return _repository.getUploadTask(file, productId);
+  }
+
+  Future<void> deleteImage(String imageUrl) async {
+    await _repository.deleteProductImage(imageUrl);
+  }
+
   Stream<List<ProductModel>> getAdminProducts() {
     return _repository.getAdminProducts();
   }
@@ -327,5 +336,9 @@ class ProductController extends ChangeNotifier {
 
   Future<void> deleteCategory(String categoryId) async {
     await _repository.deleteCategory(categoryId);
+  }
+
+  Future<bool> hasProductsInCategory(String categoryId) async {
+    return await _repository.hasProductsInCategory(categoryId);
   }
 }

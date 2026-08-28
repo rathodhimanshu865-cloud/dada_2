@@ -734,11 +734,21 @@ class _ProductManagementViewState extends State<ProductManagementView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ClipRRect(borderRadius: BorderRadius.circular(8), child: cat.imageUrl.isNotEmpty ? Image.network(cat.imageUrl, width: 40, height: 40, fit: BoxFit.cover) : Container(width: 40, height: 40, color: Colors.grey.shade100, child: const Icon(Icons.category))),
-              IconButton(icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent), onPressed: () => _confirmDeleteCategory(cat.id, ctrl)),
+              Row(
+                children: [
+                  _statusChip(cat.isActive),
+                  const SizedBox(width: 8),
+                  IconButton(icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent), onPressed: () => _confirmDeleteCategory(cat.id, ctrl)),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 16),
           Text(cat.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          if (cat.description.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(cat.description, style: TextStyle(color: Colors.grey.shade500, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+          ],
           const Spacer(),
           TextButton(onPressed: () => _showCategoryDialog(category: cat), child: const Text('Edit Category →', style: TextStyle(fontSize: 12))),
         ],
@@ -821,9 +831,12 @@ class _ProductManagementViewState extends State<ProductManagementView> {
     bool isActive = product?.isActive ?? true;
     bool isFeatured = product?.isFeatured ?? false;
     List<String> currentImages = product?.imageUrls != null ? List.from(product!.imageUrls) : [];
+    double uploadProgress = 0;
+    bool isUploading = false;
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           final prodCtrl = Provider.of<ProductController>(context, listen: false);
@@ -834,6 +847,12 @@ class _ProductManagementViewState extends State<ProductManagementView> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
+                    if (isUploading) ...[
+                      LinearProgressIndicator(value: uploadProgress),
+                      const SizedBox(height: 8),
+                      Text('Uploading image: ${(uploadProgress * 100).toInt()}%'),
+                      const SizedBox(height: 16),
+                    ],
                     _dialogField('Product Name', nameCtrl),
                     _dialogField('Description', descCtrl, maxLines: 3),
                     Row(children: [Expanded(child: _dialogField('Price (₹)', priceCtrl)), const SizedBox(width: 16), Expanded(child: _dialogField('Discount Price (Optional)', discCtrl))]),
@@ -844,13 +863,42 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                     const Text('Product Images', style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
                     Wrap(spacing: 8, runSpacing: 8, children: [
-                      ...currentImages.map((url) => Stack(children: [ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(url, width: 80, height: 80, fit: BoxFit.cover)), Positioned(top: 0, right: 0, child: GestureDetector(onTap: () => setDialogState(() => currentImages.remove(url)), child: Container(color: Colors.black54, child: const Icon(Icons.close, color: Colors.white, size: 16))))])),
-                      InkWell(onTap: () async {
+                      ...currentImages.map((url) => Stack(children: [
+                        ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(url, width: 80, height: 80, fit: BoxFit.cover)), 
+                        Positioned(top: 0, right: 0, child: GestureDetector(
+                          onTap: () async {
+                            await prodCtrl.deleteImage(url);
+                            setDialogState(() => currentImages.remove(url));
+                          }, 
+                          child: Container(color: Colors.black54, child: const Icon(Icons.close, color: Colors.white, size: 16))
+                        ))
+                      ])),
+                      InkWell(onTap: isUploading ? null : () async {
                         final picker = ImagePicker();
-                        final img = await picker.pickImage(source: ImageSource.gallery);
+                        // Optimize images: maxWidth, maxHeight, imageQuality
+                        final img = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1080, maxHeight: 1080, imageQuality: 85);
                         if (img != null) {
-                          final url = await prodCtrl.uploadImage(File(img.path), isEdit ? product.id : 'new_${DateTime.now().millisecondsSinceEpoch}');
-                          setDialogState(() => currentImages.add(url));
+                          final productId = isEdit ? product.id : 'new_${DateTime.now().millisecondsSinceEpoch}';
+                          final task = prodCtrl.getUploadTask(File(img.path), productId);
+                          
+                          setDialogState(() {
+                            isUploading = true;
+                            uploadProgress = 0;
+                          });
+
+                          task.snapshotEvents.listen((snapshot) {
+                            setDialogState(() {
+                              uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes;
+                            });
+                          });
+
+                          final snapshot = await task;
+                          final url = await snapshot.ref.getDownloadURL();
+                          
+                          setDialogState(() {
+                            currentImages.add(url);
+                            isUploading = false;
+                          });
                         }
                       }, child: Container(width: 80, height: 80, decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.add_a_photo))),
                     ]),
@@ -874,8 +922,14 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                     imageUrls: currentImages,
                     imageUrl: currentImages.isNotEmpty ? currentImages[0] : '',
                   );
-                  if (isEdit) await prodCtrl.updateProduct(p); else await prodCtrl.addProduct(p);
-                  if (mounted) Navigator.pop(context);
+                  if (isEdit) {
+                    await prodCtrl.updateProduct(p);
+                  } else {
+                    await prodCtrl.addProduct(p);
+                  }
+                  if (mounted) {
+                    Navigator.pop(context);
+                  }
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: primaryTeal),
                 child: Text(isEdit ? 'SAVE CHANGES' : 'PUBLISH PRODUCT'),
@@ -890,38 +944,101 @@ class _ProductManagementViewState extends State<ProductManagementView> {
   void _showCategoryDialog({CategoryModel? category}) {
     final isEdit = category != null;
     final nameCtrl = TextEditingController(text: category?.name);
+    final descCtrl = TextEditingController(text: category?.description);
     String imageUrl = category?.imageUrl ?? '';
+    bool isActive = category?.isActive ?? true;
+    double uploadProgress = 0;
+    bool isUploading = false;
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           final prodCtrl = Provider.of<ProductController>(context, listen: false);
           return AlertDialog(
             title: Text(isEdit ? 'Edit Category' : 'Add Category'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _dialogField('Category Name', nameCtrl),
-                const SizedBox(height: 16),
-                ClipRRect(borderRadius: BorderRadius.circular(8), child: imageUrl.isNotEmpty ? Image.network(imageUrl, width: 100, height: 100, fit: BoxFit.cover) : Container(width: 100, height: 100, color: Colors.grey.shade100, child: const Icon(Icons.category))),
-                TextButton.icon(onPressed: () async {
-                  final picker = ImagePicker();
-                  final img = await picker.pickImage(source: ImageSource.gallery);
-                  if (img != null) {
-                    final url = await prodCtrl.uploadImage(File(img.path), 'category_${DateTime.now().millisecondsSinceEpoch}');
-                    setDialogState(() => imageUrl = url);
-                  }
-                }, icon: const Icon(Icons.upload), label: const Text('Upload Category Icon')),
-              ],
+            content: SizedBox(
+              width: 500,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (isUploading) ...[
+                      LinearProgressIndicator(value: uploadProgress),
+                      const SizedBox(height: 8),
+                      Text('Uploading icon: ${(uploadProgress * 100).toInt()}%'),
+                      const SizedBox(height: 16),
+                    ],
+                    _dialogField('Category Name', nameCtrl),
+                    _dialogField('Description', descCtrl, maxLines: 3),
+                    SwitchListTile(
+                      title: const Text('Active Category'),
+                      value: isActive,
+                      onChanged: (v) => setDialogState(() => isActive = v),
+                    ),
+                    const SizedBox(height: 16),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: imageUrl.isNotEmpty 
+                        ? Image.network(imageUrl, width: 100, height: 100, fit: BoxFit.cover) 
+                        : Container(width: 100, height: 100, color: Colors.grey.shade100, child: const Icon(Icons.category, size: 40, color: Colors.grey)),
+                    ),
+                    TextButton.icon(
+                      onPressed: isUploading ? null : () async {
+                        final picker = ImagePicker();
+                        final img = await picker.pickImage(source: ImageSource.gallery, maxWidth: 512, maxHeight: 512, imageQuality: 85);
+                        if (img != null) {
+                          final catId = isEdit ? category.id : 'cat_${DateTime.now().millisecondsSinceEpoch}';
+                          final task = prodCtrl.getUploadTask(File(img.path), catId);
+
+                          setDialogState(() {
+                            isUploading = true;
+                            uploadProgress = 0;
+                          });
+
+                          task.snapshotEvents.listen((snapshot) {
+                            setDialogState(() {
+                              uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes;
+                            });
+                          });
+
+                          final snapshot = await task;
+                          final url = await snapshot.ref.getDownloadURL();
+                          
+                          setDialogState(() {
+                            imageUrl = url;
+                            isUploading = false;
+                          });
+                        }
+                      }, 
+                      icon: const Icon(Icons.upload), 
+                      label: Text(imageUrl.isEmpty ? 'Upload Category Icon' : 'Replace Category Icon'),
+                    ),
+                  ],
+                ),
+              ),
             ),
             actions: [
               TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
               ElevatedButton(
                 onPressed: () async {
-                  final c = CategoryModel(id: isEdit ? category.id : nameCtrl.text.toLowerCase().replaceAll(' ', '_'), name: nameCtrl.text.trim(), imageUrl: imageUrl);
-                  if (isEdit) await prodCtrl.updateCategory(c); else await prodCtrl.addCategory(c);
-                  if (mounted) Navigator.pop(context);
+                  if (nameCtrl.text.isEmpty) return;
+                  final c = (isEdit ? category : CategoryModel(id: nameCtrl.text.toLowerCase().replaceAll(' ', '_'), name: '', imageUrl: '')).copyWith(
+                    name: nameCtrl.text.trim(),
+                    description: descCtrl.text.trim(),
+                    imageUrl: imageUrl,
+                    isActive: isActive,
+                    updatedAt: DateTime.now(),
+                  );
+                  if (isEdit) {
+                    await prodCtrl.updateCategory(c);
+                  } else {
+                    await prodCtrl.addCategory(c);
+                  }
+                  if (mounted) {
+                    Navigator.pop(context);
+                  }
                 },
                 child: const Text('SAVE'),
               ),
@@ -957,7 +1074,30 @@ class _ProductManagementViewState extends State<ProductManagementView> {
     showDialog(context: context, builder: (context) => AlertDialog(title: const Text('Delete Product?'), content: const Text('This action cannot be undone.'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')), ElevatedButton(onPressed: () async { await ctrl.deleteProduct(id); Navigator.pop(context); }, style: ElevatedButton.styleFrom(backgroundColor: Colors.red), child: const Text('DELETE'))]));
   }
 
-  void _confirmDeleteCategory(String id, ProductController ctrl) {
-    showDialog(context: context, builder: (context) => AlertDialog(title: const Text('Delete Category?'), content: const Text('Ensure no products are linked to this category.'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')), ElevatedButton(onPressed: () async { await ctrl.deleteCategory(id); Navigator.pop(context); }, style: ElevatedButton.styleFrom(backgroundColor: Colors.red), child: const Text('DELETE'))]));
+  void _confirmDeleteCategory(String id, ProductController ctrl) async {
+    final hasProducts = await ctrl.hasProductsInCategory(id);
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(hasProducts ? 'Cannot Delete Category' : 'Delete Category?'),
+          content: Text(hasProducts 
+            ? 'This category has products assigned to it. Please reassign or delete the products first.' 
+            : 'This action cannot be undone. Are you sure you want to delete this category?'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+            if (!hasProducts)
+              ElevatedButton(
+                onPressed: () async {
+                  await ctrl.deleteCategory(id);
+                  if (mounted) Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('DELETE'),
+              ),
+          ],
+        ),
+      );
+    }
   }
 }
