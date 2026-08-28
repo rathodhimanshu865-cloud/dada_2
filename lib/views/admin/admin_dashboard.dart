@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/homepage_controller.dart';
@@ -7,6 +7,9 @@ import '../../models/homepage_model.dart';
 import 'order_management_view.dart';
 import 'biography_editor.dart';
 import 'product_management_view.dart';
+import 'admin_settings_view.dart';
+import 'admin_users_view.dart';
+import 'admin_notifications_view.dart';
 import '../../services/translation_service.dart';
 
 class AdminDashboard extends StatefulWidget {
@@ -107,7 +110,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Widget _buildSidebar(bool isMobile) {
-    final menus = [
+    // ── ROLE-BASED ADMIN SIDEBAR MENU ──────────────────────────────────────
+    // Content sections (indices 0-14 = existing content pages)
+    final contentMenus = [
       {'title': 'General Settings', 'icon': Icons.settings},
       {'title': 'Hero Slider', 'icon': Icons.burst_mode},
       {'title': 'Biography Editor', 'icon': Icons.person},
@@ -122,7 +127,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
       {'title': 'Contact / Inquiries', 'icon': Icons.contact_mail},
       {'title': 'Footer Settings', 'icon': Icons.south},
       {'title': 'Product Management', 'icon': Icons.shopping_bag_outlined},
-      {'title': 'Orders / Store', 'icon': Icons.shopping_cart},
+      {'title': 'Orders', 'icon': Icons.shopping_cart},
+      {'title': 'Users', 'icon': Icons.people_outline},
+      {'title': 'Notifications', 'icon': Icons.notifications_outlined},
+      {'title': 'Store Settings', 'icon': Icons.admin_panel_settings},
     ];
 
     return Container(
@@ -132,27 +140,50 @@ class _AdminDashboardState extends State<AdminDashboard> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: menus.length,
+              itemCount: contentMenus.length,
               itemBuilder: (context, i) => ListTile(
-                leading: Icon(menus[i]['icon'] as IconData, color: currentMenuIndex == i ? Colors.amber : Colors.white60),
-                title: Text(menus[i]['title'] as String, style: TextStyle(color: currentMenuIndex == i ? Colors.white : Colors.white70, fontWeight: currentMenuIndex == i ? FontWeight.bold : FontWeight.normal)),
+                leading: Icon(contentMenus[i]['icon'] as IconData,
+                    color: currentMenuIndex == i ? Colors.amber : Colors.white60),
+                title: Text(contentMenus[i]['title'] as String,
+                    style: TextStyle(
+                        color: currentMenuIndex == i ? Colors.white : Colors.white70,
+                        fontWeight: currentMenuIndex == i ? FontWeight.bold : FontWeight.normal)),
                 selected: currentMenuIndex == i,
                 onTap: () {
-                  setState(() {
-                    currentMenuIndex = i;
-                  });
+                  setState(() => currentMenuIndex = i);
                   if (isMobile) Navigator.pop(context);
                 },
               ),
             ),
           ),
           const Divider(color: Colors.white12, height: 1),
+          // ── PROFILE & LOGOUT (role-based action items) ──
+          ListTile(
+            leading: const Icon(Icons.manage_accounts_outlined, color: Colors.blueAccent),
+            title: const Text('My Profile', style: TextStyle(color: Colors.white70, fontSize: 13)),
+            onTap: () {
+              Navigator.pushNamed(context, '/profile');
+              if (isMobile) Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.redAccent),
+            title: const Text('Logout', style: TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold)),
+            onTap: () async {
+              if (isMobile) Navigator.pop(context);
+              final auth = Provider.of<AuthController>(context, listen: false);
+              await auth.logout();
+              if (mounted) {
+                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                auth.toggleLoginPortal(true);
+              }
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.public, color: Colors.blueAccent),
-            title: const Text('BACK TO WEBSITE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1)),
-            onTap: () {
-              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-            },
+            title: const Text('BACK TO WEBSITE',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1)),
+            onTap: () => Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false),
           ),
           const SizedBox(height: 10),
         ],
@@ -162,21 +193,24 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _buildMainContent(HomePageController controller) {
     switch (currentMenuIndex) {
-      case 0: return _generalSettingsView(controller);
-      case 1: return _heroSliderView(controller);
-      case 2: return const BiographyEditor();
-      case 3: return _kathaPagesView(controller);
-      case 4: return _upcomingKathasView(controller);
-      case 5: return _homepageDataView(controller);
-      case 6: return _newsView(controller);
-      case 7: return _kathaListView(controller);
-      case 8: return _photoGalleryView(controller);
-      case 9: return _videoGalleryView(controller);
+      case 0:  return _generalSettingsView(controller);
+      case 1:  return _heroSliderView(controller);
+      case 2:  return const BiographyEditor();
+      case 3:  return _kathaPagesView(controller);
+      case 4:  return _upcomingKathasView(controller);
+      case 5:  return _homepageDataView(controller);
+      case 6:  return _newsView(controller);
+      case 7:  return _kathaListView(controller);
+      case 8:  return _photoGalleryView(controller);
+      case 9:  return _videoGalleryView(controller);
       case 10: return _stotraView(controller);
       case 11: return _contactPageView(controller);
       case 12: return _footerSettingsView(controller);
       case 13: return const ProductManagementView();
       case 14: return const OrderManagementView();
+      case 15: return const AdminUsersView();
+      case 16: return const AdminNotificationsView();
+      case 17: return const AdminSettingsView();
       default: return const Center(child: Text('Select a menu'));
     }
   }

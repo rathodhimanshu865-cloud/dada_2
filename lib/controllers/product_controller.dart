@@ -36,6 +36,15 @@ class ProductController extends ChangeNotifier {
   bool _isSearching = false;
   String? _searchError;
 
+  // Global State
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   // Compatibility / Helper Getters
   List<ProductModel> get browsingProducts => _browsingProducts;
   bool get isBrowsingLoading => _isBrowsingLoading;
@@ -161,6 +170,7 @@ class ProductController extends ChangeNotifier {
     }
 
     _isBrowsingLoading = true;
+    _errorMessage = null;
     notifyListeners();
 
     try {
@@ -179,6 +189,7 @@ class ProductController extends ChangeNotifier {
       
     } catch (e) {
       debugPrint("Browsing error: $e");
+      _errorMessage = "Failed to load products. Please try again.";
     } finally {
       _isBrowsingLoading = false;
       notifyListeners();

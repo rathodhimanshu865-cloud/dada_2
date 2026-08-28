@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/auth_controller.dart';
@@ -21,16 +22,31 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   final Color accentGold = const Color(0xFFC89A5B);
 
   Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your email and password'), backgroundColor: Colors.redAccent),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
       final auth = Provider.of<AuthController>(context, listen: false);
-      await auth.login(_emailController.text.trim(), _passController.text.trim());
+      await auth.login(email, password);
       
+      // Auth state change is async — wait a moment for role to be fetched
+      if (auth.role == null) {
+        await Future.delayed(const Duration(milliseconds: 600));
+      }
+
       if (mounted) {
         if (auth.isAdmin) {
           Navigator.pushReplacementNamed(context, '/admin_dashboard');
         } else {
-          // If not an admin, logout or show error
+          // If not an admin, logout and show error
           await auth.logout();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -40,13 +56,37 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
           );
         }
       }
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        String message;
+        switch (e.code) {
+          case 'user-not-found':
+            message = 'No admin account found with this email.';
+            break;
+          case 'wrong-password':
+          case 'invalid-credential':
+            message = 'Incorrect email or password.';
+            break;
+          case 'invalid-email':
+            message = 'Please enter a valid email address.';
+            break;
+          case 'user-disabled':
+            message = 'This admin account has been disabled.';
+            break;
+          case 'too-many-requests':
+            message = 'Too many failed attempts. Please try again later.';
+            break;
+          default:
+            message = e.message ?? 'Login failed. Please try again.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: Colors.redAccent),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Login Failed: ${e.toString()}'),
-            backgroundColor: Colors.redAccent,
-          ),
+          SnackBar(content: Text('Login Failed: ${e.toString()}'), backgroundColor: Colors.redAccent),
         );
       }
     } finally {

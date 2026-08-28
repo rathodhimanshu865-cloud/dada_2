@@ -48,25 +48,77 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   Future<void> _handleLogin() async {
+    final email = _loginEmailCtrl.text.trim();
+    final password = _loginPassCtrl.text.trim();
+    if (email.isEmpty || password.isEmpty) {
+      _showError('Please enter your email and password');
+      return;
+    }
     setState(() => _isLoading = true);
     try {
       final auth = Provider.of<AuthController>(context, listen: false);
-      await auth.login(_loginEmailCtrl.text.trim(), _loginPassCtrl.text.trim());
-      
+      await auth.login(email, password);
+      // Wait for role to be fetched from Firestore
+      if (auth.role == null) {
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
       if (mounted) {
         auth.toggleLoginPortal(false);
         if (auth.isAdmin) {
           Navigator.pushNamedAndRemoveUntil(context, '/admin_dashboard', (route) => false);
         }
+        // For regular users: portal closes, they stay on current page
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login Failed: $e'), backgroundColor: Colors.redAccent),
-        );
+        String errorMessage = 'Login Failed';
+        if (e is FirebaseAuthException) {
+          switch (e.code) {
+            case 'user-not-found':
+              errorMessage = 'No account found with this email.';
+              break;
+            case 'wrong-password':
+            case 'invalid-credential':
+              errorMessage = 'Incorrect email or password.';
+              break;
+            case 'invalid-email':
+              errorMessage = 'Please enter a valid email address.';
+              break;
+            case 'user-disabled':
+              errorMessage = 'This account has been disabled.';
+              break;
+            case 'too-many-requests':
+              errorMessage = 'Too many failed attempts. Please try again later.';
+              break;
+            default:
+              errorMessage = e.message ?? errorMessage;
+          }
+        }
+        _showError(errorMessage);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleForgotPassword() async {
+    final email = _loginEmailCtrl.text.trim();
+    if (email.isEmpty) {
+      _showError('Please enter your email address above first');
+      return;
+    }
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Password reset email sent to $email'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      _showError(e.message ?? 'Failed to send reset email');
     }
   }
 
@@ -348,7 +400,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             children: [
               _buildFieldLabel('Password'),
               TextButton(
-                onPressed: () {},
+                onPressed: _handleForgotPassword,
                 child: Text('Forgot?', style: TextStyle(color: accentGold, fontSize: 12, fontWeight: FontWeight.bold)),
               ),
             ],

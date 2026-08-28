@@ -19,6 +19,19 @@ class ProductRepository {
         .map((snapshot) => StoreConfigModel.fromFirestore(snapshot));
   }
 
+  Future<void> updateStoreConfig(StoreConfigModel config) async {
+    await _firestore
+        .collection('storeConfig')
+        .doc('settings')
+        .set(config.toFirestore(), SetOptions(merge: true));
+  }
+
+  Future<String> uploadStoreLogo(File imageFile) async {
+    final ref = _storage.ref().child('store_assets').child('logo_${DateTime.now().millisecondsSinceEpoch}.jpg');
+    await ref.putFile(imageFile);
+    return await ref.getDownloadURL();
+  }
+
   // Categories
   Stream<List<CategoryModel>> getCategories() {
     return _firestore

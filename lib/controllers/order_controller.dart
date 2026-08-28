@@ -11,6 +11,14 @@ class OrderController extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   Future<String?> placeOrder({
     required String name,
     required String phone,
@@ -31,6 +39,7 @@ class OrderController extends ChangeNotifier {
     if (user == null) return null;
 
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
 
     try {
@@ -67,14 +76,14 @@ class OrderController extends ChangeNotifier {
       );
 
       await _repository.placeOrder(order);
-      _isLoading = false;
-      notifyListeners();
       return orderId;
     } catch (e) {
       debugPrint("Place order error: $e");
+      _errorMessage = "Failed to place order. Please try again.";
+      return null;
+    } finally {
       _isLoading = false;
       notifyListeners();
-      return null;
     }
   }
 

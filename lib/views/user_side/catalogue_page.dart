@@ -46,7 +46,31 @@ class _CataloguePageState extends State<CataloguePage> {
           _buildControlsRow(context, productController),
           const SizedBox(height: 30),
           if (productController.isBrowsingLoading && productController.browsingProducts.isEmpty)
-            const Padding(padding: EdgeInsets.symmetric(vertical: 100), child: CircularProgressIndicator())
+            const Padding(padding: EdgeInsets.symmetric(vertical: 100), child: Column(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Loading sacred products...')
+              ],
+            ))
+          else if (productController.errorMessage != null && productController.browsingProducts.isEmpty)
+            Padding(padding: const EdgeInsets.symmetric(vertical: 100), child: Column(
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+                const SizedBox(height: 16),
+                Text(productController.errorMessage!),
+                const SizedBox(height: 16),
+                ElevatedButton(onPressed: () => productController.fetchBrowsingProducts(refresh: true), child: const Text('Try Again'))
+              ],
+            ))
+          else if (productController.browsingProducts.isEmpty)
+            const Padding(padding: EdgeInsets.symmetric(vertical: 100), child: Column(
+              children: [
+                Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
+                const SizedBox(height: 16),
+                Text('No products found in this category.'),
+              ],
+            ))
           else
             _buildProductGrid(context, productController),
           const SizedBox(height: 60),

@@ -11,8 +11,17 @@ class CartController extends ChangeNotifier {
   
   List<CartItem> _items = [];
   StreamSubscription? _cartSubscription;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   List<CartItem> get items => _items;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
 
   int get totalItems => _items.fold(0, (count, item) => count + item.quantity);
 
@@ -58,34 +67,46 @@ class CartController extends ChangeNotifier {
     final user = _auth.currentUser;
     if (user == null) return;
 
-    final cartDoc = _firestore
-        .collection('users')
-        .doc(user.uid)
-        .collection('cart')
-        .doc(product.id);
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
 
-    final doc = await cartDoc.get();
+    try {
+      final cartDoc = _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('cart')
+          .doc(product.id);
 
-    int newQuantity = quantity;
-    if (doc.exists) {
-      newQuantity = (doc.data()?['quantity'] ?? 0) + quantity;
-    }
+      final doc = await cartDoc.get();
 
-    // Validation: Do not allow quantity greater than available stock
-    if (newQuantity > product.stock) {
-      newQuantity = product.stock;
-    }
+      int newQuantity = quantity;
+      if (doc.exists) {
+        newQuantity = (doc.data()?['quantity'] ?? 0) + quantity;
+      }
 
-    if (newQuantity <= 0) {
-      await cartDoc.delete();
-    } else {
-      await cartDoc.set({
-        'productName': product.name,
-        'price': product.discountPrice ?? product.price,
-        'imageUrl': product.imageUrls.isNotEmpty ? product.imageUrls[0] : '',
-        'quantity': newQuantity,
-        'addedAt': doc.exists ? (doc.data()?['addedAt'] ?? FieldValue.serverTimestamp()) : FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      // Validation: Do not allow quantity greater than available stock
+      if (newQuantity > product.stock) {
+        newQuantity = product.stock;
+      }
+
+      if (newQuantity <= 0) {
+        await cartDoc.delete();
+      } else {
+        await cartDoc.set({
+          'productName': product.name,
+          'price': product.discountPrice ?? product.price,
+          'imageUrl': product.imageUrls.isNotEmpty ? product.imageUrls[0] : '',
+          'quantity': newQuantity,
+          'addedAt': doc.exists ? (doc.data()?['addedAt'] ?? FieldValue.serverTimestamp()) : FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
+    } catch (e) {
+      debugPrint("Add to cart error: $e");
+      _errorMessage = "Could not add item to cart.";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -93,35 +114,40 @@ class CartController extends ChangeNotifier {
     final user = _auth.currentUser;
     if (user == null) return;
 
-    final cartDoc = _firestore
-        .collection('users')
-        .doc(user.uid)
-        .collection('cart')
-        .doc(productId);
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
 
-    final doc = await cartDoc.get();
-    if (!doc.exists) return;
+    try {
+      final cartDoc = _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('cart')
+          .doc(productId);
 
-    int currentQty = doc.data()?['quantity'] ?? 0;
-    int newQty = currentQty + delta;
+      final doc = await cartDoc.get();
+      if (!doc.exists) return;
 
-    // We need to check stock. Since we only have productId here, 
-    // ideally we'd fetch the product. For now, let's assume UI handles basic limits,
-    // but here we should at least prevent < 1 if we don't want auto-remove, 
-    // or auto-remove if < 1.
-    
-    if (newQty <= 0) {
-      await cartDoc.delete();
-    } else {
-      // Re-verify stock if possible. 
-      // For a robust system, we should fetch product stock from Firestore here.
-      final productDoc = await _firestore.collection('products').doc(productId).get();
-      if (productDoc.exists) {
-        int stock = productDoc.data()?['stock'] ?? 0;
-        if (newQty > stock) newQty = stock;
+      int currentQty = doc.data()?['quantity'] ?? 0;
+      int newQty = currentQty + delta;
+
+      if (newQty <= 0) {
+        await cartDoc.delete();
+      } else {
+        final productDoc = await _firestore.collection('products').doc(productId).get();
+        if (productDoc.exists) {
+          int stock = productDoc.data()?['stock'] ?? 0;
+          if (newQty > stock) newQty = stock;
+        }
+
+        await cartDoc.update({'quantity': newQty});
       }
-
-      await cartDoc.update({'quantity': newQty});
+    } catch (e) {
+      debugPrint("Update quantity error: $e");
+      _errorMessage = "Could not update quantity.";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 

@@ -16,6 +16,10 @@ class OrderManagementView extends StatefulWidget {
 class _OrderManagementViewState extends State<OrderManagementView> {
   final OrderRepository _repository = OrderRepository();
   final Color primaryTeal = const Color(0xFF0F4C5C);
+  
+  String _searchQuery = '';
+  String _selectedFilter = 'All';
+  final List<String> _filterOptions = ['All', 'Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
 
   @override
   Widget build(BuildContext context) {
@@ -28,16 +32,74 @@ class _OrderManagementViewState extends State<OrderManagementView> {
         ),
         const SizedBox(height: 10),
         const Text('Manage devotee orders, update dispatch status, and handle sacred item consecration flow.', style: TextStyle(color: Colors.grey)),
-        const SizedBox(height: 40),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search by Order ID, Name, Phone...',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value.toLowerCase();
+                  });
+                },
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              flex: 1,
+              child: DropdownButtonFormField<String>(
+                value: _selectedFilter,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                ),
+                items: _filterOptions.map((status) => DropdownMenuItem(
+                  value: status,
+                  child: Text(status),
+                )).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _selectedFilter = value;
+                    });
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 30),
         StreamBuilder<List<OrderModel>>(
           stream: _repository.getAllOrders(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-            final orders = snapshot.data ?? [];
+            var orders = snapshot.data ?? [];
+            
+            // Apply filtering
+            if (_selectedFilter != 'All') {
+              orders = orders.where((order) => order.orderStatus == _selectedFilter).toList();
+            }
+
+            // Apply search
+            if (_searchQuery.isNotEmpty) {
+              orders = orders.where((order) {
+                return order.orderId.toLowerCase().contains(_searchQuery) ||
+                       order.customerName.toLowerCase().contains(_searchQuery) ||
+                       order.phone.toLowerCase().contains(_searchQuery);
+              }).toList();
+            }
+
             if (orders.isEmpty) {
-              return const Center(child: Text('No orders found in the system.'));
+              return const Center(child: Text('No orders found matching your criteria.'));
             }
 
             return ListView.separated(

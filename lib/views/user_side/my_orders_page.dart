@@ -41,6 +41,9 @@ class MyOrdersPage extends StatelessWidget {
                 StreamBuilder<List<OrderModel>>(
                   stream: orderController.userOrders,
                   builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return _buildErrorState(context, orderController);
+                    }
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: Padding(padding: EdgeInsets.all(100), child: CircularProgressIndicator()));
                     }
@@ -64,6 +67,27 @@ class MyOrdersPage extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, OrderController controller) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(80),
+      child: Column(
+        children: [
+          const Icon(Icons.error_outline, size: 80, color: Colors.redAccent),
+          const SizedBox(height: 24),
+          const Text('Something went wrong', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          const Text('We could not load your orders. Please try again.', style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: () => controller.clearError(), // This will trigger a rebuild and retry
+            child: const Text('RETRY'),
+          ),
+        ],
       ),
     );
   }

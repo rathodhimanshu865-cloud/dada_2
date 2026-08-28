@@ -93,4 +93,6 @@ class UserModel {
       'pincode': pincode,
     };
   }
+
+  Map<String, dynamic> toMap() => toFirestore();
 }

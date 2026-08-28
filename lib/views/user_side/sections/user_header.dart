@@ -913,22 +913,60 @@ class _UserHeaderState extends State<UserHeader>
 
   Widget _buildAuthButton(Color textColor) {
     final auth = Provider.of<AuthController>(context);
+    const protectedRoutes = ['/profile', '/my_orders', '/checkout', '/cart'];
     final String currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
     return PopupMenuButton<String>(
       icon: Icon(Icons.person_outline, color: textColor),
-      onSelected: (v) {
+      onSelected: (v) async {
         if (v == 'login') {
           Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
         }
         if (v == 'profile') Navigator.pushNamed(context, '/profile');
         if (v == 'orders') Navigator.pushNamed(context, '/my_orders');
-        if (v == 'logout') auth.logout();
+        if (v == 'logout') {
+          await auth.logout();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Logged out successfully'), duration: Duration(seconds: 2)),
+            );
+            // Navigate home and show login portal
+            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+            Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
+          }
+        }
       },
       itemBuilder: (context) => auth.isAuthenticated
           ? [
-              const PopupMenuItem(value: 'profile', child: Text('My Profile')),
-              const PopupMenuItem(value: 'orders', child: Text('My Orders')),
-              const PopupMenuItem(value: 'logout', child: Text('Logout')),
+              PopupMenuItem(
+                value: 'profile',
+                child: Row(
+                  children: const [
+                    Icon(Icons.person_outline, size: 18),
+                    SizedBox(width: 10),
+                    Text('My Profile'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'orders',
+                child: Row(
+                  children: const [
+                    Icon(Icons.shopping_bag_outlined, size: 18),
+                    SizedBox(width: 10),
+                    Text('My Orders'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: const [
+                    Icon(Icons.logout, size: 18, color: Colors.redAccent),
+                    SizedBox(width: 10),
+                    Text('Logout', style: TextStyle(color: Colors.redAccent)),
+                  ],
+                ),
+              ),
             ]
           : [
               const PopupMenuItem(

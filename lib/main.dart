@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
@@ -30,6 +31,7 @@ import 'views/admin/admin_login_page.dart';
 import 'views/admin/admin_dashboard.dart';
 
 import 'views/user_side/auth/login_page.dart';
+import 'utils/route_guards.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -39,10 +41,12 @@ import 'controllers/cart_controller.dart';
 import 'controllers/product_controller.dart';
 import 'controllers/order_controller.dart';
 import 'controllers/notification_controller.dart';
+import 'controllers/store_config_controller.dart';
 import 'controllers/dashboard_controller.dart';
 import 'controllers/language_controller.dart';
 import 'controllers/profile_controller.dart';
 import 'controllers/auth_controller.dart';
+import 'controllers/connectivity_controller.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -51,6 +55,10 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final savedLanguageCode = prefs.getString('selected_locale') ?? 'en';
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
   runApp(
     MultiProvider(
       providers: [
@@ -62,7 +70,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ProductController()),
         ChangeNotifierProvider(create: (_) => OrderController()),
         ChangeNotifierProvider(create: (_) => NotificationController()),
+        ChangeNotifierProvider(create: (_) => StoreConfigController()),
         ChangeNotifierProvider(create: (_) => DashboardController()),
+        ChangeNotifierProvider(create: (_) => ConnectivityController()),
       ],
       child: const MyApp(),
     ),
@@ -103,6 +113,39 @@ class MyApp extends StatelessWidget {
         return Stack(
           children: [
             child!,
+            Consumer<ConnectivityController>(
+              builder: (context, connectivity, _) {
+                if (!connectivity.isOnline) {
+                  return Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: Material(
+                      color: Colors.redAccent,
+                      child: SafeArea(
+                        bottom: false,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.wifi_off, color: Colors.white, size: 20),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'No internet connection. Please check your connection and try again.',
+                                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
             Consumer<AuthController>(
               builder: (context, auth, _) {
                 if (auth.showLoginPortal) {
@@ -205,14 +248,15 @@ class MyApp extends StatelessWidget {
         '/product_details': (context) => const ProductDetailsPage(),
         '/catalogue': (context) => const CataloguePage(),
         '/wishlist': (context) => const WishlistPage(),
-        '/profile': (context) => const UserProfilePage(),
+        '/profile': (context) => const AuthGuard(child: UserProfilePage()),
         '/teachings': (context) => const PuDadaTeachingsPage(),
-        '/cart': (context) => const CartPage(),
-        '/checkout': (context) => const CheckoutPage(),
-        '/my_orders': (context) => const MyOrdersPage(),
+        '/cart': (context) => const AuthGuard(child: CartPage()),
+        '/checkout': (context) => const AuthGuard(child: CheckoutPage()),
+        '/my_orders': (context) => const AuthGuard(child: MyOrdersPage()),
+        '/wishlist': (context) => const AuthGuard(child: WishlistPage()),
         '/track': (context) => const TrackShipmentPage(),
-        '/admin_login': (context) => const AdminLoginPage(),
-        '/admin_dashboard': (context) => const AdminDashboard(),
+        '/admin_login': (context) => const AdminLoginGuard(child: AdminLoginPage()),
+        '/admin_dashboard': (context) => const AdminGuard(child: AdminDashboard()),
       },
     );
   }
@@ -223,8 +267,28 @@ class RootWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Always show the User Home Page first as per the new requirement.
-    // The admin will navigate to the dashboard manually via the login portal.
-    return const UserHomePage();
+    return Consumer<AuthController>(
+      builder: (context, auth, _) {
+        if (!auth.isInitialized) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (auth.isAdmin) {
+          return const AdminDashboard();
+        }
+
+        if (!auth.isAuthenticated) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            auth.toggleLoginPortal(true);
+          });
+        }
+
+        return const UserHomePage();
+      },
+    );
   }
 }

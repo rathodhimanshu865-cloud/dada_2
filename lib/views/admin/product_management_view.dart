@@ -165,6 +165,23 @@ class _ProductManagementViewState extends State<ProductManagementView> {
   }
 
   Widget _buildActiveView(DashboardController dashCtrl, ProductController prodCtrl) {
+    if (prodCtrl.isBrowsingLoading && prodCtrl.browsingProducts.isEmpty) {
+      return const Center(child: Padding(padding: EdgeInsets.all(100), child: CircularProgressIndicator()));
+    }
+    
+    if (prodCtrl.errorMessage != null && prodCtrl.browsingProducts.isEmpty) {
+      return Center(child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 64, color: Colors.redAccent),
+          const SizedBox(height: 16),
+          Text(prodCtrl.errorMessage!, style: const TextStyle(fontSize: 18)),
+          const SizedBox(height: 24),
+          ElevatedButton(onPressed: prodCtrl.clearError, child: const Text('RETRY')),
+        ],
+      ));
+    }
+
     switch (_activeSubMenu) {
       case 0: return _buildDashboard(dashCtrl);
       case 1: return _buildProductsList(prodCtrl);

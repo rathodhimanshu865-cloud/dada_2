@@ -33,7 +33,11 @@ class CartPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 40),
-                if (cartController.items.isEmpty)
+                if (cartController.isLoading && cartController.items.isEmpty)
+                   const Center(child: Padding(padding: EdgeInsets.all(100), child: CircularProgressIndicator()))
+                else if (cartController.errorMessage != null)
+                   _buildErrorState(context, cartController)
+                else if (cartController.items.isEmpty)
                   _buildEmptyState(context)
                 else
                   _buildCartContent(context, cartController),
@@ -41,6 +45,24 @@ class CartPage extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, CartController cart) {
+    return Container(
+      height: 400,
+      width: double.infinity,
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 80, color: Colors.redAccent),
+          const SizedBox(height: 24),
+          Text(cart.errorMessage!, style: const TextStyle(fontSize: 18)),
+          const SizedBox(height: 30),
+          ElevatedButton(onPressed: cart.clearError, child: const Text('Try Again')),
+        ],
       ),
     );
   }
