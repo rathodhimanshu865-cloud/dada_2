@@ -125,10 +125,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
       {'title': 'Contact / Inquiries', 'icon': Icons.contact_mail},
       {'title': 'Footer Settings', 'icon': Icons.south},
       {'title': 'Product Management', 'icon': Icons.shopping_bag_outlined},
-      {'title': 'Orders', 'icon': Icons.shopping_cart},
-      {'title': 'Users', 'icon': Icons.people_outline},
-      {'title': 'Notifications', 'icon': Icons.notifications_outlined},
-      {'title': 'Store Settings', 'icon': Icons.admin_panel_settings},
     ];
 
     return Container(
@@ -185,10 +181,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     // Reverted to individual view routing
     switch (currentMenuIndex) {
       case 13: return const ProductManagementView();
-      case 14: return const OrderManagementView();
-      case 15: return const AdminUsersView();
-      case 16: return const AdminNotificationsView();
-      case 17: return const AdminSettingsView();
       // Delegate CMS indices (0-12) to the helper
       default:
         if (currentMenuIndex >= 0 && currentMenuIndex <= 12) {

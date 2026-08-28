@@ -30,6 +30,7 @@ class _ProductManagementViewState extends State<ProductManagementView> {
   final Color bgCream = const Color(0xFFFDFBF7);
 
   final TextEditingController _searchCtrl = TextEditingController();
+  final ScrollController _headerScrollCtrl = ScrollController();
 
   @override
   void initState() {
@@ -40,6 +41,7 @@ class _ProductManagementViewState extends State<ProductManagementView> {
   @override
   void dispose() {
     _searchCtrl.dispose();
+    _headerScrollCtrl.dispose();
     super.dispose();
   }
 
@@ -78,24 +80,10 @@ class _ProductManagementViewState extends State<ProductManagementView> {
       {'title': 'Coupons', 'icon': Icons.local_offer_outlined},
       {'title': 'Reviews', 'icon': Icons.star_outline},
       {'title': 'Store Settings', 'icon': Icons.settings_outlined},
-      // CMS Content Sections (Consolidated into header for easy access)
-      {'title': 'General CMS', 'icon': Icons.web_outlined},
-      {'title': 'Hero', 'icon': Icons.burst_mode},
-      {'title': 'Bio', 'icon': Icons.person_outline},
-      {'title': 'Katha Pages', 'icon': Icons.menu_book},
-      {'title': 'Events', 'icon': Icons.event},
-      {'title': 'Home CMS', 'icon': Icons.home_outlined},
-      {'title': 'News', 'icon': Icons.newspaper},
-      {'title': 'Archive', 'icon': Icons.list_alt},
-      {'title': 'Photos', 'icon': Icons.photo_library},
-      {'title': 'Videos', 'icon': Icons.video_library},
-      {'title': 'Stotra', 'icon': Icons.music_note},
-      {'title': 'Contact', 'icon': Icons.contact_mail},
-      {'title': 'Footer', 'icon': Icons.south},
     ];
 
     return Container(
-      height: 70,
+      height: 80,
       width: double.infinity,
       decoration: BoxDecoration(
         color: const Color(0xFFF9F6F0),
@@ -108,9 +96,16 @@ class _ProductManagementViewState extends State<ProductManagementView> {
           const VerticalDivider(width: 40, indent: 15, endIndent: 15),
           Expanded(
             child: Scrollbar(
+              controller: _headerScrollCtrl,
+              thumbVisibility: true,
+              trackVisibility: true,
+              thickness: 4,
+              radius: const Radius.circular(10),
               child: SingleChildScrollView(
+                controller: _headerScrollCtrl,
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: 12), // Space for the scrollbar
                 child: Row(
                   children: items.asMap().entries.map((e) {
                     int i = e.key;
@@ -213,24 +208,19 @@ class _ProductManagementViewState extends State<ProductManagementView> {
     final homeController = Provider.of<HomePageController>(context, listen: false);
 
     // Dynamic routing for the "Super Header"
-    if (_activeSubMenu <= 10) {
-      switch (_activeSubMenu) {
-        case 0: return _buildDashboard(dashCtrl);
-        case 1: return _buildProductsList(prodCtrl);
-        case 2: return _buildCategoriesGrid(prodCtrl);
-        case 3: return _buildInventoryStockView(prodCtrl);
-        case 4: return const OrderManagementView();
-        case 5: return const AdminUsersView();
-        case 6: return const AdminNotificationsView();
-        case 7: return _buildPaymentsSettlementView(dashCtrl);
-        case 8: return _buildCouponsOffersView();
-        case 9: return _buildReviewsBlessingsView();
-        case 10: return const AdminSettingsView();
-        default: return const Center(child: Text('Section coming soon'));
-      }
-    } else {
-      // Map CMS indices (starting from 11 in this view) to helper's indices (starting from 0)
-      return CMSViewsHelper.buildCMSView(_activeSubMenu - 11, homeController, context, {}, (fn) => setState(fn));
+    switch (_activeSubMenu) {
+      case 0: return _buildDashboard(dashCtrl);
+      case 1: return _buildProductsList(prodCtrl);
+      case 2: return _buildCategoriesGrid(prodCtrl);
+      case 3: return _buildInventoryStockView(prodCtrl);
+      case 4: return const OrderManagementView();
+      case 5: return const AdminUsersView();
+      case 6: return const AdminNotificationsView();
+      case 7: return _buildPaymentsSettlementView(dashCtrl);
+      case 8: return _buildCouponsOffersView();
+      case 9: return _buildReviewsBlessingsView();
+      case 10: return const AdminSettingsView();
+      default: return const Center(child: Text('Section coming soon'));
     }
   }
 
