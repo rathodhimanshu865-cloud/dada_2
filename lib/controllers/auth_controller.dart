@@ -25,7 +25,12 @@ class AuthController extends ChangeNotifier {
   bool _showLoginPortal = false;
   bool _isLoading = false;
   bool _isInitialized = false;
+  bool _isDisposed = false;
   String? _errorMessage;
+
+  void _safeNotifyListeners() {
+    if (!_isDisposed) notifyListeners();
+  }
 
   User? get user => _user;
   UserModel? get userModel => _userModel;
@@ -43,13 +48,13 @@ class AuthController extends ChangeNotifier {
 
   void clearError() {
     _errorMessage = null;
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   void toggleLoginPortal(bool show) {
     if (_showLoginPortal == show) return;
     _showLoginPortal = show;
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   AuthController() {
@@ -69,7 +74,7 @@ class AuthController extends ChangeNotifier {
         _userModel = null;
       }
       _isInitialized = true;
-      notifyListeners();
+      _safeNotifyListeners();
     });
 
     _adminAuth.authStateChanges().listen((User? user) async {
@@ -79,7 +84,7 @@ class AuthController extends ChangeNotifier {
       } else {
         _adminRole = null;
       }
-      notifyListeners();
+      _safeNotifyListeners();
     });
   }
 
@@ -121,7 +126,7 @@ class AuthController extends ChangeNotifier {
   }) async {
     if (_user == null) return;
     _isLoading = true;
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       await _firestore.collection('users').doc(_user!.uid).update({
@@ -139,14 +144,14 @@ class AuthController extends ChangeNotifier {
       rethrow;
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
   Future<void> updateProfileImage(File imageFile) async {
     if (_user == null) return;
     _isLoading = true;
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       final ref = _storage.ref().child('profile_images').child('${_user!.uid}.jpg');
@@ -162,7 +167,7 @@ class AuthController extends ChangeNotifier {
       rethrow;
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -184,7 +189,7 @@ class AuthController extends ChangeNotifier {
   }) async {
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       final credential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
@@ -210,14 +215,14 @@ class AuthController extends ChangeNotifier {
       rethrow;
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
   Future<void> login(String email, String password) async {
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       final credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
@@ -233,14 +238,14 @@ class AuthController extends ChangeNotifier {
       rethrow;
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
   Future<void> adminLogin(String email, String password) async {
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       final credential = await _adminAuth.signInWithEmailAndPassword(email: email, password: password);
@@ -259,7 +264,7 @@ class AuthController extends ChangeNotifier {
       rethrow;
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -269,13 +274,19 @@ class AuthController extends ChangeNotifier {
     await prefs.remove('cached_profile_data');
     _userModel = null;
     _role = null;
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   Future<void> adminLogout() async {
     await _adminAuth.signOut();
     _adminUser = null;
     _adminRole = null;
-    notifyListeners();
+    _safeNotifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 }

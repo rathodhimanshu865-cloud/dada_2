@@ -6,6 +6,11 @@ import '../repositories/product_repository.dart';
 class StoreConfigController extends ChangeNotifier {
   final ProductRepository _repository = ProductRepository();
   bool _isLoading = false;
+  bool _isDisposed = false;
+
+  void _safeNotifyListeners() {
+    if (!_isDisposed) notifyListeners();
+  }
 
   bool get isLoading => _isLoading;
 
@@ -27,7 +32,7 @@ class StoreConfigController extends ChangeNotifier {
     File? newLogoFile,
   }) async {
     _isLoading = true;
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       String logoUrl = currentConfig.logoUrl;
@@ -57,7 +62,13 @@ class StoreConfigController extends ChangeNotifier {
       debugPrint("Error updating store config: $e");
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 }

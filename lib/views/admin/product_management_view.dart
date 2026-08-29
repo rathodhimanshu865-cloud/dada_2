@@ -190,23 +190,9 @@ class _ProductManagementViewState extends State<ProductManagementView> {
   }
 
   Widget _buildActiveView(DashboardController dashCtrl, ProductController prodCtrl) {
-    if (prodCtrl.isBrowsingLoading && prodCtrl.browsingProducts.isEmpty) {
-      return const Center(child: Padding(padding: EdgeInsets.all(100), child: CircularProgressIndicator()));
-    }
+    // Rely on individual view error handling instead of blocking the entire admin portal
+    // for transient or non-critical background fetch errors.
     
-    if (prodCtrl.errorMessage != null && prodCtrl.browsingProducts.isEmpty) {
-      return Center(child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 64, color: Colors.redAccent),
-          const SizedBox(height: 16),
-          Text(prodCtrl.errorMessage!, style: const TextStyle(fontSize: 18)),
-          const SizedBox(height: 24),
-          ElevatedButton(onPressed: prodCtrl.clearError, child: const Text('RETRY')),
-        ],
-      ));
-    }
-
     // Re-calculating the items list to get the title of the active tab
     final items = _getHeaderItems(dashCtrl, prodCtrl);
 
@@ -889,6 +875,7 @@ class _ProductManagementViewState extends State<ProductManagementView> {
     String selectedBadge = product?.consecrationBadge ?? 'Bestseller';
     bool isActive = product?.isActive ?? true;
     bool isFeatured = product?.isFeatured ?? false;
+    bool isSavingLocal = false;
 
     showDialog(
       context: context,
@@ -1066,7 +1053,8 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                         ),
                         const SizedBox(width: 16),
                         ElevatedButton(
-                          onPressed: () async {
+                          onPressed: isSavingLocal ? null : () async {
+                            setDialogState(() => isSavingLocal = true);
                             final p = (isEdit ? product : ProductModel(id: 'DADA-${DateTime.now().millisecondsSinceEpoch}', name: '', price: 0, categoryId: '')).copyWith(
                               name: nameCtrl.text.trim(),
                               sku: skuCtrl.text.trim(),
@@ -1099,6 +1087,7 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                               }
                             } catch (e) {
                               if (mounted) {
+                                setDialogState(() => isSavingLocal = false);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text('Failed to save product: $e'),
@@ -1115,7 +1104,9 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             elevation: 0,
                           ),
-                          child: Text(isEdit ? 'UPDATE PRODUCT' : 'PUBLISH PRODUCT', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1)),
+                          child: isSavingLocal 
+                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                            : Text(isEdit ? 'UPDATE PRODUCT' : 'PUBLISH PRODUCT', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1)),
                         ),
                       ],
                     ),
@@ -1307,7 +1298,37 @@ class _ProductManagementViewState extends State<ProductManagementView> {
   }
 
   void _confirmDelete(String id, ProductController ctrl) {
-    showDialog(context: context, builder: (context) => AlertDialog(title: const Text('Delete Product?'), content: const Text('This action cannot be undone.'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')), ElevatedButton(onPressed: () async { await ctrl.deleteProduct(id); Navigator.pop(context); }, style: ElevatedButton.styleFrom(backgroundColor: Colors.red), child: const Text('DELETE'))]));
+    showDialog(
+      context: context, 
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Product?'), 
+        content: const Text('This action cannot be undone.'), 
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')), 
+          ElevatedButton(
+            onPressed: () async { 
+              Navigator.pop(context); // Close confirm dialog immediately
+              try {
+                await ctrl.deleteProduct(id);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Product deleted successfully'), backgroundColor: Colors.green),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Delete failed: $e'), backgroundColor: Colors.redAccent),
+                  );
+                }
+              }
+            }, 
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red), 
+            child: const Text('DELETE')
+          ),
+        ],
+      ),
+    );
   }
 
   void _confirmDeleteCategory(String id, ProductController ctrl) async {

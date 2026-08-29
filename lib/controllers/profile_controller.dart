@@ -9,6 +9,11 @@ class ProfileController extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   ProfileData? _profileData;
   bool _isLoading = false;
+  bool _isDisposed = false;
+
+  void _safeNotifyListeners() {
+    if (!_isDisposed) notifyListeners();
+  }
 
   ProfileData? get profileData => _profileData;
   bool get isLoading => _isLoading;
@@ -19,7 +24,7 @@ class ProfileController extends ChangeNotifier {
 
   void _listenToProfile() async {
     _isLoading = true;
-    notifyListeners();
+    _safeNotifyListeners();
 
     // 1. Try loading from local cache instantly
     try {
@@ -29,11 +34,9 @@ class ProfileController extends ChangeNotifier {
         final decoded = jsonDecode(cachedStr);
         _profileData = ProfileData.fromJson(decoded);
         _isLoading = false; // Turn off loading immediately!
-        notifyListeners();
+        _safeNotifyListeners();
       }
-    } catch (e) {
-      debugPrint("Error loading profile from cache: $e");
-    }
+    } catch (_) {}
 
     // 2. Fetch fresh data silently in background
     _firestore.collection('profile').doc('aboutPage').snapshots().listen((doc) async {
@@ -44,18 +47,15 @@ class ProfileController extends ChangeNotifier {
         try {
           final prefs = await SharedPreferences.getInstance();
           prefs.setString('cached_profile_data', jsonEncode(_profileData!.toJson()));
-        } catch (e) {
-          debugPrint("Error saving profile to cache: $e");
-        }
+        } catch (_) {}
       } else {
         _profileData = ProfileData();
       }
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }, onError: (e) {
-      debugPrint("Error listening to profile: $e");
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     });
   }
 
@@ -64,8 +64,7 @@ class ProfileController extends ChangeNotifier {
     try {
       data.lastUpdated = DateTime.now();
       await _firestore.collection('profile').doc('aboutPage').set(data.toMap());
-    } catch (e) {
-      debugPrint("Error saving profile: $e");
+    } catch (_) {
       rethrow;
     }
   }
@@ -81,7 +80,7 @@ class ProfileController extends ChangeNotifier {
   Future<void> translateAll() async {
     if (_profileData == null) return;
     _isLoading = true;
-    notifyListeners();
+    _safeNotifyListeners();
     try {
       final p = _profileData!;
       final futures = <Future<void>>[];
@@ -109,10 +108,14 @@ class ProfileController extends ChangeNotifier {
 
       await Future.wait(futures);
       await saveProfileData(p);
-    } catch (e) {
-      debugPrint("Translation error in ProfileController: $e");
-    }
+    } catch (_) {}
     _isLoading = false;
-    notifyListeners();
+    _safeNotifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 }

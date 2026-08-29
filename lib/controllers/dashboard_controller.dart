@@ -11,6 +11,11 @@ class DashboardController extends ChangeNotifier {
   List<ProductModel> _recentProducts = [];
   List<OrderModel> _recentOrders = [];
   bool _isLoading = false;
+  bool _isDisposed = false;
+
+  void _safeNotifyListeners() {
+    if (!_isDisposed) notifyListeners();
+  }
 
   DashboardStats get stats => _stats;
   List<ProductModel> get recentProducts => _recentProducts;
@@ -23,7 +28,7 @@ class DashboardController extends ChangeNotifier {
 
   Future<void> loadDashboardData() async {
     _isLoading = true;
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       // Fetch stats in parallel
@@ -69,10 +74,16 @@ class DashboardController extends ChangeNotifier {
       if (_recentOrders.length > 5) _recentOrders = _recentOrders.sublist(0, 5);
 
     } catch (e) {
-      debugPrint("Dashboard load error: $e");
+      // Quiet fail to avoid UI noise
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 }

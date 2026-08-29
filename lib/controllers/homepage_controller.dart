@@ -11,6 +11,12 @@ class HomePageController extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
+  bool _isDisposed = false;
+
+  void _safeNotifyListeners() {
+    if (!_isDisposed) notifyListeners();
+  }
+
   WebsiteSettings websiteSettings = WebsiteSettings();
   HeroSection heroSection = HeroSection();
   List<UpcomingKatha> upcomingKathas = [];
@@ -54,7 +60,7 @@ class HomePageController extends ChangeNotifier {
         .snapshots()
         .listen((snapshot) {
       realTimePhotos = snapshot.docs.map((doc) => doc.data()).toList();
-      notifyListeners();
+      _safeNotifyListeners();
     }, onError: (err) {
       AppLogger.error("Photos stream error", err);
     });
@@ -62,13 +68,14 @@ class HomePageController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _photosSubscription?.cancel();
     super.dispose();
   }
 
   Future<void> loadData() async {
     isLoading = true;
-    notifyListeners();
+    _safeNotifyListeners();
     try {
       final doc = await _firestore.collection('cms').doc('homepage').get();
       if (doc.exists && doc.data() != null) {
@@ -106,41 +113,41 @@ class HomePageController extends ChangeNotifier {
       AppLogger.error("Load error", e);
     }
     isLoading = false;
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   // Management functions
-  void addHeroSlide() { heroSection.slides.add(HeroSlide()); notifyListeners(); }
-  void removeHeroSlide(int i) { heroSection.slides.removeAt(i); notifyListeners(); }
-  void addKatha() { upcomingKathas.add(UpcomingKatha()); notifyListeners(); }
-  void removeKatha(int i) { upcomingKathas.removeAt(i); notifyListeners(); }
-  void addVideo() { videos.add(VideoItem(title: 'New Video', youtubeUrl: '')); notifyListeners(); }
-  void removeVideo(int i) { videos.removeAt(i); notifyListeners(); }
-  void addTeaching() { homepageData.teachings.add(TeachingCard()); notifyListeners(); }
-  void removeTeaching(int i) { homepageData.teachings.removeAt(i); notifyListeners(); }
-  void addTestimonial() { homepageData.testimonials.add(Testimonial()); notifyListeners(); }
-  void removeTestimonial(int i) { homepageData.testimonials.removeAt(i); notifyListeners(); }
-  void addKathaRecord() { allKathas.add(KathaRecord()); notifyListeners(); }
-  void removeKathaRecord(int i) { allKathas.removeAt(i); notifyListeners(); }
-  void addStotraItem() { stotraSection.items.add(StotraItem()); notifyListeners(); }
-  void removeStotraItem(int i) { stotraSection.items.removeAt(i); notifyListeners(); }
+  void addHeroSlide() { heroSection.slides.add(HeroSlide()); _safeNotifyListeners(); }
+  void removeHeroSlide(int i) { heroSection.slides.removeAt(i); _safeNotifyListeners(); }
+  void addKatha() { upcomingKathas.add(UpcomingKatha()); _safeNotifyListeners(); }
+  void removeKatha(int i) { upcomingKathas.removeAt(i); _safeNotifyListeners(); }
+  void addVideo() { videos.add(VideoItem(title: 'New Video', youtubeUrl: '')); _safeNotifyListeners(); }
+  void removeVideo(int i) { videos.removeAt(i); _safeNotifyListeners(); }
+  void addTeaching() { homepageData.teachings.add(TeachingCard()); _safeNotifyListeners(); }
+  void removeTeaching(int i) { homepageData.teachings.removeAt(i); _safeNotifyListeners(); }
+  void addTestimonial() { homepageData.testimonials.add(Testimonial()); _safeNotifyListeners(); }
+  void removeTestimonial(int i) { homepageData.testimonials.removeAt(i); _safeNotifyListeners(); }
+  void addKathaRecord() { allKathas.add(KathaRecord()); _safeNotifyListeners(); }
+  void removeKathaRecord(int i) { allKathas.removeAt(i); _safeNotifyListeners(); }
+  void addStotraItem() { stotraSection.items.add(StotraItem()); _safeNotifyListeners(); }
+  void removeStotraItem(int i) { stotraSection.items.removeAt(i); _safeNotifyListeners(); }
 
   // Additional Photo/Video Gallery methods
-  void addPhotoCategory() { photoGalleryData.sections.add(PhotoGallerySection()); notifyListeners(); }
-  void removePhotoCategory(int i) { photoGalleryData.sections.removeAt(i); notifyListeners(); }
+  void addPhotoCategory() { photoGalleryData.sections.add(PhotoGallerySection()); _safeNotifyListeners(); }
+  void removePhotoCategory(int i) { photoGalleryData.sections.removeAt(i); _safeNotifyListeners(); }
   
   Future<void> addPhotoToCategoryFromPicker(int sectionIndex) async {
     final url = await uploadPhotoFromFile();
     if (url != null) {
       photoGalleryData.sections[sectionIndex].photoUrls.add(url);
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
-  void addVideoCategory() { videoGalleryData.categories.add(VideoCategory()); notifyListeners(); }
-  void removeVideoCategory(int i) { videoGalleryData.categories.removeAt(i); notifyListeners(); }
-  void addVideoToCategory(int catIndex) { videoGalleryData.categories[catIndex].videos.add(VideoGalleryEntry()); notifyListeners(); }
-  void removeVideoFromCategory(int catIndex, int vidIndex) { videoGalleryData.categories[catIndex].videos.removeAt(vidIndex); notifyListeners(); }
+  void addVideoCategory() { videoGalleryData.categories.add(VideoCategory()); _safeNotifyListeners(); }
+  void removeVideoCategory(int i) { videoGalleryData.categories.removeAt(i); _safeNotifyListeners(); }
+  void addVideoToCategory(int catIndex) { videoGalleryData.categories[catIndex].videos.add(VideoGalleryEntry()); _safeNotifyListeners(); }
+  void removeVideoFromCategory(int catIndex, int vidIndex) { videoGalleryData.categories[catIndex].videos.removeAt(vidIndex); _safeNotifyListeners(); }
 
   Future<void> submitInquiry(ContactInquiry inquiry) async {
     try {
@@ -154,7 +161,7 @@ class HomePageController extends ChangeNotifier {
   Future<String?> uploadPhotoFromFile() async {
     try {
       isUploading = true;
-      notifyListeners();
+      _safeNotifyListeners();
       final PlatformFile? result = await FilePicker.pickFile(
         type: FileType.image,
       );
@@ -172,7 +179,7 @@ class HomePageController extends ChangeNotifier {
       AppLogger.error("Upload error", e);
     } finally {
       isUploading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
     return null;
   }
@@ -209,7 +216,7 @@ class HomePageController extends ChangeNotifier {
 
   Future<void> translateAndPublish() async {
     isLoading = true;
-    notifyListeners();
+    _safeNotifyListeners();
     try {
       // Logic for mass translation would go here
       await publish();
@@ -217,7 +224,7 @@ class HomePageController extends ChangeNotifier {
       AppLogger.error("Translation error", e);
     } finally {
       isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 }

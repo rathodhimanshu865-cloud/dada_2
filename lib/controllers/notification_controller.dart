@@ -10,6 +10,11 @@ class NotificationController extends ChangeNotifier {
 
   List<NotificationModel> _notifications = [];
   StreamSubscription? _subscription;
+  bool _isDisposed = false;
+
+  void _safeNotifyListeners() {
+    if (!_isDisposed) notifyListeners();
+  }
 
   List<NotificationModel> get notifications => _notifications;
   int get unreadCount => _notifications.where((n) => !n.isRead).length;
@@ -28,14 +33,14 @@ class NotificationController extends ChangeNotifier {
     _subscription?.cancel();
     _subscription = _repository.getNotifications(uid).listen((data) {
       _notifications = data;
-      notifyListeners();
+      _safeNotifyListeners();
     });
   }
 
   void _stopSubscription() {
     _subscription?.cancel();
     _notifications = [];
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   Future<void> markAsRead(String id) async {
@@ -80,6 +85,7 @@ class NotificationController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _subscription?.cancel();
     super.dispose();
   }

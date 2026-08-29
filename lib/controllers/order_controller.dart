@@ -9,6 +9,12 @@ class OrderController extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   bool _isLoading = false;
+  bool _isDisposed = false;
+
+  void _safeNotifyListeners() {
+    if (!_isDisposed) notifyListeners();
+  }
+
   bool get isLoading => _isLoading;
 
   String? _errorMessage;
@@ -16,7 +22,7 @@ class OrderController extends ChangeNotifier {
 
   void clearError() {
     _errorMessage = null;
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   Future<String?> placeOrder({
@@ -40,7 +46,7 @@ class OrderController extends ChangeNotifier {
 
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       final orderId = 'DADA-${DateTime.now().millisecondsSinceEpoch}';
@@ -78,12 +84,11 @@ class OrderController extends ChangeNotifier {
       await _repository.placeOrder(order);
       return orderId;
     } catch (e) {
-      debugPrint("Place order error: $e");
       _errorMessage = "Failed to place order. Please try again.";
       return null;
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -99,5 +104,11 @@ class OrderController extends ChangeNotifier {
 
   Future<void> cancelOrder(String orderId) async {
     await _repository.cancelOrder(orderId);
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 }

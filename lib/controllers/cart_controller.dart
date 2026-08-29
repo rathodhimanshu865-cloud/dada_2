@@ -12,7 +12,12 @@ class CartController extends ChangeNotifier {
   List<CartItem> _items = [];
   StreamSubscription? _cartSubscription;
   bool _isLoading = false;
+  bool _isDisposed = false;
   String? _errorMessage;
+
+  void _safeNotifyListeners() {
+    if (!_isDisposed) notifyListeners();
+  }
 
   List<CartItem> get items => _items;
   bool get isLoading => _isLoading;
@@ -20,7 +25,7 @@ class CartController extends ChangeNotifier {
 
   void clearError() {
     _errorMessage = null;
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   int get totalItems => _items.fold(0, (sumCount, item) => sumCount + item.quantity);
@@ -53,14 +58,14 @@ class CartController extends ChangeNotifier {
         .snapshots()
         .listen((snapshot) {
       _items = snapshot.docs.map((doc) => CartItem.fromFirestore(doc)).toList();
-      notifyListeners();
+      _safeNotifyListeners();
     });
   }
 
   void _stopCartSubscription() {
     _cartSubscription?.cancel();
     _items = [];
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   Future<void> addToCart(ProductModel product, int quantity) async {
@@ -69,7 +74,7 @@ class CartController extends ChangeNotifier {
 
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       final cartDoc = _firestore
@@ -106,7 +111,7 @@ class CartController extends ChangeNotifier {
       _errorMessage = "Could not add item to cart.";
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -116,7 +121,7 @@ class CartController extends ChangeNotifier {
 
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       final cartDoc = _firestore
@@ -147,7 +152,7 @@ class CartController extends ChangeNotifier {
       _errorMessage = "Could not update quantity.";
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -184,6 +189,7 @@ class CartController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _cartSubscription?.cancel();
     super.dispose();
   }

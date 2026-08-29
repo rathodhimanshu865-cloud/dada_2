@@ -145,7 +145,8 @@ class ProductRepository {
     }
 
     if (onlyInStock) {
-      query = query.where('stock', isGreaterThan: 0);
+      // Note: Range filters require ordering by the same field first
+      query = query.where('stock', isGreaterThan: 0).orderBy('stock');
     }
 
     // Sort

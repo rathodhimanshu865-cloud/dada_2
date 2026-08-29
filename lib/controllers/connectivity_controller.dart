@@ -6,6 +6,11 @@ class ConnectivityController extends ChangeNotifier {
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<List<ConnectivityResult>> _subscription;
   bool _isOnline = true;
+  bool _isDisposed = false;
+
+  void _safeNotifyListeners() {
+    if (!_isDisposed) notifyListeners();
+  }
 
   bool get isOnline => _isOnline;
 
@@ -24,12 +29,13 @@ class ConnectivityController extends ChangeNotifier {
     final bool online = !results.contains(ConnectivityResult.none);
     if (_isOnline != online) {
       _isOnline = online;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
     _subscription.cancel();
     super.dispose();
   }

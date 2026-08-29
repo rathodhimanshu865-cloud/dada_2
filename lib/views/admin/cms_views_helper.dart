@@ -48,40 +48,15 @@ class CMSViewsHelper {
   }
 
   static Widget _buildField(String label, String value, Function(String) onChanged, BuildContext context, Map<String, bool> fieldLoading, Function(VoidCallback) setState, {int maxLines = 1, String? translateKey, Function(String, String)? onTranslated}) {
-    final bool loading = translateKey != null && (fieldLoading[translateKey] ?? false);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
-              if (translateKey != null && onTranslated != null)
-                TextButton.icon(
-                  onPressed: loading ? null : () => _translateField(translateKey, value, onTranslated, fieldLoading, setState),
-                  icon: loading 
-                    ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.amber)) 
-                    : const Icon(Icons.translate, size: 14, color: Colors.amber),
-                  label: Text(loading ? 'Translating...' : 'Translate', style: const TextStyle(fontSize: 12, color: Colors.amber)),
-                ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: TextEditingController(text: value)..selection = TextSelection.collapsed(offset: value.length),
-            onChanged: onChanged,
-            maxLines: maxLines,
-            style: const TextStyle(fontSize: 14),
-            decoration: InputDecoration(
-              isDense: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            ),
-          ),
-        ],
-      ),
+    return _AdminTextFieldWidget(
+      label: label,
+      initialValue: value,
+      onChanged: onChanged,
+      maxLines: maxLines,
+      translateKey: translateKey,
+      onTranslated: onTranslated,
+      fieldLoading: fieldLoading,
+      parentSetState: setState,
     );
   }
 
@@ -237,7 +212,7 @@ class CMSViewsHelper {
         _buildField('Hero Badge', k.heroBadge, (v) => k.heroBadge = v, context, fieldLoading, setState, translateKey: '${p}_badge', onTranslated: (hi, gu) { k.heroBadgeHi = hi; k.heroBadgeGu = gu; }),
         _buildField('Hero Title', k.heroTitle, (v) => k.heroTitle = v, context, fieldLoading, setState, translateKey: '${p}_title', onTranslated: (hi, gu) { k.heroTitleHi = hi; k.heroTitleGu = gu; }),
         _buildField('Desc 1', k.heroDesc1, (v) => k.heroDesc1 = v, context, fieldLoading, setState, maxLines: 4, translateKey: '${p}_d1', onTranslated: (hi, gu) { k.heroDesc1Hi = hi; k.heroDesc1Gu = gu; }),
-        _buildField('Desc 2', k.heroDesc2, (v) => k.heroDesc2 = v, context, fieldLoading, setState, maxLines: 4, translateKey: '${p}_d2', onTranslated: (hi, gu) { k.heroDesc2Hi = hi; k.heroDesc2Gu = gu; }),
+        _buildField('Desc 2', k.heroDesc2, (v) => k.heroDesc2 = v, context, fieldLoading, setState, maxLines: 4, translateKey: '${p}_d2', onTranslated: (hi, gu) { k.heroDesc1Hi = hi; k.heroDesc2Gu = gu; }),
         _buildImageField('Main Image', k.heroImage, (v) => setState(() => k.heroImage = v), context, fieldLoading, setState),
         _buildField('Quote', k.quoteText, (v) => k.quoteText = v, context, fieldLoading, setState, maxLines: 3, translateKey: '${p}_q', onTranslated: (hi, gu) { k.quoteTextHi = hi; k.quoteTextGu = gu; }),
         _buildField('Author', k.quoteAuthor, (v) => k.quoteAuthor = v, context, fieldLoading, setState, translateKey: '${p}_qa', onTranslated: (hi, gu) { k.quoteAuthorHi = hi; k.quoteAuthorGu = gu; }),
@@ -541,6 +516,100 @@ class CMSViewsHelper {
         const SizedBox(height: 24),
         ElevatedButton(onPressed: controller.publish, child: const Text('PUBLISH FOOTER')),
       ],
+    );
+  }
+}
+
+class _AdminTextFieldWidget extends StatefulWidget {
+  final String label;
+  final String initialValue;
+  final Function(String) onChanged;
+  final int maxLines;
+  final String? translateKey;
+  final Function(String, String)? onTranslated;
+  final Map<String, bool> fieldLoading;
+  final Function(VoidCallback) parentSetState;
+
+  const _AdminTextFieldWidget({
+    required this.label,
+    required this.initialValue,
+    required this.onChanged,
+    required this.maxLines,
+    this.translateKey,
+    this.onTranslated,
+    required this.fieldLoading,
+    required this.parentSetState,
+  });
+
+  @override
+  State<_AdminTextFieldWidget> createState() => _AdminTextFieldWidgetState();
+}
+
+class _AdminTextFieldWidgetState extends State<_AdminTextFieldWidget> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void didUpdateWidget(_AdminTextFieldWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialValue != _controller.text) {
+      final oldSelection = _controller.selection;
+      _controller.text = widget.initialValue;
+      try {
+        _controller.selection = oldSelection;
+      } catch (_) {
+        _controller.selection = TextSelection.collapsed(offset: _controller.text.length);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool loading = widget.translateKey != null && (widget.fieldLoading[widget.translateKey] ?? false);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(widget.label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+              if (widget.translateKey != null && widget.onTranslated != null)
+                TextButton.icon(
+                  onPressed: loading ? null : () => CMSViewsHelper._translateField(widget.translateKey!, _controller.text, widget.onTranslated!, widget.fieldLoading, widget.parentSetState),
+                  icon: loading 
+                    ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.amber)) 
+                    : const Icon(Icons.translate, size: 14, color: Colors.amber),
+                  label: Text(loading ? 'Translating...' : 'Translate', style: const TextStyle(fontSize: 12, color: Colors.amber)),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _controller,
+            onChanged: widget.onChanged,
+            maxLines: widget.maxLines,
+            style: const TextStyle(fontSize: 14),
+            decoration: InputDecoration(
+              isDense: true,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

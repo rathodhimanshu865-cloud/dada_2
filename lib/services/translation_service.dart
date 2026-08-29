@@ -16,7 +16,6 @@ class TranslationService {
       final gu = await translate(text, 'gu');
       return {'hi': hi, 'gu': gu};
     } catch (e) {
-      debugPrint('Translation Error: $e');
       return {'hi': text, 'gu': text};
     }
   }
@@ -31,9 +30,7 @@ class TranslationService {
         final data = jsonDecode(response.body);
         return data['responseData']['translatedText'] ?? text;
       }
-    } catch (e) {
-      debugPrint('Specific translation error: $e');
-    }
+    } catch (_) {}
     return text;
   }
 

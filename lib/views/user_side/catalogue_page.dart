@@ -57,7 +57,7 @@ class _CataloguePageState extends State<CataloguePage> {
               ),
             ),
           )
-        else if (productController.errorMessage != null && productController.browsingProducts.isEmpty)
+        else if (productController.browsingErrorMessage != null && productController.browsingProducts.isEmpty)
           SliverFillRemaining(
             child: Center(
               child: Column(
@@ -65,9 +65,9 @@ class _CataloguePageState extends State<CataloguePage> {
                 children: [
                   const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
                   const SizedBox(height: 16),
-                  Text(productController.errorMessage!),
+                  Text(productController.browsingErrorMessage!),
                   const SizedBox(height: 16),
-                  ElevatedButton(onPressed: () => productController.fetchBrowsingProducts(refresh: true), child: Text('Try Again'))
+                  ElevatedButton(onPressed: () => productController.fetchBrowsingProducts(refresh: true), child: const Text('Try Again'))
                 ],
               ),
             ),
