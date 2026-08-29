@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../controllers/cart_controller.dart';
 import '../../../controllers/product_controller.dart';
 import '../../../controllers/notification_controller.dart';
@@ -147,7 +148,12 @@ class _ProductHeaderState extends State<ProductHeader> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: product.imageUrls.isNotEmpty 
-                      ? Image.network(product.imageUrls[0], fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.image_outlined, color: Colors.grey))
+                      ? CachedNetworkImage(
+                          imageUrl: product.imageUrls[0],
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                          errorWidget: (c, e, s) => const Icon(Icons.image_outlined, color: Colors.grey),
+                        )
                       : const Icon(Icons.image_outlined, color: Colors.grey),
                   ),
                 ),
@@ -383,7 +389,8 @@ class _ProductHeaderState extends State<ProductHeader> {
                             onTap: () {
                               prod.selectCategory(cat);
                               Navigator.pop(context);
-                              Navigator.pushNamed(context, '/catalogue');
+                              // Use replacement to keep the stack clean
+                              Navigator.pushReplacementNamed(context, '/catalogue');
                             },
                             child: Row(children: [const Icon(Icons.category_outlined, size: 20), const SizedBox(width: 12), Expanded(child: Text(cat, style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFF2B2B2B))))]),
                           ),
@@ -391,7 +398,7 @@ class _ProductHeaderState extends State<ProductHeader> {
                       ),
                       const SizedBox(height: 30),
                       const Divider(),
-                      Center(child: TextButton(onPressed: () { Navigator.pop(context); Navigator.pushNamed(context, '/catalogue'); }, child: Text('Explore All Products >', style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.bold, color: primaryColor)))),
+                      Center(child: TextButton(onPressed: () { Navigator.pop(context); Navigator.pushReplacementNamed(context, '/catalogue'); }, child: Text('Explore All Products >', style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.bold, color: primaryColor)))),
                     ],
                   ),
                 ),
@@ -403,7 +410,20 @@ class _ProductHeaderState extends State<ProductHeader> {
     );
   }
 
-  Widget _navLink(BuildContext context, String title, String route, Color color) => InkWell(onTap: () { Navigator.pushNamed(context, route); }, child: Text(title, style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: color)));
+  Widget _navLink(BuildContext context, String title, String route, Color color) => InkWell(
+    onTap: () { 
+      // If we are already on the page, don't do anything or just popUntil home
+      if (ModalRoute.of(context)?.settings.name == route) return;
+      
+      if (route == '/product') {
+        // Going to home portal: pop everything related to products and go to /product
+        Navigator.pushNamedAndRemoveUntil(context, '/product', (route) => route.settings.name == '/');
+      } else {
+        Navigator.pushNamed(context, route); 
+      }
+    }, 
+    child: Text(title, style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: color))
+  );
 
   Widget _cartButton(BuildContext context, Color color) {
     return Consumer<CartController>(

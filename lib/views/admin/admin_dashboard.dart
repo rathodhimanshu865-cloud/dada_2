@@ -3,12 +3,8 @@ import 'package:provider/provider.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/profile_controller.dart';
-import 'order_management_view.dart';
-import 'biography_editor.dart';
+import '../../controllers/product_controller.dart';
 import 'product_management_view.dart';
-import 'admin_settings_view.dart';
-import 'admin_users_view.dart';
-import 'admin_notifications_view.dart';
 import 'cms_views_helper.dart';
 
 class AdminDashboard extends StatefulWidget {
@@ -87,7 +83,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ],
           IconButton(
             tooltip: 'Refresh Data',
-            onPressed: controller.loadData, 
+            onPressed: () {
+              controller.loadData();
+              Provider.of<ProductController>(context, listen: false).fetchBrowsingProducts(refresh: true);
+            }, 
             icon: const Icon(Icons.refresh, size: 20)
           ),
           const SizedBox(width: 8),

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../controllers/cart_controller.dart';
-import '../../../controllers/auth_controller.dart';
-import '../../../controllers/product_controller.dart';
-import '../../../models/product_model.dart';
-import '../../../utils/app_typography.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dada_2/controllers/cart_controller.dart';
+import 'package:dada_2/controllers/auth_controller.dart';
+import 'package:dada_2/controllers/product_controller.dart';
+import 'package:dada_2/models/product_model.dart';
+import 'package:dada_2/utils/app_typography.dart';
 
 class QuickViewDialog extends StatefulWidget {
   final ProductModel product;
@@ -95,13 +96,48 @@ class _QuickViewDialogState extends State<QuickViewDialog> {
       children: [
         Stack(
           children: [
-            Container(height: 480, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100), image: DecorationImage(image: NetworkImage(_productImages[_selectedImageIndex]), fit: BoxFit.cover))),
+            Container(
+              height: 480, 
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100)),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: CachedNetworkImage(
+                  imageUrl: _productImages[_selectedImageIndex],
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                ),
+              ),
+            ),
             if (widget.product.salesCount > 50)
               Positioned(top: 20, left: 0, child: Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6), decoration: BoxDecoration(color: gold, borderRadius: const BorderRadius.horizontal(right: Radius.circular(20))), child: const Text('BESTSELLER', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)))),
           ],
         ),
         const SizedBox(height: 20),
-        Row(mainAxisAlignment: MainAxisAlignment.start, children: _productImages.asMap().entries.map((e) => GestureDetector(onTap: () => setState(() => _selectedImageIndex = e.key), child: Container(margin: const EdgeInsets.only(right: 12), width: 70, height: 70, decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: _selectedImageIndex == e.key ? teal : Colors.grey.shade200, width: 2), image: DecorationImage(image: NetworkImage(e.value), fit: BoxFit.cover))))).toList()),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start, 
+          children: _productImages.asMap().entries.map((e) => GestureDetector(
+            onTap: () => setState(() => _selectedImageIndex = e.key), 
+            child: Container(
+              margin: const EdgeInsets.only(right: 12), 
+              width: 70, 
+              height: 70, 
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8), 
+                border: Border.all(color: _selectedImageIndex == e.key ? teal : Colors.grey.shade200, width: 2), 
+              ), 
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: CachedNetworkImage(
+                  imageUrl: e.value,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  errorWidget: (context, url, error) => const Icon(Icons.image, color: Colors.grey),
+                ),
+              ),
+            )
+          )).toList()
+        ),
         const SizedBox(height: 30),
         Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: gold.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: gold.withOpacity(0.1))), child: Row(children: [Icon(Icons.auto_awesome, size: 18, color: gold), const SizedBox(width: 12), Expanded(child: Text('100% Consecrated • Vedic Haridwar Gangajal & Puja Cleansed', style: AppTypography.bodyStyle(context, fontSize: 11, fontWeight: FontWeight.w700, color: gold)))])),
       ],
@@ -142,8 +178,25 @@ class _QuickViewDialogState extends State<QuickViewDialog> {
 
   Widget _buildQuantitySelector(Color teal) => Container(height: 55, padding: const EdgeInsets.symmetric(horizontal: 8), decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade200), borderRadius: BorderRadius.circular(8), color: const Color(0xFFF9F9F9)), child: Row(children: [IconButton(onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null, icon: const Icon(Icons.remove, size: 16)), Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: Text('$_quantity', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w800, fontSize: 15))), IconButton(onPressed: () => setState(() => _quantity++), icon: const Icon(Icons.add, size: 16))]));
   Widget _buildAddButton(BuildContext context, Color teal, CartController cart) {
-    return SizedBox(height: 55, child: ElevatedButton(onPressed: (widget.product.isActive && widget.product.stock > 0) ? () { cart.addToCart(widget.product, _quantity); Navigator.pop(context); Scaffold.of(context).openEndDrawer(); } : null, style: ElevatedButton.styleFrom(backgroundColor: teal, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.shopping_bag_outlined, size: 18), const SizedBox(width: 12), Text((widget.product.isActive && widget.product.stock > 0) ? 'ADD TO BAG • ₹${(widget.product.price * _quantity).toInt()}' : 'OUT OF STOCK', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5, color: Colors.white))])));
+    return SizedBox(height: 55, child: ElevatedButton(onPressed: (widget.product.isActive && widget.product.stock > 0) ? () { 
+      if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
+        cart.addToCart(widget.product, _quantity); 
+        Navigator.pop(context); 
+        Scaffold.of(context).openEndDrawer(); 
+      } else {
+        Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
+      }
+    } : null, style: ElevatedButton.styleFrom(backgroundColor: teal, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.shopping_bag_outlined, size: 18), const SizedBox(width: 12), Text((widget.product.isActive && widget.product.stock > 0) ? 'ADD TO BAG • ₹${(widget.product.price * _quantity).toInt()}' : 'OUT OF STOCK', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5, color: Colors.white))])));
   }
-  Widget _buildWishlistIcon(Color teal) => Consumer<ProductController>(builder: (context, prodCtrl, child) { bool liked = prodCtrl.isLiked(widget.product.id); return InkWell(onTap: () => prodCtrl.toggleLike(widget.product.id), child: Container(height: 55, width: 55, decoration: BoxDecoration(border: Border.all(color: liked ? Colors.redAccent.withOpacity(0.2) : Colors.grey.shade200), borderRadius: BorderRadius.circular(8)), child: Icon(liked ? Icons.favorite : Icons.favorite_border, color: liked ? Colors.redAccent : Colors.black, size: 22))); });
+  Widget _buildWishlistIcon(Color teal) => Consumer<ProductController>(builder: (context, prodCtrl, child) { 
+    bool liked = prodCtrl.isLiked(widget.product.id); 
+    return InkWell(onTap: () {
+      if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
+        prodCtrl.toggleLike(widget.product.id);
+      } else {
+        Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
+      }
+    }, child: Container(height: 55, width: 55, decoration: BoxDecoration(border: Border.all(color: liked ? Colors.redAccent.withOpacity(0.2) : Colors.grey.shade200), borderRadius: BorderRadius.circular(8)), child: Icon(liked ? Icons.favorite : Icons.favorite_border, color: liked ? Colors.redAccent : Colors.black, size: 22))); 
+  });
   Widget _buildBuyNowButton(BuildContext context, Color teal, Color gold, AuthController auth, CartController cart) => SizedBox(width: double.infinity, height: 55, child: ElevatedButton(onPressed: () { if (auth.isAuthenticated) { cart.addToCart(widget.product, _quantity); Navigator.pop(context); Navigator.pushNamed(context, '/checkout'); } else { Navigator.pop(context); Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true); } }, style: ElevatedButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.bolt, size: 18), const SizedBox(width: 8), Text('Buy Now with Cash on Delivery / UPI', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 13, color: Colors.white))])));
 }

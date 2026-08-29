@@ -45,7 +45,7 @@ class _UserHeroSliderState extends State<UserHeroSlider> {
     final slides = widget.controller.heroSection.slides;
     if (slides.isEmpty) return const SizedBox.shrink();
 
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).size.height, // Full screen height
       width: double.infinity,
       child: Stack(
@@ -73,7 +73,7 @@ class _UserHeroSliderState extends State<UserHeroSlider> {
   }
 
   Widget _buildSlide(HeroSlide slide) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: double.infinity,
       child: Image.network(

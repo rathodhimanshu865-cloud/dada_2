@@ -260,7 +260,7 @@ class MyApp extends StatelessWidget {
         '/catalogue': (context) => const CataloguePage(),
         '/profile': (context) => const AuthGuard(child: UserProfilePage()),
         '/teachings': (context) => const PuDadaTeachingsPage(),
-        '/cart': (context) => const AuthGuard(child: CartPage()),
+        '/cart': (context) => const CartPage(),
         '/checkout': (context) => const AuthGuard(child: CheckoutPage()),
         '/my_orders': (context) => const AuthGuard(child: MyOrdersPage()),
         '/wishlist': (context) => const AuthGuard(child: WishlistPage()),
@@ -287,17 +287,8 @@ class RootWrapper extends StatelessWidget {
           );
         }
 
-        if (auth.isAdmin || auth.isAdminAuthenticated) {
-          // Both User and Admin see UserHomePage by default as per request.
-          return const UserHomePage();
-        }
-
-        if (!auth.isAuthenticated && !auth.isAdminAuthenticated) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            auth.toggleLoginPortal(true);
-          });
-        }
-
+        // Everyone sees UserHomePage by default. 
+        // Forced login pop-up is removed here.
         return const UserHomePage();
       },
     );

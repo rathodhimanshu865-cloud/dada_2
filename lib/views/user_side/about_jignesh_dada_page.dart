@@ -147,20 +147,27 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
         .animate(CurvedAnimation(parent: _c, curve: const Interval(0.0, 0.8, curve: Curves.easeOutCubic)));
     _slideImg = Tween<Offset>(begin: const Offset(0.05, 0), end: Offset.zero)
         .animate(CurvedAnimation(parent: _c, curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic)));
-    Future.delayed(const Duration(milliseconds: 150), () { if (mounted) _c.forward(); });
+    Future.delayed(const Duration(milliseconds: 150), () {
+      if (mounted) {
+        _c.forward();
+      }
+    });
   }
 
   @override
-  void dispose() { _c.dispose(); super.dispose(); }
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     String defaultTitle = widget.lang == 'hi' ? 'पूज्य श्री जिग्नेशदादा' : widget.lang == 'gu' ? 'પૂજ્ય શ્રી જીગ્નેશદાદા' : 'Pujya Shri Jigneshdada';
     String defaultSubtitle = widget.lang == 'hi' ? 'प्रसिद्ध भागवताचार्य • आध्यात्मिक मार्गदर्शक • समाज सेवक' : widget.lang == 'gu' ? 'પ્રસિદ્ધ ભાગવતાચાર્ય • આધ્યાત્મિક માર્ગદર્શક • સમાજ સેવક' : 'Renowned Bhagavatacharya • Spiritual Guide • Social Philanthropist';
 
-    final title    = widget.data.localizedHeroTitle(widget.lang).isEmpty   ? defaultTitle : widget.data.localizedHeroTitle(widget.lang);
+    final title = widget.data.localizedHeroTitle(widget.lang).isEmpty ? defaultTitle : widget.data.localizedHeroTitle(widget.lang);
     final subtitle = widget.data.localizedHeroSubtitle(widget.lang).isEmpty ? defaultSubtitle : widget.data.localizedHeroSubtitle(widget.lang);
-    final hasImg   = widget.data.heroImage.isNotEmpty;
+    final hasImg = widget.data.heroImage.isNotEmpty;
 
     return Container(
       width: double.infinity,
@@ -402,21 +409,35 @@ class _IntroBlockState extends State<_IntroBlock> {
                   widget.html,
                   textStyle: AppTypography.bodyStyle(context, fontSize: widget.isMob ? 15 : 17, height: 1.95, color: _slate),
                   customStylesBuilder: (el) {
-                    if (el.localName == 'h1') return {
+                    if (el.localName == 'h1') {
+                      return {
                       'color': '#0F4C5C', 'font-size': widget.isMob ? '22px' : '30px', 'font-weight': '700',
                       'margin-top': '56px', 'margin-bottom': '24px', 'padding-bottom': '14px',
                       'border-bottom': '2px solid #C19A6B', 'letter-spacing': '0.5px'};
-                    if (el.localName == 'h2') return {
+                    }
+                    if (el.localName == 'h2') {
+                      return {
                       'color': '#0F4C5C', 'font-size': widget.isMob ? '19px' : '24px', 'font-weight': '700',
                       'margin-top': '44px', 'margin-bottom': '18px',
                       'padding-left': '18px', 'border-left': '4px solid #C19A6B'};
-                    if (el.localName == 'p')  return {'margin-bottom': '24px', 'line-height': '1.95', 'text-align': 'justify'};
-                    if (el.localName == 'li') return {'margin-bottom': '10px', 'line-height': '1.75', 'color': '#4A5568'};
-                    if (el.localName == 'strong' || el.localName == 'b') return {'color': '#0F4C5C', 'font-weight': '700'};
-                    if (el.localName == 'em' || el.localName == 'i') return {'color': '#C19A6B', 'font-style': 'italic'};
-                    if (el.localName == 'blockquote') return {
+                    }
+                    if (el.localName == 'p') {
+                      return {'margin-bottom': '24px', 'line-height': '1.95', 'text-align': 'justify'};
+                    }
+                    if (el.localName == 'li') {
+                      return {'margin-bottom': '10px', 'line-height': '1.75', 'color': '#4A5568'};
+                    }
+                    if (el.localName == 'strong' || el.localName == 'b') {
+                      return {'color': '#0F4C5C', 'font-weight': '700'};
+                    }
+                    if (el.localName == 'em' || el.localName == 'i') {
+                      return {'color': '#C19A6B', 'font-style': 'italic'};
+                    }
+                    if (el.localName == 'blockquote') {
+                      return {
                       'background': '#F9F3EA', 'border-left': '5px solid #C19A6B',
                       'padding': '20px 24px', 'margin': '32px 0', 'font-style': 'italic', 'color': '#374151'};
+                    }
                     return null;
                   },
                 ) : const SizedBox(height: 200, width: double.infinity), // Placeholder height
@@ -1005,13 +1026,12 @@ class _Label extends StatelessWidget {
   final String text;
   final bool isMob;
   final bool onDark;
-  final bool centered;
-  const _Label(this.text, this.isMob, {this.onDark = false, this.centered = false});
+  const _Label(this.text, this.isMob, {this.onDark = false});
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: centered ? MainAxisAlignment.center : MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Container(width: 24, height: 1.5, color: _gold),
         const SizedBox(width: 10),
@@ -1022,7 +1042,7 @@ class _Label extends StatelessWidget {
             color: _gold,
             letterSpacing: 3.5)),
         const SizedBox(width: 10),
-        Container(width: 24, height: 1.5, color: _gold.withOpacity(centered ? 1.0 : 0.0)),
+        Container(width: 24, height: 1.5, color: _gold.withOpacity(0.0)),
       ],
     );
   }

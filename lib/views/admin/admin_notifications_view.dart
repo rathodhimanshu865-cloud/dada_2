@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../utils/app_typography.dart';
-import '../../controllers/notification_controller.dart';
 import '../../repositories/notification_repository.dart';
 
 class AdminNotificationsView extends StatefulWidget {

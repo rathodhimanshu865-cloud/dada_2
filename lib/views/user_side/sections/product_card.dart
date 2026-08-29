@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../controllers/product_controller.dart';
-import '../../../controllers/cart_controller.dart';
-import '../../../models/product_model.dart';
-import '../../../utils/app_typography.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dada_2/controllers/product_controller.dart';
+import 'package:dada_2/controllers/cart_controller.dart';
+import 'package:dada_2/controllers/auth_controller.dart';
+import 'package:dada_2/models/product_model.dart';
+import 'package:dada_2/utils/app_typography.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProductCard extends StatefulWidget {
@@ -51,11 +53,18 @@ class _ProductCardState extends State<ProductCard> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       color: Colors.white,
-                      image: p.imageUrl.isNotEmpty 
-                        ? DecorationImage(image: NetworkImage(p.imageUrl), fit: BoxFit.cover)
-                        : null,
                     ),
-                    child: p.imageUrl.isEmpty ? const Icon(Icons.image_outlined, color: Colors.grey, size: 48) : null,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: p.imageUrl.isNotEmpty 
+                        ? CachedNetworkImage(
+                            imageUrl: p.imageUrl,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(color: Colors.grey.shade50, child: const Center(child: CircularProgressIndicator(strokeWidth: 2))),
+                            errorWidget: (context, url, error) => const Icon(Icons.image_outlined, color: Colors.grey, size: 48),
+                          )
+                        : const Icon(Icons.image_outlined, color: Colors.grey, size: 48),
+                    ),
                   ),
                 ),
 
@@ -96,7 +105,13 @@ class _ProductCardState extends State<ProductCard> {
                           return _actionCircle(
                             icon: liked ? Icons.favorite : Icons.favorite_border,
                             color: liked ? Colors.red : Colors.black38,
-                            onTap: () => prodCtrl.toggleLike(p.id),
+                            onTap: () {
+                              if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
+                                prodCtrl.toggleLike(p.id);
+                              } else {
+                                Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
+                              }
+                            },
                           );
                         },
                       ),
@@ -178,8 +193,12 @@ class _ProductCardState extends State<ProductCard> {
                     ),
                     InkWell(
                       onTap: p.stock > 0 ? () {
-                        cart.addToCart(p, 1);
-                        Scaffold.of(context).openEndDrawer();
+                        if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
+                          cart.addToCart(p, 1);
+                          Scaffold.of(context).openEndDrawer();
+                        } else {
+                          Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
+                        }
                       } : null,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

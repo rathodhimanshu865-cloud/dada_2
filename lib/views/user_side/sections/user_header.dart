@@ -34,7 +34,9 @@ class UserHeader extends StatefulWidget {
 class _UserHeaderState extends State<UserHeader>
     with SingleTickerProviderStateMixin {
   String selectedLanguage = 'English';
-  double _scrollOffset = 0;
+  
+  // Performance optimization: use ValueNotifier for scroll-driven UI
+  final ValueNotifier<double> _scrollOffset = ValueNotifier<double>(0.0);
 
   final Color primaryTeal = const Color(0xFF0F4C5C);
   final Color templeGold = const Color(0xFFC89A5B);
@@ -67,15 +69,12 @@ class _UserHeaderState extends State<UserHeader>
   void dispose() {
     widget.scrollController?.removeListener(_scrollListener);
     _logoTapResetTimer?.cancel();
+    _scrollOffset.dispose();
     super.dispose();
   }
 
   void _scrollListener() {
-    if (mounted) {
-      setState(() {
-        _scrollOffset = widget.scrollController?.offset ?? 0;
-      });
-    }
+    _scrollOffset.value = widget.scrollController?.offset ?? 0;
   }
 
   void _handleLogoTap() {
@@ -105,130 +104,129 @@ class _UserHeaderState extends State<UserHeader>
   @override
   Widget build(BuildContext context) {
     final settings = widget.controller.websiteSettings.headerSettings;
-    final bool isSticky =
-        !widget.productPage &&
-        _scrollOffset > 50 &&
-        settings.stickyHeaderEnabled;
     final String currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
     final l10n = AppLocalizations.of(context)!;
-
-    final double headerHeight = isSticky ? 75 : 95;
-    final double marginHorizontal = isSticky ? 40 : 0;
-    final double marginTop = isSticky ? 15 : 0;
-    final double borderRadius = isSticky ? 24.0 : 0.0;
-    final double logoSize = isSticky ? 55 : 75;
-
-    final double glassOpacity = isSticky ? 0.92 : 0.0;
-    final double blurAmount = isSticky ? 20.0 : 0.0;
-
+    final bool isMobile = MediaQuery.of(context).size.width < 1100;
     final Color bgColor = _parseColor(settings.headerBackgroundColor);
     final bool isHomePage = currentRoute == '/';
-    final Color navTextColor = (isSticky || !isHomePage)
-        ? const Color(0xFF07404C)
-        : const Color(0xFFFFF8F0);
-    final Color activeNavColor = isSticky ? primaryTeal : templeGold;
-    final bool isMobile = MediaQuery.of(context).size.width < 1100;
 
-    return AnimatedPositioned(
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeOutExpo,
-      top: widget.productPage ? -_scrollOffset.clamp(0.0, 95.0) : marginTop,
-      left: marginHorizontal,
-      right: marginHorizontal,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (settings.announcementBarText.isNotEmpty &&
-              !isSticky &&
-              !widget.productPage)
-            _buildAnnouncementBar(settings.localizedAnnouncementBarText(lang)),
+    return ValueListenableBuilder<double>(
+      valueListenable: _scrollOffset,
+      builder: (context, offset, child) {
+        final bool isSticky = !widget.productPage && offset > 50 && settings.stickyHeaderEnabled;
+        final double headerHeight = isSticky ? 75 : 95;
+        final double marginHorizontal = isSticky ? 40 : 0;
+        final double marginTop = isSticky ? 15 : 0;
+        final double borderRadius = isSticky ? 24.0 : 0.0;
+        final double logoSize = isSticky ? 55 : 75;
+        final double glassOpacity = isSticky ? 0.92 : 0.0;
+        final double blurAmount = isSticky ? 20.0 : 0.0;
 
-          Material(
-            color: Colors.transparent,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeOutExpo,
-              height: headerHeight,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(borderRadius),
-                boxShadow: isSticky
-                    ? [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 40,
-                          offset: const Offset(0, 10),
-                        ),
-                      ]
-                    : [],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(borderRadius),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(
-                    sigmaX: blurAmount,
-                    sigmaY: blurAmount,
+        final Color navTextColor = (isSticky || !isHomePage)
+            ? const Color(0xFF07404C)
+            : const Color(0xFFFFF8F0);
+        final Color activeNavColor = isSticky ? primaryTeal : templeGold;
+
+        return AnimatedPositioned(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutQuad,
+          top: widget.productPage ? -offset.clamp(0.0, 95.0) : marginTop,
+          left: marginHorizontal,
+          right: marginHorizontal,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (settings.announcementBarText.isNotEmpty && !isSticky && !widget.productPage)
+                _buildAnnouncementBar(settings.localizedAnnouncementBarText(lang)),
+
+              Material(
+                color: Colors.transparent,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutQuad,
+                  height: headerHeight,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(borderRadius),
+                    boxShadow: isSticky
+                        ? [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ]
+                        : [],
                   ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 25),
-                    decoration: BoxDecoration(
-                      color: bgColor.withOpacity(glassOpacity),
-                      borderRadius: BorderRadius.circular(borderRadius),
-                    ),
-                    child: Row(
-                      children: [
-                        _buildBranding(logoSize, isSticky, navTextColor, lang),
-                        const Spacer(),
-                        if (!isMobile) ...[
-                          Flexible(
-                            flex: 10,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: _buildNavigation(
-                                l10n,
-                                currentRoute,
-                                isSticky,
-                                navTextColor,
-                                activeNavColor,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(borderRadius),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(
+                        sigmaX: blurAmount,
+                        sigmaY: blurAmount,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        decoration: BoxDecoration(
+                          color: bgColor.withOpacity(glassOpacity),
+                          borderRadius: BorderRadius.circular(borderRadius),
+                        ),
+                        child: Row(
+                          children: [
+                            _buildBranding(logoSize, isSticky, navTextColor, lang),
+                            const Spacer(),
+                            if (!isMobile) ...[
+                              Flexible(
+                                flex: 10,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: _buildNavigation(
+                                    l10n,
+                                    currentRoute,
+                                    isSticky,
+                                    navTextColor,
+                                    activeNavColor,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          const Spacer(),
-                          Flexible(
-                            flex: 5,
-                            child: _buildActionControls(
-                              l10n,
-                              isSticky,
-                              settings,
-                              navTextColor,
-                              lang,
-                            ),
-                          ),
-                        ] else ...[
-                          IconButton(
-                            icon: Icon(
-                              Icons.menu,
-                              color: navTextColor,
-                              size: 30,
-                            ),
-                            onPressed: () => _showMobileMenu(
-                              context,
-                              l10n,
-                              currentRoute,
-                              activeNavColor,
-                              lang,
-                            ),
-                          ),
-                        ],
-                      ],
+                              const Spacer(),
+                              Flexible(
+                                flex: 5,
+                                child: _buildActionControls(
+                                  l10n,
+                                  isSticky,
+                                  settings,
+                                  navTextColor,
+                                  lang,
+                                ),
+                              ),
+                            ] else ...[
+                              IconButton(
+                                icon: Icon(
+                                  Icons.menu,
+                                  color: navTextColor,
+                                  size: 30,
+                                ),
+                                onPressed: () => _showMobileMenu(
+                                  context,
+                                  l10n,
+                                  currentRoute,
+                                  activeNavColor,
+                                  lang,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      }
     );
   }
 
@@ -419,7 +417,7 @@ class _UserHeaderState extends State<UserHeader>
                 ),
                 trailing: const Icon(Icons.shopping_bag_outlined),
                 onTap: () {
-                  Navigator.pop(context); // Close mobile menu
+                  Navigator.pop(context); 
                   if (widget.scaffoldKey != null) {
                     widget.scaffoldKey!.currentState?.openEndDrawer();
                   } else {
@@ -456,7 +454,6 @@ class _UserHeaderState extends State<UserHeader>
                 },
               ),
               const Divider(height: 40),
-              // Language Selector
               const Text(
                 "Select Language",
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -511,7 +508,7 @@ class _UserHeaderState extends State<UserHeader>
       child: Hero(
         tag: 'website_logo',
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 300),
           width: size,
           height: size,
           decoration: BoxDecoration(
@@ -519,9 +516,8 @@ class _UserHeaderState extends State<UserHeader>
             boxShadow: isSticky
                 ? [
                     BoxShadow(
-                      color: templeGold.withOpacity(0.4),
-                      blurRadius: 20,
-                      spreadRadius: 1,
+                      color: templeGold.withOpacity(0.3),
+                      blurRadius: 15,
                     ),
                   ]
                 : [],
@@ -785,19 +781,7 @@ class _UserHeaderState extends State<UserHeader>
     return Consumer<NotificationController>(
       builder: (context, controller, child) {
         return InkWell(
-          onTap: () {
-            if (widget.scaffoldKey != null) {
-              widget.scaffoldKey!.currentState?.openEndDrawer();
-            } else {
-              Scaffold.of(context).openEndDrawer();
-            }
-            // Actually, we want to open a specific drawer or a modal. 
-            // Since CartDrawer is probably using the same endDrawer, 
-            // we should handle multiple drawers or use a different mechanism.
-            // For now, I'll use a specific modal or just show the drawer if I can.
-            // Let's use a ModalBottomSheet or a simple Side Drawer if we can inject it.
-            _showNotificationDrawer(context);
-          },
+          onTap: () => _showNotificationDrawer(context),
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -913,8 +897,6 @@ class _UserHeaderState extends State<UserHeader>
 
   Widget _buildAuthButton(Color textColor) {
     final auth = Provider.of<AuthController>(context);
-    const protectedRoutes = ['/profile', '/my_orders', '/checkout', '/cart'];
-    final String currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
     return PopupMenuButton<String>(
       icon: Icon(Icons.person_outline, color: textColor),
       onSelected: (v) async {
@@ -924,37 +906,17 @@ class _UserHeaderState extends State<UserHeader>
         if (v == 'orders') Navigator.pushNamed(context, '/my_orders');
         if (v == 'logout') {
           await auth.logout();
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Logged out successfully'), duration: Duration(seconds: 2)),
-            );
-            // Navigate home and show login portal
-            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-            Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
-          }
         }
       },
       itemBuilder: (context) => auth.isAuthenticated
           ? [
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'orders',
-                child: Row(
-                  children: const [
-                    Icon(Icons.shopping_bag_outlined, size: 18),
-                    SizedBox(width: 10),
-                    Text('My Orders'),
-                  ],
-                ),
+                child: Text('My Orders'),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'logout',
-                child: Row(
-                  children: const [
-                    Icon(Icons.logout, size: 18, color: Colors.redAccent),
-                    SizedBox(width: 10),
-                    Text('Logout', style: TextStyle(color: Colors.redAccent)),
-                  ],
-                ),
+                child: Text('Logout', style: TextStyle(color: Colors.redAccent)),
               ),
             ]
           : [
@@ -1078,8 +1040,6 @@ class _UserHeaderState extends State<UserHeader>
   Widget _buildSearchButton(bool isSticky, Color textColor) {
     return InkWell(
       onTap: () {
-        // Since we already have a search bar in ProductHeader, we could navigate there or show a global search overlay.
-        // For now, let's just navigate to the products page where the interactive search bar is.
         Navigator.pushNamed(context, '/product');
       },
       child: Container(

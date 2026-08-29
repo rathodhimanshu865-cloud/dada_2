@@ -45,7 +45,7 @@ class DashboardController extends ChangeNotifier {
       int activeProducts = products.where((p) => p.isActive).length;
       int pendingOrders = orders.where((o) => o.orderStatus == 'Pending').length;
       int completedOrders = orders.where((o) => o.orderStatus == 'Delivered').length;
-      double totalRevenue = orders.where((o) => o.paymentStatus == 'Paid' || o.orderStatus == 'Delivered').fold(0, (sum, o) => sum + o.totalAmount);
+      double totalRevenue = orders.where((o) => o.paymentStatus == 'Paid' || o.orderStatus == 'Delivered').fold(0.0, (accSum, o) => accSum + o.totalAmount);
 
       _stats = DashboardStats(
         totalProducts: allProducts.length,

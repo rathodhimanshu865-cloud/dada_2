@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'cms_views_helper.dart';
-import '../../controllers/homepage_controller.dart';
 import '../../controllers/dashboard_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../models/product_model.dart';
@@ -54,7 +52,7 @@ class _ProductManagementViewState extends State<ProductManagementView> {
       color: bgCream,
       child: Column(
         children: [
-          _buildTopNavigationBar(dashboardController),
+          _buildTopNavigationBar(dashboardController, productController),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(32),
@@ -83,9 +81,8 @@ class _ProductManagementViewState extends State<ProductManagementView> {
     ];
   }
 
-  Widget _buildTopNavigationBar(DashboardController controller) {
-    final productController = Provider.of<ProductController>(context, listen: false);
-    final items = _getHeaderItems(controller, productController);
+  Widget _buildTopNavigationBar(DashboardController controller, ProductController prodCtrl) {
+    final items = _getHeaderItems(controller, prodCtrl);
 
     return Container(
       height: 80,
@@ -547,7 +544,11 @@ class _ProductManagementViewState extends State<ProductManagementView> {
     return StreamBuilder<List<ProductModel>>(
       stream: prodCtrl.getAdminProducts(),
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: Padding(padding: EdgeInsets.all(100), child: CircularProgressIndicator()));
+        }
         final products = snapshot.data ?? [];
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -564,8 +565,8 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                     Text('Product Catalog Management', 
                       style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
                     const SizedBox(height: 4),
-                    Text('Add, edit, adjust stock, and manage sacred product listings.', 
-                      style: TextStyle(color: Colors.grey.shade50, fontSize: 13)),
+                    const Text('Add, edit, adjust stock, and manage sacred product listings.', 
+                      style: TextStyle(color: Colors.grey, fontSize: 13)),
                   ],
                 ),
                 _actionBtn('+ ADD NEW PRODUCT', templeGold, Icons.add, onTap: () => _showProductDialog()),
@@ -723,6 +724,7 @@ class _ProductManagementViewState extends State<ProductManagementView> {
   }
 
   Widget _buildCategoriesGrid(ProductController prodCtrl) {
+    final categories = prodCtrl.categoryObjects;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -747,28 +749,22 @@ class _ProductManagementViewState extends State<ProductManagementView> {
           ],
         ),
         const SizedBox(height: 32),
-        StreamBuilder<List<CategoryModel>>(
-          stream: prodCtrl.categoriesStream,
-          builder: (context, snapshot) {
-            final categories = snapshot.data ?? [];
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                int crossAxisCount = constraints.maxWidth > 1200 ? 4 : (constraints.maxWidth > 800 ? 2 : 1);
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 24,
-                    mainAxisSpacing: 24,
-                    childAspectRatio: 1.5,
-                  ),
-                  itemCount: categories.length,
-                  itemBuilder: (context, i) => _buildCategoryCard(categories[i], prodCtrl),
-                );
-              },
+        LayoutBuilder(
+          builder: (context, constraints) {
+            int crossAxisCount = constraints.maxWidth > 1200 ? 4 : (constraints.maxWidth > 800 ? 2 : 1);
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 24,
+                mainAxisSpacing: 24,
+                childAspectRatio: 1.5,
+              ),
+              itemCount: categories.length,
+              itemBuilder: (context, i) => _buildCategoryCard(categories[i], prodCtrl),
             );
-          }
+          },
         ),
       ],
     );
@@ -819,7 +815,11 @@ class _ProductManagementViewState extends State<ProductManagementView> {
     return StreamBuilder<List<ProductModel>>(
       stream: prodCtrl.getAdminProducts(),
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: Padding(padding: EdgeInsets.all(100), child: CircularProgressIndicator()));
+        }
         final products = snapshot.data ?? [];
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1082,12 +1082,31 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                               isActive: isActive,
                               isFeatured: isFeatured,
                             );
-                            if (isEdit) {
-                              await prodCtrl.updateProduct(p);
-                            } else {
-                              await prodCtrl.addProduct(p);
+                            try {
+                              if (isEdit) {
+                                await prodCtrl.updateProduct(p);
+                              } else {
+                                await prodCtrl.addProduct(p);
+                              }
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(isEdit ? 'Product updated successfully!' : 'Product published successfully!'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                                Navigator.pop(context);
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Failed to save product: $e'),
+                                    backgroundColor: Colors.redAccent,
+                                  ),
+                                );
+                              }
                             }
-                            if (mounted) Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF8B4513), 

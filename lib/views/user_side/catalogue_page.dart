@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/product_controller.dart';
-import '../../models/product_model.dart';
 import 'sections/product_cart_layout.dart';
 import 'sections/product_card.dart';
 import '../../utils/app_typography.dart';
@@ -68,13 +67,13 @@ class _CataloguePageState extends State<CataloguePage> {
                   const SizedBox(height: 16),
                   Text(productController.errorMessage!),
                   const SizedBox(height: 16),
-                  ElevatedButton(onPressed: () => productController.fetchBrowsingProducts(refresh: true), child: const Text('Try Again'))
+                  ElevatedButton(onPressed: () => productController.fetchBrowsingProducts(refresh: true), child: Text('Try Again'))
                 ],
               ),
             ),
           )
         else if (productController.browsingProducts.isEmpty)
-          const SliverFillRemaining(
+          SliverFillRemaining(
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,

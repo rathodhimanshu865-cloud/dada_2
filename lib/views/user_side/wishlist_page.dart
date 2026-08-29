@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/cart_controller.dart';
@@ -53,7 +54,26 @@ class WishlistPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: Stack(children: [Positioned.fill(child: ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(12)), child: product.imageUrls.isNotEmpty ? Image.network(product.imageUrls[0], fit: BoxFit.cover, errorBuilder: (c, e, s) => Container(color: Colors.grey.shade50, child: const Icon(Icons.broken_image_outlined, color: Colors.grey))) : Container(color: Colors.grey.shade50, child: const Icon(Icons.image_outlined, color: Colors.grey)))), Positioned(top: 10, right: 10, child: GestureDetector(onTap: () => prod.toggleLike(product.id), child: Container(padding: const EdgeInsets.all(6), decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white), child: const Icon(Icons.favorite, size: 18, color: Colors.redAccent))))])),
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)), 
+                      child: product.imageUrls.isNotEmpty 
+                        ? CachedNetworkImage(
+                            imageUrl: product.imageUrls[0],
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                            errorWidget: (c, e, s) => Container(color: Colors.grey.shade50, child: const Icon(Icons.broken_image_outlined, color: Colors.grey)),
+                          )
+                        : Container(color: Colors.grey.shade50, child: const Icon(Icons.image_outlined, color: Colors.grey)),
+                    ),
+                  ), 
+                  Positioned(top: 10, right: 10, child: GestureDetector(onTap: () => prod.toggleLike(product.id), child: Container(padding: const EdgeInsets.all(6), decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white), child: const Icon(Icons.favorite, size: 18, color: Colors.redAccent))))
+                ]
+              )
+            ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(product.categoryId.toUpperCase(), style: TextStyle(color: Colors.grey.shade500, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)), const SizedBox(height: 8), Text(product.name, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black), maxLines: 2, overflow: TextOverflow.ellipsis), const SizedBox(height: 10), Text('₹ ${product.price.toStringAsFixed(2)}', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18, color: teal)), const SizedBox(height: 15), ElevatedButton(onPressed: () { cart.addToCart(product, 1); Scaffold.of(context).openEndDrawer(); }, style: ElevatedButton.styleFrom(backgroundColor: teal, minimumSize: const Size(double.infinity, 45), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6))), child: const Text('ADD TO CART', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)))]),

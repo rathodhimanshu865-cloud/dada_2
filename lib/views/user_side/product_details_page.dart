@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../controllers/homepage_controller.dart';
-import '../../controllers/cart_controller.dart';
-import '../../controllers/product_controller.dart';
-import '../../controllers/auth_controller.dart';
-import '../../models/product_model.dart';
-import 'sections/product_cart_layout.dart';
-import 'sections/product_card.dart';
-import '../../utils/app_typography.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dada_2/controllers/homepage_controller.dart';
+import 'package:dada_2/controllers/cart_controller.dart';
+import 'package:dada_2/controllers/product_controller.dart';
+import 'package:dada_2/controllers/auth_controller.dart';
+import 'package:dada_2/models/product_model.dart';
+import 'package:dada_2/views/user_side/sections/product_cart_layout.dart';
+import 'package:dada_2/views/user_side/sections/product_card.dart';
+import 'package:dada_2/utils/app_typography.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   const ProductDetailsPage({super.key});
@@ -19,8 +20,8 @@ class ProductDetailsPage extends StatefulWidget {
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int _quantity = 1;
   int _selectedImageIndex = 0;
-  int _selectedColorIndex = 0;
-  int _selectedSizeIndex = 0;
+  final int _selectedColorIndex = 0;
+  final int _selectedSizeIndex = 0;
 
   final ProductModel _demoProduct = ProductModel(
     id: 'k-01',
@@ -53,7 +54,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             children: [
               Center(
                 child: InteractiveViewer(
-                  child: Image.network(imageUrl, fit: BoxFit.contain),
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl, 
+                    fit: BoxFit.contain,
+                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                  ),
                 ),
               ),
               Positioned(
@@ -136,10 +141,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                             child: ClipRRect(
                                               borderRadius: BorderRadius.circular(8),
                                               child: productImages[_selectedImageIndex].isNotEmpty
-                                                ? Image.network(
-                                                    productImages[_selectedImageIndex],
+                                                ? CachedNetworkImage(
+                                                    imageUrl: productImages[_selectedImageIndex],
                                                     fit: BoxFit.cover,
-                                                    errorBuilder: (context, error, stackTrace) => Container(
+                                                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                                                    errorWidget: (context, url, error) => Container(
                                                       color: Colors.grey.shade50,
                                                       child: const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 40),
                                                     ),
@@ -180,9 +186,18 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                                   color: _selectedImageIndex == e.key ? primaryTeal : Colors.grey.shade200,
                                                   width: 2,
                                                 ),
-                                                image: e.value.isNotEmpty ? DecorationImage(image: NetworkImage(e.value), fit: BoxFit.cover) : null,
                                               ),
-                                              child: e.value.isEmpty ? const Icon(Icons.image_outlined, color: Colors.grey) : null,
+                                              child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(2),
+                                                child: e.value.isNotEmpty 
+                                                  ? CachedNetworkImage(
+                                                      imageUrl: e.value,
+                                                      fit: BoxFit.cover,
+                                                      placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                                      errorWidget: (context, url, error) => const Icon(Icons.image_outlined, color: Colors.grey),
+                                                    )
+                                                  : const Icon(Icons.image_outlined, color: Colors.grey),
+                                              ),
                                             ),
                                           );
                                         }).toList(),
@@ -332,9 +347,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       height: 55,
       child: ElevatedButton(
         onPressed: product.isAvailable ? () {
-          cart.addToCart(product, _quantity);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to Bag!'), duration: Duration(seconds: 2)));
-          Scaffold.of(context).openEndDrawer();
+          if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
+            cart.addToCart(product, _quantity);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to Bag!'), duration: Duration(seconds: 2)));
+            Scaffold.of(context).openEndDrawer();
+          } else {
+            Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
+          }
         } : null,
         style: ElevatedButton.styleFrom(backgroundColor: color, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), elevation: 0),
         child: Text('ADD TO BAG', style: AppTypography.bodyStyle(context, color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.5)),

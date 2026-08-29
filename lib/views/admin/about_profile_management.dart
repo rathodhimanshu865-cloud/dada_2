@@ -112,7 +112,9 @@ class _AboutProfileEditorState extends State<AboutProfileEditor> {
 
   @override
   void dispose() {
-    _forms.values.forEach((f) => f.dispose());
+    for (var f in _forms.values) {
+      f.dispose();
+    }
     super.dispose();
   }
 

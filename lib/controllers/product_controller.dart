@@ -8,27 +8,49 @@ import '../models/product_model.dart';
 import '../models/category_model.dart';
 import '../models/store_config_model.dart';
 import '../repositories/product_repository.dart';
+import '../utils/app_logger.dart';
 
 class ProductController extends ChangeNotifier {
   final ProductRepository _repository = ProductRepository();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Streams for sections
-  late Stream<StoreConfigModel> storeConfigStream;
-  late Stream<List<CategoryModel>> categoriesStream;
-  late Stream<List<ProductModel>> featuredProductsStream;
-  late Stream<List<ProductModel>> latestProductsStream;
-  late Stream<List<ProductModel>> popularProductsStream;
+  // Internal Data State
+  StoreConfigModel _storeConfig = StoreConfigModel();
+  List<CategoryModel> _categoryObjects = [];
+  List<ProductModel> _featuredProducts = [];
+  List<ProductModel> _latestProducts = [];
+  List<ProductModel> _popularProducts = [];
   
+  // Subscriptions
+  StreamSubscription? _configSub;
+  StreamSubscription? _categorySub;
+  StreamSubscription? _featuredSub;
+  StreamSubscription? _latestSub;
+  StreamSubscription? _popularSub;
+  StreamSubscription? _wishlistSubscription;
+
+  // Stream Getters for Backward Compatibility
+  Stream<StoreConfigModel> get storeConfigStream => _repository.getStoreConfig();
+  Stream<List<CategoryModel>> get categoriesStream => _repository.getCategories();
+  Stream<List<ProductModel>> get featuredProductsStream => _repository.getFeaturedProducts();
+  Stream<List<ProductModel>> get latestProductsStream => _repository.getLatestProducts();
+  Stream<List<ProductModel>> get popularProductsStream => _repository.getPopularProducts();
+
+  // Getters for UI
+  StoreConfigModel get storeConfig => _storeConfig;
+  List<CategoryModel> get categoryObjects => _categoryObjects;
+  List<ProductModel> get featuredProducts => _featuredProducts;
+  List<ProductModel> get latestProducts => _latestProducts;
+  List<ProductModel> get popularProducts => _popularProducts;
+
   // Browsing state
   final List<ProductModel> _browsingProducts = [];
   bool _isBrowsingLoading = false;
   bool _hasMore = true;
 
   // Category State
-  List<CategoryModel> _categoryObjects = [];
-  String _selectedCategoryId = 'all'; // Stores category ID, 'all' for all products
+  String _selectedCategoryId = 'all'; 
   
   // Search state
   String _searchQuery = '';
@@ -36,7 +58,6 @@ class ProductController extends ChangeNotifier {
   bool _isSearching = false;
   String? _searchError;
 
-  // Global State
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
@@ -45,13 +66,9 @@ class ProductController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Compatibility / Helper Getters
   List<ProductModel> get browsingProducts => _browsingProducts;
   bool get isBrowsingLoading => _isBrowsingLoading;
   
-  List<CategoryModel> get categoryObjects => _categoryObjects;
-  
-  // Returns names for UI chips (Compatibility)
   List<String> get categories => ['All Sacred Products', ..._categoryObjects.map((c) => c.name)];
   
   String get selectedCategory {
@@ -65,19 +82,51 @@ class ProductController extends ChangeNotifier {
   bool get isSearching => _isSearching;
   String? get searchError => _searchError;
 
-  // In-memory list for fast searching
   List<ProductModel> _allProductsCache = [];
   List<ProductModel> get allProducts => _allProductsCache;
 
   List<String> _wishlistIds = [];
   List<String> get wishlistIds => _wishlistIds;
-  StreamSubscription? _wishlistSubscription;
 
   ProductController() {
-    _initStreams();
-    fetchCategories();
+    _startListeners();
     _loadInitialData();
     _listenToAuth();
+  }
+
+  void _startListeners() {
+    _configSub?.cancel();
+    _categorySub?.cancel();
+    _featuredSub?.cancel();
+    _latestSub?.cancel();
+    _popularSub?.cancel();
+
+    _configSub = _repository.getStoreConfig().listen((data) {
+      if (_storeConfig.storeName != data.storeName || _storeConfig.bannerUrl != data.bannerUrl) {
+        _storeConfig = data;
+        notifyListeners();
+      }
+    }, onError: (e) => AppLogger.error("Config stream error", e));
+
+    _categorySub = _repository.getCategories().listen((data) {
+      _categoryObjects = data;
+      notifyListeners();
+    }, onError: (e) => AppLogger.error("Category stream error", e));
+
+    _featuredSub = _repository.getFeaturedProducts().listen((data) {
+      _featuredProducts = data;
+      notifyListeners();
+    }, onError: (e) => AppLogger.error("Featured stream error", e));
+
+    _latestSub = _repository.getLatestProducts().listen((data) {
+      _latestProducts = data;
+      notifyListeners();
+    }, onError: (e) => AppLogger.error("Latest stream error", e));
+
+    _popularSub = _repository.getPopularProducts().listen((data) {
+      _popularProducts = data;
+      notifyListeners();
+    }, onError: (e) => AppLogger.error("Popular stream error", e));
   }
 
   void _listenToAuth() {
@@ -100,7 +149,7 @@ class ProductController extends ChangeNotifier {
         .listen((snapshot) {
       _wishlistIds = snapshot.docs.map((doc) => doc.id).toList();
       notifyListeners();
-    });
+    }, onError: (e) => AppLogger.error("Wishlist sync error", e));
   }
 
   void _stopWishlistSubscription() {
@@ -109,46 +158,23 @@ class ProductController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _initStreams() {
-    storeConfigStream = _repository.getStoreConfig();
-    categoriesStream = _repository.getCategories();
-    featuredProductsStream = _repository.getFeaturedProducts();
-    latestProductsStream = _repository.getLatestProducts();
-    popularProductsStream = _repository.getPopularProducts();
-  }
-
   Future<void> _loadInitialData() async {
     try {
       final products = await _repository.getAllProducts(limit: 100);
       _allProductsCache = products;
       notifyListeners();
     } catch (e) {
-      debugPrint("Load initial data error: $e");
+      AppLogger.error("Load initial data error", e);
     }
   }
 
-  Future<void> fetchCategories() async {
-    try {
-      // We listen to the stream for internal state as well
-      _repository.getCategories().listen((cats) {
-        _categoryObjects = cats;
-        notifyListeners();
-      });
-    } catch (e) {
-      debugPrint("Error initializing categories: $e");
-    }
-  }
-
-  // Called when a category is selected in the UI
   void selectCategory(String categoryNameOrId) {
     if (categoryNameOrId == 'All Sacred Products' || categoryNameOrId == 'all') {
       _selectedCategoryId = 'all';
     } else {
-      // Check if it's an ID first
       if (_categoryObjects.any((c) => c.id == categoryNameOrId)) {
         _selectedCategoryId = categoryNameOrId;
       } else {
-        // Find ID by Name
         final cat = _categoryObjects.firstWhere(
           (c) => c.name == categoryNameOrId, 
           orElse: () => CategoryModel(id: 'all', name: '', imageUrl: '')
@@ -188,7 +214,7 @@ class ProductController extends ChangeNotifier {
       _browsingProducts.addAll(products);
       
     } catch (e) {
-      debugPrint("Browsing error: $e");
+      AppLogger.error("Browsing error", e);
       _errorMessage = "Failed to load products. Please try again.";
     } finally {
       _isBrowsingLoading = false;
@@ -196,7 +222,6 @@ class ProductController extends ChangeNotifier {
     }
   }
 
-  // Filtering & Sorting State
   double? minPrice;
   double? maxPrice;
   bool onlyInStock = false;
@@ -221,7 +246,6 @@ class ProductController extends ChangeNotifier {
     return _repository.getProductDetails(productId);
   }
 
-  // Compatibility getter
   List<ProductModel> get filteredProducts {
     if (_selectedCategoryId == 'all') {
       return _allProductsCache;
@@ -231,6 +255,10 @@ class ProductController extends ChangeNotifier {
   
   List<ProductModel> get wishlistProducts {
     return _allProductsCache.where((p) => _wishlistIds.contains(p.id)).toList();
+  }
+
+  int getProductCountInCategory(String categoryId) {
+    return _allProductsCache.where((p) => p.categoryId == categoryId).length;
   }
 
   Future<void> performSearch(String query) async {
@@ -267,7 +295,7 @@ class ProductController extends ChangeNotifier {
         }
       }
     } catch (e) {
-      debugPrint("Search error: $e");
+      AppLogger.error("Search error", e);
       _searchError = "Something went wrong while searching.";
       _searchResults = [];
     } finally {
@@ -281,7 +309,6 @@ class ProductController extends ChangeNotifier {
   Future<void> toggleLike(String productId) async {
     final user = _auth.currentUser;
     if (user == null) {
-      // Potentially show login prompt or just return
       return;
     }
 
@@ -302,22 +329,55 @@ class ProductController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _configSub?.cancel();
+    _categorySub?.cancel();
+    _featuredSub?.cancel();
+    _latestSub?.cancel();
+    _popularSub?.cancel();
     _wishlistSubscription?.cancel();
     super.dispose();
   }
 
-  // --- Admin CRUD Operations ---
-
   Future<void> addProduct(ProductModel product) async {
-    await _repository.addProduct(product);
+    try {
+      await _repository.addProduct(product);
+      await _loadInitialData(); 
+      await fetchBrowsingProducts(refresh: true);
+      notifyListeners();
+    } catch (e) {
+      AppLogger.error("Add product error", e);
+      _errorMessage = "Failed to add product: $e";
+      notifyListeners();
+      rethrow;
+    }
   }
 
   Future<void> updateProduct(ProductModel product) async {
-    await _repository.updateProduct(product);
+    try {
+      await _repository.updateProduct(product);
+      await _loadInitialData(); 
+      await fetchBrowsingProducts(refresh: true);
+      notifyListeners();
+    } catch (e) {
+      AppLogger.error("Update product error", e);
+      _errorMessage = "Failed to update product: $e";
+      notifyListeners();
+      rethrow;
+    }
   }
 
   Future<void> deleteProduct(String productId) async {
-    await _repository.deleteProduct(productId);
+    try {
+      await _repository.deleteProduct(productId);
+      await _loadInitialData(); 
+      await fetchBrowsingProducts(refresh: true);
+      notifyListeners();
+    } catch (e) {
+      AppLogger.error("Delete product error", e);
+      _errorMessage = "Failed to delete product: $e";
+      notifyListeners();
+      rethrow;
+    }
   }
 
   Future<String> uploadImage(File file, String productId) async {
@@ -336,7 +396,6 @@ class ProductController extends ChangeNotifier {
     return _repository.getAdminProducts();
   }
 
-  // Category CRUD
   Future<void> addCategory(CategoryModel category) async {
     await _repository.addCategory(category);
   }

@@ -9,7 +9,7 @@ class ProductCartLayout extends StatefulWidget {
   final Widget child;
   final HomePageController controller;
   final ScrollController? scrollController;
-  final List<Widget>? slivers; // New: Support for efficient sliver-based layouts
+  final List<Widget>? slivers; 
 
   const ProductCartLayout({
     super.key,
@@ -26,7 +26,9 @@ class ProductCartLayout extends StatefulWidget {
 class _ProductCartLayoutState extends State<ProductCartLayout> {
   late ScrollController _internalController;
   late ScrollController _activeController;
-  double _scrollOffset = 0;
+  
+  // Use ValueNotifier for performance (rebuilds only what's needed)
+  final ValueNotifier<double> _scrollOffset = ValueNotifier<double>(0.0);
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -38,16 +40,13 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
   }
 
   void _scrollListener() {
-    if (mounted) {
-      setState(() {
-        _scrollOffset = _activeController.offset;
-      });
-    }
+    _scrollOffset.value = _activeController.offset;
   }
 
   @override
   void dispose() {
     _activeController.removeListener(_scrollListener);
+    _scrollOffset.dispose();
     if (widget.scrollController == null) {
       _internalController.dispose();
     }
@@ -56,9 +55,7 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
 
   @override
   Widget build(BuildContext context) {
-    double header1Height = 95.0;
-    double header2Top = (header1Height - _scrollOffset).clamp(0.0, header1Height);
-    bool isSticky = _scrollOffset >= header1Height;
+    const double header1Height = 95.0;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -70,24 +67,28 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
           CustomScrollView(
             controller: _activeController,
             slivers: [
-              // Header Spacers
               const SliverToBoxAdapter(child: SizedBox(height: 95 + 64)),
-              
               if (widget.slivers != null) 
                 ...widget.slivers!
               else 
                 SliverToBoxAdapter(child: widget.child),
-
               SliverToBoxAdapter(child: UserFooter(controller: widget.controller)),
             ],
           ),
           
-          // Header 2 (Product Header)
-          Positioned(
-            top: header2Top,
-            left: 0,
-            right: 0,
-            child: ProductHeader(isSticky: isSticky, scaffoldKey: _scaffoldKey),
+          // Header 2 (Product Header) - Optimized with ValueListenableBuilder
+          ValueListenableBuilder<double>(
+            valueListenable: _scrollOffset,
+            builder: (context, offset, child) {
+              double top = (header1Height - offset).clamp(0.0, header1Height);
+              bool isSticky = offset >= header1Height;
+              return Positioned(
+                top: top,
+                left: 0,
+                right: 0,
+                child: ProductHeader(isSticky: isSticky, scaffoldKey: _scaffoldKey),
+              );
+            },
           ),
 
           // Header 1 (Main Default Header)

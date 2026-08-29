@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
+import '../utils/app_logger.dart';
 import 'dart:io';
 
 class AuthController extends ChangeNotifier {
@@ -17,7 +19,6 @@ class AuthController extends ChangeNotifier {
   UserModel? _userModel;
   String? _role;
 
-  // Separate Admin State
   User? _adminUser;
   String? _adminRole;
 
@@ -32,7 +33,6 @@ class AuthController extends ChangeNotifier {
   bool get isAuthenticated => _user != null;
   bool get isAdmin => _role?.toLowerCase() == 'admin';
 
-  // Admin Getters
   User? get adminUser => _adminUser;
   bool get isAdminAuthenticated => _adminUser != null && _adminRole?.toLowerCase() == 'admin';
 
@@ -53,11 +53,14 @@ class AuthController extends ChangeNotifier {
   }
 
   AuthController() {
-    // Initialize Admin Auth with the secondary app
-    _adminAuth = FirebaseAuth.instanceFor(app: Firebase.app('AdminApp'));
+    try {
+      _adminAuth = FirebaseAuth.instanceFor(app: Firebase.app('AdminApp'));
+    } catch (e) {
+      AppLogger.error("Failed to initialize Admin Auth", e);
+      _adminAuth = _auth; // Fallback
+    }
 
     _auth.authStateChanges().listen((User? user) async {
-      debugPrint("Auth State Change: User ${user?.email}");
       _user = user;
       if (user != null) {
         await _fetchUserRole(user.uid);
@@ -69,9 +72,7 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
     });
 
-    // Listen to Admin Auth State
     _adminAuth.authStateChanges().listen((User? user) async {
-      debugPrint("Admin Auth State Change: Admin ${user?.email}");
       _adminUser = user;
       if (user != null) {
         _adminRole = await _getRoleOnly(user.uid);
@@ -101,14 +102,12 @@ class AuthController extends ChangeNotifier {
       if (doc.exists) {
         _userModel = UserModel.fromFirestore(doc);
         _role = _userModel?.role;
-        debugPrint("User Role Fetched: $_role");
       } else {
-        debugPrint("No user document found in Firestore for UID: $uid");
         _role = null;
         _userModel = null;
       }
     } catch (e) {
-      debugPrint("Error fetching user role: $e");
+      AppLogger.error("Error fetching user role", e);
     }
   }
 
@@ -136,7 +135,7 @@ class AuthController extends ChangeNotifier {
       });
       await _fetchUserRole(_user!.uid);
     } catch (e) {
-      debugPrint("Error updating profile: $e");
+      AppLogger.error("Error updating profile", e);
       rethrow;
     } finally {
       _isLoading = false;
@@ -159,7 +158,7 @@ class AuthController extends ChangeNotifier {
       });
       await _fetchUserRole(_user!.uid);
     } catch (e) {
-      debugPrint("Error updating profile image: $e");
+      AppLogger.error("Error updating profile image", e);
       rethrow;
     } finally {
       _isLoading = false;
@@ -172,7 +171,7 @@ class AuthController extends ChangeNotifier {
     try {
       await _user!.updatePassword(newPassword);
     } catch (e) {
-      debugPrint("Error changing password: $e");
+      AppLogger.error("Error changing password", e);
       rethrow;
     }
   }
@@ -206,7 +205,7 @@ class AuthController extends ChangeNotifier {
         _userModel = userModel;
       }
     } catch (e) {
-      debugPrint("Signup error: $e");
+      AppLogger.error("Signup error", e);
       _errorMessage = "Registration failed. Please check your details.";
       rethrow;
     } finally {
@@ -226,12 +225,10 @@ class AuthController extends ChangeNotifier {
         await _fetchUserRole(credential.user!.uid);
         await _firestore.collection('users').doc(credential.user!.uid).update({
           'lastLogin': FieldValue.serverTimestamp(),
-        }).catchError((e) {
-          debugPrint("Error updating lastLogin: $e");
         });
       }
     } catch (e) {
-      debugPrint("Login error: $e");
+      AppLogger.error("Login error", e);
       _errorMessage = "Login failed. Invalid email or password.";
       rethrow;
     } finally {
@@ -257,8 +254,8 @@ class AuthController extends ChangeNotifier {
         _adminRole = role;
       }
     } catch (e) {
-      debugPrint("Admin Login error: $e");
-      if (_errorMessage == null) _errorMessage = "Login failed. Invalid email or password.";
+      AppLogger.error("Admin Login error", e);
+      _errorMessage ??= "Login failed. Invalid email or password.";
       rethrow;
     } finally {
       _isLoading = false;
