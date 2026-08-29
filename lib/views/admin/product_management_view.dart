@@ -66,9 +66,9 @@ class _ProductManagementViewState extends State<ProductManagementView> {
     );
   }
 
-  Widget _buildTopNavigationBar(DashboardController controller) {
-    final stats = controller.stats;
-    final items = [
+  List<Map<String, dynamic>> _getHeaderItems(DashboardController dashCtrl, ProductController prodCtrl) {
+    final stats = dashCtrl.stats;
+    return [
       {'title': 'Dashboard', 'icon': Icons.dashboard_outlined},
       {'title': 'Products', 'icon': Icons.shopping_bag_outlined, 'badge': '${stats.totalProducts}'},
       {'title': 'Categories', 'icon': Icons.category_outlined, 'badge': '${stats.totalCategories}'},
@@ -81,6 +81,11 @@ class _ProductManagementViewState extends State<ProductManagementView> {
       {'title': 'Reviews', 'icon': Icons.star_outline},
       {'title': 'Store Settings', 'icon': Icons.settings_outlined},
     ];
+  }
+
+  Widget _buildTopNavigationBar(DashboardController controller) {
+    final productController = Provider.of<ProductController>(context, listen: false);
+    final items = _getHeaderItems(controller, productController);
 
     return Container(
       height: 80,
@@ -105,7 +110,7 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                 controller: _headerScrollCtrl,
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 12), // Space for the scrollbar
+                padding: const EdgeInsets.only(bottom: 12),
                 child: Row(
                   children: items.asMap().entries.map((e) {
                     int i = e.key;
@@ -205,9 +210,11 @@ class _ProductManagementViewState extends State<ProductManagementView> {
       ));
     }
 
-    final homeController = Provider.of<HomePageController>(context, listen: false);
+    // Re-calculating the items list to get the title of the active tab
+    final items = _getHeaderItems(dashCtrl, prodCtrl);
 
-    // Dynamic routing for the "Super Header"
+    if (_activeSubMenu >= items.length) _activeSubMenu = 0;
+    
     switch (_activeSubMenu) {
       case 0: return _buildDashboard(dashCtrl);
       case 1: return _buildProductsList(prodCtrl);
@@ -668,12 +675,12 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                                 : Container(width: 48, height: 48, color: Colors.grey.shade100, child: const Icon(Icons.image_outlined)),
                             ),
                             const SizedBox(width: 16),
-                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)), if (p.isFeatured) Container(margin: const EdgeInsets.only(top: 4), padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: templeGold.withOpacity(0.1), borderRadius: BorderRadius.circular(4)), child: Text('FEATURED', style: TextStyle(color: templeGold, fontSize: 8, fontWeight: FontWeight.bold)))]))
+                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)), if (p.consecrationBadge.isNotEmpty) Container(margin: const EdgeInsets.only(top: 4), padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: primaryTeal.withOpacity(0.1), borderRadius: BorderRadius.circular(4)), child: Text(p.consecrationBadge.toUpperCase(), style: TextStyle(color: primaryTeal, fontSize: 8, fontWeight: FontWeight.bold)))]))
                           ],
                         ),
                       ),
                       Expanded(flex: 2, child: Text(p.categoryId, style: const TextStyle(fontSize: 12))),
-                      Expanded(flex: 1, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('₹${p.price.toInt()}', style: const TextStyle(fontWeight: FontWeight.bold)), if (p.discountPrice != null) Text('₹${p.discountPrice!.toInt()}', style: TextStyle(fontSize: 11, color: Colors.green, fontWeight: FontWeight.bold))])),
+                      Expanded(flex: 1, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('₹${p.price.toInt()}', style: const TextStyle(fontWeight: FontWeight.bold)), if (p.comparePrice != null) Text('₹${p.comparePrice!.toInt()}', style: TextStyle(fontSize: 11, color: Colors.grey, decoration: TextDecoration.lineThrough))])),
                       Expanded(flex: 1, child: Row(children: [Text('${p.stock}', style: TextStyle(fontWeight: FontWeight.bold, color: p.stock < 10 ? Colors.red : Colors.black87)), const SizedBox(width: 8), _stockControl(p, prodCtrl)])),
                       Expanded(flex: 1, child: _statusChip(p.isActive)),
                       Expanded(flex: 1, child: Row(children: [IconButton(icon: const Icon(Icons.edit_outlined, size: 18), onPressed: () => _showProductDialog(product: p)), IconButton(icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent), onPressed: () => _confirmDelete(p.id, prodCtrl))])),
@@ -788,10 +795,18 @@ class _ProductManagementViewState extends State<ProductManagementView> {
             ],
           ),
           const SizedBox(height: 16),
-          Text(cat.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(cat.name, 
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           if (cat.description.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(cat.description, style: TextStyle(color: Colors.grey.shade500, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text(cat.description, 
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 12), 
+              maxLines: 1, 
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
           const Spacer(),
           TextButton(onPressed: () => _showCategoryDialog(category: cat), child: const Text('Edit Category →', style: TextStyle(fontSize: 12))),
@@ -859,19 +874,21 @@ class _ProductManagementViewState extends State<ProductManagementView> {
 
   // --- CRUD Dialogs ---
 
-  void _showProductDialog({ProductModel? product}) {
+  void _showProductDialog({ProductModel? product, String? defaultCategory}) {
     final isEdit = product != null;
     final nameCtrl = TextEditingController(text: product?.name);
-    final descCtrl = TextEditingController(text: product?.description);
+    final skuCtrl = TextEditingController(text: product?.sku);
     final priceCtrl = TextEditingController(text: product?.price.toString());
-    final discCtrl = TextEditingController(text: product?.discountPrice?.toString() ?? '');
+    final comparePriceCtrl = TextEditingController(text: product?.comparePrice?.toString() ?? '');
     final stockCtrl = TextEditingController(text: product?.stock.toString() ?? '0');
-    String selectedCat = product?.categoryId ?? 'Keychain';
+    final imgUrlCtrl = TextEditingController(text: product?.imageUrl);
+    final shortSummaryCtrl = TextEditingController(text: product?.shortSummary);
+    final highlightsCtrl = TextEditingController(text: product?.highlights.join('\n'));
+
+    String selectedCat = product?.categoryId ?? (defaultCategory ?? (Provider.of<ProductController>(context, listen: false).categoryObjects.isNotEmpty ? Provider.of<ProductController>(context, listen: false).categoryObjects[0].id : 'Keychain'));
+    String selectedBadge = product?.consecrationBadge ?? 'Bestseller';
     bool isActive = product?.isActive ?? true;
     bool isFeatured = product?.isFeatured ?? false;
-    List<String> currentImages = product?.imageUrls != null ? List.from(product!.imageUrls) : [];
-    double uploadProgress = 0;
-    bool isUploading = false;
 
     showDialog(
       context: context,
@@ -879,102 +896,256 @@ class _ProductManagementViewState extends State<ProductManagementView> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           final prodCtrl = Provider.of<ProductController>(context, listen: false);
-          return AlertDialog(
-            title: Text(isEdit ? 'Edit Sacred Item' : 'Add New Sacred Item'),
-            content: SizedBox(
-              width: 600,
+          return Dialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            child: Container(
+              width: 650,
+              padding: const EdgeInsets.all(40),
               child: SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (isUploading) ...[
-                      LinearProgressIndicator(value: uploadProgress),
-                      const SizedBox(height: 8),
-                      Text('Uploading image: ${(uploadProgress * 100).toInt()}%'),
-                      const SizedBox(height: 16),
-                    ],
-                    _dialogField('Product Name', nameCtrl),
-                    _dialogField('Description', descCtrl, maxLines: 3),
-                    Row(children: [Expanded(child: _dialogField('Price (₹)', priceCtrl)), const SizedBox(width: 16), Expanded(child: _dialogField('Discount Price (Optional)', discCtrl))]),
-                    Row(children: [Expanded(child: _dialogField('Stock Count', stockCtrl)), const SizedBox(width: 16), Expanded(child: _dialogCatDropdown(prodCtrl, selectedCat, (v) => setDialogState(() => selectedCat = v!)))]),
-                    SwitchListTile(title: const Text('Active for Sale'), value: isActive, onChanged: (v) => setDialogState(() => isActive = v)),
-                    SwitchListTile(title: const Text('Mark as Featured'), value: isFeatured, onChanged: (v) => setDialogState(() => isFeatured = v)),
-                    const Divider(),
-                    const Text('Product Images', style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 12),
-                    Wrap(spacing: 8, runSpacing: 8, children: [
-                      ...currentImages.map((url) => Stack(children: [
-                        ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(url, width: 80, height: 80, fit: BoxFit.cover)), 
-                        Positioned(top: 0, right: 0, child: GestureDetector(
-                          onTap: () async {
-                            await prodCtrl.deleteImage(url);
-                            setDialogState(() => currentImages.remove(url));
-                          }, 
-                          child: Container(color: Colors.black54, child: const Icon(Icons.close, color: Colors.white, size: 16))
-                        ))
-                      ])),
-                      InkWell(onTap: isUploading ? null : () async {
-                        final picker = ImagePicker();
-                        final img = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1080, maxHeight: 1080, imageQuality: 85);
-                        if (img != null) {
-                          final productId = isEdit ? product.id : 'new_${DateTime.now().millisecondsSinceEpoch}';
-                          final task = prodCtrl.getUploadTask(File(img.path), productId);
-                          
-                          setDialogState(() {
-                            isUploading = true;
-                            uploadProgress = 0;
-                          });
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(isEdit ? 'Edit Sacred Item' : 'Add New Sacred Item', 
+                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF2B2B2B))),
+                            const SizedBox(height: 8),
+                            const Text('Enter holy title, pricing, category, and sacred attributes.', 
+                              style: TextStyle(fontSize: 13, color: Colors.grey)),
+                          ],
+                        ),
+                        IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.grey)),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    
+                    _fieldLabel('PRODUCT TITLE *'),
+                    _adminTextField(nameCtrl, hint: "Dada's Photo Keychain"),
+                    const SizedBox(height: 24),
 
-                          task.snapshotEvents.listen((snapshot) {
-                            setDialogState(() {
-                              uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes;
-                            });
-                          });
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _fieldLabel('CATEGORY *'),
+                              _adminDropdown(
+                                value: selectedCat, 
+                                items: prodCtrl.categoryObjects.map((c) => c.id).toList(), 
+                                onChanged: (v) => setDialogState(() => selectedCat = v!),
+                                labelBuilder: (id) {
+                                  final cat = prodCtrl.categoryObjects.firstWhere((c) => c.id == id, orElse: () => CategoryModel(id: '', name: id, imageUrl: ''));
+                                  return cat.name;
+                                }
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _fieldLabel('SKU CODE *'),
+                              _adminTextField(skuCtrl, hint: 'DADA-KCH-001'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
 
-                          final snapshot = await task;
-                          final url = await snapshot.ref.getDownloadURL();
-                          
-                          setDialogState(() {
-                            currentImages.add(url);
-                            isUploading = false;
-                          });
-                        }
-                      }, child: Container(width: 80, height: 80, decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.add_a_photo))),
-                    ]),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _fieldLabel('PRICE (₹) *'),
+                              _adminTextField(priceCtrl, hint: '99'),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _fieldLabel('COMPARE PRICE (₹)'),
+                              _adminTextField(comparePriceCtrl, hint: '149'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _fieldLabel('INITIAL STOCK QUANTITY'),
+                              _adminTextField(stockCtrl, hint: '85'),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _fieldLabel('CONSECRATION BADGE'),
+                              _adminDropdown(
+                                value: selectedBadge, 
+                                items: const ['Sanctified', 'Bestseller', 'Popular', 'New Arrival', 'Limited Edition'], 
+                                onChanged: (v) => setDialogState(() => selectedBadge = v!)
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    _fieldLabel('IMAGE URL'),
+                    _adminTextField(imgUrlCtrl, hint: 'https://images.unsplash.com/...'),
+                    const SizedBox(height: 24),
+
+                    _fieldLabel('SHORT DEVOTIONAL SUMMARY'),
+                    _adminTextField(shortSummaryCtrl, hint: "Keep revered Dada's divine presence with you at all times..."),
+                    const SizedBox(height: 24),
+
+                    _fieldLabel('KEY HIGHLIGHTS & FEATURES (ONE PER LINE)'),
+                    _adminTextField(highlightsCtrl, maxLines: 4, hint: 'Ultra-clear double-sided print\nOptical grade 3.5mm thick acrylic...'),
+                    
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SwitchListTile(
+                            title: const Text('Active for Sale', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                            subtitle: const Text('Make this product visible to users', style: TextStyle(fontSize: 11)),
+                            value: isActive, 
+                            activeColor: primaryTeal,
+                            onChanged: (v) => setDialogState(() => isActive = v)
+                          ),
+                        ),
+                        Expanded(
+                          child: SwitchListTile(
+                            title: const Text('Mark as Featured', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                            subtitle: const Text('Show in homepage featured section', style: TextStyle(fontSize: 11)),
+                            value: isFeatured, 
+                            activeColor: templeGold,
+                            onChanged: (v) => setDialogState(() => isFeatured = v)
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 40),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        OutlinedButton(
+                          onPressed: () => Navigator.pop(context), 
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                            side: BorderSide(color: Colors.grey.shade300),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+                          ),
+                          child: const Text('Cancel', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(width: 16),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final p = (isEdit ? product : ProductModel(id: 'DADA-${DateTime.now().millisecondsSinceEpoch}', name: '', price: 0, categoryId: '')).copyWith(
+                              name: nameCtrl.text.trim(),
+                              sku: skuCtrl.text.trim(),
+                              price: double.tryParse(priceCtrl.text) ?? 0.0,
+                              comparePrice: double.tryParse(comparePriceCtrl.text),
+                              categoryId: selectedCat,
+                              consecrationBadge: selectedBadge,
+                              stock: int.tryParse(stockCtrl.text) ?? 0,
+                              imageUrl: imgUrlCtrl.text.trim(),
+                              imageUrls: imgUrlCtrl.text.isNotEmpty ? [imgUrlCtrl.text.trim()] : [],
+                              shortSummary: shortSummaryCtrl.text.trim(),
+                              highlights: highlightsCtrl.text.trim().split('\n').where((s) => s.isNotEmpty).toList(),
+                              isActive: isActive,
+                              isFeatured: isFeatured,
+                            );
+                            if (isEdit) {
+                              await prodCtrl.updateProduct(p);
+                            } else {
+                              await prodCtrl.addProduct(p);
+                            }
+                            if (mounted) Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF8B4513), 
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            elevation: 0,
+                          ),
+                          child: Text(isEdit ? 'UPDATE PRODUCT' : 'PUBLISH PRODUCT', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1)),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
-              ElevatedButton(
-                onPressed: () async {
-                  final p = (isEdit ? product : ProductModel(id: 'DADA-${DateTime.now().millisecondsSinceEpoch}', name: '', price: 0, categoryId: '')).copyWith(
-                    name: nameCtrl.text.trim(),
-                    description: descCtrl.text.trim(),
-                    price: double.tryParse(priceCtrl.text) ?? 0.0,
-                    discountPrice: double.tryParse(discCtrl.text),
-                    categoryId: selectedCat,
-                    stock: int.tryParse(stockCtrl.text) ?? 0,
-                    isActive: isActive,
-                    isFeatured: isFeatured,
-                    imageUrls: currentImages,
-                    imageUrl: currentImages.isNotEmpty ? currentImages[0] : '',
-                  );
-                  if (isEdit) {
-                    await prodCtrl.updateProduct(p);
-                  } else {
-                    await prodCtrl.addProduct(p);
-                  }
-                  if (mounted) {
-                    Navigator.pop(context);
-                  }
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: primaryTeal),
-                child: Text(isEdit ? 'SAVE CHANGES' : 'PUBLISH PRODUCT'),
-              ),
-            ],
           );
         }
+      ),
+    );
+  }
+
+  Widget _fieldLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF2B2B2B), letterSpacing: 0.5)),
+    );
+  }
+
+  Widget _adminTextField(TextEditingController ctrl, {String hint = '', int maxLines = 1}) {
+    return Container(
+      decoration: BoxDecoration(color: const Color(0xFFF9F9F9), borderRadius: BorderRadius.circular(8), border: Border.all(color: const Color(0xFFE5E5E5))),
+      child: TextField(
+        controller: ctrl,
+        maxLines: maxLines,
+        style: const TextStyle(fontSize: 14),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+      ),
+    );
+  }
+
+  Widget _adminDropdown({required String value, required List<String> items, required Function(String?) onChanged, String Function(String)? labelBuilder}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(color: const Color(0xFFF9F9F9), borderRadius: BorderRadius.circular(8), border: Border.all(color: const Color(0xFFE5E5E5))),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: items.contains(value) ? value : (items.isNotEmpty ? items.first : null),
+          isExpanded: true,
+          style: const TextStyle(fontSize: 14, color: Colors.black87),
+          items: items.map((item) => DropdownMenuItem(value: item, child: Text(labelBuilder != null ? labelBuilder(item) : item))).toList(),
+          onChanged: onChanged,
+        ),
       ),
     );
   }
@@ -1062,7 +1233,15 @@ class _ProductManagementViewState extends State<ProductManagementView> {
               ElevatedButton(
                 onPressed: () async {
                   if (nameCtrl.text.isEmpty) return;
-                  final c = (isEdit ? category : CategoryModel(id: nameCtrl.text.toLowerCase().replaceAll(' ', '_'), name: '', imageUrl: '')).copyWith(
+                  
+                  // Sanitize ID: Remove slashes and special characters that break Firestore paths
+                  final sanitizedId = nameCtrl.text
+                      .toLowerCase()
+                      .trim()
+                      .replaceAll(RegExp(r'[^a-z0-9]'), '_') // Replace all non-alphanumeric with _
+                      .replaceAll(RegExp(r'_+'), '_'); // Collapse multiple underscores
+                  
+                  final c = (isEdit ? category : CategoryModel(id: sanitizedId, name: '', imageUrl: '')).copyWith(
                     name: nameCtrl.text.trim(),
                     description: descCtrl.text.trim(),
                     imageUrl: imageUrl,

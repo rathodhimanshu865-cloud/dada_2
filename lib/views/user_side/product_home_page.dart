@@ -19,28 +19,27 @@ class ProductHomePage extends StatelessWidget {
 
     return ProductCartLayout(
       controller: homeController,
-      child: Column(
-        children: [
-          _buildHeroSection(context, productController),
-          const SizedBox(height: 60),
-          _buildCategoriesSection(context, productController),
-          const SizedBox(height: 60),
-          _buildFeaturedProductsSection(context, productController),
-          const SizedBox(height: 60),
-          _buildLatestProductsSection(context, productController),
-          const SizedBox(height: 60),
-          _buildPopularProductsSection(context, productController),
-          const SizedBox(height: 60),
-          _buildProcessSection(context),
-          const SizedBox(height: 60),
-          _buildTestimonialsSection(context),
-          const SizedBox(height: 60),
-          _buildWisdomSection(context),
-          const SizedBox(height: 60),
-          _buildNewsletterBanner(context),
-          const SizedBox(height: 60),
-        ],
-      ),
+      slivers: [
+        SliverToBoxAdapter(child: _buildHeroSection(context, productController)),
+        const SliverToBoxAdapter(child: SizedBox(height: 60)),
+        SliverToBoxAdapter(child: _buildCategoriesSection(context, productController)),
+        const SliverToBoxAdapter(child: SizedBox(height: 60)),
+        SliverToBoxAdapter(child: _buildFeaturedProductsSection(context, productController)),
+        const SliverToBoxAdapter(child: SizedBox(height: 60)),
+        SliverToBoxAdapter(child: _buildLatestProductsSection(context, productController)),
+        const SliverToBoxAdapter(child: SizedBox(height: 60)),
+        SliverToBoxAdapter(child: _buildPopularProductsSection(context, productController)),
+        const SliverToBoxAdapter(child: SizedBox(height: 60)),
+        SliverToBoxAdapter(child: _buildProcessSection(context)),
+        const SliverToBoxAdapter(child: SizedBox(height: 60)),
+        SliverToBoxAdapter(child: _buildTestimonialsSection(context)),
+        const SliverToBoxAdapter(child: SizedBox(height: 60)),
+        SliverToBoxAdapter(child: _buildWisdomSection(context)),
+        const SliverToBoxAdapter(child: SizedBox(height: 60)),
+        SliverToBoxAdapter(child: _buildNewsletterBanner(context)),
+        const SliverToBoxAdapter(child: SizedBox(height: 60)),
+      ],
+      child: const SizedBox.shrink(),
     );
   }
 
@@ -91,6 +90,8 @@ class ProductHomePage extends StatelessWidget {
       stream: prod.categoriesStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+        if (snapshot.hasError) return const Center(child: Text('Error loading categories'));
+        
         final categories = snapshot.data ?? [];
         if (categories.isEmpty) return const SizedBox.shrink();
         return Center(
@@ -101,14 +102,49 @@ class ProductHomePage extends StatelessWidget {
                 Text('Sacred Offerings', style: AppTypography.headingStyle(context, fontSize: 36, fontWeight: FontWeight.bold, color: const Color(0xFF0F4C5C))),
                 const SizedBox(height: 40),
                 GridView.builder(
-                  shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: MediaQuery.of(context).size.width < 600 ? 2 : 4, childAspectRatio: 0.8, crossAxisSpacing: 20, mainAxisSpacing: 20),
+                  shrinkWrap: true, 
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: MediaQuery.of(context).size.width < 600 ? 2 : 4, 
+                    childAspectRatio: 0.65, 
+                    crossAxisSpacing: 20, 
+                    mainAxisSpacing: 20
+                  ),
                   itemCount: categories.length,
                   itemBuilder: (context, index) {
                     final cat = categories[index];
                     return InkWell(
                       onTap: () => Navigator.pushNamed(context, '/catalogue', arguments: cat.id),
-                      child: Column(children: [Expanded(child: Container(decoration: BoxDecoration(shape: BoxShape.circle, image: cat.imageUrl.isNotEmpty ? DecorationImage(image: NetworkImage(cat.imageUrl), fit: BoxFit.cover) : null, color: Colors.grey.shade100), child: cat.imageUrl.isEmpty ? const Icon(Icons.category_outlined, color: Colors.grey) : null)), const SizedBox(height: 12), Text(cat.name, textAlign: TextAlign.center, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 14))]),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle, 
+                                image: cat.imageUrl.isNotEmpty ? DecorationImage(image: NetworkImage(cat.imageUrl), fit: BoxFit.cover) : null, 
+                                color: Colors.grey.shade100
+                              ), 
+                              child: cat.imageUrl.isEmpty ? const Icon(Icons.category_outlined, color: Colors.grey) : null
+                            )
+                          ), 
+                          const SizedBox(height: 12), 
+                          Text(
+                            cat.name, 
+                            textAlign: TextAlign.center, 
+                            style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 16)
+                          ),
+                          if (cat.description.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              cat.description, 
+                              textAlign: TextAlign.center, 
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTypography.bodyStyle(context, fontSize: 12, color: Colors.grey.shade600)
+                            ),
+                          ],
+                        ],
+                      ),
                     );
                   },
                 ),
@@ -128,9 +164,14 @@ class ProductHomePage extends StatelessWidget {
     return StreamBuilder<List<ProductModel>>(
       stream: stream,
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Please check Firestore indexes for: $title', style: const TextStyle(color: Colors.grey, fontSize: 11)));
+        }
         if (snapshot.connectionState == ConnectionState.waiting) return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
+        
         final products = snapshot.data ?? [];
         if (products.isEmpty) return const SizedBox.shrink();
+        
         return Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1200),
@@ -139,7 +180,16 @@ class ProductHomePage extends StatelessWidget {
               children: [
                 Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Text(title, style: AppTypography.headingStyle(context, fontSize: 32, fontWeight: FontWeight.bold, color: const Color(0xFF0F4C5C)))),
                 const SizedBox(height: 30),
-                SizedBox(height: 420, child: ListView.separated(padding: const EdgeInsets.symmetric(horizontal: 20), scrollDirection: Axis.horizontal, itemCount: products.length, separatorBuilder: (context, index) => const SizedBox(width: 20), itemBuilder: (context, index) => SizedBox(width: 280, child: ProductCard(product: products[index])))),
+                SizedBox(
+                  height: 420, 
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 20), 
+                    scrollDirection: Axis.horizontal, 
+                    itemCount: products.length, 
+                    separatorBuilder: (context, index) => const SizedBox(width: 20), 
+                    itemBuilder: (context, index) => SizedBox(width: 280, child: ProductCard(product: products[index]))
+                  )
+                ),
               ],
             ),
           ),

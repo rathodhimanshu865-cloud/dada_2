@@ -8,9 +8,14 @@ class ProductModel {
   final String description;
   final String descriptionHi;
   final String descriptionGu;
-  final double price;
-  final double? discountPrice;
+  final double price; // Selling Price
+  final double? comparePrice; // Original Price for discount display
+  final double? discountPrice; // Legacy field for compatibility
   final String categoryId;
+  final String sku;
+  final String consecrationBadge; // e.g., Sanctified, Bestseller
+  final String shortSummary;
+  final List<String> highlights;
   final String imageUrl; 
   final List<String> imageUrls; 
   final int stock;
@@ -19,14 +24,22 @@ class ProductModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final int salesCount;
+  final double rating;
+  final int reviewCount;
 
   // Compatibility & Utility getters
   bool get isAvailable => isActive && stock > 0;
   int get stockCount => stock;
-  bool get isPopular => salesCount > 50; 
-  bool get isNew => createdAt != null && DateTime.now().difference(createdAt!).inDays < 30;
+  bool get isPopular => salesCount > 50 || consecrationBadge == 'Popular'; 
+  bool get isNew => consecrationBadge == 'New Arrival';
   String get title => name;
   String get category => categoryId;
+
+  // Calculate discount percentage
+  int get discountPercentage {
+    if (comparePrice == null || comparePrice! <= price) return 0;
+    return (((comparePrice! - price) / comparePrice!) * 100).round();
+  }
 
   ProductModel({
     required this.id,
@@ -37,8 +50,13 @@ class ProductModel {
     this.descriptionHi = '',
     this.descriptionGu = '',
     required this.price,
+    this.comparePrice,
     this.discountPrice,
     required this.categoryId,
+    this.sku = '',
+    this.consecrationBadge = '',
+    this.shortSummary = '',
+    this.highlights = const [],
     this.imageUrl = '',
     this.imageUrls = const [],
     this.stock = 0,
@@ -47,6 +65,8 @@ class ProductModel {
     this.createdAt,
     this.updatedAt,
     this.salesCount = 0,
+    this.rating = 4.9,
+    this.reviewCount = 0,
   });
 
   ProductModel copyWith({
@@ -58,8 +78,13 @@ class ProductModel {
     String? descriptionHi,
     String? descriptionGu,
     double? price,
+    double? comparePrice,
     double? discountPrice,
     String? categoryId,
+    String? sku,
+    String? consecrationBadge,
+    String? shortSummary,
+    List<String>? highlights,
     String? imageUrl,
     List<String>? imageUrls,
     int? stock,
@@ -68,6 +93,8 @@ class ProductModel {
     DateTime? createdAt,
     DateTime? updatedAt,
     int? salesCount,
+    double? rating,
+    int? reviewCount,
   }) {
     return ProductModel(
       id: id ?? this.id,
@@ -78,8 +105,13 @@ class ProductModel {
       descriptionHi: descriptionHi ?? this.descriptionHi,
       descriptionGu: descriptionGu ?? this.descriptionGu,
       price: price ?? this.price,
+      comparePrice: comparePrice ?? this.comparePrice,
       discountPrice: discountPrice ?? this.discountPrice,
       categoryId: categoryId ?? this.categoryId,
+      sku: sku ?? this.sku,
+      consecrationBadge: consecrationBadge ?? this.consecrationBadge,
+      shortSummary: shortSummary ?? this.shortSummary,
+      highlights: highlights ?? this.highlights,
       imageUrl: imageUrl ?? this.imageUrl,
       imageUrls: imageUrls ?? this.imageUrls,
       stock: stock ?? this.stock,
@@ -88,6 +120,8 @@ class ProductModel {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       salesCount: salesCount ?? this.salesCount,
+      rating: rating ?? this.rating,
+      reviewCount: reviewCount ?? this.reviewCount,
     );
   }
 
@@ -102,8 +136,13 @@ class ProductModel {
       descriptionHi: data['descriptionHi'] ?? '',
       descriptionGu: data['descriptionGu'] ?? '',
       price: (data['price'] ?? 0.0).toDouble(),
+      comparePrice: data['comparePrice'] != null ? (data['comparePrice'] as num).toDouble() : null,
       discountPrice: data['discountPrice'] != null ? (data['discountPrice'] as num).toDouble() : null,
       categoryId: data['categoryId'] ?? '',
+      sku: data['sku'] ?? '',
+      consecrationBadge: data['consecrationBadge'] ?? '',
+      shortSummary: data['shortSummary'] ?? '',
+      highlights: List<String>.from(data['highlights'] ?? []),
       imageUrl: data['imageUrl'] ?? '',
       imageUrls: List<String>.from(data['imageUrls'] ?? []),
       stock: data['stock'] ?? 0,
@@ -112,6 +151,8 @@ class ProductModel {
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
       salesCount: data['salesCount'] ?? 0,
+      rating: (data['rating'] ?? 4.9).toDouble(),
+      reviewCount: data['reviewCount'] ?? 0,
     );
   }
 
@@ -124,8 +165,13 @@ class ProductModel {
       'descriptionHi': descriptionHi,
       'descriptionGu': descriptionGu,
       'price': price,
+      'comparePrice': comparePrice,
       'discountPrice': discountPrice,
       'categoryId': categoryId,
+      'sku': sku,
+      'consecrationBadge': consecrationBadge,
+      'shortSummary': shortSummary,
+      'highlights': highlights,
       'imageUrl': imageUrl,
       'imageUrls': imageUrls,
       'stock': stock,
@@ -134,6 +180,8 @@ class ProductModel {
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
       'salesCount': salesCount,
+      'rating': rating,
+      'reviewCount': reviewCount,
     };
   }
 

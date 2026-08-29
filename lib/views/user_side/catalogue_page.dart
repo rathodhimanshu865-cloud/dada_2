@@ -37,45 +37,61 @@ class _CataloguePageState extends State<CataloguePage> {
 
     return ProductCartLayout(
       controller: homeController,
-      child: Column(
-        children: [
-          _buildHeroBanner(context),
-          const SizedBox(height: 30),
-          _buildFilterRow(context, productController),
-          const SizedBox(height: 20),
-          _buildControlsRow(context, productController),
-          const SizedBox(height: 30),
-          if (productController.isBrowsingLoading && productController.browsingProducts.isEmpty)
-            const Padding(padding: EdgeInsets.symmetric(vertical: 100), child: Column(
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Loading sacred products...')
-              ],
-            ))
-          else if (productController.errorMessage != null && productController.browsingProducts.isEmpty)
-            Padding(padding: const EdgeInsets.symmetric(vertical: 100), child: Column(
-              children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
-                const SizedBox(height: 16),
-                Text(productController.errorMessage!),
-                const SizedBox(height: 16),
-                ElevatedButton(onPressed: () => productController.fetchBrowsingProducts(refresh: true), child: const Text('Try Again'))
-              ],
-            ))
-          else if (productController.browsingProducts.isEmpty)
-            const Padding(padding: EdgeInsets.symmetric(vertical: 100), child: Column(
-              children: [
-                Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
-                const SizedBox(height: 16),
-                Text('No products found in this category.'),
-              ],
-            ))
-          else
-            _buildProductGrid(context, productController),
-          const SizedBox(height: 60),
-        ],
-      ),
+      slivers: [
+        SliverToBoxAdapter(child: _buildHeroBanner(context)),
+        const SliverToBoxAdapter(child: SizedBox(height: 30)),
+        SliverToBoxAdapter(child: _buildFilterRow(context, productController)),
+        const SliverToBoxAdapter(child: SizedBox(height: 20)),
+        SliverToBoxAdapter(child: _buildControlsRow(context, productController)),
+        const SliverToBoxAdapter(child: SizedBox(height: 30)),
+        
+        if (productController.isBrowsingLoading && productController.browsingProducts.isEmpty)
+          const SliverFillRemaining(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(color: Color(0xFF0F4C5C)),
+                  SizedBox(height: 16),
+                  Text('Loading sacred products...')
+                ],
+              ),
+            ),
+          )
+        else if (productController.errorMessage != null && productController.browsingProducts.isEmpty)
+          SliverFillRemaining(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+                  const SizedBox(height: 16),
+                  Text(productController.errorMessage!),
+                  const SizedBox(height: 16),
+                  ElevatedButton(onPressed: () => productController.fetchBrowsingProducts(refresh: true), child: const Text('Try Again'))
+                ],
+              ),
+            ),
+          )
+        else if (productController.browsingProducts.isEmpty)
+          const SliverFillRemaining(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  Text('No products found in this category.'),
+                ],
+              ),
+            ),
+          )
+        else
+          _buildProductGrid(context, productController),
+          
+        const SliverToBoxAdapter(child: SizedBox(height: 60)),
+      ],
+      child: const SizedBox.shrink(), // Required by constructor but not used when slivers is present
     );
   }
 
@@ -128,9 +144,9 @@ class _CataloguePageState extends State<CataloguePage> {
                 children: [
                   _checkMarkItem('100% Quality Checked'),
                   const SizedBox(width: 24),
-                  _checkMarkItem('Handcrafted by skilled artisans'),
+                  _checkMarkItem('Handcrafted by artisans'),
                   const SizedBox(width: 24),
-                  _checkMarkItem('Consecrated with Vedic Mantras'),
+                  _checkMarkItem('Vedic Consecrated'),
                 ],
               ),
             ],
@@ -150,7 +166,7 @@ class _CataloguePageState extends State<CataloguePage> {
     );
   }
 
-  Widget _buildFilterRow(BuildContext context, dynamic prod) {
+  Widget _buildFilterRow(BuildContext context, ProductController prod) {
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
@@ -160,7 +176,7 @@ class _CataloguePageState extends State<CataloguePage> {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
-            children: (prod.categories as List<String>).map((cat) {
+            children: prod.categories.map((cat) {
               bool isSelected = prod.selectedCategory == cat;
               return Padding(
                 padding: const EdgeInsets.only(right: 12),
@@ -191,7 +207,7 @@ class _CataloguePageState extends State<CataloguePage> {
     );
   }
 
-  Widget _buildControlsRow(BuildContext context, dynamic prod) {
+  Widget _buildControlsRow(BuildContext context, ProductController prod) {
     final isMobile = MediaQuery.of(context).size.width < 700;
 
     return Center(
@@ -264,34 +280,28 @@ class _CataloguePageState extends State<CataloguePage> {
     );
   }
 
-  Widget _buildProductGrid(BuildContext context, dynamic prod) {
-    final products = (prod.searchQuery as String).isEmpty ? (prod.browsingProducts as List<ProductModel>) : (prod.searchResults as List<ProductModel>);
-
-    if (products.isEmpty && !prod.isBrowsingLoading) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 60),
-          child: Text('No products found.', style: AppTypography.bodyStyle(context, color: Colors.grey)),
-        ),
-      );
-    }
+  Widget _buildProductGrid(BuildContext context, ProductController prod) {
+    final products = prod.searchQuery.isEmpty ? prod.browsingProducts : prod.searchResults;
 
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
-        child: GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            childAspectRatio: 0.6,
-            crossAxisSpacing: 20,
-            mainAxisSpacing: 30,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: SliverGrid(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: MediaQuery.of(context).size.width < 600 ? 2 : (MediaQuery.of(context).size.width < 900 ? 3 : 4),
+              childAspectRatio: 0.65,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 30,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                return ProductCard(product: products[index]);
+              },
+              childCount: products.length,
+            ),
           ),
-          itemCount: products.length,
-          itemBuilder: (context, index) {
-            return ProductCard(product: products[index]);
-          },
         ),
       ),
     );

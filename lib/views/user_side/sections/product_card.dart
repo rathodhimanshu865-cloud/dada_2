@@ -4,104 +4,215 @@ import '../../../controllers/product_controller.dart';
 import '../../../controllers/cart_controller.dart';
 import '../../../models/product_model.dart';
 import '../../../utils/app_typography.dart';
-import 'quick_view_dialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProductCard extends StatefulWidget {
   final ProductModel product;
-  final bool showBadge;
 
-  const ProductCard({super.key, required this.product, this.showBadge = true});
+  const ProductCard({super.key, required this.product});
 
   @override
   State<ProductCard> createState() => _ProductCardState();
 }
 
 class _ProductCardState extends State<ProductCard> {
-  bool _isHovered = false;
-  bool _isQuickViewOpen = false;
-
-  void _openQuickView() async {
-    if (_isQuickViewOpen) return;
-    setState(() => _isQuickViewOpen = true);
-    await showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) => QuickViewDialog(product: widget.product),
-    );
-    if (mounted) setState(() => _isQuickViewOpen = false);
-  }
+  final Color primaryTeal = const Color(0xFF0F4C5C);
+  final Color discountBrown = const Color(0xFFAD8B63);
+  final Color starGold = const Color(0xFFC89A5B);
 
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<CartController>(context, listen: false);
-    final Color primaryTeal = const Color(0xFF0F4C5C);
+    final p = widget.product;
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+        color: const Color(0xFFF9F6F0), 
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 6)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 1. Image & Overlays Section
           Expanded(
             flex: 5,
-            child: MouseRegion(
-              onEnter: (_) => setState(() => _isHovered = true),
-              onExit: (_) => setState(() => _isHovered = false),
-              child: Stack(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, '/product_details', arguments: widget.product.id),
-                    child: Container(
-                      width: double.infinity, height: double.infinity, decoration: BoxDecoration(borderRadius: const BorderRadius.vertical(top: Radius.circular(12)), color: Colors.grey.shade50),
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                        child: widget.product.imageUrls.isNotEmpty 
-                          ? Image.network(widget.product.imageUrls[0], fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey.shade50, child: const Icon(Icons.broken_image_outlined, color: Colors.grey)))
-                          : Container(color: Colors.grey.shade50, child: const Icon(Icons.image_outlined, color: Colors.grey)),
-                      ),
+            child: Stack(
+              children: [
+                // Product Image
+                GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, '/product_details', arguments: p.id),
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    margin: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white,
+                      image: p.imageUrl.isNotEmpty 
+                        ? DecorationImage(image: NetworkImage(p.imageUrl), fit: BoxFit.cover)
+                        : null,
                     ),
+                    child: p.imageUrl.isEmpty ? const Icon(Icons.image_outlined, color: Colors.grey, size: 48) : null,
                   ),
-                  if (_isHovered)
-                    Positioned(bottom: 0, left: 0, right: 0, child: MouseRegion(onEnter: (_) => _openQuickView(), child: Container(height: 45, decoration: BoxDecoration(color: Colors.white.withOpacity(0.9)), child: Center(child: Text('QUICK VIEW', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1, color: primaryTeal)))))),
+                ),
 
-                  if (widget.showBadge && widget.product.isFeatured)
-                    Positioned(top: 10, left: 10, child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFC89A5B), borderRadius: BorderRadius.circular(4)), child: const Text('FEATURED', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
-                  
-                  if (!widget.product.isActive || widget.product.stock <= 0)
-                    Positioned(top: 40, left: 10, child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.red.shade700, borderRadius: BorderRadius.circular(4)), child: const Text('OUT OF STOCK', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)))),
-                  
-                  Consumer<ProductController>(
-                    builder: (context, prodCtrl, child) {
-                      bool isLiked = prodCtrl.isLiked(widget.product.id);
-                      return Positioned(top: 10, right: 10, child: GestureDetector(onTap: () => prodCtrl.toggleLike(widget.product.id), child: Container(padding: const EdgeInsets.all(6), decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white), child: Icon(isLiked ? Icons.favorite : Icons.favorite_border, size: 16, color: isLiked ? Colors.redAccent : Colors.grey))));
-                    },
+                // Top Left Badges
+                Positioned(
+                  top: 20,
+                  left: 20,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (p.consecrationBadge.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(color: primaryTeal, borderRadius: BorderRadius.circular(4)),
+                          child: Text(p.consecrationBadge.toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                        ),
+                      if (p.discountPercentage > 0) ...[
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(color: discountBrown, borderRadius: BorderRadius.circular(4)),
+                          child: Text('${p.discountPercentage}% OFF', style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w900)),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
-              ),
+                ),
+
+                // Top Right Actions
+                Positioned(
+                  top: 20,
+                  right: 20,
+                  child: Column(
+                    children: [
+                      Consumer<ProductController>(
+                        builder: (context, prodCtrl, _) {
+                          bool liked = prodCtrl.isLiked(p.id);
+                          return _actionCircle(
+                            icon: liked ? Icons.favorite : Icons.favorite_border,
+                            color: liked ? Colors.red : Colors.black38,
+                            onTap: () => prodCtrl.toggleLike(p.id),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      _actionCircle(
+                        icon: Icons.chat_bubble_outline,
+                        color: Colors.green,
+                        onTap: () async {
+                          final url = "https://wa.me/910000000000?text=I am interested in ${p.name}";
+                          await launchUrl(Uri.parse(url));
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          Expanded(
-            flex: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(widget.product.categoryId.toUpperCase(), style: TextStyle(color: Colors.grey.shade500, fontSize: 11, fontWeight: FontWeight.bold)), const Row(children: [Icon(Icons.star, color: Color(0xFFC89A5B), size: 12), SizedBox(width: 4), Text('4.8 (24)', style: TextStyle(color: Colors.grey, fontSize: 11))])]),
-                  const SizedBox(height: 6),
-                  InkWell(onTap: () => Navigator.pushNamed(context, '/product_details', arguments: widget.product.id), child: Text(widget.product.name, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 15, color: const Color(0xFF2B2B2B)), maxLines: 2, overflow: TextOverflow.ellipsis)),
-                  const SizedBox(height: 6),
-                  Row(children: [if (widget.product.discountPrice != null) ...[Text('₹ ${widget.product.discountPrice!.toStringAsFixed(2)}', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18, color: primaryTeal)), const SizedBox(width: 8), Text('₹ ${widget.product.price.toStringAsFixed(2)}', style: const TextStyle(color: Colors.grey, fontSize: 14, decoration: TextDecoration.lineThrough))] else Text('₹ ${widget.product.price.toStringAsFixed(2)}', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18, color: primaryTeal))]),
-                  const SizedBox(height: 12),
-                  ElevatedButton(onPressed: (widget.product.isActive && widget.product.stock > 0) ? () { cart.addToCart(widget.product, 1); Scaffold.of(context).openEndDrawer(); } : null, style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, minimumSize: const Size(double.infinity, 36), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6))), child: Text((widget.product.isActive && widget.product.stock > 0) ? 'ADD TO CART' : 'UNAVAILABLE', style: AppTypography.bodyStyle(context, color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold))),
-                ],
-              ),
+
+          // 2. Content Section
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Category & Rating
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(color: primaryTeal.withOpacity(0.05), borderRadius: BorderRadius.circular(4), border: Border.all(color: primaryTeal.withOpacity(0.1))),
+                      child: Text(p.categoryId.toUpperCase(), style: TextStyle(color: primaryTeal, fontSize: 7, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.star, color: starGold, size: 12),
+                        const SizedBox(width: 4),
+                        Text(p.rating.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                        Text(' (${p.reviewCount})', style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                // Title
+                Text(
+                  p.name,
+                  style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 14, color: const Color(0xFF2B2B2B)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+
+                // Short Summary
+                Text(
+                  p.shortSummary,
+                  style: const TextStyle(color: Colors.grey, fontSize: 11, height: 1.3),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 14),
+
+                // Price & Add Button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text('₹${p.price.toInt()}', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 18, color: primaryTeal)),
+                        if (p.comparePrice != null && p.comparePrice! > p.price) ...[
+                          const SizedBox(width: 6),
+                          Text('₹${p.comparePrice!.toInt()}', style: const TextStyle(color: Colors.grey, fontSize: 12, decoration: TextDecoration.lineThrough)),
+                        ],
+                      ],
+                    ),
+                    InkWell(
+                      onTap: p.stock > 0 ? () {
+                        cart.addToCart(p, 1);
+                        Scaffold.of(context).openEndDrawer();
+                      } : null,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: primaryTeal,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.local_mall_outlined, size: 14, color: Colors.white),
+                            SizedBox(width: 6),
+                            Text('Add', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _actionCircle({required IconData icon, required Color color, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(7),
+        decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
+        child: Icon(icon, size: 16, color: color),
       ),
     );
   }

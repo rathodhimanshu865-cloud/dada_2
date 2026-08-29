@@ -26,8 +26,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     id: 'k-01',
     name: "Dada's Photo Keychain",
     categoryId: 'Keychains',
-    price: 499.00,
-    discountPrice: 99.00,
+    price: 99.00,
+    comparePrice: 499.00,
     imageUrls: ['https://via.placeholder.com/600x800/E8DCC4/0F4C5C?text=Main+Image'],
   );
 
@@ -224,21 +224,21 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                     const SizedBox(height: 25),
                                     Row(
                                       children: [
-                                        if (product.discountPrice != null) ...[
-                                          Text('₹ ${product.discountPrice}', style: AppTypography.headingStyle(context, fontSize: 32, color: primaryTeal, fontWeight: FontWeight.bold)),
+                                        if (product.comparePrice != null) ...[
+                                          Text('₹ ${product.price.toInt()}', style: AppTypography.headingStyle(context, fontSize: 32, color: primaryTeal, fontWeight: FontWeight.bold)),
                                           const SizedBox(width: 15),
-                                          Text('₹ ${product.price}', style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey, fontSize: 20)),
+                                          Text('₹ ${product.comparePrice!.toInt()}', style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey, fontSize: 20)),
                                           const SizedBox(width: 15),
                                           Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                             decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(4)),
                                             child: Text(
-                                              'SAVE ${((product.price - product.discountPrice!) / product.price * 100).toInt()}%', 
+                                              'SAVE ${product.discountPercentage}%', 
                                               style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 12)
                                             ),
                                           ),
                                         ] else
-                                          Text('₹ ${product.price}', style: AppTypography.headingStyle(context, fontSize: 32, color: primaryTeal, fontWeight: FontWeight.bold)),
+                                          Text('₹ ${product.price.toInt()}', style: AppTypography.headingStyle(context, fontSize: 32, color: primaryTeal, fontWeight: FontWeight.bold)),
                                       ],
                                     ),
                                     const SizedBox(height: 20),

@@ -258,7 +258,6 @@ class MyApp extends StatelessWidget {
         '/product': (context) => const ProductHomePage(),
         '/product_details': (context) => const ProductDetailsPage(),
         '/catalogue': (context) => const CataloguePage(),
-        '/wishlist': (context) => const WishlistPage(),
         '/profile': (context) => const AuthGuard(child: UserProfilePage()),
         '/teachings': (context) => const PuDadaTeachingsPage(),
         '/cart': (context) => const AuthGuard(child: CartPage()),

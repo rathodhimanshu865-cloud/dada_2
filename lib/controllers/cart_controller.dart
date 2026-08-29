@@ -95,7 +95,7 @@ class CartController extends ChangeNotifier {
       } else {
         await cartDoc.set({
           'productName': product.name,
-          'price': product.discountPrice ?? product.price,
+          'price': product.price,
           'imageUrl': product.imageUrls.isNotEmpty ? product.imageUrls[0] : '',
           'quantity': newQuantity,
           'addedAt': doc.exists ? (doc.data()?['addedAt'] ?? FieldValue.serverTimestamp()) : FieldValue.serverTimestamp(),

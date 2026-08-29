@@ -9,12 +9,14 @@ class ProductCartLayout extends StatefulWidget {
   final Widget child;
   final HomePageController controller;
   final ScrollController? scrollController;
+  final List<Widget>? slivers; // New: Support for efficient sliver-based layouts
 
   const ProductCartLayout({
     super.key,
     required this.child,
     required this.controller,
     this.scrollController,
+    this.slivers,
   });
 
   @override
@@ -54,7 +56,6 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
 
   @override
   Widget build(BuildContext context) {
-    // Header 1 height is approx 95px based on UserHeader code
     double header1Height = 95.0;
     double header2Top = (header1Height - _scrollOffset).clamp(0.0, header1Height);
     bool isSticky = _scrollOffset >= header1Height;
@@ -66,16 +67,19 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
       body: Stack(
         children: [
           // Content
-          SingleChildScrollView(
+          CustomScrollView(
             controller: _activeController,
-            child: Column(
-              children: [
-                // Spacer for both headers so content starts below them
-                const SizedBox(height: 95 + 64), 
-                widget.child,
-                UserFooter(controller: widget.controller),
-              ],
-            ),
+            slivers: [
+              // Header Spacers
+              const SliverToBoxAdapter(child: SizedBox(height: 95 + 64)),
+              
+              if (widget.slivers != null) 
+                ...widget.slivers!
+              else 
+                SliverToBoxAdapter(child: widget.child),
+
+              SliverToBoxAdapter(child: UserFooter(controller: widget.controller)),
+            ],
           ),
           
           // Header 2 (Product Header)
@@ -90,7 +94,7 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
           UserHeader(
             controller: widget.controller,
             scrollController: _activeController,
-            productPage: true, // This enables the scroll-away behavior inside UserHeader
+            productPage: true, 
             scaffoldKey: _scaffoldKey,
           ),
         ],
