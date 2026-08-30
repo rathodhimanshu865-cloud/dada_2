@@ -78,6 +78,7 @@ class _ProductManagementViewState extends State<ProductManagementView> {
       {'title': 'Coupons', 'icon': Icons.local_offer_outlined},
       {'title': 'Reviews', 'icon': Icons.star_outline},
       {'title': 'Store Settings', 'icon': Icons.settings_outlined},
+      {'title': 'Home Design Manager', 'icon': Icons.home_repair_service_outlined},
     ];
   }
 
@@ -210,8 +211,212 @@ class _ProductManagementViewState extends State<ProductManagementView> {
       case 8: return _buildCouponsOffersView();
       case 9: return _buildReviewsBlessingsView();
       case 10: return const AdminSettingsView();
+      case 11: return _buildHomeDesignManager(prodCtrl);
       default: return const Center(child: Text('Section coming soon'));
     }
+  }
+
+  Widget _buildHomeDesignManager(ProductController prodCtrl) {
+    final featured = prodCtrl.allProducts.where((p) => p.isFeatured).toList();
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSiteHeader(),
+        const SizedBox(height: 20),
+        _buildAdminBanner(),
+        const SizedBox(height: 32),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Home Portal Design Manager', 
+                  style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
+                const SizedBox(height: 4),
+                const Text('Customize the user-side home portal experience and manage featured offerings.', 
+                  style: TextStyle(color: Colors.grey, fontSize: 13)),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 40),
+
+        // 1. Featured Products Management
+        _adminCard(
+          title: 'Featured Homepage Products',
+          subtitle: 'These items are displayed in the "Sacred Treasures" section on the homepage.',
+          child: Column(
+            children: [
+              if (featured.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Text('No products are currently marked as featured.'),
+                )
+              else
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: featured.length,
+                  separatorBuilder: (c, i) => const Divider(),
+                  itemBuilder: (c, i) {
+                    final p = featured[i];
+                    return ListTile(
+                      leading: p.imageUrls.isNotEmpty 
+                        ? Image.network(p.imageUrls[0], width: 40, height: 40, fit: BoxFit.cover)
+                        : const Icon(Icons.image),
+                      title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      subtitle: Text(p.categoryId, style: const TextStyle(fontSize: 11)),
+                      trailing: TextButton(
+                        onPressed: () => prodCtrl.updateProduct(p.copyWith(isFeatured: false)),
+                        child: const Text('REMOVE FROM HOME', style: TextStyle(color: Colors.redAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+                      ),
+                    );
+                  },
+                ),
+              const SizedBox(height: 20),
+              _actionBtn('MANAGE ALL PRODUCTS TO FEATURE', primaryTeal, Icons.list, isOutlined: true, onTap: () => setState(() => _activeSubMenu = 1)),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 32),
+
+        // 2. Banner & Content Management
+        _adminCard(
+          title: 'Homepage Banner & Branding',
+          subtitle: 'Update titles and visual identity of the home portal.',
+          child: Column(
+            children: [
+              _cmsTextField('Portal Hero Title', 'Sacred Darshan, Consecrated Altars & Holy Granths'),
+              const SizedBox(height: 20),
+              _cmsTextField('Hero Subtitle', 'Elevate your home mandir, car sanctuary, and everyday journey with authentic treasures.'),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 60),
+        Center(
+          child: ElevatedButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Home Portal Changes Saved Successfully!')));
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: templeGold,
+              padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 25),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('PUBLISH ALL DESIGN CHANGES', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 14)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _adminCard({required String title, required String subtitle, required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+          const SizedBox(height: 32),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHomePortalCMS(ProductController prodCtrl) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSiteHeader(),
+        const SizedBox(height: 20),
+        _buildAdminBanner(),
+        const SizedBox(height: 32),
+        Text('Home Portal CMS', style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        const Text('Manage the user-side home portal content and featured products.', style: TextStyle(color: Colors.grey)),
+        const SizedBox(height: 40),
+        
+        _cmsSection('Hero Section', [
+          _cmsTextField('Hero Title', 'Sacred Darshan, Consecrated Altars & Holy Granths'),
+          _cmsTextField('Hero Subtitle', 'Elevate your home mandir, car sanctuary, and everyday journey...'),
+        ]),
+        
+        const SizedBox(height: 30),
+        
+        _cmsSection('Featured Collections', [
+          const Text('The top 8 products added by admin are automatically shown as featured.', style: TextStyle(fontSize: 13, color: Colors.blueGrey)),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () => setState(() => _activeSubMenu = 1),
+            child: const Text('MANAGE ALL PRODUCTS'),
+          ),
+        ]),
+        
+        const SizedBox(height: 30),
+        
+        _cmsSection('Wisdom & Aphorisms', [
+          _cmsTextField('Quote 1', 'True religion is that which brings inner peace...'),
+          _cmsTextField('Author 1', 'Param Pujya Dadaji'),
+        ]),
+
+        const SizedBox(height: 60),
+        Center(
+          child: ElevatedButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('CMS Settings Saved! (Simulated)')));
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: templeGold, padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 20)),
+            child: const Text('SAVE HOME PORTAL CHANGES', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _cmsSection(String title, List<Widget> children) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade100)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 24),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _cmsTextField(String label, String initialValue) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: TextEditingController(text: initialValue),
+            decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildDashboard(DashboardController controller) {
@@ -398,13 +603,41 @@ class _ProductManagementViewState extends State<ProductManagementView> {
   }
 
   Widget _buildActionButtons() {
-    return Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: [
-        _actionBtn('+ ADD PRODUCT', templeGold, Icons.add, onTap: () => _showProductDialog()),
-        _actionBtn('View All Orders', Colors.white, Icons.list_alt, isOutlined: true, onTap: () => setState(() => _activeSubMenu = 4)),
-      ],
+    return Consumer<ProductController>(
+      builder: (context, prodCtrl, _) {
+        return Wrap(
+          spacing: 16,
+          runSpacing: 16,
+          children: [
+            _actionBtn('+ ADD PRODUCT', templeGold, Icons.add, onTap: () => _showProductDialog()),
+            _actionBtn('View All Orders', Colors.white, Icons.list_alt, isOutlined: true, onTap: () => setState(() => _activeSubMenu = 4)),
+            _actionBtn('FIX CATEGORY DATA', Colors.redAccent, Icons.data_usage_rounded, isOutlined: true, onTap: () => _triggerMigration(prodCtrl)),
+          ],
+        );
+      }
+    );
+  }
+
+  void _triggerMigration(ProductController ctrl) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Fix Category Data?'),
+        content: const Text("This will move all products from 'radhe_' to 'Keychain' and delete the old category document."),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await ctrl.performMigration();
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Category Migration Complete!')));
+              }
+            },
+            child: const Text('START MIGRATION'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -595,7 +828,7 @@ class _ProductManagementViewState extends State<ProductManagementView> {
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: prodCtrl.categoryObjects.any((c) => c.name == prodCtrl.selectedCategory) ? prodCtrl.selectedCategory : 'All Sacred Products',
+                value: prodCtrl.categories.contains(prodCtrl.selectedCategory) ? prodCtrl.selectedCategory : 'All Sacred Products',
                 style: const TextStyle(fontSize: 13, color: Colors.black87),
                 items: prodCtrl.categories.map((String value) {
                   return DropdownMenuItem<String>(value: value, child: Text(value));
@@ -613,7 +846,13 @@ class _ProductManagementViewState extends State<ProductManagementView> {
 
   Widget _buildProductsTable(List<ProductModel> products, ProductController prodCtrl) {
     final query = _searchCtrl.text.toLowerCase();
-    final filtered = products.where((p) => p.name.toLowerCase().contains(query)).toList();
+    final selectedCatId = prodCtrl.selectedCategoryId;
+    
+    final filtered = products.where((p) {
+      final matchesSearch = p.name.toLowerCase().contains(query);
+      final matchesCategory = selectedCatId == 'all' || p.categoryId == selectedCatId;
+      return matchesSearch && matchesCategory;
+    }).toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -662,11 +901,33 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                                 : Container(width: 48, height: 48, color: Colors.grey.shade100, child: const Icon(Icons.image_outlined)),
                             ),
                             const SizedBox(width: 16),
-                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)), if (p.consecrationBadge.isNotEmpty) Container(margin: const EdgeInsets.only(top: 4), padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: primaryTeal.withOpacity(0.1), borderRadius: BorderRadius.circular(4)), child: Text(p.consecrationBadge.toUpperCase(), style: TextStyle(color: primaryTeal, fontSize: 8, fontWeight: FontWeight.bold)))]))
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                  const SizedBox(height: 2),
+                                  Text('SKU: ${p.sku}', style: TextStyle(color: Colors.grey.shade500, fontSize: 10, letterSpacing: 0.5)),
+                                  if (p.consecrationBadge.isNotEmpty) 
+                                    Container(
+                                      margin: const EdgeInsets.only(top: 4), 
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), 
+                                      decoration: BoxDecoration(color: primaryTeal.withOpacity(0.1), borderRadius: BorderRadius.circular(4)), 
+                                      child: Text(p.consecrationBadge.toUpperCase(), style: TextStyle(color: primaryTeal, fontSize: 8, fontWeight: FontWeight.bold))
+                                    )
+                                ]
+                              )
+                            )
                           ],
                         ),
                       ),
-                      Expanded(flex: 2, child: Text(p.categoryId, style: const TextStyle(fontSize: 12))),
+                      Expanded(
+                        flex: 2, 
+                        child: Text(
+                          prodCtrl.categoryObjects.firstWhere((c) => c.id == p.categoryId, orElse: () => CategoryModel(id: '', name: p.categoryId, imageUrl: '')).name, 
+                          style: const TextStyle(fontSize: 12)
+                        )
+                      ),
                       Expanded(flex: 1, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('₹${p.price.toInt()}', style: const TextStyle(fontWeight: FontWeight.bold)), if (p.comparePrice != null) Text('₹${p.comparePrice!.toInt()}', style: TextStyle(fontSize: 11, color: Colors.grey, decoration: TextDecoration.lineThrough))])),
                       Expanded(flex: 1, child: Row(children: [Text('${p.stock}', style: TextStyle(fontWeight: FontWeight.bold, color: p.stock < 10 ? Colors.red : Colors.black87)), const SizedBox(width: 8), _stockControl(p, prodCtrl)])),
                       Expanded(flex: 1, child: _statusChip(p.isActive)),
@@ -1054,6 +1315,19 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                         const SizedBox(width: 16),
                         ElevatedButton(
                           onPressed: isSavingLocal ? null : () async {
+                            if (nameCtrl.text.trim().isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Product title is required.')));
+                              return;
+                            }
+                            if (skuCtrl.text.trim().isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('SKU code is required.')));
+                              return;
+                            }
+                            if (selectedCat.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a category.')));
+                              return;
+                            }
+
                             setDialogState(() => isSavingLocal = true);
                             final p = (isEdit ? product : ProductModel(id: 'DADA-${DateTime.now().millisecondsSinceEpoch}', name: '', price: 0, categoryId: '')).copyWith(
                               name: nameCtrl.text.trim(),
@@ -1070,6 +1344,9 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                               isActive: isActive,
                               isFeatured: isFeatured,
                             );
+
+                            debugPrint("Saving Product: ID=${p.id}, SKU=${p.sku}, Category=${p.categoryId}");
+
                             try {
                               if (isEdit) {
                                 await prodCtrl.updateProduct(p);

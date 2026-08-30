@@ -107,8 +107,11 @@ class HomePageController extends ChangeNotifier {
         if (data['photoGalleryData'] != null) photoGalleryData = PhotoGalleryPageData.fromMap(data['photoGalleryData']);
       }
       
-      final inqSnap = await _firestore.collection('inquiries').get();
-      inquiries = inqSnap.docs.map((doc) => ContactInquiry.fromMap(doc.id, doc.data())).toList();
+      // inquiries are not needed for initial website load, load them separately or lazily
+      _firestore.collection('inquiries').get().then((inqSnap) {
+        inquiries = inqSnap.docs.map((doc) => ContactInquiry.fromMap(doc.id, doc.data())).toList();
+        _safeNotifyListeners();
+      });
     } catch (e) {
       AppLogger.error("Load error", e);
     }

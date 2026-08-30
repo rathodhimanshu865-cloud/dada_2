@@ -68,6 +68,7 @@ class ProductController extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
   String? get browsingErrorMessage => _browsingErrorMessage;
+  String get selectedCategoryId => _selectedCategoryId;
 
   void clearError() {
     _errorMessage = null;
@@ -118,8 +119,14 @@ class ProductController extends ChangeNotifier {
     }, onError: (e) => AppLogger.error("Config stream error", e));
 
     _categorySub = _repository.getCategories().listen((data) {
-      _categoryObjects = data;
-      _safeNotifyListeners();
+      if (_categoryObjects.length != data.length) {
+        _categoryObjects = data;
+        // If we had a pending selection that was a fallback, try re-selecting now
+        if (_selectedCategoryId != 'all' && !_categoryObjects.any((c) => c.id == _selectedCategoryId)) {
+          selectCategory(_selectedCategoryId);
+        }
+        _safeNotifyListeners();
+      }
     }, onError: (e) => AppLogger.error("Category stream error", e));
 
     _featuredSub = _repository.getFeaturedProducts().listen((data) {
@@ -169,30 +176,42 @@ class ProductController extends ChangeNotifier {
 
   Future<void> _loadInitialData() async {
     try {
-      final products = await _repository.getAllProducts(limit: 100);
-      _allProductsCache = products;
-      _safeNotifyListeners();
+      // Don't await, let it load in background to speed up app start
+      _repository.getAllProducts(limit: 100).then((products) {
+        _allProductsCache = products;
+        _safeNotifyListeners();
+      });
     } catch (e) {
       AppLogger.error("Load initial data error", e);
     }
   }
 
   void selectCategory(String categoryNameOrId) {
-    if (categoryNameOrId == 'All Sacred Products' || categoryNameOrId == 'all') {
-      _selectedCategoryId = 'all';
-    } else {
-      if (_categoryObjects.any((c) => c.id == categoryNameOrId)) {
-        _selectedCategoryId = categoryNameOrId;
+    final search = categoryNameOrId.toLowerCase().trim();
+    String newId = 'all';
+
+    if (search != 'all sacred products' && search != 'all' && search != '') {
+      // 1. Try matching by ID first
+      final matchedById = _categoryObjects.where((c) => c.id.toLowerCase() == search || c.id == categoryNameOrId);
+      if (matchedById.isNotEmpty) {
+        newId = matchedById.first.id;
       } else {
-        final cat = _categoryObjects.firstWhere(
-          (c) => c.name == categoryNameOrId, 
-          orElse: () => CategoryModel(id: 'all', name: '', imageUrl: '')
-        );
-        _selectedCategoryId = cat.id;
+        // 2. Try matching by Name
+        final matchedByName = _categoryObjects.where((c) => c.name.toLowerCase() == search);
+        if (matchedByName.isNotEmpty) {
+          newId = matchedByName.first.id;
+        } else {
+          newId = categoryNameOrId;
+        }
       }
     }
-    fetchBrowsingProducts(refresh: true);
-    _safeNotifyListeners();
+    
+    if (_selectedCategoryId != newId) {
+      _selectedCategoryId = newId;
+      // Only fetch if it actually changed to prevent loops
+      fetchBrowsingProducts(refresh: true);
+      _safeNotifyListeners();
+    }
   }
 
   Future<void> fetchBrowsingProducts({bool refresh = false}) async {
@@ -206,6 +225,7 @@ class ProductController extends ChangeNotifier {
 
     _isBrowsingLoading = true;
     _browsingErrorMessage = null;
+    // Notify once when loading starts
     _safeNotifyListeners();
 
     try {
@@ -216,21 +236,19 @@ class ProductController extends ChangeNotifier {
         onlyInStock: onlyInStock,
         sortBy: sortBy,
         descending: sortDescending,
-        limit: 20
+        limit: 100 
       );
 
-      if (products.length < 20) _hasMore = false;
+      if (products.length < 100) _hasMore = false;
       _browsingProducts.addAll(products);
       
     } catch (e) {
-      // Log the full error ONLY if it's an index requirement, so you get the link
       if (e.toString().contains('index')) {
         debugPrint("[FIREBASE INDEX REQUIRED]: $e");
       }
-      // Never block the UI with background browsing errors.
-      _browsingErrorMessage = null; 
     } finally {
       _isBrowsingLoading = false;
+      // Notify once when loading ends
       _safeNotifyListeners();
     }
   }
@@ -263,7 +281,8 @@ class ProductController extends ChangeNotifier {
     if (_selectedCategoryId == 'all') {
       return _allProductsCache;
     }
-    return _allProductsCache.where((p) => p.categoryId == _selectedCategoryId).toList();
+    final targetId = _selectedCategoryId.toLowerCase().trim();
+    return _allProductsCache.where((p) => p.categoryId.toLowerCase().trim() == targetId).toList();
   }
   
   List<ProductModel> get wishlistProducts {
@@ -446,5 +465,24 @@ class ProductController extends ChangeNotifier {
 
   Future<bool> hasProductsInCategory(String categoryId) async {
     return await _repository.hasProductsInCategory(categoryId);
+  }
+
+  Future<void> performMigration() async {
+    try {
+      _errorMessage = "Migrating 'radhe_' to 'Keychain'...";
+      _safeNotifyListeners();
+      
+      await _repository.migrateCategory('radhe_', 'keychain');
+      
+      _errorMessage = null;
+      _safeNotifyListeners();
+      
+      // Refresh local data
+      _loadInitialData();
+      fetchBrowsingProducts(refresh: true);
+    } catch (e) {
+      _errorMessage = "Migration failed: $e";
+      _safeNotifyListeners();
+    }
   }
 }

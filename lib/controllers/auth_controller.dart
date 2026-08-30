@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import '../utils/app_logger.dart';
+import '../firebase_options.dart';
 import 'dart:io';
 
 class AuthController extends ChangeNotifier {
@@ -58,13 +59,6 @@ class AuthController extends ChangeNotifier {
   }
 
   AuthController() {
-    try {
-      _adminAuth = FirebaseAuth.instanceFor(app: Firebase.app('AdminApp'));
-    } catch (e) {
-      AppLogger.error("Failed to initialize Admin Auth", e);
-      _adminAuth = _auth; // Fallback
-    }
-
     _auth.authStateChanges().listen((User? user) async {
       _user = user;
       if (user != null) {
@@ -77,15 +71,7 @@ class AuthController extends ChangeNotifier {
       _safeNotifyListeners();
     });
 
-    _adminAuth.authStateChanges().listen((User? user) async {
-      _adminUser = user;
-      if (user != null) {
-        _adminRole = await _getRoleOnly(user.uid);
-      } else {
-        _adminRole = null;
-      }
-      _safeNotifyListeners();
-    });
+    // Admin listener will be initialized on demand during login
   }
 
   Future<String?> _getRoleOnly(String uid) async {
@@ -248,14 +234,27 @@ class AuthController extends ChangeNotifier {
     _safeNotifyListeners();
 
     try {
-      final credential = await _adminAuth.signInWithEmailAndPassword(email: email, password: password);
+      // Lazy Initialize Secondary Firebase App for Admin Session
+      try {
+        FirebaseAuth.instanceFor(app: Firebase.app('AdminApp'));
+      } catch (e) {
+        await Firebase.initializeApp(
+          name: 'AdminApp',
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+      }
+      
+      final adminAuth = FirebaseAuth.instanceFor(app: Firebase.app('AdminApp'));
+      final credential = await adminAuth.signInWithEmailAndPassword(email: email, password: password);
+      
       if (credential.user != null) {
         final role = await _getRoleOnly(credential.user!.uid);
         if (role?.toLowerCase() != 'admin') {
-          await _adminAuth.signOut();
+          await adminAuth.signOut();
           _errorMessage = "Access Denied: You do not have administrator privileges.";
           throw Exception(_errorMessage);
         }
+        _adminUser = credential.user;
         _adminRole = role;
       }
     } catch (e) {

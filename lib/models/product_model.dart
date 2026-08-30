@@ -159,6 +159,7 @@ class ProductModel {
   Map<String, dynamic> toFirestore() {
     return {
       'name': name,
+      'nameLower': name.toLowerCase(),
       'nameHi': nameHi,
       'nameGu': nameGu,
       'description': description,
@@ -167,7 +168,7 @@ class ProductModel {
       'price': price,
       'comparePrice': comparePrice,
       'discountPrice': discountPrice,
-      'categoryId': categoryId,
+      'categoryId': categoryId.toLowerCase().trim(), // Ensure lowercase for consistent filtering
       'sku': sku,
       'consecrationBadge': consecrationBadge,
       'shortSummary': shortSummary,
@@ -183,6 +184,12 @@ class ProductModel {
       'rating': rating,
       'reviewCount': reviewCount,
     };
+  }
+
+  Map<String, dynamic> toUpdateFirestore() {
+    final map = toFirestore();
+    map.remove('createdAt'); // Prevent overwriting original creation date
+    return map;
   }
 
   // Returns the localized name based on language code

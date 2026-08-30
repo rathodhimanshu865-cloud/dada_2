@@ -52,9 +52,7 @@ class ProductRepository {
 
   // Paginated All Products
   Future<List<ProductModel>> getAllProducts({DocumentSnapshot? startAfter, int limit = 20}) async {
-    Query query = _firestore.collection('products')
-        .where('isActive', isEqualTo: true)
-        .limit(limit);
+    Query query = _firestore.collection('products').limit(limit);
     
     if (startAfter != null) {
       query = query.startAfterDocument(startAfter);
@@ -68,7 +66,6 @@ class ProductRepository {
   Stream<List<ProductModel>> getFeaturedProducts({int limit = 10}) {
     return _firestore
         .collection('products')
-        .where('isActive', isEqualTo: true)
         .where('isFeatured', isEqualTo: true)
         .limit(limit)
         .snapshots()
@@ -80,7 +77,6 @@ class ProductRepository {
   Stream<List<ProductModel>> getLatestProducts({int limit = 10}) {
     return _firestore
         .collection('products')
-        .where('isActive', isEqualTo: true)
         .orderBy('createdAt', descending: true)
         .limit(limit)
         .snapshots()
@@ -92,7 +88,6 @@ class ProductRepository {
   Stream<List<ProductModel>> getProductsByCategory(String categoryId, {int limit = 20}) {
     return _firestore
         .collection('products')
-        .where('isActive', isEqualTo: true)
         .where('categoryId', isEqualTo: categoryId)
         .limit(limit)
         .snapshots()
@@ -104,7 +99,6 @@ class ProductRepository {
   Stream<List<ProductModel>> getPopularProducts({int limit = 10}) {
     return _firestore
         .collection('products')
-        .where('isActive', isEqualTo: true)
         .orderBy('salesCount', descending: true)
         .limit(limit)
         .snapshots()
@@ -119,10 +113,9 @@ class ProductRepository {
     String searchKey = queryText.toLowerCase();
     final snapshot = await _firestore
         .collection('products')
-        .where('isActive', isEqualTo: true)
         .where('nameLower', isGreaterThanOrEqualTo: searchKey)
         .where('nameLower', isLessThanOrEqualTo: '$searchKey\uf8ff')
-        .limit(20)
+        .limit(100)
         .get();
 
     return snapshot.docs.map((doc) => ProductModel.fromFirestore(doc)).toList();
@@ -136,20 +129,22 @@ class ProductRepository {
     bool onlyInStock = false,
     String sortBy = 'createdAt', // 'price', 'name', 'createdAt'
     bool descending = true,
-    int limit = 20
+    int limit = 100 // Increased default limit to 100
   }) async {
-    Query query = _firestore.collection('products').where('isActive', isEqualTo: true);
+    Query query = _firestore.collection('products');
 
-    if (categoryId != null && categoryId != 'All Sacred Products') {
+    if (categoryId != null && categoryId != 'All Sacred Products' && categoryId != 'all' && categoryId.isNotEmpty) {
       query = query.where('categoryId', isEqualTo: categoryId);
     }
+    
+    // User wants to see EVERYTHING they add from admin side.
+    // So we don't filter by isActive here.
 
     if (onlyInStock) {
-      // Note: Range filters require ordering by the same field first
-      query = query.where('stock', isGreaterThan: 0).orderBy('stock');
+      query = query.where('stock', isGreaterThan: 0);
     }
 
-    // Sort
+    // Apply Sort
     query = query.orderBy(sortBy, descending: descending);
 
     final snapshot = await query.limit(limit).get();
@@ -172,7 +167,7 @@ class ProductRepository {
   }
 
   Future<void> updateProduct(ProductModel product) async {
-    await _firestore.collection('products').doc(product.id).update(product.toFirestore());
+    await _firestore.collection('products').doc(product.id).update(product.toUpdateFirestore());
   }
 
   Future<void> deleteProduct(String productId) async {
@@ -230,5 +225,32 @@ class ProductRepository {
         .limit(1)
         .get();
     return snapshot.docs.isNotEmpty;
+  }
+
+  // --- Maintenance & Migrations ---
+  Future<void> migrateCategory(String oldId, String newId) async {
+    final batch = _firestore.batch();
+    
+    // 1. Get old category data
+    final oldCatDoc = await _firestore.collection('categories').doc(oldId).get();
+    if (!oldCatDoc.exists) return;
+    
+    // 2. Create new category with same data
+    final data = oldCatDoc.data()!;
+    batch.set(_firestore.collection('categories').doc(newId), data);
+    
+    // 3. Find and update all products
+    final productsSnap = await _firestore.collection('products')
+        .where('categoryId', isEqualTo: oldId)
+        .get();
+        
+    for (var doc in productsSnap.docs) {
+      batch.update(doc.reference, {'categoryId': newId});
+    }
+    
+    // 4. Delete old category
+    batch.delete(oldCatDoc.reference);
+    
+    await batch.commit();
   }
 }

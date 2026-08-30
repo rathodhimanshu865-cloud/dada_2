@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/product_controller.dart';
+import '../../models/product_model.dart';
 import 'sections/product_cart_layout.dart';
 import 'sections/product_card.dart';
 import '../../utils/app_typography.dart';
@@ -38,11 +40,9 @@ class _CataloguePageState extends State<CataloguePage> {
       controller: homeController,
       slivers: [
         SliverToBoxAdapter(child: _buildHeroBanner(context)),
-        const SliverToBoxAdapter(child: SizedBox(height: 30)),
+        const SliverToBoxAdapter(child: SizedBox(height: 40)),
         SliverToBoxAdapter(child: _buildFilterRow(context, productController)),
-        const SliverToBoxAdapter(child: SizedBox(height: 20)),
-        SliverToBoxAdapter(child: _buildControlsRow(context, productController)),
-        const SliverToBoxAdapter(child: SizedBox(height: 30)),
+        const SliverToBoxAdapter(child: SizedBox(height: 40)),
         
         if (productController.isBrowsingLoading && productController.browsingProducts.isEmpty)
           const SliverFillRemaining(
@@ -52,22 +52,7 @@ class _CataloguePageState extends State<CataloguePage> {
                 children: [
                   CircularProgressIndicator(color: Color(0xFF0F4C5C)),
                   SizedBox(height: 16),
-                  Text('Loading sacred products...')
-                ],
-              ),
-            ),
-          )
-        else if (productController.browsingErrorMessage != null && productController.browsingProducts.isEmpty)
-          SliverFillRemaining(
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
-                  const SizedBox(height: 16),
-                  Text(productController.browsingErrorMessage!),
-                  const SizedBox(height: 16),
-                  ElevatedButton(onPressed: () => productController.fetchBrowsingProducts(refresh: true), child: const Text('Try Again'))
+                  Text('Loading sacred products...', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold))
                 ],
               ),
             ),
@@ -78,9 +63,9 @@ class _CataloguePageState extends State<CataloguePage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  Text('No products found in this category.'),
+                  Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey.shade200),
+                  const SizedBox(height: 24),
+                  const Text('No products found in this category.', style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -88,65 +73,45 @@ class _CataloguePageState extends State<CataloguePage> {
         else
           _buildProductGrid(context, productController),
           
-        const SliverToBoxAdapter(child: SizedBox(height: 60)),
+        const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
-      child: const SizedBox.shrink(), // Required by constructor but not used when slivers is present
+      child: const SizedBox.shrink(),
     );
   }
 
   Widget _buildHeroBanner(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFF0F4C5C),
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      color: const Color(0xFF07404C),
+      padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 20),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white24),
+                  borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text(
-                  'Home > Product Catalogue',
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
-                ),
+                child: const Text('SACRED CATALOGUE', style: TextStyle(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               Text(
-                'Sacred Photo Keychains, Temples, Padukas & Holy Granths',
+                'Sacred Offerings of Pu. Dada',
                 textAlign: TextAlign.center,
-                style: AppTypography.headingStyle(
-                  context,
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
+                style: GoogleFonts.cormorantGaramond(
+                  fontSize: 56,
+                  fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Text(
-                'Authentic handcrafted and consecrated items from Pu. Dada\'s ashram to grace your space.',
+                'Explore authentic handcrafted and consecrated items added directly from the ashram.',
                 textAlign: TextAlign.center,
-                style: AppTypography.bodyStyle(
-                  context,
-                  fontSize: 16,
-                  color: Colors.white.withOpacity(0.8),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _checkMarkItem('100% Quality Checked'),
-                  const SizedBox(width: 24),
-                  _checkMarkItem('Handcrafted by artisans'),
-                  const SizedBox(width: 24),
-                  _checkMarkItem('Vedic Consecrated'),
-                ],
+                style: GoogleFonts.plusJakartaSans(color: Colors.white.withOpacity(0.5), fontSize: 16, letterSpacing: 0.5),
               ),
             ],
           ),
@@ -155,122 +120,184 @@ class _CataloguePageState extends State<CataloguePage> {
     );
   }
 
-  Widget _checkMarkItem(String text) {
-    return Row(
-      children: [
-        const Icon(Icons.check_circle, color: Color(0xFFC89A5B), size: 16),
-        const SizedBox(width: 8),
-        Text(text, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500)),
-      ],
-    );
-  }
-
   Widget _buildFilterRow(BuildContext context, ProductController prod) {
+    // 1. Static map of icons for known categories
+    final Map<String, IconData> iconMap = {
+      'keychain': Icons.vpn_key_outlined,
+      'acrylic_photo_frame': Icons.crop_original,
+      'temple': Icons.temple_hindu_outlined,
+      'footprints_paduka': Icons.pets_outlined,
+      'sticker': Icons.sticky_note_2_outlined,
+      'pouch_pocket_pin': Icons.wallet_outlined,
+      'rakshasutra_sacred_thread': Icons.gesture,
+      'other': Icons.more_horiz_outlined,
+    };
+
+    // 2. Build the list of categories to display
+    final List<Map<String, dynamic>> uiCategories = [
+      {'name': 'All Sacred Products', 'id': 'all', 'icon': null},
+      // Map database categories to their icons, ensuring correct IDs
+      ...prod.categoryObjects.map((c) => {
+        'name': c.name,
+        'id': c.id,
+        'icon': iconMap[c.id.toLowerCase()] ?? iconMap[c.name.toLowerCase().replaceAll(' ', '_')] ?? Icons.category_outlined,
+      }),
+    ];
+
+    // 3. Ensure 'Other Products' is always present if not already in DB
+    if (!uiCategories.any((cat) => cat['id'].toString().toLowerCase() == 'other')) {
+      uiCategories.add({
+        'name': 'Other Products',
+        'id': 'other',
+        'icon': Icons.more_horiz_outlined,
+      });
+    }
+
     return Container(
       width: double.infinity,
-      alignment: Alignment.center,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: prod.categories.map((cat) {
-              bool isSelected = prod.selectedCategory == cat;
-              return Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: ChoiceChip(
-                  label: Text(cat),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) prod.updateFilters(category: cat);
-                  },
-                  backgroundColor: Colors.white,
-                  selectedColor: const Color(0xFF0F4C5C),
-                  labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : Colors.grey.shade700,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                  side: BorderSide(
-                    color: isSelected ? const Color(0xFF0F4C5C) : Colors.grey.shade300,
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  showCheckmark: false,
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildControlsRow(BuildContext context, ProductController prod) {
-    final isMobile = MediaQuery.of(context).size.width < 700;
-
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Flex(
-            direction: isMobile ? Axis.vertical : Axis.horizontal,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: isMobile ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1400),
+          child: Column(
             children: [
-              Container(
-                width: isMobile ? double.infinity : 300,
-                height: 40,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(6),
-                  color: Colors.white,
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: uiCategories.map((cat) {
+                    bool isSelected = prod.selectedCategoryId.toLowerCase() == cat['id'].toString().toLowerCase();
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: InkWell(
+                        onTap: () => prod.selectCategory(cat['id']!),
+                        borderRadius: BorderRadius.circular(30),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: isSelected ? const Color(0xFF07404C) : Colors.white,
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: isSelected ? const Color(0xFF07404C) : Colors.grey.shade200,
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (cat['icon'] != null) ...[
+                                Icon(
+                                  cat['icon'] as IconData,
+                                  size: 16,
+                                  color: isSelected ? Colors.amber.shade200 : const Color(0xFF07404C),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
+                              Text(
+                                cat['name']!.toUpperCase(),
+                                style: TextStyle(
+                                  color: isSelected ? Colors.white : Colors.grey.shade700,
+                                  fontWeight: isSelected ? FontWeight.w900 : FontWeight.bold,
+                                  fontSize: 10,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
+              ),
+              const SizedBox(height: 30),
+              
+              // Search and Sort Bar as per image
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Row(
                   children: [
-                    const SizedBox(width: 10),
-                    const Icon(Icons.search, color: Colors.grey, size: 18),
-                    const SizedBox(width: 10),
                     Expanded(
-                      child: TextField(
-                        onChanged: (v) => prod.performSearch(v),
-                        decoration: const InputDecoration(
-                          hintText: 'Search products by name...',
-                          hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(vertical: 10),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.search, size: 18, color: Colors.grey),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextField(
+                                onChanged: (v) => prod.performSearch(v),
+                                decoration: const InputDecoration(
+                                  hintText: 'Search by name, SKU, or keyword...',
+                                  hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 24),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: prod.onlyInStock,
+                          onChanged: (v) => prod.updateFilters(inStock: v),
+                          activeColor: const Color(0xFF07404C),
+                        ),
+                        const Text('In-Stock Only', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                    const SizedBox(width: 24),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: prod.sortBy,
+                          items: const [
+                            DropdownMenuItem(value: 'createdAt', child: Text('Latest Arrival', style: TextStyle(fontSize: 13))),
+                            DropdownMenuItem(value: 'price', child: Text('Price: Low to High', style: TextStyle(fontSize: 13))),
+                            DropdownMenuItem(value: 'name', child: Text('Name: A-Z', style: TextStyle(fontSize: 13))),
+                          ],
+                          onChanged: (v) {
+                            if (v != null) prod.updateSort(v, true);
+                          },
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              if (isMobile) const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('${prod.filteredProducts.length} items found', style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500)),
-                  const SizedBox(width: 20),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(6),
-                      color: Colors.white,
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Row(
+                  children: [
+                    Text(
+                      'Showing ${prod.browsingProducts.length} sacred items in ',
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                     ),
-                    child: const Row(
-                      children: [
-                        Text('Sort By:', style: TextStyle(color: Colors.grey, fontSize: 13)),
-                        SizedBox(width: 8),
-                        Text('Featured', style: TextStyle(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.bold)),
-                        SizedBox(width: 8),
-                        Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey),
-                      ],
+                    Text(
+                      prod.selectedCategory,
+                      style: const TextStyle(color: Color(0xFFAD8B63), fontWeight: FontWeight.bold, fontSize: 13),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -280,27 +307,26 @@ class _CataloguePageState extends State<CataloguePage> {
   }
 
   Widget _buildProductGrid(BuildContext context, ProductController prod) {
-    final products = prod.searchQuery.isEmpty ? prod.browsingProducts : prod.searchResults;
+    // 1. Prioritize browsingProducts (paged)
+    // 2. If empty, fall back to filteredProducts (cached/local)
+    final List<ProductModel> products = prod.searchQuery.isEmpty 
+        ? (prod.browsingProducts.isNotEmpty ? prod.browsingProducts : prod.filteredProducts)
+        : prod.searchResults;
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: SliverGrid(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: MediaQuery.of(context).size.width < 600 ? 2 : (MediaQuery.of(context).size.width < 900 ? 3 : 4),
-              childAspectRatio: 0.65,
-              crossAxisSpacing: 20,
-              mainAxisSpacing: 30,
-            ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return ProductCard(product: products[index]);
-              },
-              childCount: products.length,
-            ),
-          ),
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          childAspectRatio: 0.72,
+          crossAxisSpacing: 24,
+          mainAxisSpacing: 40,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            return ProductCard(product: products[index]);
+          },
+          childCount: products.length,
         ),
       ),
     );

@@ -56,19 +56,9 @@ void main() async {
   final savedLanguageCode = prefs.getString('selected_locale') ?? 'en';
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   
-  // Initialize Secondary Firebase App for Admin Session
-  try {
-    await Firebase.initializeApp(
-      name: 'AdminApp',
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } catch (e) {
-    debugPrint("AdminApp already initialized or failed: $e");
-  }
-
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
-    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    cacheSizeBytes: 100 * 1024 * 1024, // Limit cache to 100MB for better performance
   );
   runApp(
     MultiProvider(
@@ -174,20 +164,20 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: backgroundWhite,
         primaryColor: primaryBlack,
         textTheme: TextTheme(
-          displayLarge:  (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 57, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 57, fontWeight: FontWeight.w700, color: primaryBlack),
-          displayMedium: (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 45, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 45, fontWeight: FontWeight.w700, color: primaryBlack),
-          displaySmall:  (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 36, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 36, fontWeight: FontWeight.w700, color: primaryBlack),
-          headlineLarge: (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 32, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 32, fontWeight: FontWeight.w700, color: primaryBlack),
-          headlineMedium:(langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 28, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 28, fontWeight: FontWeight.w700, color: primaryBlack),
+          displayLarge:  (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 57, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 57, fontWeight: FontWeight.w600, color: primaryBlack),
+          displayMedium: (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 45, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 45, fontWeight: FontWeight.w600, color: primaryBlack),
+          displaySmall:  (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 36, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 36, fontWeight: FontWeight.w600, color: primaryBlack),
+          headlineLarge: (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 32, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 32, fontWeight: FontWeight.w600, color: primaryBlack),
+          headlineMedium:(langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 28, fontWeight: FontWeight.w700, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 28, fontWeight: FontWeight.w600, color: primaryBlack),
           headlineSmall: (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 24, fontWeight: FontWeight.w600, color: primaryBlack) : GoogleFonts.cormorantGaramond(fontSize: 24, fontWeight: FontWeight.w600, color: primaryBlack),
-          titleLarge:    (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 22, fontWeight: FontWeight.w600) : GoogleFonts.nunito(fontSize: 22, fontWeight: FontWeight.w600),
-          titleMedium:   (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 16, fontWeight: FontWeight.w600) : GoogleFonts.nunito(fontSize: 16, fontWeight: FontWeight.w600),
-          titleSmall:    (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 14, fontWeight: FontWeight.w600) : GoogleFonts.nunito(fontSize: 14, fontWeight: FontWeight.w600),
-          bodyLarge:     (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 17, fontWeight: FontWeight.w400, height: 1.8) : GoogleFonts.nunito(fontSize: 17, fontWeight: FontWeight.w400, height: 1.8),
-          bodyMedium:    (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 16, fontWeight: FontWeight.w400) : GoogleFonts.nunito(fontSize: 16, fontWeight: FontWeight.w400),
-          bodySmall:     (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 13, fontWeight: FontWeight.w400) : GoogleFonts.nunito(fontSize: 13, fontWeight: FontWeight.w400),
-          labelLarge:    (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 16, fontWeight: FontWeight.w600) : GoogleFonts.nunito(fontSize: 16, fontWeight: FontWeight.w600),
-          labelMedium:   (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 12, fontWeight: FontWeight.w500) : GoogleFonts.nunito(fontSize: 12, fontWeight: FontWeight.w500),
+          titleLarge:    (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 22, fontWeight: FontWeight.w600) : GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w700, color: primaryBlack),
+          titleMedium:   (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 16, fontWeight: FontWeight.w600) : GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w600),
+          titleSmall:    (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 14, fontWeight: FontWeight.w600) : GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w600),
+          bodyLarge:     (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 17, fontWeight: FontWeight.w400, height: 1.8) : GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w400, height: 1.8),
+          bodyMedium:    (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 16, fontWeight: FontWeight.w400) : GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w400),
+          bodySmall:     (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 13, fontWeight: FontWeight.w400) : GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w400),
+          labelLarge:    (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 16, fontWeight: FontWeight.w600) : GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w600),
+          labelMedium:   (langCode == 'hi' || langCode == 'gu') ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', fontSize: 12, fontWeight: FontWeight.w500) : GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w500),
         ),
         colorScheme: ColorScheme.fromSeed(
           seedColor: primaryBlack,
@@ -203,7 +193,7 @@ class MyApp extends StatelessWidget {
           centerTitle: true,
           titleTextStyle: (langCode == 'hi' || langCode == 'gu')
               ? TextStyle(fontFamily: langCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSansGujarati', color: primaryBlack, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1)
-              : GoogleFonts.cormorantGaramond(color: primaryBlack, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1),
+              : GoogleFonts.plusJakartaSans(color: primaryBlack, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1),
         ),
         cardTheme: CardThemeData(
           color: backgroundWhite,
