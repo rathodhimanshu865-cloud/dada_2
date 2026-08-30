@@ -47,6 +47,7 @@ import 'controllers/language_controller.dart';
 import 'controllers/profile_controller.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/connectivity_controller.dart';
+import 'controllers/coupon_controller.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -74,6 +75,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => StoreConfigController()),
         ChangeNotifierProvider(create: (_) => DashboardController()),
         ChangeNotifierProvider(create: (_) => ConnectivityController()),
+        ChangeNotifierProvider(create: (_) => CouponController()),
       ],
       child: const MyApp(),
     ),

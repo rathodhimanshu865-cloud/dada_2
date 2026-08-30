@@ -7,6 +7,7 @@ class DashboardStats {
   final int pendingOrders;
   final int completedOrders;
   final double totalRevenue;
+  final double totalProfit;
 
   DashboardStats({
     this.totalProducts = 0,
@@ -17,6 +18,7 @@ class DashboardStats {
     this.pendingOrders = 0,
     this.completedOrders = 0,
     this.totalRevenue = 0.0,
+    this.totalProfit = 0.0,
   });
 
   factory DashboardStats.fromFirestore(Map<String, dynamic> data) {
@@ -29,6 +31,7 @@ class DashboardStats {
       pendingOrders: data['pendingOrders'] ?? 0,
       completedOrders: data['completedOrders'] ?? 0,
       totalRevenue: (data['totalRevenue'] ?? 0.0).toDouble(),
+      totalProfit: (data['totalProfit'] ?? 0.0).toDouble(),
     );
   }
 }

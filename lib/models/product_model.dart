@@ -9,6 +9,7 @@ class ProductModel {
   final String descriptionHi;
   final String descriptionGu;
   final double price; // Selling Price
+  final double costPrice; // Cost Price for profit calculation
   final double? comparePrice; // Original Price for discount display
   final double? discountPrice; // Legacy field for compatibility
   final String categoryId;
@@ -21,6 +22,7 @@ class ProductModel {
   final List<String> finishes;
   final List<String> sizes;
   final int stock;
+  final int minStockAlert;
   final bool isFeatured;
   final bool isActive;
   final DateTime? createdAt;
@@ -52,6 +54,7 @@ class ProductModel {
     this.descriptionHi = '',
     this.descriptionGu = '',
     required this.price,
+    this.costPrice = 0.0,
     this.comparePrice,
     this.discountPrice,
     required this.categoryId,
@@ -64,6 +67,7 @@ class ProductModel {
     this.finishes = const [],
     this.sizes = const [],
     this.stock = 0,
+    this.minStockAlert = 5,
     this.isFeatured = false,
     this.isActive = true,
     this.createdAt,
@@ -82,6 +86,7 @@ class ProductModel {
     String? descriptionHi,
     String? descriptionGu,
     double? price,
+    double? costPrice,
     double? comparePrice,
     double? discountPrice,
     String? categoryId,
@@ -94,6 +99,7 @@ class ProductModel {
     List<String>? finishes,
     List<String>? sizes,
     int? stock,
+    int? minStockAlert,
     bool? isFeatured,
     bool? isActive,
     DateTime? createdAt,
@@ -111,6 +117,7 @@ class ProductModel {
       descriptionHi: descriptionHi ?? this.descriptionHi,
       descriptionGu: descriptionGu ?? this.descriptionGu,
       price: price ?? this.price,
+      costPrice: costPrice ?? this.costPrice,
       comparePrice: comparePrice ?? this.comparePrice,
       discountPrice: discountPrice ?? this.discountPrice,
       categoryId: categoryId ?? this.categoryId,
@@ -123,6 +130,7 @@ class ProductModel {
       finishes: finishes ?? this.finishes,
       sizes: sizes ?? this.sizes,
       stock: stock ?? this.stock,
+      minStockAlert: minStockAlert ?? this.minStockAlert,
       isFeatured: isFeatured ?? this.isFeatured,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
@@ -151,6 +159,7 @@ class ProductModel {
       descriptionHi: data['descriptionHi'] ?? '',
       descriptionGu: data['descriptionGu'] ?? '',
       price: (data['price'] ?? 0.0).toDouble(),
+      costPrice: (data['costPrice'] ?? 0.0).toDouble(),
       comparePrice: data['comparePrice'] != null ? (data['comparePrice'] as num).toDouble() : null,
       discountPrice: data['discountPrice'] != null ? (data['discountPrice'] as num).toDouble() : null,
       categoryId: data['categoryId'] ?? '',
@@ -163,6 +172,7 @@ class ProductModel {
       finishes: parseList(data['finishes']),
       sizes: parseList(data['sizes']),
       stock: data['stock'] ?? 0,
+      minStockAlert: data['minStockAlert'] ?? 5,
       isFeatured: data['isFeatured'] ?? false,
       isActive: data['isActive'] ?? true,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
@@ -183,6 +193,7 @@ class ProductModel {
       'descriptionHi': descriptionHi,
       'descriptionGu': descriptionGu,
       'price': price,
+      'costPrice': costPrice,
       'comparePrice': comparePrice,
       'discountPrice': discountPrice,
       'categoryId': categoryId.toLowerCase().trim(), 
@@ -195,6 +206,7 @@ class ProductModel {
       'finishes': finishes,
       'sizes': sizes,
       'stock': stock,
+      'minStockAlert': minStockAlert,
       'isFeatured': isFeatured,
       'isActive': isActive,
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),

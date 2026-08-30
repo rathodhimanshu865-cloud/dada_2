@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
+import '../../models/homepage_model.dart';
 import 'sections/product_cart_layout.dart';
 import '../../utils/app_typography.dart';
 
@@ -9,10 +10,12 @@ class PuDadaTeachingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<HomePageController>(context, listen: false);
+    final controller = Provider.of<HomePageController>(context);
+    final t = controller.homepageData.teachingsPage;
+    
     final primaryTeal = const Color(0xFF0F4C5C);
     final goldAccent = const Color(0xFFC89A5B);
-    final bgLight = const Color(0xFFF9F7F2); // very light warm background color
+    final bgLight = const Color(0xFFF9F7F2);
 
     return ProductCartLayout(
       controller: controller,
@@ -20,11 +23,11 @@ class PuDadaTeachingsPage extends StatelessWidget {
         color: bgLight,
         child: Column(
           children: [
-            _buildHeroBanner(context, primaryTeal, goldAccent),
+            _buildHeroBanner(context, t, primaryTeal, goldAccent),
             const SizedBox(height: 80),
-            _buildDivinePurpose(context, primaryTeal, goldAccent),
+            _buildDivinePurpose(context, t, primaryTeal, goldAccent),
             const SizedBox(height: 80),
-            _buildThreePillars(context, primaryTeal, goldAccent),
+            _buildThreePillars(context, t, primaryTeal, goldAccent),
             const SizedBox(height: 60),
             _buildCTAButton(context, primaryTeal),
             const SizedBox(height: 80),
@@ -34,11 +37,14 @@ class PuDadaTeachingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroBanner(BuildContext context, Color primaryColor, Color goldColor) {
+  Widget _buildHeroBanner(BuildContext context, TeachingsPageData t, Color primaryColor, Color goldColor) {
     return Container(
       width: double.infinity,
       color: primaryColor,
       padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 20),
+      decoration: t.heroImage.isNotEmpty ? BoxDecoration(
+        image: DecorationImage(image: NetworkImage(t.heroImage), fit: BoxFit.cover, colorFilter: ColorFilter.mode(primaryColor.withOpacity(0.8), BlendMode.multiply))
+      ) : null,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1000),
@@ -54,40 +60,26 @@ class PuDadaTeachingsPage extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.spa, color: goldColor, size: 16), // leaf/spa icon for devotion
+                    Icon(Icons.spa, color: goldColor, size: 16),
                     const SizedBox(width: 8),
-                    Text(
+                    const Text(
                       'PARAM PUJYA DADA BHAGWAN DEVOTIONAL SEVA',
-                      style: TextStyle(
-                        color: goldColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
-                      ),
+                      style: TextStyle(color: Color(0xFFC89A5B), fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 32),
               Text(
-                'Spiritual Grace, Eternal Darshan & Sacred\nTeachings',
+                t.heroTitle,
                 textAlign: TextAlign.center,
-                style: AppTypography.headingStyle(
-                  context,
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ).copyWith(height: 1.2),
+                style: AppTypography.headingStyle(context, fontSize: 48, fontWeight: FontWeight.bold, color: Colors.white).copyWith(height: 1.2),
               ),
               const SizedBox(height: 24),
               Text(
-                'Bringing consecrated darshan photos, sacred padukas, akhand jyot mandirs, and holy\nspiritual essentials into the homes of seekers and devotees worldwide.',
+                t.heroSubtitle,
                 textAlign: TextAlign.center,
-                style: AppTypography.bodyStyle(
-                  context,
-                  fontSize: 18,
-                  color: Colors.white.withOpacity(0.8),
-                ).copyWith(height: 1.5),
+                style: AppTypography.bodyStyle(context, fontSize: 18, color: Colors.white.withOpacity(0.8)).copyWith(height: 1.5),
               ),
             ],
           ),
@@ -96,7 +88,7 @@ class PuDadaTeachingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDivinePurpose(BuildContext context, Color primaryColor, Color goldColor) {
+  Widget _buildDivinePurpose(BuildContext context, TeachingsPageData t, Color primaryColor, Color goldColor) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
@@ -110,33 +102,20 @@ class PuDadaTeachingsPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'THE DIVINE PURPOSE',
-                      style: TextStyle(
-                        color: goldColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
+                    Text('THE DIVINE PURPOSE', style: TextStyle(color: goldColor, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                     const SizedBox(height: 16),
                     Text(
-                      'Living Darshan & Pure\nSpiritual Vibration',
-                      style: AppTypography.headingStyle(
-                        context,
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        color: primaryColor,
-                      ).copyWith(height: 1.2),
+                      t.divinePurposeTitle,
+                      style: AppTypography.headingStyle(context, fontSize: 36, fontWeight: FontWeight.bold, color: primaryColor).copyWith(height: 1.2),
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'Pu. Dada\'s eternal presence and profound spiritual teachings illuminate the path of self-realization, inner harmony, and pure devotion to Bhagwan Sri Radha Krishna.',
+                      t.divinePurposeDesc1,
                       style: AppTypography.bodyStyle(context, fontSize: 16, color: Colors.grey.shade700).copyWith(height: 1.6),
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Every photo frame, keychain, car dashboard idol, and sacred paduka is consecrated following traditional Vedic vidhi — purified with sacred Ganga jal and energized with Vedic protection mantras so your mandir radiates divine peace.',
+                      t.divinePurposeDesc2,
                       style: AppTypography.bodyStyle(context, fontSize: 16, color: Colors.grey.shade700).copyWith(height: 1.6),
                     ),
                   ],
@@ -149,16 +128,10 @@ class PuDadaTeachingsPage extends StatelessWidget {
                   height: 400,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    image: const DecorationImage(
-                      image: NetworkImage('https://via.placeholder.com/600x400/E8DCC4/0F4C5C?text=Consecrated+at+Sacred+Tirth+Mandir'),
+                    image: DecorationImage(
+                      image: NetworkImage(t.divinePurposeImage.isNotEmpty ? t.divinePurposeImage : 'https://via.placeholder.com/600x400'),
                       fit: BoxFit.cover,
                     ),
-                  ),
-                  alignment: Alignment.bottomLeft,
-                  padding: const EdgeInsets.all(24),
-                  child: const Text(
-                    'Consecrated at Sacred Tirth Mandir',
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -169,49 +142,26 @@ class PuDadaTeachingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildThreePillars(BuildContext context, Color primaryColor, Color goldColor) {
+  Widget _buildThreePillars(BuildContext context, TeachingsPageData t, Color primaryColor, Color goldColor) {
+    final pillars = t.pillars.isNotEmpty ? t.pillars : [
+      TeachingCard(title: '100% Consecrated Pure', description: 'Every sacred item is energized with Vedic protection mantras.', image: '', icon: 'verified_outlined'),
+      TeachingCard(title: 'Handcrafted Masterpieces', description: 'Finely finished acrylics and durable materials.', image: '', icon: 'design_services_outlined'),
+      TeachingCard(title: 'Non Profit Seva Spirit', description: 'All offerings support charitable devotee outreach.', image: '', icon: 'favorite_outline'),
+    ];
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
         child: Column(
           children: [
             Text(
-              'The Three Pillars of Pu. Dada Devotional Store',
+              'The Divine Pillars of Pu. Dada Devotional Store',
               textAlign: TextAlign.center,
-              style: AppTypography.headingStyle(
-                context,
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: primaryColor,
-              ),
+              style: AppTypography.headingStyle(context, fontSize: 32, fontWeight: FontWeight.bold, color: primaryColor),
             ),
             const SizedBox(height: 40),
             Row(
-              children: [
-                _pillarCard(
-                  context,
-                  Icons.verified_outlined,
-                  '100% Consecrated Pure',
-                  'Every sacred item is washed with pure Ganga jal, touched with Chandan paste, and energized with Vedic protection mantras prior to dispatch.',
-                  goldColor,
-                ),
-                const SizedBox(width: 24),
-                _pillarCard(
-                  context,
-                  Icons.design_services_outlined,
-                  'Handcrafted Masterpieces',
-                  'Finely finished acrylics, solid brass pooja padukas, durable diamond cut keychains, and high-definition waterproof stickers.',
-                  goldColor,
-                ),
-                const SizedBox(width: 24),
-                _pillarCard(
-                  context,
-                  Icons.favorite_outline,
-                  'Non Profit Seva Spirit',
-                  'All offerings directly support charitable devotee outreach, spiritual literature publication, and holy temple maintenance.',
-                  goldColor,
-                ),
-              ],
+              children: pillars.map((p) => _pillarCard(context, Icons.auto_awesome, p.title, p.description, goldColor)).toList(),
             ),
           ],
         ),

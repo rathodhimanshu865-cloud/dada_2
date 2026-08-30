@@ -357,4 +357,61 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get next => 'अगला';
+
+  @override
+  String get dashboard => 'डैशबोर्ड';
+
+  @override
+  String get products => 'उत्पाद';
+
+  @override
+  String get categories => 'श्रेणियाँ';
+
+  @override
+  String get inventory => 'इन्वेंटरी और स्टॉक';
+
+  @override
+  String get orders => 'ऑर्डर और डिस्पैच';
+
+  @override
+  String get payments => 'भुगतान और सीओडी';
+
+  @override
+  String get devotees => 'भक्त / उपयोगकर्ता';
+
+  @override
+  String get coupons => 'कूपन और ऑफ़र';
+
+  @override
+  String get reviews => 'समीक्षाएं और आशीर्वाद';
+
+  @override
+  String get storeSettings => 'स्टोर और सेवा सेटिंग्स';
+
+  @override
+  String get outOfStock => 'आउट ऑफ स्टॉक';
+
+  @override
+  String get orderPlaced => 'ऑर्डर दिया गया';
+
+  @override
+  String get processing => 'प्रसंस्करण';
+
+  @override
+  String get shipped => 'भेज दिया गया';
+
+  @override
+  String get delivered => 'पहुंचा दिया गया';
+
+  @override
+  String get cancelled => 'रद्द कर दिया गया';
+
+  @override
+  String get trackingInfo => 'ट्रैकिंग जानकारी';
+
+  @override
+  String get profit => 'लाभ';
+
+  @override
+  String get revenue => 'राजस्व';
 }

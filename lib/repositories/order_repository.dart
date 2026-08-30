@@ -49,4 +49,8 @@ class OrderRepository {
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
+
+  Future<void> updateOrder(OrderModel order) async {
+    await _firestore.collection('orders').doc(order.orderId).update(order.toFirestore());
+  }
 }

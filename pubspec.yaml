@@ -36,6 +36,9 @@ dependencies:
   cloud_functions: ^6.4.0
   connectivity_plus: ^7.3.1
   cached_network_image: ^3.4.1
+  pdf: ^3.11.1
+  printing: ^5.13.2
+  share_plus: ^13.3.0
 
 dev_dependencies:
   flutter_test:

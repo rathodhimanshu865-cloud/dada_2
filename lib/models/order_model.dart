@@ -22,6 +22,8 @@ class OrderModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final String? note;
+  final String? trackingCarrier;
+  final String? trackingId;
 
   OrderModel({
     required this.orderId,
@@ -45,7 +47,42 @@ class OrderModel {
     this.createdAt,
     this.updatedAt,
     this.note,
+    this.trackingCarrier,
+    this.trackingId,
   });
+
+  OrderModel copyWith({
+    String? orderStatus,
+    String? paymentStatus,
+    String? trackingCarrier,
+    String? trackingId,
+  }) {
+    return OrderModel(
+      orderId: orderId,
+      userId: userId,
+      customerName: customerName,
+      phone: phone,
+      email: email,
+      address: address,
+      city: city,
+      state: state,
+      pincode: pincode,
+      items: items,
+      subtotal: subtotal,
+      deliveryCharge: deliveryCharge,
+      discount: discount,
+      tax: tax,
+      totalAmount: totalAmount,
+      paymentMethod: paymentMethod,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
+      orderStatus: orderStatus ?? this.orderStatus,
+      createdAt: createdAt,
+      updatedAt: DateTime.now(),
+      note: note,
+      trackingCarrier: trackingCarrier ?? this.trackingCarrier,
+      trackingId: trackingId ?? this.trackingId,
+    );
+  }
 
   factory OrderModel.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -71,6 +108,8 @@ class OrderModel {
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
       note: data['note'],
+      trackingCarrier: data['trackingCarrier'],
+      trackingId: data['trackingId'],
     );
   }
 
@@ -96,6 +135,8 @@ class OrderModel {
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
       'note': note,
+      'trackingCarrier': trackingCarrier,
+      'trackingId': trackingId,
     };
   }
 }

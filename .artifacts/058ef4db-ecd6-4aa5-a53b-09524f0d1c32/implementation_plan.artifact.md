@@ -1,56 +1,106 @@
-# Implementation Plan - Product Details Page Overhaul
+# Admin Panel Comprehensive Upgrade Plan
 
-Update the product details page to exactly match the provided image, ensuring a high-quality, devotional user experience while maintaining consistency with the admin panel.
+This plan outlines the complete overhaul of the Admin Panel to provide full control over the user-side application, analytics, inventory, orders, and content management.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> The UI changes are extensive to match the high-fidelity design in the image. This includes custom components for quantity selectors, variant pickers, and delivery availability checkers.
-
-> [!WARNING]
-> I will be adding new fields to the `ProductModel` to support dynamic variants (finishes and sizes) to ensure "original details for every single product" are displayed.
+> - **Profit Calculation:** This will be based on `Selling Price - Cost Price`. I will add a `costPrice` field to products.
+> - **Out of Stock:** Products with 0 stock will be automatically hidden or shown as "Out of Stock" on the user side.
+> - **Review Replies:** Admin replies to reviews will trigger a direct WhatsApp/SMS message.
+> - **Store Settings:** The new settings section will allow editing the Home Portal, Product Catalogue, and Teachings section dynamically from Firestore.
 
 ## Proposed Changes
 
-### Data Model & Backend
+### 1. Data Models & Controllers
 
-#### [MODIFY] [product_model.dart](file:///D:/dada_2/lib/models/product_model.dart)
-- Add `List<String> finishes` and `List<String> sizes` to support dynamic product variants.
-- Update `fromFirestore` and `toFirestore` to handle these new fields.
+#### [MODIFY] [ProductModel](file:///D:/dada_2/lib/models/product_model.dart)
+- Add `costPrice` field.
+- Add `minStockAlert` field (default 5).
 
-### Admin Panel
+#### [NEW] [CouponModel](file:///D:/dada_2/lib/models/coupon_model.dart)
+- Fields: `code`, `discountType` (percentage/flat), `discountValue`, `minOrderValue`, `isActive`.
 
-#### [MODIFY] [product_management_view.dart](file:///D:/dada_2/lib/views/admin/product_management_view.dart)
-- Add input fields for `finishes` and `sizes` in the "Add/Edit Product" dialog.
-- Ensure all new fields are correctly saved to Firestore.
+#### [MODIFY] [DashboardController](file:///D:/dada_2/lib/controllers/dashboard_controller.dart)
+- Implement `statsByPeriod(int days)` to filter data for 1, 30, 90, 180, 365 days.
+- Calculate total profit using `items` in orders and `costPrice` from products.
+- Identify low stock products.
 
-### User Side UI
+#### [NEW] [CouponController](file:///D:/dada_2/lib/controllers/coupon_controller.dart)
+- CRUD operations for coupons.
 
-#### [MODIFY] [product_details_page.dart](file:///D:/dada_2/lib/views/user_side/product_details_page.dart)
-- Refine the top header/breadcrumbs styling.
-- Implement the exact layout for the product gallery with thumbnails and badges.
-- Update the product info section:
-    - Add the "Sanctified & Consecrated" alert box with the correct styling.
-    - Implement the large price display with discount badges.
-    - Add the detailed description box below the stock status.
-    - Implement the variant picker (Finish and Size) using dynamic data from the model.
-    - Style the complimentary item checkboxes.
-    - Implement the large "ADD TO BAG" and "INSTANT SACRED CHECKOUT" buttons.
-    - Add the WhatsApp inquiry button.
-    - Implement the "Delivery & Payment Availability" section with a pincode checker.
-    - Refine the "Frequently Blessed Together" bundle offer section.
-    - Update the tabs section to match the design.
-    - Implement the feature grid under the "Vedic Significance" tab.
-- Ensure the header and footer remain untouched as they are provided by the layout wrapper.
+### 2. Admin UI - Redesign
+
+#### [MODIFY] [AdminDashboard](file:///D:/dada_2/lib/views/admin/admin_dashboard.dart)
+- New Sidebar Structure:
+  1. Dashboard
+  2. Products
+  3. Categories
+  4. Inventory & Stock
+  5. Orders & Dispatch
+  6. Payments
+  7. Devotees
+  8. Coupons
+  9. Reviews
+  10. Store & Seva Settings (Home Portal, Teachings, etc.)
+
+#### [NEW] [DashboardView](file:///D:/dada_2/lib/views/admin/dashboard_view.dart)
+- Analytics boxes (Revenue, Profit, Orders, Products, Stock Attention).
+- Action buttons: Add Product, Restock, Create Coupon, Dispatch.
+- Recent Orders list with Invoice view.
+- Low Stock Watch list.
+
+#### [NEW] [CategoryManagementView](file:///D:/dada_2/lib/views/admin/category_management_view.dart)
+- Add/Edit/Delete categories with icons and product counts.
+
+#### [MODIFY] [ProductManagementView](file:///D:/dada_2/lib/views/admin/product_management_view.dart)
+- Enhance with category-wise filtering and detailed list view matching the screenshot.
+
+#### [NEW] [InventoryStockView](file:///D:/dada_2/lib/views/admin/inventory_stock_view.dart)
+- List products with current stock, safety limit, and quick replenish buttons (+5, +25).
+
+#### [NEW] [OrderDispatchView](file:///D:/dada_2/lib/views/admin/order_dispatch_view.dart)
+- Manage order statuses (Pending -> Delivered).
+- Update tracking carrier/ID.
+- Print/View Invoices.
+
+#### [NEW] [DevoteeManagementView](file:///D:/dada_2/lib/views/admin/devotee_management_view.dart)
+- List users with order history.
+- "WhatsApp Seva" button for direct contact.
+
+#### [NEW] [StoreSettingsView](file:///D:/dada_2/lib/views/admin/store_settings_view.dart)
+- Replace legacy settings with dynamic editors for:
+  - Home Portal (Slider, Sections)
+  - Product Catalogue info
+  - Teachings (Content & Images)
+
+### 3. User-Side Synchronization
+
+#### [MODIFY] [UserHomePage](file:///D:/dada_2/lib/views/user_side/user_homepage.dart)
+- Sync content with Firestore settings updated by admin.
+
+#### [MODIFY] [CataloguePage](file:///D:/dada_2/lib/views/user_side/catalogue_page.dart)
+- Implement category-wise display.
+- Hide/Show "Out of Stock" labels based on inventory.
+
+#### [MODIFY] [TrackShipmentPage](file:///D:/dada_2/lib/views/user_side/track_shipment_page.dart)
+- Display real-time status and tracking info from Admin updates.
+
+### 4. Localization
+
+- Add translations for all new Admin UI components and User-side status labels in [app_en.arb](file:///D:/dada_2/lib/l10n/app_en.arb), `app_gu.arb`, and `app_hi.arb`.
 
 ## Verification Plan
 
 ### Automated Tests
-- N/A (UI focused task, will verify via manual inspection of layout).
+- Unit tests for `DashboardController` period filtering logic.
+- Integration tests for Order status updates reflecting on User-side.
 
 ### Manual Verification
-- Open the admin panel, add a new product with custom finishes and sizes.
-- Verify the product appears in the user-side products list.
-- Open the product details page and verify it matches the image "exactly".
-- Check that all buttons and interactable elements (quantity, checkboxes, variants) function correctly.
-- Ensure no excessive errors or logs appear in the terminal during navigation.
+1. Log in as Admin.
+2. Verify Dashboard stats change with period selection.
+3. Add a product and verify it appears in the User Catalogue under the correct category.
+4. Set stock to 0 and verify "Out of Stock" or hidden status on User-side.
+5. Update an order status and check `Track Shipment` on the User-side.
+6. Create a coupon and test it in the Checkout flow.
+7. Reply to a review and verify WhatsApp intent is launched.

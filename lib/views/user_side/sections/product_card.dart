@@ -188,12 +188,15 @@ class _ProductCardState extends State<ProductCard> {
                         } : null,
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                          decoration: BoxDecoration(color: const Color(0xFF07404C), borderRadius: BorderRadius.circular(8)),
-                          child: const Row(
+                          decoration: BoxDecoration(
+                            color: p.stock > 0 ? const Color(0xFF07404C) : Colors.grey.shade400,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
                             children: [
-                              Icon(Icons.shopping_bag_outlined, size: 14, color: Colors.white),
-                              SizedBox(width: 8),
-                              Text('Add', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),
+                              Icon(p.stock > 0 ? Icons.shopping_bag_outlined : Icons.do_not_disturb_on_outlined, size: 14, color: Colors.white),
+                              const SizedBox(width: 8),
+                              Text(p.stock > 0 ? 'Add' : 'Out of Stock', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),
                             ],
                           ),
                         ),

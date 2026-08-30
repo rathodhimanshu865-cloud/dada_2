@@ -5,6 +5,7 @@ import '../../controllers/homepage_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../controllers/product_controller.dart';
 import 'product_management_view.dart';
+import 'devotee_management_view.dart';
 import 'cms_views_helper.dart';
 
 class AdminDashboard extends StatefulWidget {
@@ -15,9 +16,8 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  int currentMenuIndex = 13; // Reverted default to Product Management
+  int currentMenuIndex = 13; // Default back to Product Management
   bool _isSidebarVisible = true;
-
   final Map<String, bool> _fieldLoading = {};
 
   @override
@@ -35,7 +35,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final prof = Provider.of<ProfileController>(context);
     final bool globalLoading = controller.isLoading || prof.isLoading;
 
-    bool isMobile = MediaQuery.of(context).size.width <= 900;
+    bool isMobile = MediaQuery.of(context).size.width <= 1100;
 
     return Scaffold(
       appBar: AppBar(
@@ -56,31 +56,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
           },
         ),
         actions: [
-          if (MediaQuery.of(context).size.width > 750) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: ElevatedButton.icon(
-                onPressed: controller.isLoading ? null : () async {
-                   final prof = Provider.of<ProfileController>(context, listen: false);
-                   await Future.wait([
-                     controller.translateAndPublish(),
-                     prof.translateAll(),
-                   ]);
-                   if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All Sections Translated & Published!')));
-                },
-                icon: controller.isLoading ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)) : const Icon(Icons.auto_awesome, size: 14),
-                label: Text(controller.isLoading ? 'WORKING...' : 'TRANSLATE & PUBLISH', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber, 
-                  foregroundColor: Colors.black,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-          ],
+          TextButton.icon(
+            onPressed: () => controller.translateAndPublish(),
+            icon: const Icon(Icons.translate, size: 16, color: Colors.amber),
+            label: const Text('TRANSLATE', style: TextStyle(color: Colors.amber, fontSize: 11, fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(width: 8),
+          TextButton.icon(
+            onPressed: () => controller.publish(),
+            icon: const Icon(Icons.publish, size: 16, color: Colors.blueAccent),
+            label: const Text('PUBLISH', style: TextStyle(color: Colors.blueAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(width: 16),
           IconButton(
             tooltip: 'Refresh Data',
             onPressed: () {
@@ -108,14 +95,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Widget _buildSidebar(bool isMobile) {
-    // ── ORIGINAL SIDEBAR MENU RESTORED ──────────────────────────────────────
     final contentMenus = [
       {'title': 'General Settings', 'icon': Icons.settings},
       {'title': 'Hero Slider', 'icon': Icons.burst_mode},
       {'title': 'Biography Editor', 'icon': Icons.person},
       {'title': 'Katha About Pages', 'icon': Icons.menu_book},
       {'title': 'Upcoming Kathas', 'icon': Icons.event},
-      {'title': 'Home Page Section', 'icon': Icons.home},
+      {'title': 'Home: About Section', 'icon': Icons.home},
+      {'title': 'Home: Featured Quote', 'icon': Icons.format_quote},
+      {'title': 'Home: Daily Suvichar', 'icon': Icons.today},
+      {'title': 'Home: Ram Katha Section', 'icon': Icons.auto_stories},
       {'title': 'News & Updates', 'icon': Icons.newspaper},
       {'title': 'Full Katha List', 'icon': Icons.list_alt},
       {'title': 'Photo Gallery', 'icon': Icons.photo_library},
@@ -150,7 +139,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           ),
           const Divider(color: Colors.white12, height: 1),
-          // ── LOGOUT ──
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.redAccent),
             title: const Text('Logout', style: TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold)),
@@ -160,7 +148,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
               await auth.adminLogout();
               if (mounted) {
                 Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-                auth.toggleLoginPortal(true);
               }
             },
           ),
@@ -177,15 +164,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Widget _buildMainContent(HomePageController controller) {
-    // Reverted to individual view routing
-    switch (currentMenuIndex) {
-      case 13: return const ProductManagementView();
-      // Delegate CMS indices (0-12) to the helper
-      default:
-        if (currentMenuIndex >= 0 && currentMenuIndex <= 12) {
-          return CMSViewsHelper.buildCMSView(currentMenuIndex, controller, context, _fieldLoading, setState);
-        }
-        return const Center(child: Text('Select a menu'));
+    if (currentMenuIndex == 16) {
+      return const ProductManagementView();
     }
+    if (currentMenuIndex >= 0 && currentMenuIndex <= 15) {
+      return CMSViewsHelper.buildCMSView(currentMenuIndex, controller, context, _fieldLoading, setState);
+    }
+    return const Center(child: Text('Select a menu'));
   }
 }

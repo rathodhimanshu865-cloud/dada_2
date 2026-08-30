@@ -783,6 +783,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next'**
   String get next;
+
+  /// No description provided for @dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboard;
+
+  /// No description provided for @products.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get products;
+
+  /// No description provided for @categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categories;
+
+  /// No description provided for @inventory.
+  ///
+  /// In en, this message translates to:
+  /// **'Inventory & Stock'**
+  String get inventory;
+
+  /// No description provided for @orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders & Dispatch'**
+  String get orders;
+
+  /// No description provided for @payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments & COD'**
+  String get payments;
+
+  /// No description provided for @devotees.
+  ///
+  /// In en, this message translates to:
+  /// **'Devotees / Users'**
+  String get devotees;
+
+  /// No description provided for @coupons.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupons & Offers'**
+  String get coupons;
+
+  /// No description provided for @reviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews & Blessings'**
+  String get reviews;
+
+  /// No description provided for @storeSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Store & Seva Settings'**
+  String get storeSettings;
+
+  /// No description provided for @outOfStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of Stock'**
+  String get outOfStock;
+
+  /// No description provided for @orderPlaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Placed'**
+  String get orderPlaced;
+
+  /// No description provided for @processing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing'**
+  String get processing;
+
+  /// No description provided for @shipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipped'**
+  String get shipped;
+
+  /// No description provided for @delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get delivered;
+
+  /// No description provided for @cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get cancelled;
+
+  /// No description provided for @trackingInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking Info'**
+  String get trackingInfo;
+
+  /// No description provided for @profit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit'**
+  String get profit;
+
+  /// No description provided for @revenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue'**
+  String get revenue;
 }
 
 class _AppLocalizationsDelegate

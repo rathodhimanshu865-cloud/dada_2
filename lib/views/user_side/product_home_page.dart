@@ -3,8 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/product_controller.dart';
-import '../../controllers/auth_controller.dart';
-import '../../controllers/cart_controller.dart';
+import '../../models/homepage_model.dart';
 import 'sections/product_cart_layout.dart';
 import 'sections/product_card.dart';
 import '../../utils/app_typography.dart';
@@ -18,42 +17,50 @@ class ProductHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final homeController = Provider.of<HomePageController>(context, listen: false);
+    final homeController = Provider.of<HomePageController>(context);
     final productController = Provider.of<ProductController>(context);
+    final h = homeController.homepageData.homePortal;
 
     return ProductCartLayout(
       controller: homeController,
       slivers: [
         // 1. Hero Section
-        SliverToBoxAdapter(child: _buildHeroSection(context, productController)),
+        SliverToBoxAdapter(child: _buildHeroSection(context, h)),
         
         // 2. Categories (Devotional Collections)
-        SliverToBoxAdapter(child: _buildSacredOfferingsSection(context, productController)),
+        SliverToBoxAdapter(child: _buildSacredOfferingsSection(context, h, productController)),
         
-        // 3. Featured Products Grid (Limited to 2 rows - 8 items)
-        SliverToBoxAdapter(child: _buildFeaturedProductsSection(context, productController)),
+        // 3. Featured Products Grid
+        SliverToBoxAdapter(child: _buildFeaturedProductsSection(context, h, productController)),
         
-        // 4. Consecration Process (Redesigned as per Image 2)
+        // 4. Consecration Process
         SliverToBoxAdapter(child: _buildProcessSection(context)),
         
         // 5. Testimonials
-        SliverToBoxAdapter(child: _buildTestimonialsSection(context)),
+        SliverToBoxAdapter(child: _buildTestimonialsSection(context, h)),
         
         // 6. Wisdom Aphorisms
-        SliverToBoxAdapter(child: _buildWisdomSection(context)),
+        SliverToBoxAdapter(child: _buildWisdomSection(context, h)),
         
         // 7. Help/Guidance Bar
-        SliverToBoxAdapter(child: _buildHelpBar(context)),
+        SliverToBoxAdapter(child: _buildHelpBar(context, h)),
       ],
       child: const SizedBox.shrink(),
     );
   }
 
-  Widget _buildHeroSection(BuildContext context, ProductController prod) {
+  Widget _buildHeroSection(BuildContext context, HomePortalData h) {
     return Container(
       width: double.infinity,
       color: primaryGreen,
       padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 80),
+      decoration: h.heroImage.isNotEmpty ? BoxDecoration(
+        image: DecorationImage(
+          image: NetworkImage(h.heroImage),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(primaryGreen.withOpacity(0.8), BlendMode.multiply),
+        ),
+      ) : null,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1400),
@@ -66,7 +73,7 @@ class ProductHomePage extends StatelessWidget {
                   children: [
                     Row(children: [const Icon(Icons.stars, color: Color(0xFFC89A5B), size: 20), const SizedBox(width: 10), Text('Official Pu. Jignesh Dada Devotional Store', style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 0.5))]),
                     const SizedBox(height: 30),
-                    Text('Sacred Darshan, Consecrated\nAltars & Holy Granths', 
+                    Text(h.heroHeading, 
                       style: GoogleFonts.cormorantGaramond(
                         fontSize: 64,
                         fontWeight: FontWeight.w600,
@@ -74,13 +81,20 @@ class ProductHomePage extends StatelessWidget {
                         height: 1.1,
                       )),
                     const SizedBox(height: 30),
-                    Text('Elevate your home mandir, car sanctuary, and everyday journey with authentic devotional\ntreasures. Consecrated with holy Ganga Jal, fragrant Chandan tika, and protective Vedic\nchanting before gentle dispatch to your doorstep.', style: AppTypography.bodyStyle(context, color: Colors.white.withOpacity(0.7), fontSize: 16, height: 1.6)),
+                    Text(h.heroSubtitle, style: AppTypography.bodyStyle(context, color: Colors.white.withOpacity(0.7), fontSize: 16, height: 1.6)),
                     const SizedBox(height: 50),
                     Row(
                       children: [
-                        ElevatedButton(onPressed: () => Navigator.pushNamed(context, '/catalogue'), style: ElevatedButton.styleFrom(backgroundColor: templeGold, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), child: const Row(children: [Text('EXPLORE SACRED PRODUCTS', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1)), SizedBox(width: 12), Icon(Icons.arrow_forward, size: 16)])),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pushNamed(context, '/catalogue'), 
+                          style: ElevatedButton.styleFrom(backgroundColor: templeGold, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), 
+                          child: Row(children: [Text(h.heroCta1Text.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1)), const SizedBox(width: 12), const Icon(Icons.arrow_forward, size: 16)])),
                         const SizedBox(width: 20),
-                        OutlinedButton.icon(onPressed: () => Navigator.pushNamed(context, '/teachings'), icon: const Icon(Icons.menu_book_outlined, size: 18), label: const Text("Pu. Dada's Life & Teachings", style: TextStyle(fontWeight: FontWeight.bold)), style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white38), padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)))),
+                        OutlinedButton.icon(
+                          onPressed: () => Navigator.pushNamed(context, '/teachings'), 
+                          icon: const Icon(Icons.menu_book_outlined, size: 18), 
+                          label: Text(h.heroCta2Text, style: const TextStyle(fontWeight: FontWeight.bold)), 
+                          style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white38), padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)))),
                       ],
                     ),
                     const SizedBox(height: 50),
@@ -89,7 +103,7 @@ class ProductHomePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 60),
-              Expanded(flex: 4, child: _buildHeroFeaturedCard(context)),
+              Expanded(flex: 4, child: _buildHeroFeaturedCard(context, h)),
             ],
           ),
         ),
@@ -99,13 +113,19 @@ class ProductHomePage extends StatelessWidget {
 
   Widget _heroFeature(IconData icon, String text) => Row(children: [Icon(icon, color: Colors.amber.shade200, size: 18), const SizedBox(width: 10), Text(text, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12, fontWeight: FontWeight.w500))]);
 
-  Widget _buildHeroFeaturedCard(BuildContext context) {
+  Widget _buildHeroFeaturedCard(BuildContext context, HomePortalData h) {
     return Container(
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 40, offset: const Offset(0, 20))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(children: [ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(20)), child: Image.network('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=800', height: 400, width: double.infinity, fit: BoxFit.cover)), Positioned(bottom: 20, left: 20, child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: templeGold, borderRadius: BorderRadius.circular(4)), child: const Text('SANCTUM DARSHAN', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1))))]),
+          Stack(children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)), 
+              child: h.heroSideImage.isNotEmpty 
+                ? Image.network(h.heroSideImage, height: 400, width: double.infinity, fit: BoxFit.cover)
+                : Image.network('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=800', height: 400, width: double.infinity, fit: BoxFit.cover)), 
+            Positioned(bottom: 20, left: 20, child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: templeGold, borderRadius: BorderRadius.circular(4)), child: const Text('SANCTUM DARSHAN', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1))))]),
           Padding(
             padding: const EdgeInsets.all(30),
             child: Column(
@@ -113,9 +133,9 @@ class ProductHomePage extends StatelessWidget {
               children: [
                 Row(children: [const Icon(Icons.star, color: Colors.amber, size: 16), const SizedBox(width: 6), Text('4.9 (15,000+ Devotees)', style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.bold))]),
                 const SizedBox(height: 16),
-                Text('Pu. Dada & Sri Radha Krishna Sacred Ensemble', style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.w900, color: primaryGreen)),
+                Text(h.heroCardTitle, style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.w900, color: primaryGreen)),
                 const SizedBox(height: 12),
-                Text('Hand-turned, diamond-polished acrylic frames & brass padukas for daily puja.', style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+                Text(h.heroCardSubtitle, style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
                 const SizedBox(height: 30),
                 Container(
                   padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: const Color(0xFFFDFBF7), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100)),
@@ -129,7 +149,7 @@ class ProductHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildSacredOfferingsSection(BuildContext context, ProductController prod) {
+  Widget _buildSacredOfferingsSection(BuildContext context, HomePortalData h, ProductController prod) {
     return Container(
       color: const Color(0xFFFAF8F4), padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 80),
       child: Center(
@@ -146,7 +166,7 @@ class ProductHomePage extends StatelessWidget {
                     children: [
                       Row(children: [Icon(Icons.auto_awesome, color: templeGold, size: 20), const SizedBox(width: 10), const Text('DEVOTIONAL COLLECTIONS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFC89A5B)))]), 
                       const SizedBox(height: 16), 
-                      Text('Sacred Offerings of Pu. Dada', 
+                      Text(h.collectionsHeading, 
                         style: GoogleFonts.cormorantGaramond(
                           fontSize: 56,
                           fontWeight: FontWeight.w600,
@@ -206,7 +226,7 @@ class ProductHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildFeaturedProductsSection(BuildContext context, ProductController prod) {
+  Widget _buildFeaturedProductsSection(BuildContext context, HomePortalData h, ProductController prod) {
     final products = prod.allProducts;
     return Container(
       color: Colors.white, padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 80),
@@ -217,7 +237,7 @@ class ProductHomePage extends StatelessWidget {
             children: [
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.auto_fix_normal_outlined, color: templeGold, size: 20), const SizedBox(width: 10), const Text('HANDPICKED SACRED TREASURES', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFC89A5B)))]),
               const SizedBox(height: 16),
-              Text('Featured Products of Pu. Dada', style: AppTypography.headingStyle(context, fontSize: 44, fontWeight: FontWeight.w900, color: primaryGreen)),
+              Text(h.featuredHeading, style: AppTypography.headingStyle(context, fontSize: 44, fontWeight: FontWeight.w900, color: primaryGreen)),
               const SizedBox(height: 16),
               Text('Every item is crafted with devotion, checked for high structural durability, and energized with Vedic sanctification.', style: TextStyle(color: Colors.grey.shade500, fontSize: 15)),
               const SizedBox(height: 60),
@@ -280,9 +300,9 @@ class ProductHomePage extends StatelessWidget {
     );
   }
 
-  Widget _processItem(IconData icon, String title, String desc) => Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Container(width: 48, height: 48, decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: Colors.amber.shade200, size: 24)), const SizedBox(height: 24), Text(title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)), const SizedBox(height: 16), Text(desc, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13, height: 1.6))]));
+  Widget _processItem(IconData icon, String title, String desc) => Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Container(width: 48, height: 48, decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: Colors.amber.shade200, size: 24)), const SizedBox(height: 24), Text(title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)), const SizedBox(height: 16), Text(desc, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13, height: 1.6))]));
 
-  Widget _buildTestimonialsSection(BuildContext context) {
+  Widget _buildTestimonialsSection(BuildContext context, HomePortalData h) {
     return Container(
       color: Colors.white, padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 80),
       child: Center(
@@ -290,7 +310,7 @@ class ProductHomePage extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 1400),
           child: Column(
             children: [
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('DEVOTEE EXPERIENCES', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)), const SizedBox(height: 12), Text('Devotee Blessings & Testimonials', style: AppTypography.headingStyle(context, fontSize: 40, fontWeight: FontWeight.w900, color: primaryGreen))]), Row(children: [const Icon(Icons.star, color: Colors.amber, size: 18), const SizedBox(width: 8), Text('4.9 / 5 Average Rating across 15,000+ Blessed Homes', style: TextStyle(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.bold))])]),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('DEVOTEE EXPERIENCES', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)), const SizedBox(height: 12), Text(h.testimonialsHeading, style: AppTypography.headingStyle(context, fontSize: 40, fontWeight: FontWeight.w900, color: primaryGreen))]), Row(children: [const Icon(Icons.star, color: Colors.amber, size: 18), const SizedBox(width: 8), Text('4.9 / 5 Average Rating across 15,000+ Blessed Homes', style: TextStyle(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.bold))])]),
               const SizedBox(height: 80),
               Row(
                 children: [
@@ -310,7 +330,7 @@ class ProductHomePage extends StatelessWidget {
 
   Widget _testimonialCard(String name, String city, String order, String quote) => Expanded(child: Container(padding: const EdgeInsets.all(32), decoration: BoxDecoration(color: const Color(0xFFF9F9F9), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade100)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [Row(children: List.generate(5, (index) => const Icon(Icons.star, color: Colors.amber, size: 16))), const Spacer(), const Text('Verified Devotee • 2 days ago', style: TextStyle(color: Colors.grey, fontSize: 10))]), const SizedBox(height: 24), Text('"$quote"', style: TextStyle(color: Colors.black87.withOpacity(0.7), fontSize: 14, height: 1.7, fontStyle: FontStyle.italic)), const SizedBox(height: 40), Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF07404C))), const SizedBox(height: 4), Text('$city', style: TextStyle(color: Colors.grey.shade500, fontSize: 11)), const SizedBox(height: 8), Text('Ordered: $order', style: TextStyle(color: templeGold, fontSize: 10, fontWeight: FontWeight.bold))])));
 
-  Widget _buildWisdomSection(BuildContext context) {
+  Widget _buildWisdomSection(BuildContext context, HomePortalData h) {
     return Container(
       color: const Color(0xFFFAF8F4), padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 80),
       child: Center(
@@ -318,7 +338,7 @@ class ProductHomePage extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 1400),
           child: Column(
             children: [
-              const Text('SPIRITUAL ESSENCE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)), const SizedBox(height: 12), Text('Wisdom & Daily Aphorisms', style: AppTypography.headingStyle(context, fontSize: 44, fontWeight: FontWeight.w900, color: primaryGreen)), const SizedBox(height: 80),
+              const Text('SPIRITUAL ESSENCE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)), const SizedBox(height: 12), Text(h.wisdomHeading, style: AppTypography.headingStyle(context, fontSize: 44, fontWeight: FontWeight.w900, color: primaryGreen)), const SizedBox(height: 80),
               Row(
                 children: [
                   _wisdomCard('True religion is that which brings inner peace, removes all worries, and sees the pure divine soul in every living being.', 'Param Pujya Dadaji', 'Inner Peace & Harmony'),
@@ -337,7 +357,7 @@ class ProductHomePage extends StatelessWidget {
 
   Widget _wisdomCard(String quote, String author, String tag) => Expanded(child: Container(padding: const EdgeInsets.all(40), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: templeGold.withOpacity(0.1))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(Icons.format_quote, color: templeGold.withOpacity(0.3), size: 40), const SizedBox(height: 20), Text(quote, style: TextStyle(color: primaryGreen.withOpacity(0.8), fontSize: 16, height: 1.8, fontWeight: FontWeight.w500)), const SizedBox(height: 40), Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(author, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black87)), Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: const Color(0xFFFAF8F4), borderRadius: BorderRadius.circular(20), border: Border.all(color: templeGold.withOpacity(0.2))), child: Text(tag, style: TextStyle(color: templeGold, fontSize: 10, fontWeight: FontWeight.bold)))])])));
 
-  Widget _buildHelpBar(BuildContext context) {
+  Widget _buildHelpBar(BuildContext context, HomePortalData h) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
       child: Center(
@@ -349,8 +369,8 @@ class ProductHomePage extends StatelessWidget {
               children: [
                 Container(width: 56, height: 56, decoration: BoxDecoration(color: primaryGreen, shape: BoxShape.circle), child: const Icon(Icons.forum_outlined, color: Colors.white, size: 24)),
                 const SizedBox(width: 24),
-                const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Need Guidance on Mandir Sizing or Sacred Articles?', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF07404C))), SizedBox(height: 8), Text('Our Devotee Seva Sevaks are available on WhatsApp for puja vidhi inquiries and custom altar consultations.', style: TextStyle(color: Colors.grey, fontSize: 14))])),
-                ElevatedButton.icon(onPressed: () {}, icon: const Icon(Icons.chat_bubble, size: 18), label: const Text('CONNECT ON WHATSAPP', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)), style: ElevatedButton.styleFrom(backgroundColor: primaryGreen, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)))),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(h.whatsappTitle, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF07404C))), const SizedBox(height: 8), Text(h.whatsappSubtitle, style: const TextStyle(color: Colors.grey, fontSize: 14))])),
+                ElevatedButton.icon(onPressed: () {}, icon: const Icon(Icons.chat_bubble, size: 18), label: Text(h.whatsappBtnText.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)), style: ElevatedButton.styleFrom(backgroundColor: primaryGreen, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)))),
               ],
             ),
           ),

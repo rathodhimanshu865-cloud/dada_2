@@ -106,6 +106,14 @@ class OrderController extends ChangeNotifier {
     await _repository.cancelOrder(orderId);
   }
 
+  // Admin methods
+  Stream<List<OrderModel>> get allOrders => _repository.getAllOrders();
+
+  Future<void> updateOrder(OrderModel order) async {
+    await _repository.updateOrder(order);
+    _safeNotifyListeners();
+  }
+
   @override
   void dispose() {
     _isDisposed = true;

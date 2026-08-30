@@ -234,6 +234,26 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
                   ),
                 ],
               ),
+              if (order.trackingId != null) ...[
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(12)),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.local_shipping_outlined, color: Colors.blue),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('SHIPPING PARTNER & TRACKING ID', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue)),
+                          Text('${order.trackingCarrier}: ${order.trackingId}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 40),
               _buildTrackingStepper(order.orderStatus),
               const SizedBox(height: 40),

@@ -356,4 +356,61 @@ class AppLocalizationsGu extends AppLocalizations {
 
   @override
   String get next => 'આગળ';
+
+  @override
+  String get dashboard => 'ડેશબોર્ડ';
+
+  @override
+  String get products => 'ઉત્પાદનો';
+
+  @override
+  String get categories => 'શ્રેણીઓ';
+
+  @override
+  String get inventory => 'ઈન્વેન્ટરી અને સ્ટોક';
+
+  @override
+  String get orders => 'ઓર્ડર અને ડિસ્પેચ';
+
+  @override
+  String get payments => 'ચુકવણી અને COD';
+
+  @override
+  String get devotees => 'ભક્તો / વપરાશકર્તાઓ';
+
+  @override
+  String get coupons => 'કૂપન્સ અને ઓફર્સ';
+
+  @override
+  String get reviews => 'સમીક્ષાઓ અને આશીર્વાદ';
+
+  @override
+  String get storeSettings => 'સ્ટોર અને સેવા સેટિંગ્સ';
+
+  @override
+  String get outOfStock => 'સ્ટોક ખાલી છે';
+
+  @override
+  String get orderPlaced => 'ઓર્ડર અપાઈ ગયો';
+
+  @override
+  String get processing => 'પ્રક્રિયા હેઠળ';
+
+  @override
+  String get shipped => 'મોકલી દેવામાં આવ્યું';
+
+  @override
+  String get delivered => 'પહોંચી ગયું';
+
+  @override
+  String get cancelled => 'રદ કરવામાં આવ્યું';
+
+  @override
+  String get trackingInfo => 'ટ્રેકિંગ માહિતી';
+
+  @override
+  String get profit => 'નફો';
+
+  @override
+  String get revenue => 'મહેસૂલ';
 }

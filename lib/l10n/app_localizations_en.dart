@@ -356,4 +356,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get next => 'Next';
+
+  @override
+  String get dashboard => 'Dashboard';
+
+  @override
+  String get products => 'Products';
+
+  @override
+  String get categories => 'Categories';
+
+  @override
+  String get inventory => 'Inventory & Stock';
+
+  @override
+  String get orders => 'Orders & Dispatch';
+
+  @override
+  String get payments => 'Payments & COD';
+
+  @override
+  String get devotees => 'Devotees / Users';
+
+  @override
+  String get coupons => 'Coupons & Offers';
+
+  @override
+  String get reviews => 'Reviews & Blessings';
+
+  @override
+  String get storeSettings => 'Store & Seva Settings';
+
+  @override
+  String get outOfStock => 'Out of Stock';
+
+  @override
+  String get orderPlaced => 'Order Placed';
+
+  @override
+  String get processing => 'Processing';
+
+  @override
+  String get shipped => 'Shipped';
+
+  @override
+  String get delivered => 'Delivered';
+
+  @override
+  String get cancelled => 'Cancelled';
+
+  @override
+  String get trackingInfo => 'Tracking Info';
+
+  @override
+  String get profit => 'Profit';
+
+  @override
+  String get revenue => 'Revenue';
 }

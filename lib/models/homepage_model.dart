@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HeaderSettings {
   bool stickyHeaderEnabled;
@@ -59,39 +60,201 @@ class HeaderSettings {
 class WebsiteSettings {
   String name;
   String logoUrl;
+  String catalogueHeading;
+  String catalogueSubtitle;
   HeaderSettings headerSettings;
   List<String> supportedPaymentMethods;
 
   // Translations
   String nameHi; String nameGu;
+  String catalogueHeadingHi; String catalogueHeadingGu;
 
   WebsiteSettings({
     this.name = '',
     this.logoUrl = '',
+    this.catalogueHeading = 'Our Sacred Collections',
+    this.catalogueSubtitle = 'Handpicked offerings for your spiritual journey',
     HeaderSettings? headerSettings,
     this.supportedPaymentMethods = const ['COD', 'UPI', 'Card', 'Net Banking'],
     this.nameHi = '', this.nameGu = '',
+    this.catalogueHeadingHi = '', this.catalogueHeadingGu = '',
   }) : headerSettings = headerSettings ?? HeaderSettings();
 
   String localizedName(String lang) => lang == 'hi' && nameHi.isNotEmpty ? nameHi : lang == 'gu' && nameGu.isNotEmpty ? nameGu : name;
+  String localizedCatalogueHeading(String lang) => lang == 'hi' && catalogueHeadingHi.isNotEmpty ? catalogueHeadingHi : lang == 'gu' && catalogueHeadingGu.isNotEmpty ? catalogueHeadingGu : catalogueHeading;
 
   Map<String, dynamic> toMap() => {
         'name': name,
         'logoUrl': logoUrl,
+        'catalogueHeading': catalogueHeading,
+        'catalogueSubtitle': catalogueSubtitle,
         'headerSettings': headerSettings.toMap(),
         'supportedPaymentMethods': supportedPaymentMethods,
         'name_hi': nameHi, 'name_gu': nameGu,
+        'catalogueHeading_hi': catalogueHeadingHi, 'catalogueHeading_gu': catalogueHeadingGu,
       };
 
   factory WebsiteSettings.fromMap(Map<String, dynamic> map) => WebsiteSettings(
         name: map['name'] ?? '',
         logoUrl: map['logoUrl'] ?? '',
+        catalogueHeading: map['catalogueHeading'] ?? 'Our Sacred Collections',
+        catalogueSubtitle: map['catalogueSubtitle'] ?? 'Handpicked offerings for your spiritual journey',
         headerSettings: map['headerSettings'] != null 
           ? HeaderSettings.fromMap(map['headerSettings']) 
           : HeaderSettings(),
         supportedPaymentMethods: List<String>.from(map['supportedPaymentMethods'] ?? ['COD', 'UPI', 'Card', 'Net Banking']),
         nameHi: map['name_hi'] ?? '', nameGu: map['name_gu'] ?? '',
+        catalogueHeadingHi: map['catalogueHeading_hi'] ?? '', catalogueHeadingGu: map['catalogueHeading_gu'] ?? '',
       );
+}
+
+class TeachingCard {
+  String title;
+  String subtitle;
+  String description;
+  String image;
+  String icon;
+  // Translations
+  String titleHi; String titleGu;
+  String subtitleHi; String subtitleGu;
+  String descriptionHi; String descriptionGu;
+
+  TeachingCard({this.title = '', this.subtitle = '', this.description = '', this.image = '', this.icon = '',
+    this.titleHi = '', this.titleGu = '', this.subtitleHi = '', this.subtitleGu = '',
+    this.descriptionHi = '', this.descriptionGu = ''});
+
+  String localizedTitle(String lang) => lang == 'hi' && titleHi.isNotEmpty ? titleHi : lang == 'gu' && titleGu.isNotEmpty ? titleGu : title;
+  String localizedSubtitle(String lang) => lang == 'hi' && subtitleHi.isNotEmpty ? subtitleHi : lang == 'gu' && subtitleGu.isNotEmpty ? subtitleGu : subtitle;
+  String localizedDescription(String lang) => lang == 'hi' && descriptionHi.isNotEmpty ? descriptionHi : lang == 'gu' && descriptionGu.isNotEmpty ? descriptionGu : description;
+
+  Map<String, dynamic> toMap() => {'title': title, 'subtitle': subtitle, 'description': description, 'image': image, 'icon': icon,
+    'title_hi': titleHi, 'title_gu': titleGu, 'subtitle_hi': subtitleHi, 'subtitle_gu': subtitleGu,
+    'description_hi': descriptionHi, 'description_gu': descriptionGu};
+  factory TeachingCard.fromMap(Map<String, dynamic> map) => TeachingCard(
+    title: map['title'] ?? '', subtitle: map['subtitle'] ?? '', description: map['description'] ?? '',
+    image: map['image'] ?? '', icon: map['icon'] ?? '',
+    titleHi: map['title_hi'] ?? '', titleGu: map['title_gu'] ?? '',
+    subtitleHi: map['subtitle_hi'] ?? '', subtitleGu: map['subtitle_gu'] ?? '',
+    descriptionHi: map['description_hi'] ?? '', descriptionGu: map['description_gu'] ?? '',
+  );
+}
+
+class TeachingsPageData {
+  String heroTitle;
+  String heroSubtitle;
+  String heroImage;
+  String divinePurposeTitle;
+  String divinePurposeDesc1;
+  String divinePurposeDesc2;
+  String divinePurposeImage;
+  List<TeachingCard> pillars;
+
+  // Translations
+  String heroTitleHi; String heroTitleGu;
+  String divinePurposeTitleHi; String divinePurposeTitleGu;
+
+  TeachingsPageData({
+    this.heroTitle = 'Spiritual Grace, Eternal Darshan & Sacred Teachings',
+    this.heroSubtitle = 'Bringing consecrated darshan photos and holy spiritual essentials into the homes of seekers.',
+    this.heroImage = '',
+    this.divinePurposeTitle = 'Living Darshan & Pure Spiritual Vibration',
+    this.divinePurposeDesc1 = 'Pu. Dada\'s eternal presence illuminates the path of self-realization.',
+    this.divinePurposeDesc2 = 'Every item is consecrated following traditional Vedic vidhi.',
+    this.divinePurposeImage = '',
+    List<TeachingCard>? pillars,
+    this.heroTitleHi = '', this.heroTitleGu = '',
+    this.divinePurposeTitleHi = '', this.divinePurposeTitleGu = '',
+  }) : pillars = pillars ?? [];
+
+  Map<String, dynamic> toMap() => {
+    'heroTitle': heroTitle, 'heroSubtitle': heroSubtitle, 'heroImage': heroImage,
+    'divinePurposeTitle': divinePurposeTitle, 'divinePurposeDesc1': divinePurposeDesc1,
+    'divinePurposeDesc2': divinePurposeDesc2, 'divinePurposeImage': divinePurposeImage,
+    'pillars': pillars.map((e) => e.toMap()).toList(),
+    'heroTitle_hi': heroTitleHi, 'heroTitle_gu': heroTitleGu,
+    'divinePurposeTitle_hi': divinePurposeTitleHi, 'divinePurposeTitle_gu': divinePurposeTitleGu,
+  };
+
+  factory TeachingsPageData.fromMap(Map<String, dynamic> map) => TeachingsPageData(
+    heroTitle: map['heroTitle'] ?? '',
+    heroSubtitle: map['heroSubtitle'] ?? '',
+    heroImage: map['heroImage'] ?? '',
+    divinePurposeTitle: map['divinePurposeTitle'] ?? '',
+    divinePurposeDesc1: map['divinePurposeDesc1'] ?? '',
+    divinePurposeDesc2: map['divinePurposeDesc2'] ?? '',
+    divinePurposeImage: map['divinePurposeImage'] ?? '',
+    pillars: (map['pillars'] as List? ?? []).map((e) => TeachingCard.fromMap(e)).toList(),
+    heroTitleHi: map['heroTitle_hi'] ?? '', heroTitleGu: map['heroTitle_gu'] ?? '',
+    divinePurposeTitleHi: map['divinePurposeTitle_hi'] ?? '', divinePurposeTitleGu: map['divinePurposeTitle_gu'] ?? '',
+  );
+}
+
+class HomePortalData {
+  // Hero Section
+  String heroHeading;
+  String heroSubtitle;
+  String heroCta1Text;
+  String heroCta2Text;
+  String heroImage;
+  
+  // Hero Side Card
+  String heroSideImage;
+  String heroCardTitle;
+  String heroCardSubtitle;
+  
+  // Section Headings
+  String collectionsHeading;
+  String featuredHeading;
+  String testimonialsHeading;
+  String wisdomHeading;
+  
+  // WhatsApp Guidance
+  String whatsappTitle;
+  String whatsappSubtitle;
+  String whatsappBtnText;
+
+  HomePortalData({
+    this.heroHeading = 'Sacred Darshan, Consecrated Altars & Holy Granths',
+    this.heroSubtitle = 'Elevate your home mandir, car sanctuary, and everyday journey with authentic devotional treasures.',
+    this.heroCta1Text = 'EXPLORE SACRED PRODUCTS',
+    this.heroCta2Text = 'Pu. Dada\'s Life & Teachings',
+    this.heroImage = '',
+    this.heroSideImage = '',
+    this.heroCardTitle = 'Pu. Dada & Sri Radha Krishna Sacred Ensemble',
+    this.heroCardSubtitle = 'Hand-turned, diamond-polished acrylic frames & brass padukas for daily puja.',
+    this.collectionsHeading = 'Sacred Offerings of Pu. Dada',
+    this.featuredHeading = 'Featured Products of Pu. Dada',
+    this.testimonialsHeading = 'Devotee Blessings & Testimonials',
+    this.wisdomHeading = 'Wisdom & Daily Aphorisms',
+    this.whatsappTitle = 'Need Guidance on Mandir Sizing or Sacred Articles?',
+    this.whatsappSubtitle = 'Our Devotee Seva Sevaks are available on WhatsApp for puja vidhi inquiries and custom altar consultations.',
+    this.whatsappBtnText = 'CONNECT ON WHATSAPP',
+  });
+
+  Map<String, dynamic> toMap() => {
+    'heroHeading': heroHeading, 'heroSubtitle': heroSubtitle, 'heroCta1Text': heroCta1Text, 'heroCta2Text': heroCta2Text,
+    'heroImage': heroImage, 'heroSideImage': heroSideImage, 'heroCardTitle': heroCardTitle, 'heroCardSubtitle': heroCardSubtitle,
+    'collectionsHeading': collectionsHeading, 'featuredHeading': featuredHeading, 'testimonialsHeading': testimonialsHeading, 
+    'wisdomHeading': wisdomHeading, 'whatsappTitle': whatsappTitle, 'whatsappSubtitle': whatsappSubtitle, 'whatsappBtnText': whatsappBtnText,
+  };
+
+  factory HomePortalData.fromMap(Map<String, dynamic> map) => HomePortalData(
+    heroHeading: map['heroHeading'] ?? 'Sacred Darshan, Consecrated Altars & Holy Granths',
+    heroSubtitle: map['heroSubtitle'] ?? '',
+    heroCta1Text: map['heroCta1Text'] ?? 'EXPLORE SACRED PRODUCTS',
+    heroCta2Text: map['heroCta2Text'] ?? 'Pu. Dada\'s Life & Teachings',
+    heroImage: map['heroImage'] ?? '',
+    heroSideImage: map['heroSideImage'] ?? '',
+    heroCardTitle: map['heroCardTitle'] ?? 'Pu. Dada & Sri Radha Krishna Sacred Ensemble',
+    heroCardSubtitle: map['heroCardSubtitle'] ?? '',
+    collectionsHeading: map['collectionsHeading'] ?? 'Sacred Offerings of Pu. Dada',
+    featuredHeading: map['featuredHeading'] ?? 'Featured Products of Pu. Dada',
+    testimonialsHeading: map['testimonialsHeading'] ?? 'Devotee Blessings & Testimonials',
+    wisdomHeading: map['wisdomHeading'] ?? 'Wisdom & Daily Aphorisms',
+    whatsappTitle: map['whatsappTitle'] ?? 'Need Guidance on Mandir Sizing or Sacred Articles?',
+    whatsappSubtitle: map['whatsappSubtitle'] ?? '',
+    whatsappBtnText: map['whatsappBtnText'] ?? 'CONNECT ON WHATSAPP',
+  );
 }
 
 class HeroSlide {
@@ -209,37 +372,6 @@ class FeaturedQuote {
   );
 }
 
-class TeachingCard {
-  String title;
-  String subtitle;
-  String description;
-  String image;
-  String icon;
-  // Translations
-  String titleHi; String titleGu;
-  String subtitleHi; String subtitleGu;
-  String descriptionHi; String descriptionGu;
-
-  TeachingCard({this.title = '', this.subtitle = '', this.description = '', this.image = '', this.icon = '',
-    this.titleHi = '', this.titleGu = '', this.subtitleHi = '', this.subtitleGu = '',
-    this.descriptionHi = '', this.descriptionGu = ''});
-
-  String localizedTitle(String lang) => lang == 'hi' && titleHi.isNotEmpty ? titleHi : lang == 'gu' && titleGu.isNotEmpty ? titleGu : title;
-  String localizedSubtitle(String lang) => lang == 'hi' && subtitleHi.isNotEmpty ? subtitleHi : lang == 'gu' && subtitleGu.isNotEmpty ? subtitleGu : subtitle;
-  String localizedDescription(String lang) => lang == 'hi' && descriptionHi.isNotEmpty ? descriptionHi : lang == 'gu' && descriptionGu.isNotEmpty ? descriptionGu : description;
-
-  Map<String, dynamic> toMap() => {'title': title, 'subtitle': subtitle, 'description': description, 'image': image, 'icon': icon,
-    'title_hi': titleHi, 'title_gu': titleGu, 'subtitle_hi': subtitleHi, 'subtitle_gu': subtitleGu,
-    'description_hi': descriptionHi, 'description_gu': descriptionGu};
-  factory TeachingCard.fromMap(Map<String, dynamic> map) => TeachingCard(
-    title: map['title'] ?? '', subtitle: map['subtitle'] ?? '', description: map['description'] ?? '',
-    image: map['image'] ?? '', icon: map['icon'] ?? '',
-    titleHi: map['title_hi'] ?? '', titleGu: map['title_gu'] ?? '',
-    subtitleHi: map['subtitle_hi'] ?? '', subtitleGu: map['subtitle_gu'] ?? '',
-    descriptionHi: map['description_hi'] ?? '', descriptionGu: map['description_gu'] ?? '',
-  );
-}
-
 class Testimonial {
   String name;
   String location;
@@ -303,22 +435,30 @@ class HomepageData {
   List<TeachingCard> teachings;
   List<Testimonial> testimonials;
   List<NewsItem> news;
+  TeachingsPageData teachingsPage;
+  HomePortalData homePortal;
 
   HomepageData({
     FeaturedQuote? featuredQuote,
     List<TeachingCard>? teachings,
     List<Testimonial>? testimonials,
     List<NewsItem>? news,
+    TeachingsPageData? teachingsPage,
+    HomePortalData? homePortal,
   }) : featuredQuote = featuredQuote ?? FeaturedQuote(),
        teachings = teachings ?? [],
        testimonials = testimonials ?? [],
-       news = news ?? [];
+       news = news ?? [],
+       teachingsPage = teachingsPage ?? TeachingsPageData(),
+       homePortal = homePortal ?? HomePortalData();
 
   Map<String, dynamic> toMap() => {
     'featuredQuote': featuredQuote.toMap(),
     'teachings': teachings.map((e) => e.toMap()).toList(),
     'testimonials': testimonials.map((e) => e.toMap()).toList(),
     'news': news.map((e) => e.toMap()).toList(),
+    'teachingsPage': teachingsPage.toMap(),
+    'homePortal': homePortal.toMap(),
   };
 
   factory HomepageData.fromMap(Map<String, dynamic> map) => HomepageData(
@@ -326,6 +466,8 @@ class HomepageData {
     teachings: (map['teachings'] as List? ?? []).map((e) => TeachingCard.fromMap(e)).toList(),
     testimonials: (map['testimonials'] as List? ?? []).map((e) => Testimonial.fromMap(e)).toList(),
     news: (map['news'] as List? ?? []).map((e) => NewsItem.fromMap(e)).toList(),
+    teachingsPage: TeachingsPageData.fromMap(map['teachingsPage'] ?? {}),
+    homePortal: HomePortalData.fromMap(map['homePortal'] ?? {}),
   );
 }
 
@@ -914,7 +1056,7 @@ class KathaAboutPageData {
   String localizedHighlight3Title(String lang) => lang == 'hi' && highlight3TitleHi.isNotEmpty ? highlight3TitleHi : lang == 'gu' && highlight3TitleGu.isNotEmpty ? highlight3TitleGu : highlight3Title;
   String localizedHighlight3Desc(String lang) => lang == 'hi' && highlight3DescHi.isNotEmpty ? highlight3DescHi : lang == 'gu' && highlight3DescGu.isNotEmpty ? highlight3DescGu : highlight3Desc;
   String localizedCtaTitle(String lang) => lang == 'hi' && ctaTitleHi.isNotEmpty ? ctaTitleHi : lang == 'gu' && ctaTitleGu.isNotEmpty ? ctaTitleGu : ctaTitle;
-  String localizedCtaSubtitle(String lang) => lang == 'hi' && ctaSubtitleHi.isNotEmpty ? ctaSubtitleHi : lang == 'gu' && ctaSubtitleGu.isNotEmpty ? ctaSubtitleGu : ctaSubtitle;
+  String localizedCtaSubtitle(String lang) => lang == 'hi' && ctaSubtitleHi.isNotEmpty ? ctaSubtitleHi : lang == 'gu' && ctaSubtitleGu.isNotEmpty ? ctaSubtitleGu : '';
   String localizedCtaButtonText(String lang) => lang == 'hi' && ctaButtonTextHi.isNotEmpty ? ctaButtonTextHi : lang == 'gu' && ctaButtonTextGu.isNotEmpty ? ctaButtonTextGu : ctaButtonText;
 
   Map<String, dynamic> toMap() => {
