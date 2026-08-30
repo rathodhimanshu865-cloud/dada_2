@@ -50,6 +50,15 @@ class ProductRepository {
         .map((snapshot) => snapshot.docs.map((doc) => ProductModel.fromFirestore(doc)).toList());
   }
 
+  // All Products Stream (Public)
+  Stream<List<ProductModel>> getAllProductsStream({int limit = 100}) {
+    return _firestore.collection('products')
+        .orderBy('createdAt', descending: true)
+        .limit(limit)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => ProductModel.fromFirestore(doc)).toList());
+  }
+
   // Paginated All Products
   Future<List<ProductModel>> getAllProducts({DocumentSnapshot? startAfter, int limit = 20}) async {
     Query query = _firestore.collection('products').limit(limit);

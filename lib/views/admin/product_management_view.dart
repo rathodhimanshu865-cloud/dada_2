@@ -1131,6 +1131,8 @@ class _ProductManagementViewState extends State<ProductManagementView> {
     final imgUrlCtrl = TextEditingController(text: product?.imageUrl);
     final shortSummaryCtrl = TextEditingController(text: product?.shortSummary);
     final highlightsCtrl = TextEditingController(text: product?.highlights.join('\n'));
+    final finishesCtrl = TextEditingController(text: product?.finishes.join('\n'));
+    final sizesCtrl = TextEditingController(text: product?.sizes.join('\n'));
 
     String selectedCat = product?.categoryId ?? (defaultCategory ?? (Provider.of<ProductController>(context, listen: false).categoryObjects.isNotEmpty ? Provider.of<ProductController>(context, listen: false).categoryObjects[0].id : 'Keychain'));
     String selectedBadge = product?.consecrationBadge ?? 'Bestseller';
@@ -1274,6 +1276,14 @@ class _ProductManagementViewState extends State<ProductManagementView> {
 
                     _fieldLabel('KEY HIGHLIGHTS & FEATURES (ONE PER LINE)'),
                     _adminTextField(highlightsCtrl, maxLines: 4, hint: 'Ultra-clear double-sided print\nOptical grade 3.5mm thick acrylic...'),
+                    const SizedBox(height: 24),
+
+                    _fieldLabel('AVAILABLE FINISHES (ONE PER LINE)'),
+                    _adminTextField(finishesCtrl, maxLines: 2, hint: 'Glossy Crystal\nMatte Finish'),
+                    const SizedBox(height: 24),
+
+                    _fieldLabel('AVAILABLE SIZES (ONE PER LINE)'),
+                    _adminTextField(sizesCtrl, maxLines: 2, hint: 'Standard Pocket Size\nLarge Keyring Size'),
                     
                     const SizedBox(height: 24),
                     Row(
@@ -1341,11 +1351,11 @@ class _ProductManagementViewState extends State<ProductManagementView> {
                               imageUrls: imgUrlCtrl.text.isNotEmpty ? [imgUrlCtrl.text.trim()] : [],
                               shortSummary: shortSummaryCtrl.text.trim(),
                               highlights: highlightsCtrl.text.trim().split('\n').where((s) => s.isNotEmpty).toList(),
+                              finishes: finishesCtrl.text.trim().split('\n').where((s) => s.isNotEmpty).toList(),
+                              sizes: sizesCtrl.text.trim().split('\n').where((s) => s.isNotEmpty).toList(),
                               isActive: isActive,
                               isFeatured: isFeatured,
                             );
-
-                            debugPrint("Saving Product: ID=${p.id}, SKU=${p.sku}, Category=${p.categoryId}");
 
                             try {
                               if (isEdit) {

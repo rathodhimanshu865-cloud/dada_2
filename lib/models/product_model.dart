@@ -18,6 +18,8 @@ class ProductModel {
   final List<String> highlights;
   final String imageUrl; 
   final List<String> imageUrls; 
+  final List<String> finishes;
+  final List<String> sizes;
   final int stock;
   final bool isFeatured;
   final bool isActive;
@@ -59,6 +61,8 @@ class ProductModel {
     this.highlights = const [],
     this.imageUrl = '',
     this.imageUrls = const [],
+    this.finishes = const [],
+    this.sizes = const [],
     this.stock = 0,
     this.isFeatured = false,
     this.isActive = true,
@@ -87,6 +91,8 @@ class ProductModel {
     List<String>? highlights,
     String? imageUrl,
     List<String>? imageUrls,
+    List<String>? finishes,
+    List<String>? sizes,
     int? stock,
     bool? isFeatured,
     bool? isActive,
@@ -114,6 +120,8 @@ class ProductModel {
       highlights: highlights ?? this.highlights,
       imageUrl: imageUrl ?? this.imageUrl,
       imageUrls: imageUrls ?? this.imageUrls,
+      finishes: finishes ?? this.finishes,
+      sizes: sizes ?? this.sizes,
       stock: stock ?? this.stock,
       isFeatured: isFeatured ?? this.isFeatured,
       isActive: isActive ?? this.isActive,
@@ -127,6 +135,13 @@ class ProductModel {
 
   factory ProductModel.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    
+    // Defensive parsing for lists
+    List<String> parseList(dynamic field) {
+      if (field is List) return List<String>.from(field.map((e) => e.toString()));
+      return [];
+    }
+
     return ProductModel(
       id: doc.id,
       name: data['name'] ?? '',
@@ -142,9 +157,11 @@ class ProductModel {
       sku: data['sku'] ?? '',
       consecrationBadge: data['consecrationBadge'] ?? '',
       shortSummary: data['shortSummary'] ?? '',
-      highlights: List<String>.from(data['highlights'] ?? []),
+      highlights: parseList(data['highlights']),
       imageUrl: data['imageUrl'] ?? '',
-      imageUrls: List<String>.from(data['imageUrls'] ?? []),
+      imageUrls: parseList(data['imageUrls']),
+      finishes: parseList(data['finishes']),
+      sizes: parseList(data['sizes']),
       stock: data['stock'] ?? 0,
       isFeatured: data['isFeatured'] ?? false,
       isActive: data['isActive'] ?? true,
@@ -168,13 +185,15 @@ class ProductModel {
       'price': price,
       'comparePrice': comparePrice,
       'discountPrice': discountPrice,
-      'categoryId': categoryId.toLowerCase().trim(), // Ensure lowercase for consistent filtering
+      'categoryId': categoryId.toLowerCase().trim(), 
       'sku': sku,
       'consecrationBadge': consecrationBadge,
       'shortSummary': shortSummary,
       'highlights': highlights,
       'imageUrl': imageUrl,
       'imageUrls': imageUrls,
+      'finishes': finishes,
+      'sizes': sizes,
       'stock': stock,
       'isFeatured': isFeatured,
       'isActive': isActive,
@@ -188,11 +207,10 @@ class ProductModel {
 
   Map<String, dynamic> toUpdateFirestore() {
     final map = toFirestore();
-    map.remove('createdAt'); // Prevent overwriting original creation date
+    map.remove('createdAt'); 
     return map;
   }
 
-  // Returns the localized name based on language code
   String localizedName(String langCode) {
     if (langCode == 'hi' && nameHi.isNotEmpty) return nameHi;
     if (langCode == 'gu' && nameGu.isNotEmpty) return nameGu;

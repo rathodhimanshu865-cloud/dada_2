@@ -39,6 +39,16 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
     _activeController.addListener(_scrollListener);
   }
 
+  @override
+  void didUpdateWidget(ProductCartLayout oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.scrollController != oldWidget.scrollController) {
+      _activeController.removeListener(_scrollListener);
+      _activeController = widget.scrollController ?? _internalController;
+      _activeController.addListener(_scrollListener);
+    }
+  }
+
   void _scrollListener() {
     _scrollOffset.value = _activeController.offset;
   }
@@ -67,16 +77,16 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
           CustomScrollView(
             controller: _activeController,
             slivers: [
-              const SliverToBoxAdapter(child: SizedBox(height: 95 + 64)),
+              const SliverToBoxAdapter(child: SizedBox(height: 159)),
               if (widget.slivers != null) 
-                ...widget.slivers!
+                ...widget.slivers!.whereType<Widget>()
               else 
                 SliverToBoxAdapter(child: widget.child),
               SliverToBoxAdapter(child: UserFooter(controller: widget.controller)),
             ],
           ),
           
-          // Header 2 (Product Header) - Optimized with ValueListenableBuilder
+          // Header 2 (Product Header) - Sticky logic
           ValueListenableBuilder<double>(
             valueListenable: _scrollOffset,
             builder: (context, offset, child) {

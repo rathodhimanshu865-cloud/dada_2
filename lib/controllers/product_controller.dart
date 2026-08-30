@@ -17,8 +17,16 @@ class ProductController extends ChangeNotifier {
 
   bool _isDisposed = false;
 
+  Timer? _notifyTimer;
   void _safeNotifyListeners() {
-    if (!_isDisposed) notifyListeners();
+    if (_isDisposed) return;
+    
+    // Throttle notifications to max 10 times per second to prevent UI saturation
+    if (_notifyTimer?.isActive ?? false) return;
+    
+    _notifyTimer = Timer(const Duration(milliseconds: 100), () {
+      if (!_isDisposed) notifyListeners();
+    });
   }
 
   // Internal Data State
@@ -34,6 +42,7 @@ class ProductController extends ChangeNotifier {
   StreamSubscription? _featuredSub;
   StreamSubscription? _latestSub;
   StreamSubscription? _popularSub;
+  StreamSubscription? _allProductsSub;
   StreamSubscription? _wishlistSubscription;
 
   // Stream Getters for Backward Compatibility
@@ -42,6 +51,7 @@ class ProductController extends ChangeNotifier {
   Stream<List<ProductModel>> get featuredProductsStream => _repository.getFeaturedProducts();
   Stream<List<ProductModel>> get latestProductsStream => _repository.getLatestProducts();
   Stream<List<ProductModel>> get popularProductsStream => _repository.getPopularProducts();
+  Stream<List<ProductModel>> get allProductsStream => _repository.getAllProductsStream();
 
   // Getters for UI
   StoreConfigModel get storeConfig => _storeConfig;
@@ -121,28 +131,44 @@ class ProductController extends ChangeNotifier {
     _categorySub = _repository.getCategories().listen((data) {
       if (_categoryObjects.length != data.length) {
         _categoryObjects = data;
-        // If we had a pending selection that was a fallback, try re-selecting now
-        if (_selectedCategoryId != 'all' && !_categoryObjects.any((c) => c.id == _selectedCategoryId)) {
-          selectCategory(_selectedCategoryId);
-        }
         _safeNotifyListeners();
       }
     }, onError: (e) => AppLogger.error("Category stream error", e));
 
     _featuredSub = _repository.getFeaturedProducts().listen((data) {
-      _featuredProducts = data;
-      _safeNotifyListeners();
+      if (_featuredProducts.length != data.length) {
+        _featuredProducts = data;
+        _safeNotifyListeners();
+      }
     }, onError: (e) => AppLogger.error("Featured stream error", e));
 
     _latestSub = _repository.getLatestProducts().listen((data) {
-      _latestProducts = data;
-      _safeNotifyListeners();
+      if (_latestProducts.length != data.length) {
+        _latestProducts = data;
+        _safeNotifyListeners();
+      }
     }, onError: (e) => AppLogger.error("Latest stream error", e));
 
     _popularSub = _repository.getPopularProducts().listen((data) {
-      _popularProducts = data;
-      _safeNotifyListeners();
+      if (_popularProducts.length != data.length) {
+        _popularProducts = data;
+        _safeNotifyListeners();
+      }
     }, onError: (e) => AppLogger.error("Popular stream error", e));
+
+    _allProductsSub = _repository.getAllProductsStream().listen((data) {
+      // Robust change detection
+      bool changed = _allProductsCache.length != data.length;
+      if (!changed && data.isNotEmpty && _allProductsCache.isNotEmpty) {
+        changed = data[0].id != _allProductsCache[0].id || 
+                  data.last.id != _allProductsCache.last.id;
+      }
+      
+      if (changed) {
+        _allProductsCache = data;
+        _safeNotifyListeners();
+      }
+    }, onError: (e) => AppLogger.error("All products stream error", e));
   }
 
   void _listenToAuth() {
@@ -243,9 +269,7 @@ class ProductController extends ChangeNotifier {
       _browsingProducts.addAll(products);
       
     } catch (e) {
-      if (e.toString().contains('index')) {
-        debugPrint("[FIREBASE INDEX REQUIRED]: $e");
-      }
+      // Errors are handled by AppLogger or silenced to prevent crashes
     } finally {
       _isBrowsingLoading = false;
       // Notify once when loading ends
@@ -274,6 +298,7 @@ class ProductController extends ChangeNotifier {
   }
 
   Stream<ProductModel?> getProductDetails(String productId) {
+    if (productId.isEmpty) return Stream.value(null);
     return _repository.getProductDetails(productId);
   }
 
@@ -367,6 +392,7 @@ class ProductController extends ChangeNotifier {
     _featuredSub?.cancel();
     _latestSub?.cancel();
     _popularSub?.cancel();
+    _allProductsSub?.cancel();
     _wishlistSubscription?.cancel();
     super.dispose();
   }

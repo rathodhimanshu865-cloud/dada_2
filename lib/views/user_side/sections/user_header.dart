@@ -53,6 +53,15 @@ class _UserHeaderState extends State<UserHeader>
   }
 
   @override
+  void didUpdateWidget(UserHeader oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.scrollController != oldWidget.scrollController) {
+      oldWidget.scrollController?.removeListener(_scrollListener);
+      widget.scrollController?.addListener(_scrollListener);
+    }
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final locale = Localizations.localeOf(context).languageCode;
@@ -128,9 +137,7 @@ class _UserHeaderState extends State<UserHeader>
             : const Color(0xFFFFF8F0);
         final Color activeNavColor = isSticky ? primaryTeal : templeGold;
 
-        return AnimatedPositioned(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutQuad,
+        return Positioned(
           top: widget.productPage ? -offset.clamp(0.0, 95.0) : marginTop,
           left: marginHorizontal,
           right: marginHorizontal,

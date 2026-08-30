@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -27,15 +28,20 @@ class _ProductHeaderState extends State<ProductHeader> {
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
 
+  Timer? _searchDebounce;
   void _onSearchChanged(String query) {
-    final productController = Provider.of<ProductController>(context, listen: false);
-    productController.performSearch(query);
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final productController = Provider.of<ProductController>(context, listen: false);
+      productController.performSearch(query);
 
-    if (query.isNotEmpty) {
-      _showOverlay();
-    } else {
-      _removeOverlay();
-    }
+      if (query.isNotEmpty) {
+        _showOverlay();
+      } else {
+        _removeOverlay();
+      }
+    });
   }
 
   void _showOverlay() {
@@ -183,6 +189,7 @@ class _ProductHeaderState extends State<ProductHeader> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _removeOverlay();
     _searchController.dispose();
     super.dispose();

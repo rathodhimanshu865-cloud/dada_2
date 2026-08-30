@@ -84,19 +84,22 @@ class _ProductCardState extends State<ProductCard> {
 
                   Positioned.fill(
                     child: Center(
-                      child: AnimatedOpacity(
-                        opacity: _isHovered ? 1 : 0,
-                        duration: const Duration(milliseconds: 200),
-                        child: ElevatedButton(
-                          onPressed: () => _showQuickView(context, p),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: primaryTeal,
-                            elevation: 8,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      child: IgnorePointer(
+                        ignoring: !_isHovered,
+                        child: AnimatedOpacity(
+                          opacity: _isHovered ? 1 : 0,
+                          duration: const Duration(milliseconds: 200),
+                          child: ElevatedButton(
+                            onPressed: () => _showQuickView(context, p),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: primaryTeal,
+                              elevation: 8,
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                            ),
+                            child: const Text('Quick View', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                           ),
-                          child: const Text('Quick View', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                         ),
                       ),
                     ),
