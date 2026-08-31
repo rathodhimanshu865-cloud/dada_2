@@ -93,7 +93,11 @@ class ProductController extends ChangeNotifier {
   
   String get selectedCategory {
     if (_selectedCategoryId == 'all') return 'All Sacred Products';
-    final cat = _categoryObjects.firstWhere((c) => c.id == _selectedCategoryId, orElse: () => CategoryModel(id: '', name: '', imageUrl: ''));
+    final search = _selectedCategoryId.toLowerCase().trim();
+    final cat = _categoryObjects.firstWhere(
+      (c) => c.id.toLowerCase().trim() == search || c.name.toLowerCase().trim() == search, 
+      orElse: () => CategoryModel(id: '', name: _selectedCategoryId, imageUrl: '')
+    );
     return cat.name;
   }
 
@@ -129,10 +133,8 @@ class ProductController extends ChangeNotifier {
     }, onError: (e) => AppLogger.error("Config stream error", e));
 
     _categorySub = _repository.getCategories().listen((data) {
-      if (_categoryObjects.length != data.length) {
-        _categoryObjects = data;
-        _safeNotifyListeners();
-      }
+      _categoryObjects = data;
+      _safeNotifyListeners();
     }, onError: (e) => AppLogger.error("Category stream error", e));
 
     _featuredSub = _repository.getFeaturedProducts().listen((data) {
@@ -157,17 +159,8 @@ class ProductController extends ChangeNotifier {
     }, onError: (e) => AppLogger.error("Popular stream error", e));
 
     _allProductsSub = _repository.getAllProductsStream().listen((data) {
-      // Robust change detection
-      bool changed = _allProductsCache.length != data.length;
-      if (!changed && data.isNotEmpty && _allProductsCache.isNotEmpty) {
-        changed = data[0].id != _allProductsCache[0].id || 
-                  data.last.id != _allProductsCache.last.id;
-      }
-      
-      if (changed) {
-        _allProductsCache = data;
-        _safeNotifyListeners();
-      }
+      _allProductsCache = data;
+      _safeNotifyListeners();
     }, onError: (e) => AppLogger.error("All products stream error", e));
   }
 
@@ -202,9 +195,12 @@ class ProductController extends ChangeNotifier {
 
   Future<void> _loadInitialData() async {
     try {
-      // Don't await, let it load in background to speed up app start
+      // Load more products initially for better local filtering
       _repository.getAllProducts(limit: 100).then((products) {
-        _allProductsCache = products;
+        // Normalize loaded products to ensure category distribution works
+        _allProductsCache = products.map((p) => p.copyWith(
+          categoryId: p.categoryId.toLowerCase().trim()
+        )).toList();
         _safeNotifyListeners();
       });
     } catch (e) {
@@ -213,28 +209,10 @@ class ProductController extends ChangeNotifier {
   }
 
   void selectCategory(String categoryNameOrId) {
-    final search = categoryNameOrId.toLowerCase().trim();
-    String newId = 'all';
-
-    if (search != 'all sacred products' && search != 'all' && search != '') {
-      // 1. Try matching by ID first
-      final matchedById = _categoryObjects.where((c) => c.id.toLowerCase() == search || c.id == categoryNameOrId);
-      if (matchedById.isNotEmpty) {
-        newId = matchedById.first.id;
-      } else {
-        // 2. Try matching by Name
-        final matchedByName = _categoryObjects.where((c) => c.name.toLowerCase() == search);
-        if (matchedByName.isNotEmpty) {
-          newId = matchedByName.first.id;
-        } else {
-          newId = categoryNameOrId;
-        }
-      }
-    }
+    final newId = categoryNameOrId.toLowerCase().trim();
     
-    if (_selectedCategoryId != newId) {
+    if (_selectedCategoryId != newId || _browsingProducts.isEmpty) {
       _selectedCategoryId = newId;
-      // Only fetch if it actually changed to prevent loops
       fetchBrowsingProducts(refresh: true);
       _safeNotifyListeners();
     }
@@ -242,16 +220,27 @@ class ProductController extends ChangeNotifier {
 
   Future<void> fetchBrowsingProducts({bool refresh = false}) async {
     if (_isBrowsingLoading) return;
-    if (!refresh && !_hasMore) return;
 
     if (refresh) {
       _browsingProducts.clear();
       _hasMore = true;
     }
 
+    // Optimization: Use local cache for immediate feedback
+    if (_selectedCategoryId != 'all' && !refresh) {
+      final cached = filteredProducts;
+      if (cached.isNotEmpty) {
+         for (var cp in cached) {
+           if (!_browsingProducts.any((bp) => bp.id == cp.id)) {
+             _browsingProducts.add(cp);
+           }
+         }
+         _safeNotifyListeners();
+      }
+    }
+
     _isBrowsingLoading = true;
     _browsingErrorMessage = null;
-    // Notify once when loading starts
     _safeNotifyListeners();
 
     try {
@@ -266,13 +255,28 @@ class ProductController extends ChangeNotifier {
       );
 
       if (products.length < 100) _hasMore = false;
-      _browsingProducts.addAll(products);
+      
+      // Merge with existing avoiding duplicates
+      for (var p in products) {
+        if (!_browsingProducts.any((bp) => bp.id == p.id)) {
+          _browsingProducts.add(p);
+        }
+      }
+      
+      // Update cache with fresh data
+      for (var p in products) {
+        final idx = _allProductsCache.indexWhere((cp) => cp.id == p.id);
+        if (idx != -1) {
+          _allProductsCache[idx] = p;
+        } else {
+          _allProductsCache.add(p);
+        }
+      }
       
     } catch (e) {
-      // Errors are handled by AppLogger or silenced to prevent crashes
+      AppLogger.error("Fetch browsing error", e);
     } finally {
       _isBrowsingLoading = false;
-      // Notify once when loading ends
       _safeNotifyListeners();
     }
   }
@@ -280,8 +284,8 @@ class ProductController extends ChangeNotifier {
   double? minPrice;
   double? maxPrice;
   bool onlyInStock = false;
-  String sortBy = 'createdAt';
-  bool sortDescending = true;
+  String sortBy = 'name';
+  bool sortDescending = false;
 
   void updateFilters({String? category, double? min, double? max, bool? inStock}) {
     if (category != null) selectCategory(category);
@@ -307,7 +311,12 @@ class ProductController extends ChangeNotifier {
       return _allProductsCache;
     }
     final targetId = _selectedCategoryId.toLowerCase().trim();
-    return _allProductsCache.where((p) => p.categoryId.toLowerCase().trim() == targetId).toList();
+    return _allProductsCache.where((p) {
+      final pCat = p.categoryId.toLowerCase().trim();
+      return pCat == targetId || 
+             pCat.replaceAll('_', ' ') == targetId.replaceAll('_', ' ') ||
+             pCat.replaceAll(' ', '_') == targetId.replaceAll(' ', '_');
+    }).toList();
   }
   
   List<ProductModel> get wishlistProducts {

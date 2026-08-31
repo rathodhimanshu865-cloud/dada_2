@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../models/cart_model.dart';
 import '../models/product_model.dart';
+import '../models/coupon_model.dart';
 
 class CartController extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -15,6 +16,8 @@ class CartController extends ChangeNotifier {
   bool _isDisposed = false;
   String? _errorMessage;
 
+  CouponModel? _appliedCoupon;
+
   void _safeNotifyListeners() {
     if (!_isDisposed) notifyListeners();
   }
@@ -22,6 +25,19 @@ class CartController extends ChangeNotifier {
   List<CartItem> get items => _items;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  CouponModel? get appliedCoupon => _appliedCoupon;
+  
+  double get discountAmount {
+    if (_appliedCoupon == null) return 0.0;
+    double amount = 0.0;
+    if (_appliedCoupon!.discountType == 'percentage') {
+      amount = subtotal * (_appliedCoupon!.discountValue / 100);
+    } else {
+      amount = _appliedCoupon!.discountValue;
+    }
+    // Cannot discount more than the subtotal
+    return amount > subtotal ? subtotal : amount;
+  }
 
   void clearError() {
     _errorMessage = null;
@@ -34,9 +50,53 @@ class CartController extends ChangeNotifier {
 
   double get shippingFee => subtotal > 499 || subtotal == 0 ? 0 : 49;
   
-  double get tax => subtotal * 0.05;
+  double get tax => ((subtotal - discountAmount) * 0.05);
 
-  double get total => subtotal + shippingFee + tax;
+  double get total {
+    final netSubtotal = subtotal - discountAmount;
+    return (netSubtotal < 0 ? 0 : netSubtotal) + shippingFee + tax;
+  }
+
+  Future<bool> applyCoupon(CouponModel coupon) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      _errorMessage = "Please login to apply coupons.";
+      _safeNotifyListeners();
+      return false;
+    }
+
+    if (subtotal < coupon.minOrderValue) {
+      _errorMessage = "This coupon requires a minimum order of ₹${coupon.minOrderValue.toInt()}";
+      _safeNotifyListeners();
+      return false;
+    }
+
+    // Check usage limit in real orders
+    try {
+      final ordersSnap = await _firestore.collection('orders')
+          .where('userId', isEqualTo: user.uid)
+          .where('couponCode', isEqualTo: coupon.code.toUpperCase())
+          .get();
+      
+      if (ordersSnap.docs.length >= coupon.usageLimitPerUser) {
+        _errorMessage = "You have already used this coupon ${ordersSnap.docs.length} times (Limit: ${coupon.usageLimitPerUser}).";
+        _safeNotifyListeners();
+        return false;
+      }
+    } catch (e) {
+      debugPrint("Coupon limit check error: $e");
+    }
+
+    _appliedCoupon = coupon;
+    _errorMessage = null;
+    _safeNotifyListeners();
+    return true;
+  }
+
+  void removeCoupon() {
+    _appliedCoupon = null;
+    _safeNotifyListeners();
+  }
 
   CartController() {
     _auth.authStateChanges().listen((user) {

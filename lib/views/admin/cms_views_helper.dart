@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
+import '../../controllers/review_controller.dart';
 import '../../models/homepage_model.dart';
+import '../../models/review_model.dart';
 import 'biography_editor.dart';
 
 class CMSViewsHelper {
@@ -23,6 +25,7 @@ class CMSViewsHelper {
       case 13: return _stotraView(controller, context, fieldLoading, setState);
       case 14: return _contactPageView(controller, context, fieldLoading, setState);
       case 15: return _footerSettingsView(controller, context, fieldLoading, setState);
+      case 16: return _reviewsManagementView(context);
       
       case 100: return _homePortalEditView(controller, context, fieldLoading, setState);
       case 101: return _catalogueSettingsView(controller, context, fieldLoading, setState);
@@ -54,6 +57,34 @@ class CMSViewsHelper {
       maxLines: maxLines,
       fieldLoading: fieldLoading,
       parentSetState: setState,
+    );
+  }
+
+  static Widget _reviewsManagementView(BuildContext context) {
+    final reviewCtrl = Provider.of<ReviewController>(context);
+    return StreamBuilder<List<ReviewModel>>(
+      stream: reviewCtrl.getAllReviews(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        final reviews = snapshot.data!;
+        return ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            _sectionHeader('DEVOTEE REVIEWS MANAGEMENT'),
+            ...reviews.map((r) => Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: ListTile(
+                title: Text('${r.userName} - ${r.rating} Stars'),
+                subtitle: Text(r.comment),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => reviewCtrl.deleteReview(r.id),
+                ),
+              ),
+            )),
+          ],
+        );
+      },
     );
   }
 

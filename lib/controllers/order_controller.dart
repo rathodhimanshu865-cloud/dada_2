@@ -37,6 +37,8 @@ class OrderController extends ChangeNotifier {
     required double subtotal,
     required double deliveryCharge,
     required double tax,
+    required double discount,
+    String? couponCode,
     required double total,
     required String paymentMethod,
     String? note,
@@ -72,7 +74,8 @@ class OrderController extends ChangeNotifier {
         items: items,
         subtotal: subtotal,
         deliveryCharge: deliveryCharge,
-        discount: 0.0, // Can be implemented with coupons later
+        discount: discount,
+        couponCode: couponCode,
         tax: tax,
         totalAmount: total,
         paymentMethod: paymentMethod,

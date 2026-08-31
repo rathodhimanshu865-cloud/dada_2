@@ -191,8 +191,7 @@ class ProductHomePage extends StatelessWidget {
                   final count = prod.getProductCountInCategory(cat.id);
                   return InkWell(
                     onTap: () {
-                      prod.selectCategory(cat.id);
-                      Navigator.pushNamed(context, '/catalogue');
+                      Navigator.pushNamed(context, '/catalogue', arguments: cat.id);
                     },
                     borderRadius: BorderRadius.circular(16),
                     child: Container(

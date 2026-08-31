@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/cart_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/review_controller.dart';
 import '../../models/product_model.dart';
+import '../../models/review_model.dart';
 import 'sections/product_cart_layout.dart';
 import 'sections/product_card.dart';
 import '../../utils/app_typography.dart';
@@ -21,16 +25,20 @@ class ProductDetailsPage extends StatefulWidget {
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int _quantity = 1;
   int _selectedImageIndex = 0;
-  int _selectedFinishIndex = 0;
-  int _selectedSizeIndex = 0;
-  bool _includeGangaJal = true;
+  bool _includeGangajalKit = true;
   bool _includeGiftWrap = false;
   
   final Color primaryTeal = const Color(0xFF07404C);
   final Color templeGold = const Color(0xFFC89A5B);
   
   Stream<ProductModel?>? _productStream;
+  Stream<List<ReviewModel>>? _reviewsStream;
   String? _lastProductId;
+
+  final TextEditingController _pincodeCtrl = TextEditingController();
+  bool _isPincodeValid = false;
+  String? _pincodeError;
+  bool _isReviewFormOpen = false;
 
   @override
   void didChangeDependencies() {
@@ -47,104 +55,90 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
       if (productId != null && productId != _lastProductId) {
         _lastProductId = productId;
-        // Fetch stream only once per ID
         final productController = Provider.of<ProductController>(context, listen: false);
+        final reviewController = Provider.of<ReviewController>(context, listen: false);
         _productStream = productController.getProductDetails(productId);
+        _reviewsStream = reviewController.getProductReviews(productId);
       }
-    } catch (e) {
-      // Extraction error handled silently
-    }
+    } catch (e) {}
+  }
+
+  void _validatePincode(String value) {
+    setState(() {
+      _isPincodeValid = value.trim().length == 6;
+      if (_isPincodeValid) _pincodeError = null;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Listen to HomePageController for footer/branding, but only on relevant changes
     final homeController = Provider.of<HomePageController>(context, listen: false);
-    // Use listen: false for ProductController to prevent global rebuilds
     final productController = Provider.of<ProductController>(context, listen: false);
 
     return StreamBuilder<ProductModel?>(
       stream: _productStream,
       builder: (context, snapshot) {
-        List<Widget> contentSlivers = [];
-
-        if (_lastProductId == null) {
-          contentSlivers = [
-            const SliverToBoxAdapter(child: SizedBox(height: 500, child: Center(child: Text('Initializing sacred item details...'))))
-          ];
-        } else if (snapshot.connectionState == ConnectionState.waiting) {
-          contentSlivers = [
-            const SliverToBoxAdapter(child: SizedBox(height: 600, child: Center(child: CircularProgressIndicator(color: Color(0xFF07404C)))))
-          ];
-        } else if (snapshot.hasError) {
-          contentSlivers = [
-            SliverToBoxAdapter(child: SizedBox(height: 500, child: Center(child: Text('Error: ${snapshot.error}'))))
-          ];
-        } else if (!snapshot.hasData || snapshot.data == null) {
-          contentSlivers = [
-            const SliverToBoxAdapter(child: SizedBox(height: 500, child: Center(child: Text('Item not found in our records.'))))
-          ];
-        } else {
-          final p = snapshot.data!;
-          final List<String> images = p.imageUrls.isNotEmpty 
-              ? p.imageUrls.where((url) => url.isNotEmpty).toList() 
-              : (p.imageUrl.isNotEmpty ? [p.imageUrl] : <String>[]);
-          
-          if (images.isEmpty) images.add('');
-          if (_selectedImageIndex >= images.length) _selectedImageIndex = 0;
-
-          contentSlivers = [
-            SliverToBoxAdapter(child: _buildTopHeader(p)),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
-            SliverToBoxAdapter(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1400),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Column(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(flex: 5, child: _buildGallery(images, p)),
-                            const SizedBox(width: 64),
-                            Expanded(flex: 5, child: _buildProductInfo(p)),
-                          ],
-                        ),
-                        const SizedBox(height: 80),
-                        _buildBundledOffer(p),
-                        const SizedBox(height: 80),
-                        _buildDetailsTabs(p),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
-            SliverToBoxAdapter(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1400),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: _buildRecommendationTitle("Similar & Related Devotional Items"),
-                  ),
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 40)),
-            _buildRecommendationGrid(productController, p.categoryId, limit: 4),
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
-            _buildBrowsingHistory(productController),
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
-          ];
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
+
+        final p = snapshot.data!;
+        final List<String> images = p.imageUrls.isNotEmpty 
+            ? p.imageUrls.where((url) => url.isNotEmpty).toList() 
+            : (p.imageUrl.isNotEmpty ? [p.imageUrl] : <String>['https://via.placeholder.com/600']);
+
+        List<Widget> contentSlivers = [
+          SliverToBoxAdapter(child: _buildTopHeader(p)),
+          SliverToBoxAdapter(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1400),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      bool isMobile = constraints.maxWidth < 900;
+                      return Column(
+                        children: [
+                          if (isMobile) ...[
+                            _buildGallery(images, p),
+                            const SizedBox(height: 32),
+                            _buildProductInfo(p),
+                          ] else
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(flex: 5, child: _buildGallery(images, p)),
+                                const SizedBox(width: 48),
+                                Expanded(flex: 5, child: _buildProductInfo(p)),
+                              ],
+                            ),
+                          const SizedBox(height: 32),
+                          _buildFrequentlyBlessedTogether(p, productController),
+                          const SizedBox(height: 32),
+                          _buildDetailsTabs(p),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: _buildRecommendationTitle("Similar Devotional Keychains"),
+            ),
+          ),
+          _buildSimilarProductsGrid(productController, 'keychain'),
+          const SliverToBoxAdapter(child: SizedBox(height: 60)),
+        ];
 
         return ProductCartLayout(
           controller: homeController,
-          slivers: contentSlivers.isEmpty ? [const SliverToBoxAdapter(child: SizedBox.shrink())] : contentSlivers,
+          slivers: contentSlivers,
           child: const SizedBox.shrink(),
         );
       },
@@ -153,18 +147,18 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   Widget _buildTopHeader(ProductModel p) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
       color: Colors.white,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1400),
           child: Row(
             children: [
-              Text('Sacred Catalog', style: TextStyle(fontSize: 11, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
-              Icon(Icons.chevron_right, size: 14, color: Colors.grey.shade400),
-              Text(p.categoryId, style: TextStyle(fontSize: 11, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
-              Icon(Icons.chevron_right, size: 14, color: Colors.grey.shade400),
-              Text(p.name, style: const TextStyle(fontSize: 11, color: Colors.black87, fontWeight: FontWeight.bold)),
+              Text('Sacred Catalog', style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
+              Icon(Icons.chevron_right, size: 12, color: Colors.grey.shade400),
+              Text(p.categoryId.toUpperCase(), style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
+              Icon(Icons.chevron_right, size: 12, color: Colors.grey.shade400),
+              Text(p.name, style: const TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -177,303 +171,304 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       children: [
         Stack(
           children: [
-            Container(
-              height: 700,
-              width: double.infinity,
-              decoration: BoxDecoration(color: const Color(0xFFF9F9F9), borderRadius: BorderRadius.circular(8)),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: (images.isNotEmpty && images[_selectedImageIndex].isNotEmpty)
-                  ? CachedNetworkImage(
-                      imageUrl: images[_selectedImageIndex], 
-                      fit: BoxFit.cover,
-                      errorWidget: (context, url, error) => const Icon(Icons.image_outlined, size: 100, color: Colors.grey),
-                    )
-                  : const Icon(Icons.image_outlined, size: 100, color: Colors.grey),
-              ),
-            ),
-            Positioned(
-              top: 24, left: 24,
+            GestureDetector(
+              onTap: () => _showFullScreenImage(context, images[_selectedImageIndex]),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(color: const Color(0xFF07404C), borderRadius: BorderRadius.circular(30)),
-                child: const Text('POPULAR', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
-              ),
-            ),
-            Positioned(
-              top: 24, right: 24,
-              child: Row(
-                children: [
-                  _circleIcon(Icons.share_outlined),
-                  const SizedBox(width: 12),
-                  _circleIcon(Icons.zoom_in_map_outlined),
-                ],
-              ),
-            ),
-            Positioned(
-              bottom: 24, left: 24,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(4)),
-                child: Row(
-                  children: [
-                    const Icon(Icons.verified_user, size: 14, color: Colors.green),
-                    const SizedBox(width: 8),
-                    Text('100% Genuine Atelier Stock', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade800)),
-                  ],
+                height: 550,
+                width: double.infinity,
+                decoration: BoxDecoration(color: const Color(0xFFF9F9F9), borderRadius: BorderRadius.circular(8)),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: CachedNetworkImage(
+                    imageUrl: images[_selectedImageIndex], 
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => const Icon(Icons.image_outlined, size: 100, color: Colors.grey),
+                  ),
                 ),
               ),
+            ),
+            Positioned(
+              top: 20, left: 20,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(color: const Color(0xFF07404C), borderRadius: BorderRadius.circular(30)),
+                child: const Text('POPULAR', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
+              ),
+            ),
+            Positioned(
+              bottom: 20, right: 20,
+              child: _circleIcon(Icons.zoom_in, onTap: () => _showFullScreenImage(context, images[_selectedImageIndex])),
             ),
           ],
         ),
-        const SizedBox(height: 20),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: images.asMap().entries.map((e) => GestureDetector(
+            onTap: () => setState(() => _selectedImageIndex = e.key),
+            child: Container(
+              margin: const EdgeInsets.only(right: 12),
+              width: 70, height: 70,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: _selectedImageIndex == e.key ? primaryTeal : Colors.grey.shade200, width: 2),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(6), 
+                child: CachedNetworkImage(imageUrl: e.value, fit: BoxFit.cover),
+              ),
+            ),
+          )).toList(),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4), border: Border.all(color: Colors.grey.shade100)),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: images.asMap().entries.map((e) {
-              if (e.value.isEmpty) return const SizedBox.shrink();
-              return GestureDetector(
-                onTap: () => setState(() => _selectedImageIndex = e.key),
-                child: Container(
-                  margin: const EdgeInsets.only(right: 16),
-                  width: 100, height: 100,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: _selectedImageIndex == e.key ? primaryTeal : Colors.grey.shade200, width: 2),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(6), 
-                    child: CachedNetworkImage(
-                      imageUrl: e.value, 
-                      fit: BoxFit.cover,
-                      errorWidget: (context, url, error) => const Icon(Icons.image_outlined),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.verified_user_outlined, size: 12, color: Colors.green),
+              const SizedBox(width: 8),
+              Text('100% Genuine Atelier Stock', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
+            ],
           ),
         ),
       ],
     );
   }
 
+  void _showFullScreenImage(BuildContext context, String url) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.black.withOpacity(0.9),
+        insetPadding: EdgeInsets.zero,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            InteractiveViewer(child: CachedNetworkImage(imageUrl: url, fit: BoxFit.contain)),
+            Positioned(top: 40, right: 40, child: IconButton(icon: const Icon(Icons.close, color: Colors.white, size: 30), onPressed: () => Navigator.pop(context))),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildProductInfo(ProductModel p) {
-    final finishes = p.finishes.isNotEmpty ? p.finishes : ['Standard Finish'];
-    final sizes = p.sizes.isNotEmpty ? p.sizes : ['Standard Edition'];
-    
-    if (_selectedFinishIndex >= finishes.length) _selectedFinishIndex = 0;
-    if (_selectedSizeIndex >= sizes.length) _selectedSizeIndex = 0;
+    final auth = Provider.of<AuthController>(context, listen: false);
+    final cart = Provider.of<CartController>(context, listen: false);
+
+    final isOutOfStock = p.stock <= 2;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(color: const Color(0xFFF9F6F0), borderRadius: BorderRadius.circular(4)),
-              child: Text(p.categoryId.toUpperCase(), style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(p.categoryId.toUpperCase(), style: TextStyle(color: templeGold, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+                  const SizedBox(height: 12),
+                  Text(p.name, style: GoogleFonts.cormorantGaramond(fontSize: 36, fontWeight: FontWeight.w700, color: primaryTeal)),
+                ],
+              ),
             ),
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Row(children: List.generate(5, (i) => Icon(Icons.star, color: Colors.amber, size: 16))),
-                const SizedBox(width: 8),
-                Text('${p.rating}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                Text(' (${p.reviewCount} reviews)', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                Row(
+                  children: List.generate(5, (i) => Icon(
+                    i < p.rating ? Icons.star : Icons.star_border,
+                    color: Colors.amber,
+                    size: 16,
+                  )),
+                ),
+                const SizedBox(height: 4),
+                Text('${p.rating} (${p.reviewCount} reviews)', style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
               ],
             ),
           ],
         ),
+        const SizedBox(height: 12),
+        Text(p.shortSummary, style: const TextStyle(color: Colors.black54, fontSize: 14, height: 1.5)),
         const SizedBox(height: 20),
-        Text(p.name, style: GoogleFonts.cormorantGaramond(fontSize: 48, fontWeight: FontWeight.w600, color: primaryTeal, height: 1.1)),
-        const SizedBox(height: 8),
-        Text(p.shortSummary, style: TextStyle(color: Colors.grey.shade500, fontSize: 16, height: 1.5)),
-        const SizedBox(height: 32),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          decoration: BoxDecoration(color: const Color(0xFFFDFBF7), borderRadius: BorderRadius.circular(8), border: Border.all(color: templeGold.withOpacity(0.1))),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(color: const Color(0xFFFDFBF7), borderRadius: BorderRadius.circular(6), border: Border.all(color: templeGold.withOpacity(0.1))),
           child: Row(
             children: [
-              Icon(Icons.auto_awesome, color: templeGold, size: 18),
-              const SizedBox(width: 16),
-              const Expanded(child: Text('Sanctified & Consecrated: Energized with holy temple mantras.', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF2B2B2B)))),
+              Icon(Icons.auto_awesome, color: templeGold, size: 14),
+              const SizedBox(width: 10),
+              const Expanded(child: Text('Sanctified & Consecrated: Energized with holy temple mantras.', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF2B2B2B)))),
             ],
           ),
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 24),
         Row(
           crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic,
           children: [
-            Text('₹${p.price.toInt()}', style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Color(0xFF07404C))),
-            const SizedBox(width: 12),
+            Text('₹${p.price.toInt()}', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: primaryTeal)),
+            const SizedBox(width: 10),
             if (p.comparePrice != null) ...[
-              Text('₹${p.comparePrice!.toInt()}', style: const TextStyle(fontSize: 18, color: Colors.grey, decoration: TextDecoration.lineThrough)),
-              const SizedBox(width: 16),
+              Text('₹${p.comparePrice!.toInt()}', style: const TextStyle(fontSize: 14, color: Colors.grey, decoration: TextDecoration.lineThrough)),
+              const SizedBox(width: 10),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(color: const Color(0xFF8B4513).withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-                child: Text('Save ₹${(p.comparePrice! - p.price).toInt()} (${p.discountPercentage}% OFF)', style: const TextStyle(color: Color(0xFF8B4513), fontWeight: FontWeight.w900, fontSize: 11)),
+                child: Text('Save ₹${(p.comparePrice! - p.price).toInt()} (${p.discountPercentage}% OFF)', style: const TextStyle(color: Color(0xFF8B4513), fontWeight: FontWeight.w900, fontSize: 10)),
               ),
             ],
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 12),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(color: const Color(0xFFE6F7F0), borderRadius: BorderRadius.circular(4)),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(color: isOutOfStock ? Colors.red.shade50 : const Color(0xFFE6F7F0), borderRadius: BorderRadius.circular(4)),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
-              const SizedBox(width: 12),
-              const Text('In Sanctified Stock — Auspicious 24-hr temple dispatch', style: TextStyle(color: Color(0xFF065F46), fontSize: 13, fontWeight: FontWeight.bold)),
+              Container(width: 5, height: 5, decoration: BoxDecoration(color: isOutOfStock ? Colors.red : const Color(0xFF10B981), shape: BoxShape.circle)),
+              const SizedBox(width: 6),
+              Text(isOutOfStock ? 'OUT OF STOCK — Sacred item currently unavailable' : 'In Sanctified Stock — Auspicious 24-hr temple dispatch', style: TextStyle(color: isOutOfStock ? Colors.red : const Color(0xFF065F46), fontSize: 11, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
-        const SizedBox(height: 32),
-        const Text('Attach divine positivity directly to your smartphone. Durable braided sacred loop with lightweight acrylic charm featuring Dada and Radhe Radhe blessing.', style: TextStyle(color: Colors.grey, fontSize: 14, height: 1.5)),
-        const SizedBox(height: 40),
-        RichText(text: TextSpan(style: const TextStyle(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.bold), children: [const TextSpan(text: 'Selected Option / Finish:   '), TextSpan(text: finishes[_selectedFinishIndex], style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.normal))])),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            _variantCircle(const Color(0xFFF7C325), _selectedFinishIndex == 0, () => setState(() => _selectedFinishIndex = 0)),
-            if (finishes.length > 1) ...[
-              _variantCircle(const Color(0xFFAD3B1D), _selectedFinishIndex == 1, () => setState(() => _selectedFinishIndex = 1)),
-              if (finishes.length > 2) _variantCircle(const Color(0xFFE35400), _selectedFinishIndex == 2, () => setState(() => _selectedFinishIndex = 2)),
-            ]
-          ],
-        ),
-        const SizedBox(height: 32),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Select Size / Edition:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-            TextButton.icon(onPressed: () {}, icon: const Icon(Icons.straighten, size: 14, color: Colors.grey), label: const Text('Deity & Altar Sizing Guide', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, decoration: TextDecoration.underline))),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            _sizeBtn(sizes[0], _selectedSizeIndex == 0, () => setState(() => _selectedSizeIndex = 0)),
-            if (sizes.length > 1) ...[
-              const SizedBox(width: 16),
-              _sizeBtn(sizes[1], _selectedSizeIndex == 1, () => setState(() => _selectedSizeIndex = 1)),
-            ],
-          ],
-        ),
-        const SizedBox(height: 40),
-        _buildComplimentaryItem('Complimentary Gangajal, Chandan Tika & Raksha Sutra Kit (Free)', 'Includes certified holy water from Haridwar and energized temple red thread.', _includeGangaJal, (v) => setState(() => _includeGangaJal = v!)),
-        _buildComplimentaryItem('Auspicious Red-Saffron Gift Wrap & Devotional Card (₹49)', '', _includeGiftWrap, (v) => setState(() => _includeGiftWrap = v!)),
-        const SizedBox(height: 40),
+        const SizedBox(height: 24),
+        const Text('Attach divine positivity directly to your smartphone. Durable braided sacred loop with lightweight acrylic charm featuring Dada and Radhe Radhe blessing.', style: TextStyle(color: Colors.grey, fontSize: 12, height: 1.5)),
+        const SizedBox(height: 24),
+        
         Row(
           children: [
             _qtySelector(),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton(
-                onPressed: () {
-                  Provider.of<CartController>(context, listen: false).addToCart(p, _quantity);
-                  Scaffold.of(context).openEndDrawer();
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF07404C), padding: const EdgeInsets.symmetric(vertical: 20), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
-                child: Text('ADD TO BAG • ₹${(p.price * _quantity).toInt()}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                onPressed: !isOutOfStock ? () {
+                  if (!_isPincodeValid) {
+                    setState(() => _pincodeError = 'Please enter a pincode');
+                    return;
+                  }
+                  if (auth.isAuthenticated) {
+                    cart.addToCart(p, _quantity);
+                    Scaffold.of(context).openEndDrawer();
+                  } else {
+                    auth.toggleLoginPortal(true);
+                  }
+                } : null,
+                style: ElevatedButton.styleFrom(backgroundColor: !isOutOfStock ? primaryTeal : Colors.grey.shade400, padding: const EdgeInsets.symmetric(vertical: 20), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
+                child: Text(!isOutOfStock ? 'ADD TO BAG • ₹${(p.price * _quantity).toInt()}' : 'OUT OF STOCK', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12)),
               ),
             ),
-            const SizedBox(width: 16),
-            _circleIcon(Icons.favorite_border),
             const SizedBox(width: 12),
-            _circleIcon(Icons.share_outlined),
+            _circleIcon(Icons.favorite_border, onTap: () {
+               if (auth.isAuthenticated) {
+                 Provider.of<ProductController>(context, listen: false).toggleLike(p.id);
+               } else {
+                 auth.toggleLoginPortal(true);
+               }
+            }),
+            const SizedBox(width: 8),
+            _circleIcon(Icons.share_outlined, onTap: () {
+              final String url = 'https://dada-store.web.app/product_details?id=${p.id}';
+              Share.share('Check out this sacred item: ${p.name}\n$url');
+            }),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: !isOutOfStock ? () {
+            if (!_isPincodeValid) {
+              setState(() => _pincodeError = 'Please enter a pincode');
+              return;
+            }
+            if (auth.isAuthenticated) {
+              cart.addToCart(p, _quantity);
+              Navigator.pushNamed(context, '/checkout');
+            } else {
+              auth.toggleLoginPortal(true);
+            }
+          } : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFAD8B63),
-            padding: const EdgeInsets.symmetric(vertical: 20),
+            backgroundColor: !isOutOfStock ? templeGold : Colors.grey.shade300, 
+            minimumSize: const Size(double.infinity, 55),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-            minimumSize: const Size(double.infinity, 60),
           ),
-          child: const Text('⚡ INSTANT SACRED CHECKOUT (COD / ONLINE)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1)),
+          child: Text(!isOutOfStock ? '⚡ INSTANT SACRED CHECKOUT (COD / ONLINE)' : 'CURRENTLY UNAVAILABLE', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12, letterSpacing: 1)),
         ),
-        const SizedBox(height: 16),
-        _buildWhatsAppBtn(),
-        const SizedBox(height: 40),
+        const SizedBox(height: 12),
+        _buildWhatsAppBtn(p),
+        const SizedBox(height: 24),
         _buildDeliveryChecker(),
-        const SizedBox(height: 48),
+        const SizedBox(height: 32),
         _buildTrustFeatures(),
       ],
     );
   }
 
-  Widget _buildComplimentaryItem(String title, String subtitle, bool value, Function(bool?) onChanged) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
-    child: Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4), border: Border.all(color: Colors.grey.shade200)),
-      child: Row(
-        children: [
-          SizedBox(width: 24, height: 24, child: Checkbox(value: value, onChanged: onChanged, activeColor: primaryTeal, side: const BorderSide(color: Colors.grey))),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF2B2B2B))),
-                if (subtitle.isNotEmpty) Text(subtitle, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-
-  Widget _buildWhatsAppBtn() => Container(
-    height: 60,
+  Widget _buildWhatsAppBtn(ProductModel p) => Container(
+    height: 55,
     width: double.infinity,
     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4), border: Border.all(color: const Color(0xFF25D366))),
     child: InkWell(
-      onTap: () {},
-      child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.chat_bubble_outline, color: Color(0xFF25D366), size: 18), SizedBox(width: 12), Text('Order / Inquire via WhatsApp', style: TextStyle(color: Color(0xFF25D366), fontWeight: FontWeight.bold, fontSize: 13))]),
+      onTap: () async {
+        const phone = "919876543210";
+        final message = "Pranam! I would like to order: ${p.name}\nQuantity: $_quantity\nPrice: ₹${p.price.toInt()}\nProduct Link: https://dada-store.web.app/product_details?id=${p.id}";
+        final url = "https://wa.me/$phone?text=${Uri.encodeComponent(message)}";
+        if (await canLaunchUrl(Uri.parse(url))) {
+          await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+        }
+      },
+      child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.chat_bubble_outline, color: Color(0xFF25D366), size: 16), SizedBox(width: 10), Text('Order / Inquire via WhatsApp', style: TextStyle(color: Color(0xFF25D366), fontWeight: FontWeight.bold, fontSize: 12))]),
     ),
   );
 
   Widget _buildDeliveryChecker() => Container(
-    padding: const EdgeInsets.all(24),
+    padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(color: const Color(0xFFFDFBF7), borderRadius: BorderRadius.circular(8), border: Border.all(color: templeGold.withOpacity(0.1))),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(children: [Icon(Icons.location_on_outlined, size: 16, color: templeGold), const SizedBox(width: 10), const Text('Delivery & Payment Availability', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)), const Spacer(), const Text('Cash on Delivery Available', style: TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold))]),
-        const SizedBox(height: 20),
+        Row(children: [Icon(Icons.location_on_outlined, size: 14, color: templeGold), const SizedBox(width: 8), const Text('Delivery & Payment Availability', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)), const Spacer(), const Text('Cash on Delivery Available', style: TextStyle(fontSize: 9, color: Colors.green, fontWeight: FontWeight.bold))]),
+        const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
               child: TextField(
+                controller: _pincodeCtrl,
+                onChanged: _validatePincode,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                style: const TextStyle(fontSize: 13),
                 decoration: InputDecoration(
-                  hintText: '380001', 
-                  hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
+                  counterText: '',
+                  hintText: 'Enter 6-digit Pincode', 
+                  hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
                   fillColor: Colors.white, 
                   filled: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey.shade200)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey.shade200)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: _pincodeError != null ? Colors.red : Colors.grey.shade200)),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: _pincodeError != null ? Colors.red : Colors.grey.shade200)),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
-            ElevatedButton(onPressed: () {}, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF07404C), padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))), child: const Text('Check', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+            const SizedBox(width: 10),
+            ElevatedButton(onPressed: () => _validatePincode(_pincodeCtrl.text), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF07404C), padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))), child: const Text('Check', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))),
           ],
         ),
-        const SizedBox(height: 24),
-        _deliveryInfoItem(Icons.local_shipping_outlined, 'FREE Standard Delivery by Wed, Sep 2', 'Order in the next 4 hrs 15 mins for sanctum dispatch today.'),
+        if (_pincodeError != null)
+           Padding(
+             padding: const EdgeInsets.only(top: 6, left: 4),
+             child: Text(_pincodeError!, style: const TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold)),
+           ),
         const SizedBox(height: 16),
-        _deliveryInfoItem(Icons.bolt, 'Express 24-hr Air Courier available at checkout', 'Delivers by Mon, Aug 31 to metro locations.'),
+        _deliveryInfoItem(Icons.local_shipping_outlined, 'FREE Standard Delivery', 'Ordered by 4 PM for same-day sanctum dispatch.'),
+        const SizedBox(height: 12),
+        _deliveryInfoItem(Icons.replay_outlined, '7-Day Replacement Guarantee', 'We replace damaged deity frames instantly.'),
       ],
     ),
   );
@@ -481,245 +476,584 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Widget _deliveryInfoItem(IconData icon, String title, String sub) => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Icon(icon, size: 16, color: Colors.green.shade600),
-      const SizedBox(width: 16),
-      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)), const SizedBox(height: 4), Text(sub, style: const TextStyle(fontSize: 10, color: Colors.grey))])),
+      Icon(icon, size: 14, color: primaryTeal.withOpacity(0.6)),
+      const SizedBox(width: 12),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)), const SizedBox(height: 2), Text(sub, style: const TextStyle(fontSize: 9, color: Colors.grey))])),
     ],
   );
 
-  Widget _buildTrustFeatures() => Container(
-    padding: const EdgeInsets.all(24),
-    decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade100), borderRadius: BorderRadius.circular(8)),
-    child: Wrap(
-      spacing: 40, runSpacing: 24,
-      children: [
-        _trustIconItem(Icons.lock_outline, '100% Safe & Secure Payment Options', '256-Bit SSL Encrypted'),
-        _trustIconItem(Icons.workspace_premium_outlined, '100% Vedic Pure', 'Natural wood, brass & silk'),
-        _trustIconItem(Icons.inventory_2_outlined, 'Safe Sacred Transit', 'Zero breakage guarantee'),
-        _trustIconItem(Icons.temple_hindu_outlined, 'Holy Dham Heritage', 'Direct artisan seva'),
-      ],
-    ),
-  );
-
-  Widget _trustIconItem(IconData icon, String title, String sub) => SizedBox(
-    width: 250,
-    child: Row(
-      children: [
-        Icon(icon, size: 24, color: templeGold.withOpacity(0.6)),
-        const SizedBox(width: 16),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)), Text(sub, style: const TextStyle(fontSize: 10, color: Colors.grey))])),
-      ],
-    ),
-  );
-
-  Widget _buildBundledOffer(ProductModel p) => Container(
-    padding: const EdgeInsets.all(40),
-    decoration: BoxDecoration(color: const Color(0xFFFDFBF7), borderRadius: BorderRadius.circular(8), border: Border.all(color: templeGold.withOpacity(0.1))),
-    child: Column(
-      children: [
-        Row(mainAxisAlignment: MainAxisAlignment.start, children: [Icon(Icons.auto_awesome, color: templeGold, size: 20), const SizedBox(width: 12), const Text('Frequently Blessed Together — Save 10% on Complete Sacred Set', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF2B2B2B)))]),
-        const SizedBox(height: 40),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildTrustFeatures() => Column(
+    children: [
+       Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade100), borderRadius: BorderRadius.circular(8)),
+        child: Column(
           children: [
+            Row(children: [Icon(Icons.lock_outline, size: 12, color: primaryTeal), const SizedBox(width: 10), const Text('100% Safe & Secure Payment Options', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)), const Spacer(), const Text('256-Bit SSL Encrypted', style: TextStyle(fontSize: 8, color: Colors.grey, fontWeight: FontWeight.bold))]),
+            const SizedBox(height: 16),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _bundleItem(p.imageUrl, p.name, p.price),
-                const Padding(padding: EdgeInsets.symmetric(horizontal: 20), child: Icon(Icons.add, color: Colors.grey, size: 16)),
-                _bundleItem(p.imageUrl, "Mobile Keychain", 119),
-                const Padding(padding: EdgeInsets.symmetric(horizontal: 20), child: Icon(Icons.add, color: Colors.grey, size: 16)),
-                _bundleItem(p.imageUrl, "Dada's Photo + Radha Krishna", 149),
-              ],
-            ),
-            const SizedBox(width: 60),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                const Text('Bundle Total (10% Off):', style: TextStyle(fontSize: 13, color: Colors.grey)),
-                const SizedBox(height: 4),
-                Row(children: [const Text('₹330.3', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF07404C))), const SizedBox(width: 12), Text('₹367', style: TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey, fontSize: 16))]),
-                const SizedBox(height: 20),
-                ElevatedButton.icon(onPressed: () {}, icon: const Icon(Icons.shopping_bag_outlined, size: 16), label: const Text('ADD COMPLETE SET TO BAG', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF07404C), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)))),
+                 _paymentMethodIcon(Icons.handshake_outlined, 'COD'),
+                 _paymentMethodIcon(Icons.qr_code_scanner, 'UPI'),
+                 _paymentMethodIcon(Icons.credit_card, 'Cards'),
+                 _paymentMethodIcon(Icons.account_balance, 'Net Banking'),
               ],
             ),
           ],
         ),
+      ),
+      const SizedBox(height: 16),
+      Wrap(
+        spacing: 16, runSpacing: 12,
+        children: [
+          _trustIconItem(Icons.eco_outlined, '100% Vedic Pure', 'Natural materials'),
+          _trustIconItem(Icons.auto_awesome, 'Abhimantrit', 'Mantra energized'),
+        ],
+      ),
+    ],
+  );
+
+  Widget _paymentMethodIcon(IconData icon, String label) => Row(children: [Icon(icon, size: 12, color: Colors.grey), const SizedBox(width: 6), Text(label, style: const TextStyle(fontSize: 9, color: Colors.grey, fontWeight: FontWeight.bold))]);
+
+  Widget _trustIconItem(IconData icon, String title, String sub) => Container(
+    width: 180,
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade100), borderRadius: BorderRadius.circular(8)),
+    child: Row(
+      children: [
+        Icon(icon, size: 18, color: templeGold.withOpacity(0.6)),
+        const SizedBox(width: 12),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)), Text(sub, style: const TextStyle(fontSize: 9, color: Colors.grey))])),
       ],
     ),
   );
 
-  Widget _bundleItem(String img, String name, double price) => Row(
-    children: [
-      SizedBox(width: 20, height: 20, child: Checkbox(value: true, onChanged: (v) {}, activeColor: primaryTeal)),
-      const SizedBox(width: 12),
-      ClipRRect(
-        borderRadius: BorderRadius.circular(4), 
-        child: img.isNotEmpty
-          ? CachedNetworkImage(
-              imageUrl: img, 
-              width: 60, height: 60, 
-              fit: BoxFit.cover,
-              errorWidget: (context, url, error) => const Icon(Icons.image_outlined),
-            )
-          : Container(width: 60, height: 60, color: Colors.grey.shade100, child: const Icon(Icons.image_outlined)),
+  Widget _buildFrequentlyBlessedTogether(ProductModel p, ProductController ctrl) {
+    final others = ctrl.allProducts.where((item) => item.id != p.id).take(2).toList();
+    if (others.length < 2) return const SizedBox.shrink();
+
+    double total = p.price + others[0].price + others[1].price;
+    double discounted = total * 0.9;
+
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFDFBF7),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: templeGold.withOpacity(0.1)),
       ),
-      const SizedBox(width: 16),
-      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF2B2B2B))), Text('₹${price.toInt()}', style: const TextStyle(fontSize: 12, color: Colors.grey))]),
-    ],
-  );
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.auto_awesome_outlined, color: templeGold, size: 18),
+              const SizedBox(width: 12),
+              Text("Frequently Blessed Together — Save 10% on Complete Sacred Set", style: GoogleFonts.cormorantGaramond(fontSize: 22, fontWeight: FontWeight.bold, color: primaryTeal)),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                flex: 4,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _bundleItem(p, true),
+                      const Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Icon(Icons.add, size: 14, color: Colors.grey)),
+                      _bundleItem(others[0], true),
+                      const Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Icon(Icons.add, size: 14, color: Colors.grey)),
+                      _bundleItem(others[1], true),
+                    ],
+                  ),
+                ),
+              ),
+              Container(height: 100, width: 1, color: Colors.grey.shade200, margin: const EdgeInsets.symmetric(horizontal: 32)),
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text("Bundle Total (10% Off):", style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text("₹${discounted.toStringAsFixed(1)}", style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.w900, color: primaryTeal)),
+                        const SizedBox(width: 10),
+                        Text("₹${total.toInt()}", style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey, fontSize: 14)),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                         final cart = Provider.of<CartController>(context, listen: false);
+                         cart.addToCart(p, 1);
+                         cart.addToCart(others[0], 1);
+                         cart.addToCart(others[1], 1);
+                         Scaffold.of(context).openEndDrawer();
+                      },
+                      icon: const Icon(Icons.shopping_bag_outlined, size: 14),
+                      label: const Text("ADD COMPLETE SET TO BAG", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _bundleItem(ProductModel item, bool selected) {
+    return Container(
+      width: 190,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8)],
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: CachedNetworkImage(imageUrl: item.imageUrl, width: 45, height: 45, fit: BoxFit.cover, errorWidget: (c,u,e) => const Icon(Icons.image_outlined, size: 24)),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  item.name, 
+                  style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 10, color: Colors.black87),
+                  maxLines: 1, overflow: TextOverflow.ellipsis
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  "₹${item.price.toInt()}", 
+                  style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w800, fontSize: 10, color: primaryTeal),
+                ),
+              ],
+            ),
+          ),
+          Checkbox(
+            value: true, 
+            onChanged: (v) {}, 
+            activeColor: primaryTeal, 
+            visualDensity: VisualDensity.compact,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildDetailsTabs(ProductModel p) => DefaultTabController(
     length: 5,
     child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TabBar(
           isScrollable: true,
           indicatorColor: primaryTeal, labelColor: primaryTeal, unselectedLabelColor: Colors.grey,
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
           indicatorSize: TabBarIndicatorSize.label,
-          tabs: const [Tab(text: 'Vedic Significance & Details'), Tab(text: 'Specifications & Dimensions'), Tab(text: 'Sacred Care & Purity'), Tab(text: 'Devotee Reviews (0)'), Tab(text: 'FAQs & Guidance')],
+          tabs: [
+            const Tab(text: 'Vedic Significance & Details'),
+            const Tab(text: 'Specifications & Dimensions'),
+            const Tab(text: 'Sacred Care & Purity'),
+            Tab(text: 'Devotee Reviews (${p.reviewCount})'),
+            const Tab(text: 'FAQs & Guidance')
+          ],
         ),
-        const SizedBox(height: 40),
-        SizedBox(
-          height: 350,
-          child: TabBarView(
-            children: [
-              _buildTabContent("Features an ultra-strong tensile nylon lanyard loop that fits through any speaker hole or phone case lanyard port, paired with a miniature sacred acrylic pendant.", p.highlights),
-              const Center(child: Text("Dimensions: 2 x 1.5 inches\nWeight: 15g\nMaterial: Premium Acrylic")),
-              const Center(child: Text("Handle with reverence. Clean with a soft, dry cloth.")),
-              const Center(child: Text("No reviews yet. Be the first to share your blessing!")),
-              const Center(child: Text("Can I take this to office? Yes, it is designed for daily use.")),
-            ],
+        const SizedBox(height: 24),
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 300, maxHeight: 1000),
+          child: SizedBox(
+            height: 500,
+            child: TabBarView(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("About this Sacred Offering:", style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 14)),
+                      const SizedBox(height: 12),
+                      Text(p.description, style: const TextStyle(height: 1.6, color: Colors.black87, fontSize: 13)),
+                      const SizedBox(height: 20),
+                      Text("Blessings & Significance:", style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 13)),
+                      const SizedBox(height: 8),
+                      const Text("• Energized with authentic Vedic mantras for spiritual protection.\n• Crafted by skilled artisans with devotional focus.\n• Brings Pu. Dada's divine presence and peace to your surroundings.", style: TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
+                    ],
+                  ),
+                ),
+                SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _specRow("Material", "Premium Consecrated Material / Sacred Wood"),
+                      _specRow("SKU", "DADA-${p.id.substring(0, 5).toUpperCase()}"),
+                      _specRow("Category", p.categoryId),
+                      _specRow("Origin", "Authentic Ashram Atelier"),
+                      _specRow("Weight", "Approx 50g - 150g"),
+                    ],
+                  ),
+                ),
+                const SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Purity Standards:", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal, fontSize: 14)),
+                      SizedBox(height: 12),
+                      Text("• This item should be handled with spiritual reverence.\n• Avoid placing on the floor or in unclean areas.\n• Clean only with a dry, pure cotton cloth to maintain its consecrated energy.", style: TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
+                    ],
+                  ),
+                ),
+                _buildReviewsTab(p),
+                const SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Q: Is this item already energized?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      Text("A: Yes, all our offerings are sanctified through a special Puja Seva before dispatch.", style: TextStyle(color: Colors.black54, fontSize: 12)),
+                      SizedBox(height: 16),
+                      Text("Q: Can I gift this to someone?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      Text("A: Absolutely. Giving a sacred offering is considered an act of great merit (Punya).", style: TextStyle(color: Colors.black54, fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
     ),
   );
 
-  Widget _buildTabContent(String desc, List<String> highlights) => Column(
+  Widget _specRow(String label, String value) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Row(
+      children: [
+        SizedBox(width: 150, child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 12))),
+        Expanded(child: Text(value, style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.black87, fontSize: 12))),
+      ],
+    ),
+  );
+
+  Widget _buildReviewsTab(ProductModel p) {
+    final auth = Provider.of<AuthController>(context);
+    
+    if (_reviewsStream == null) {
+       return const Center(child: CircularProgressIndicator(color: Color(0xFF07404C)));
+    }
+
+    return StreamBuilder<List<ReviewModel>>(
+      stream: _reviewsStream,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Padding(
+            padding: const EdgeInsets.all(40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.grey, size: 48),
+                const SizedBox(height: 16),
+                Text("Unable to load reviews at this time.", style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
+                TextButton(onPressed: () => setState(() {}), child: const Text("Retry")),
+              ],
+            ),
+          ));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: Padding(
+            padding: EdgeInsets.all(100),
+            child: CircularProgressIndicator(color: Color(0xFF07404C)),
+          ));
+        }
+
+        final reviews = snapshot.data ?? [];
+        
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            children: [
+               _buildReviewHeader(p),
+               const SizedBox(height: 24),
+               if (_isReviewFormOpen) ...[
+                 _buildReviewForm(p.id, p.name, auth),
+                 const SizedBox(height: 24),
+               ],
+               if (reviews.isEmpty)
+                 const Center(child: Padding(
+                   padding: EdgeInsets.all(40),
+                   child: Text("No reviews yet. Be the first devotee to share your experience!"),
+                 ))
+               else
+                 ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: reviews.length,
+                    separatorBuilder: (c, i) => const Divider(),
+                    itemBuilder: (c, i) => _buildReviewItem(reviews[i]),
+                  ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildReviewHeader(ProductModel p) => Container(
+    padding: const EdgeInsets.all(24),
+    decoration: BoxDecoration(
+      color: Colors.white, 
+      borderRadius: BorderRadius.circular(16), 
+      border: Border.all(color: Colors.grey.shade200)
+    ),
+    child: Row(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              p.rating.toString(), 
+              style: GoogleFonts.cormorantGaramond(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.black87)
+            ),
+            Row(children: List.generate(5, (i) => Icon(Icons.star, color: Colors.amber, size: 14))),
+            const SizedBox(height: 6),
+            Text(
+              'Based on ${p.reviewCount} devotee reviews', 
+              style: const TextStyle(fontSize: 9, color: Colors.grey, fontWeight: FontWeight.w600)
+            ),
+          ],
+        ),
+        const SizedBox(width: 40),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+               _reviewSummaryRow(Icons.check_circle_outline, "100% Verified Devotee & Altar Reviews"),
+               const SizedBox(height: 8),
+               _reviewSummaryRow(Icons.verified_outlined, "Inspected for Vedic Authenticity & Material Integrity"),
+            ],
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () => setState(() => _isReviewFormOpen = !_isReviewFormOpen),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF071C21), 
+            foregroundColor: Colors.white, 
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
+          ),
+          child: Text(
+            _isReviewFormOpen ? "CLOSE FORM" : "WRITE REVIEW", 
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _reviewSummaryRow(IconData icon, String text) => Row(
+    children: [
+      Icon(icon, size: 14, color: Colors.green.shade600), 
+      const SizedBox(width: 10), 
+      Text(
+        text, 
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)
+      )
+    ]
+  );
+
+  final _reviewNameCtrl = TextEditingController();
+  final _reviewTitleCtrl = TextEditingController();
+  final _reviewTextCtrl = TextEditingController();
+  double _userRating = 5.0;
+
+  Widget _buildReviewForm(String productId, String productName, AuthController auth) {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Submit Your Devotional Review for $productName", 
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87)
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Text("Rating: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              const SizedBox(width: 8),
+              Row(
+                children: List.generate(5, (i) => IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: Icon(
+                    i < _userRating ? Icons.star : Icons.star_border, 
+                    color: Colors.amber, 
+                    size: 20
+                  ),
+                  onPressed: () => setState(() => _userRating = i + 1.0),
+                )),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(child: _reviewField("Your Full Name / Devotee Name *", "e.g. Radhika Sharma", _reviewNameCtrl)),
+              const SizedBox(width: 20),
+              Expanded(child: _reviewField("Review Title *", "e.g. Pure vibration and flawless finish", _reviewTitleCtrl)),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _reviewField(
+            "Your Detailed Experience / Feedback *", 
+            "Share your feedback on the texture, finish, pooja experience, packaging...", 
+            _reviewTextCtrl, 
+            maxLines: 4
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton.icon(
+            onPressed: () async {
+              if (_reviewTextCtrl.text.isEmpty || !auth.isAuthenticated) {
+                if (!auth.isAuthenticated) auth.toggleLoginPortal(true);
+                return;
+              }
+              final review = ReviewModel(
+                id: '', 
+                productId: productId, 
+                productName: productName,
+                userId: auth.user!.uid, 
+                userName: _reviewNameCtrl.text.isEmpty ? (auth.userModel?.name ?? 'Devotee') : _reviewNameCtrl.text,
+                userPhone: auth.userModel?.phone ?? '', 
+                rating: _userRating,
+                comment: "[${_reviewTitleCtrl.text}] ${_reviewTextCtrl.text}", 
+                createdAt: DateTime.now(),
+              );
+              await Provider.of<ReviewController>(context, listen: false).addReview(review);
+              _reviewTextCtrl.clear(); 
+              _reviewNameCtrl.clear(); 
+              _reviewTitleCtrl.clear();
+              setState(() {
+                _userRating = 5.0;
+                _isReviewFormOpen = false;
+              });
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Testimonial published with blessings!'), backgroundColor: Colors.green)
+                );
+              }
+            },
+            icon: const Icon(Icons.send_rounded, size: 14),
+            label: const Text(
+              "PUBLISH REVIEW", 
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 11)
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF071C21), 
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20), 
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _reviewField(String label, String hint, TextEditingController ctrl, {int maxLines = 1}) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(desc, style: const TextStyle(fontSize: 15, color: Colors.black54, height: 1.6)),
-      const SizedBox(height: 32),
-      const Text('DEVOTIONAL HIGHLIGHTS & ARTISANAL MERITS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1, color: Colors.black87)),
-      const SizedBox(height: 24),
-      // Replace GridView with Wrap or Column for better stability in slivers
-      Wrap(
-        spacing: 32,
-        runSpacing: 16,
-        children: List.generate(
-          highlights.isNotEmpty ? highlights.length.clamp(0, 4) : 4,
-          (i) {
-            final text = (highlights.isNotEmpty && i < highlights.length) 
-                ? highlights[i] 
-                : (i == 0 ? 'Universal attachment for all smartphone cases and bags' : i == 1 ? 'High-tensile braided nylon cord' : i == 2 ? 'Featherlight design' : 'Sacred blessing emblem');
-            return SizedBox(
-              width: 300, // Approximate half-width for 2-column effect
-              child: Row(
-                children: [
-                  Icon(Icons.check, size: 14, color: Colors.green.shade600),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text(text, style: const TextStyle(fontSize: 13, color: Colors.black54))),
-                ],
-              ),
-            );
-          },
+      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
+      const SizedBox(height: 8),
+      TextField(
+        controller: ctrl,
+        maxLines: maxLines,
+        style: const TextStyle(fontSize: 12),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(fontSize: 11, color: Colors.grey),
+          fillColor: Colors.white,
+          filled: true,
+          contentPadding: const EdgeInsets.all(12),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey.shade200)),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey.shade200)),
         ),
       ),
     ],
   );
 
+  Widget _buildReviewItem(ReviewModel review) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [Text(review.userName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)), const Spacer(), Text(review.createdAt.toString().split(' ')[0], style: const TextStyle(color: Colors.grey, fontSize: 10))]),
+          const SizedBox(height: 4),
+          Row(children: List.generate(5, (i) => Icon(i < review.rating ? Icons.star : Icons.star_border, color: Colors.amber, size: 12))),
+          const SizedBox(height: 8),
+          Text(review.comment, style: const TextStyle(fontSize: 12, height: 1.4, color: Colors.black87)),
+        ],
+      ),
+    );
+  }
+
   Widget _buildRecommendationTitle(String title) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title.toUpperCase(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 1, color: Color(0xFF8B4513))), 
-        TextButton(onPressed: () {}, child: const Text('EXPLORE FULL COLLECTION →', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87)))
+        Text(title.toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFF8B4513))),
+        TextButton(onPressed: () {}, child: const Text('EXPLORE FULL COLLECTION →', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.black87))),
       ],
     );
   }
 
-  Widget _buildRecommendationGrid(ProductController ctrl, String catId, {int limit = 8}) {
-    final products = ctrl.allProducts.where((p) => p.categoryId == catId).take(limit).toList();
-    if (products.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
-
+  Widget _buildSimilarProductsGrid(ProductController ctrl, String catId) {
+    final products = ctrl.allProducts.where((p) => p.categoryId.toLowerCase().contains('keychain')).take(4).toList();
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
       sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          childAspectRatio: 0.75,
-          crossAxisSpacing: 24,
-          mainAxisSpacing: 40,
-        ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) => ProductCard(product: products[index]),
-          childCount: products.length,
-        ),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, childAspectRatio: 0.72, crossAxisSpacing: 20, mainAxisSpacing: 20),
+        delegate: SliverChildBuilderDelegate((c, i) => ProductCard(product: products[i]), childCount: products.length),
       ),
     );
   }
 
-  Widget _buildBrowsingHistory(ProductController ctrl) {
-    if (ctrl.allProducts.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
-    
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      sliver: SliverToBoxAdapter(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(children: [Icon(Icons.history, size: 18, color: templeGold), const SizedBox(width: 12), const Text('YOUR BROWSING HISTORY', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1, color: Colors.grey)), const Spacer(), TextButton(onPressed: () {}, child: const Text('Clear History', style: TextStyle(fontSize: 11, color: Colors.grey)))]),
-            const SizedBox(height: 8),
-            const Text('Recently Viewed Sacred Products', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 40),
-            SizedBox(
-              width: 300,
-              height: 400,
-              child: ProductCard(product: ctrl.allProducts.last),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _circleIcon(IconData icon) => Container(
-    padding: const EdgeInsets.all(8),
-    decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, border: Border.all(color: Colors.grey.shade200)),
-    child: Icon(icon, size: 18, color: Colors.black54),
-  );
-
-  Widget _variantCircle(Color color, bool selected, VoidCallback onTap) => GestureDetector(
+  Widget _circleIcon(IconData icon, {VoidCallback? onTap}) => InkWell(
     onTap: onTap,
     child: Container(
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: selected ? primaryTeal : Colors.transparent, width: 2)),
-      child: Container(width: 28, height: 28, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-    ),
-  );
-
-  Widget _sizeBtn(String label, bool selected, VoidCallback onTap) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(color: selected ? primaryTeal : Colors.white, borderRadius: BorderRadius.circular(4), border: Border.all(color: selected ? primaryTeal : Colors.grey.shade300)),
-      child: Text(label, style: TextStyle(color: selected ? Colors.white : Colors.black87, fontWeight: FontWeight.bold, fontSize: 12)),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, border: Border.all(color: Colors.grey.shade200)),
+      child: Icon(icon, size: 18, color: primaryTeal),
     ),
   );
 
   Widget _qtySelector() => Container(
-    height: 60,
+    height: 55,
     decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade200), borderRadius: BorderRadius.circular(4)),
     child: Row(
       children: [
-        IconButton(onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null, icon: const Icon(Icons.remove, size: 18)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Text('$_quantity', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        ),
-        IconButton(onPressed: () => setState(() => _quantity++), icon: const Icon(Icons.add, size: 18)),
+        IconButton(onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null, icon: const Icon(Icons.remove, size: 14)),
+        Text('$_quantity', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+        IconButton(onPressed: () => setState(() => _quantity++), icon: const Icon(Icons.add, size: 14)),
       ],
     ),
   );

@@ -13,7 +13,7 @@ import 'views/user_side/about_shiv_page.dart';
 import 'views/user_side/katha_list_page.dart';
 import 'views/user_side/photo_gallery_page.dart';
 import 'views/user_side/stotra_page.dart';
-import 'views/user_side/upcoming_ram_kathas_page.dart';
+import 'views/user_side/upcoming_kathas_page.dart';
 import 'views/user_side/video_gallery_page.dart';
 import 'views/user_side/contact_page.dart';
 import 'views/user_side/news_page.dart';
@@ -48,6 +48,7 @@ import 'controllers/profile_controller.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/connectivity_controller.dart';
 import 'controllers/coupon_controller.dart';
+import 'controllers/review_controller.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -76,6 +77,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => DashboardController()),
         ChangeNotifierProvider(create: (_) => ConnectivityController()),
         ChangeNotifierProvider(create: (_) => CouponController()),
+        ChangeNotifierProvider(create: (_) => ReviewController()),
       ],
       child: const MyApp(),
     ),

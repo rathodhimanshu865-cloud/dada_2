@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../models/dashboard_stats.dart';
@@ -27,7 +28,26 @@ class DashboardController extends ChangeNotifier {
   int get selectedPeriodDays => _selectedPeriodDays;
 
   DashboardController() {
-    loadDashboardData();
+    _initRealTimeStats();
+  }
+
+  StreamSubscription? _productsSub;
+  StreamSubscription? _categoriesSub;
+  StreamSubscription? _usersSub;
+  StreamSubscription? _ordersSub;
+
+  void _initRealTimeStats() {
+    _productsSub?.cancel();
+    _categoriesSub?.cancel();
+    _usersSub?.cancel();
+    _ordersSub?.cancel();
+
+    // Combine multiple streams for a cohesive dashboard update
+    // For simplicity, we trigger a full recalculation when any major collection changes
+    _productsSub = _firestore.collection('products').snapshots().listen((_) => loadDashboardData());
+    _categoriesSub = _firestore.collection('categories').snapshots().listen((_) => loadDashboardData());
+    _usersSub = _firestore.collection('users').snapshots().listen((_) => loadDashboardData());
+    _ordersSub = _firestore.collection('orders').snapshots().listen((_) => loadDashboardData());
   }
 
   void setPeriod(int days) {

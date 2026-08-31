@@ -63,9 +63,6 @@ class _StoreSettingsViewState extends State<StoreSettingsView> with SingleTicker
   }
 
   Widget _buildScrollableCMS(int index, HomePageController controller) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: CMSViewsHelper.buildCMSView(index, controller, context, _fieldLoading, setState),
-    );
+    return CMSViewsHelper.buildCMSView(index, controller, context, _fieldLoading, setState);
   }
 }

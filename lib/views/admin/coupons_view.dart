@@ -114,6 +114,8 @@ class CouponsView extends StatelessWidget {
     final codeCtrl = TextEditingController();
     final valueCtrl = TextEditingController();
     final minOrderCtrl = TextEditingController();
+    final limitCtrl = TextEditingController(text: '2');
+    final termsCtrl = TextEditingController(text: 'Maximum 2 uses per devotee.');
     String type = 'flat';
 
     showDialog(
@@ -121,25 +123,31 @@ class CouponsView extends StatelessWidget {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           title: const Text('Create Promo Code'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(controller: codeCtrl, decoration: const InputDecoration(labelText: 'Coupon Code (e.g. DADA10)')),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: type,
-                items: const [
-                  DropdownMenuItem(value: 'flat', child: Text('Flat Price Discount')),
-                  DropdownMenuItem(value: 'percentage', child: Text('Percentage Discount')),
-                ],
-                onChanged: (v) => setDialogState(() => type = v!),
-                decoration: const InputDecoration(labelText: 'Discount Type'),
-              ),
-              const SizedBox(height: 16),
-              TextField(controller: valueCtrl, decoration: InputDecoration(labelText: type == 'flat' ? 'Discount Value (₹)' : 'Discount Percentage (%)')),
-              const SizedBox(height: 16),
-              TextField(controller: minOrderCtrl, decoration: const InputDecoration(labelText: 'Minimum Order Value (₹)')),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(controller: codeCtrl, decoration: const InputDecoration(labelText: 'Coupon Code (e.g. DADA10)')),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: type,
+                  items: const [
+                    DropdownMenuItem(value: 'flat', child: Text('Flat Price Discount')),
+                    DropdownMenuItem(value: 'percentage', child: Text('Percentage Discount')),
+                  ],
+                  onChanged: (v) => setDialogState(() => type = v!),
+                  decoration: const InputDecoration(labelText: 'Discount Type'),
+                ),
+                const SizedBox(height: 16),
+                TextField(controller: valueCtrl, decoration: InputDecoration(labelText: type == 'flat' ? 'Discount Value (₹)' : 'Discount Percentage (%)')),
+                const SizedBox(height: 16),
+                TextField(controller: minOrderCtrl, decoration: const InputDecoration(labelText: 'Minimum Order Value (₹)')),
+                const SizedBox(height: 16),
+                TextField(controller: limitCtrl, decoration: const InputDecoration(labelText: 'Usage Limit Per User'), keyboardType: TextInputType.number),
+                const SizedBox(height: 16),
+                TextField(controller: termsCtrl, decoration: const InputDecoration(labelText: 'Terms & Conditions'), maxLines: 2),
+              ],
+            ),
           ),
           actions: [
             TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
@@ -151,6 +159,8 @@ class CouponsView extends StatelessWidget {
                   discountType: type,
                   discountValue: double.tryParse(valueCtrl.text) ?? 0,
                   minOrderValue: double.tryParse(minOrderCtrl.text) ?? 0,
+                  usageLimitPerUser: int.tryParse(limitCtrl.text) ?? 2,
+                  terms: termsCtrl.text,
                 ));
                 if (context.mounted) Navigator.pop(context);
               }, 

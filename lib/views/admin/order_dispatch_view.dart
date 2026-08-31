@@ -124,6 +124,17 @@ class _OrderDispatchViewState extends State<OrderDispatchView> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text('₹${order.totalAmount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _priceBubble('Subtotal: ₹${order.subtotal.toInt()}', Colors.grey),
+                      if (order.discount > 0) _priceBubble('Discount: -₹${order.discount.toInt()}', Colors.green),
+                      _priceBubble('Tax: ₹${order.tax.toInt()}', Colors.blueGrey),
+                      _priceBubble('NET RECEIVED: ₹${order.totalAmount.toInt()}', const Color(0xFF0F4C5C)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   DropdownButton<String>(
                     value: order.orderStatus,
                     underline: const SizedBox(),
@@ -136,6 +147,11 @@ class _OrderDispatchViewState extends State<OrderDispatchView> {
               ),
             ],
           ),
+          if (order.couponCode != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 60, top: 8),
+              child: Text('Coupon Applied: ${order.couponCode}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green)),
+            ),
           const Divider(height: 32),
           
           // Order Items
@@ -220,7 +236,7 @@ class _OrderDispatchViewState extends State<OrderDispatchView> {
               ),
               const SizedBox(width: 8),
               IconButton(
-                onPressed: () => InvoiceHelper.shareInvoiceWhatsApp(order),
+                onPressed: () => InvoiceHelper.shareInvoiceOnWhatsApp(order),
                 icon: const Icon(Icons.share, color: Colors.teal),
                 tooltip: 'Share on WhatsApp',
               ),
@@ -228,6 +244,15 @@ class _OrderDispatchViewState extends State<OrderDispatchView> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _priceBubble(String text, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(left: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
+      child: Text(text, style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: color)),
     );
   }
 }

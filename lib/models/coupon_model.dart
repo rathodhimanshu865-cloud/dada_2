@@ -6,6 +6,8 @@ class CouponModel {
   final String discountType; // 'percentage' or 'flat'
   final double discountValue;
   final double minOrderValue;
+  final int usageLimitPerUser;
+  final String terms;
   final bool isActive;
   final DateTime? createdAt;
 
@@ -15,6 +17,8 @@ class CouponModel {
     required this.discountType,
     required this.discountValue,
     required this.minOrderValue,
+    this.usageLimitPerUser = 2,
+    this.terms = 'Maximum 2 uses per devotee.',
     this.isActive = true,
     this.createdAt,
   });
@@ -27,6 +31,8 @@ class CouponModel {
       discountType: data['discountType'] ?? 'flat',
       discountValue: (data['discountValue'] ?? 0.0).toDouble(),
       minOrderValue: (data['minOrderValue'] ?? 0.0).toDouble(),
+      usageLimitPerUser: data['usageLimitPerUser'] ?? 2,
+      terms: data['terms'] ?? 'Maximum 2 uses per devotee.',
       isActive: data['isActive'] ?? true,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
@@ -38,6 +44,8 @@ class CouponModel {
       'discountType': discountType,
       'discountValue': discountValue,
       'minOrderValue': minOrderValue,
+      'usageLimitPerUser': usageLimitPerUser,
+      'terms': terms,
       'isActive': isActive,
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),
     };

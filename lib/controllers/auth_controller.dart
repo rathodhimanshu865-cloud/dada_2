@@ -12,7 +12,7 @@ import 'dart:io';
 
 class AuthController extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  late final FirebaseAuth _adminAuth;
+  FirebaseAuth? _adminAuth;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   
@@ -194,6 +194,7 @@ class AuthController extends ChangeNotifier {
 
         await _firestore.collection('users').doc(credential.user!.uid).set(userModel.toMap());
         _userModel = userModel;
+        _role = 'user';
       }
     } catch (e) {
       AppLogger.error("Signup error", e);
@@ -213,14 +214,40 @@ class AuthController extends ChangeNotifier {
     try {
       final credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
       if (credential.user != null) {
-        await _fetchUserRole(credential.user!.uid);
-        await _firestore.collection('users').doc(credential.user!.uid).update({
-          'lastLogin': FieldValue.serverTimestamp(),
-        });
+        // 1. Fetch/Initialize User Profile
+        final userDoc = await _firestore.collection('users').doc(credential.user!.uid).get();
+        if (!userDoc.exists) {
+          final newUser = UserModel(
+            uid: credential.user!.uid,
+            email: email,
+            name: credential.user!.displayName ?? 'Devotee',
+            phone: credential.user!.phoneNumber ?? '',
+            role: 'user',
+          );
+          await _firestore.collection('users').doc(credential.user!.uid).set(newUser.toMap());
+          _userModel = newUser;
+          _role = 'user';
+        } else {
+          _userModel = UserModel.fromFirestore(userDoc);
+          _role = _userModel?.role;
+        }
+        
+        // 2. Log last login (optional failure)
+        try {
+          await _firestore.collection('users').doc(credential.user!.uid).update({
+            'lastLogin': FieldValue.serverTimestamp(),
+          });
+        } catch (e) {
+          AppLogger.error("Failed to update last login", e);
+        }
       }
     } catch (e) {
       AppLogger.error("Login error", e);
-      _errorMessage = "Login failed. Invalid email or password.";
+      if (e is FirebaseAuthException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = "Login failed. Please try again.";
+      }
       rethrow;
     } finally {
       _isLoading = false;
@@ -244,13 +271,13 @@ class AuthController extends ChangeNotifier {
         );
       }
       
-      final adminAuth = FirebaseAuth.instanceFor(app: Firebase.app('AdminApp'));
-      final credential = await adminAuth.signInWithEmailAndPassword(email: email, password: password);
+      _adminAuth = FirebaseAuth.instanceFor(app: Firebase.app('AdminApp'));
+      final credential = await _adminAuth!.signInWithEmailAndPassword(email: email, password: password);
       
       if (credential.user != null) {
         final role = await _getRoleOnly(credential.user!.uid);
         if (role?.toLowerCase() != 'admin') {
-          await adminAuth.signOut();
+          await _adminAuth?.signOut();
           _errorMessage = "Access Denied: You do not have administrator privileges.";
           throw Exception(_errorMessage);
         }
@@ -277,7 +304,7 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<void> adminLogout() async {
-    await _adminAuth.signOut();
+    await _adminAuth?.signOut();
     _adminUser = null;
     _adminRole = null;
     _safeNotifyListeners();

@@ -81,6 +81,20 @@ class NotificationController extends ChangeNotifier {
       message: message,
       type: 'order',
     );
+
+    // Simulate sending Email and WhatsApp
+    _sendEmailNotification(orderId, status);
+    _sendWhatsAppNotification(orderId, status);
+  }
+
+  void _sendEmailNotification(String orderId, String status) {
+    debugPrint('SIMULATED: Sending email for Order $orderId ($status)');
+    // In a real app, you would call a backend API here
+  }
+
+  void _sendWhatsAppNotification(String orderId, String status) {
+    debugPrint('SIMULATED: Sending WhatsApp message for Order $orderId ($status)');
+    // In a real app, you would use a service like Twilio or a Firebase Function
   }
 
   @override

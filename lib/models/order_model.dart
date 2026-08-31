@@ -14,6 +14,7 @@ class OrderModel {
   final double subtotal;
   final double deliveryCharge;
   final double discount;
+  final String? couponCode;
   final double tax;
   final double totalAmount;
   final String paymentMethod;
@@ -39,6 +40,7 @@ class OrderModel {
     required this.subtotal,
     required this.deliveryCharge,
     required this.discount,
+    this.couponCode,
     required this.tax,
     required this.totalAmount,
     required this.paymentMethod,
@@ -71,6 +73,7 @@ class OrderModel {
       subtotal: subtotal,
       deliveryCharge: deliveryCharge,
       discount: discount,
+      couponCode: couponCode,
       tax: tax,
       totalAmount: totalAmount,
       paymentMethod: paymentMethod,
@@ -100,6 +103,7 @@ class OrderModel {
       subtotal: (data['subtotal'] ?? 0.0).toDouble(),
       deliveryCharge: (data['deliveryCharge'] ?? 0.0).toDouble(),
       discount: (data['discount'] ?? 0.0).toDouble(),
+      couponCode: data['couponCode'],
       tax: (data['tax'] ?? 0.0).toDouble(),
       totalAmount: (data['totalAmount'] ?? 0.0).toDouble(),
       paymentMethod: data['paymentMethod'] ?? '',
@@ -127,6 +131,7 @@ class OrderModel {
       'subtotal': subtotal,
       'deliveryCharge': deliveryCharge,
       'discount': discount,
+      'couponCode': couponCode,
       'tax': tax,
       'totalAmount': totalAmount,
       'paymentMethod': paymentMethod,

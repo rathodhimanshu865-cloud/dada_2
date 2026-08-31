@@ -3,16 +3,31 @@ import 'package:provider/provider.dart';
 import '../../../models/cart_model.dart';
 import '../../../controllers/cart_controller.dart';
 import '../../../controllers/auth_controller.dart';
+import '../../../controllers/coupon_controller.dart';
 import '../../../utils/app_typography.dart';
 
-class CartDrawer extends StatelessWidget {
+class CartDrawer extends StatefulWidget {
   const CartDrawer({super.key});
+
+  @override
+  State<CartDrawer> createState() => _CartDrawerState();
+}
+
+class _CartDrawerState extends State<CartDrawer> {
+  final TextEditingController _promoCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _promoCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     const Color primaryTeal = Color(0xFF0F4C5C);
     const Color templeGold = Color(0xFFC89A5B);
     final cartController = Provider.of<CartController>(context);
+    final couponController = Provider.of<CouponController>(context);
     final double screenWidth = MediaQuery.of(context).size.width;
     final double drawerWidth = screenWidth > 600 ? 450 : screenWidth * 0.85;
 
@@ -38,6 +53,7 @@ class CartDrawer extends StatelessWidget {
                           _buildShippingProgress(context, cartController, primaryTeal, templeGold),
                           const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
                           _buildCartItems(context, cartController, primaryTeal),
+                          _buildCouponSuggestions(context, cartController, couponController, primaryTeal),
                           _buildSummary(context, cartController, primaryTeal),
                         ],
                       ),
@@ -310,6 +326,71 @@ class CartDrawer extends StatelessWidget {
     );
   }
 
+  Widget _buildCouponSuggestions(BuildContext context, CartController cart, CouponController couponCtrl, Color teal) {
+    final activeCoupons = couponCtrl.coupons.where((c) => c.isActive).toList();
+    if (activeCoupons.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Suggested Sacred Offers',
+            style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 13, color: teal),
+          ),
+          const SizedBox(height: 12),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: activeCoupons.map((c) {
+                bool isApplied = cart.appliedCoupon?.id == c.id;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: InkWell(
+                    onTap: () async {
+                      final success = await cart.applyCoupon(c);
+                      if (!success && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(cart.errorMessage ?? 'Could not apply coupon'), backgroundColor: Colors.redAccent),
+                        );
+                      } else {
+                        _promoCtrl.text = c.code;
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isApplied ? const Color(0xFFFDFBF7) : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: isApplied ? teal : Colors.grey.shade200, width: isApplied ? 1.5 : 1),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(c.code, style: TextStyle(fontWeight: FontWeight.w900, color: teal, fontSize: 12, letterSpacing: 1)),
+                          const SizedBox(height: 4),
+                          Text(
+                            c.discountType == 'percentage' ? '${c.discountValue.toInt()}% OFF' : '₹${c.discountValue.toInt()} OFF',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(c.terms, style: TextStyle(fontSize: 9, color: Colors.grey.shade600)),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Divider(height: 1, color: Color(0xFFEEEEEE)),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSummary(BuildContext context, CartController cart, Color teal) {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -327,6 +408,7 @@ class CartDrawer extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextField(
+                    controller: _promoCtrl,
                     decoration: InputDecoration(
                       hintText: 'PROMO CODE (E.G. DADA10)',
                       hintStyle: AppTypography.bodyStyle(context, fontSize: 12, color: Colors.grey),
@@ -336,21 +418,65 @@ class CartDrawer extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
-                  child: Text('Apply', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, color: Colors.black)),
+                  onPressed: () async {
+                    final code = _promoCtrl.text.trim().toUpperCase();
+                    if (code.isEmpty) return;
+                    
+                    final couponCtrl = Provider.of<CouponController>(context, listen: false);
+                    try {
+                      final coupon = couponCtrl.coupons.firstWhere(
+                        (c) => c.code.toUpperCase() == code && c.isActive,
+                      );
+                      
+                      final success = await cart.applyCoupon(coupon);
+                      if (!success && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(cart.errorMessage ?? 'Could not apply coupon'), backgroundColor: Colors.redAccent),
+                        );
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Invalid or inactive promo code'), backgroundColor: Colors.redAccent),
+                        );
+                      }
+                    }
+                  },
+                  child: Text(cart.appliedCoupon != null ? 'Applied' : 'Apply', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, color: cart.appliedCoupon != null ? Colors.green : Colors.black)),
                 ),
               ],
             ),
           ),
+          if (cart.appliedCoupon != null) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green, size: 14),
+                const SizedBox(width: 8),
+                Text('Coupon ${cart.appliedCoupon!.code} applied!', style: const TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold)),
+                const Spacer(),
+                TextButton(onPressed: cart.removeCoupon, child: const Text('Remove', style: TextStyle(color: Colors.red, fontSize: 11))),
+              ],
+            ),
+          ],
           const SizedBox(height: 20),
           _summaryRow(context, 'Subtotal', '₹${cart.subtotal.toStringAsFixed(2)}'),
+          if (cart.discountAmount > 0)
+             _summaryRow(context, 'Promo Discount', '- ₹${cart.discountAmount.toStringAsFixed(2)}', color: Colors.green),
           _summaryRow(context, 'Insured Express Shipping', '₹${cart.shippingFee.toStringAsFixed(2)}'),
           _summaryRow(context, 'Estimated Taxes (5%)', '₹${cart.tax.toStringAsFixed(2)}'),
           const Divider(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Estimated Total', style: AppTypography.headingStyle(context, fontSize: 18, fontWeight: FontWeight.bold)),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Estimated Total', style: AppTypography.headingStyle(context, fontSize: 18, fontWeight: FontWeight.bold)),
+                  if (cart.discountAmount > 0)
+                    Text('You saved ₹${cart.discountAmount.toInt()}!', style: const TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                ],
+              ),
               Text('₹${cart.total.toStringAsFixed(2)}', style: AppTypography.headingStyle(context, fontSize: 18, fontWeight: FontWeight.bold)),
             ],
           ),
@@ -404,14 +530,14 @@ class CartDrawer extends StatelessWidget {
     );
   }
 
-  Widget _summaryRow(BuildContext context, String label, String value) {
+  Widget _summaryRow(BuildContext context, String label, String value, {Color? color}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: AppTypography.bodyStyle(context, fontSize: 14, color: Colors.grey.shade600)),
-          Text(value, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w700, fontSize: 14)),
+          Text(label, style: AppTypography.bodyStyle(context, fontSize: 14, color: color ?? Colors.grey.shade600)),
+          Text(value, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w700, fontSize: 14, color: color)),
         ],
       ),
     );

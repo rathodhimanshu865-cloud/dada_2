@@ -16,7 +16,7 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  int currentMenuIndex = 13; // Default back to Product Management
+  int currentMenuIndex = 0; // Default to General Settings
   bool _isSidebarVisible = true;
   final Map<String, bool> _fieldLoading = {};
 

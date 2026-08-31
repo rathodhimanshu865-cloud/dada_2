@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../../controllers/cart_controller.dart';
 import '../../controllers/order_controller.dart';
 import '../../controllers/notification_controller.dart';
 import '../../controllers/auth_controller.dart';
+import '../../models/order_model.dart';
 import '../../utils/app_typography.dart';
+import '../../utils/invoice_helper.dart';
+import 'package:flutter/services.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -28,6 +32,45 @@ class _CheckoutPageState extends State<CheckoutPage> {
   final _pinCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
 
+  late Razorpay _razorpay;
+
+  @override
+  void initState() {
+    super.initState();
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+
+    // Pre-fill user details if logged in
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = Provider.of<AuthController>(context, listen: false);
+      if (auth.userModel != null) {
+        _nameCtrl.text = auth.userModel!.name;
+        _phoneCtrl.text = auth.userModel!.phone;
+        _emailCtrl.text = auth.userModel!.email;
+        _addressCtrl.text = auth.userModel!.address ?? '';
+        _cityCtrl.text = auth.userModel!.city ?? '';
+        _stateCtrl.text = auth.userModel!.state ?? '';
+        _pinCtrl.text = auth.userModel!.pincode ?? '';
+      }
+    });
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    _handlePlaceOrder(paymentId: response.paymentId);
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Payment Failed: ${response.message}'), backgroundColor: Colors.red),
+    );
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    // Handle external wallet
+  }
+
   final Color primaryTeal = const Color(0xFF0F4C5C);
   final Color accentGold = const Color(0xFFC89A5B);
 
@@ -41,14 +84,61 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _stateCtrl.dispose();
     _pinCtrl.dispose();
     _noteCtrl.dispose();
+    _razorpay.clear(); // Clear razorpay instance
     super.dispose();
   }
 
-  Future<void> _handlePlaceOrder() async {
+  Future<void> _startPayment() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (_paymentMethod == 'COD') {
+      await _handlePlaceOrder();
+      return;
+    }
+
+    // Simulate Razorpay Gateway for now
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Razorpay Payment Gateway (Dummy)'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 20),
+            Text('Processing secure payment...'),
+          ],
+        ),
+      ),
+    );
+
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) Navigator.pop(context); // Close dummy gateway
+
+    await _handlePlaceOrder(paymentId: 'pay_${DateTime.now().millisecondsSinceEpoch}');
+  }
+
+  String? _placedOrderId;
+  OrderModel? _placedOrder;
+
+  Future<void> _handlePlaceOrder({String? paymentId}) async {
     final cartController = Provider.of<CartController>(context, listen: false);
     final orderController = Provider.of<OrderController>(context, listen: false);
+    final auth = Provider.of<AuthController>(context, listen: false);
+
+    // Strict validation for Email and Pincode
+    if (auth.userModel != null) {
+      if (_emailCtrl.text.trim().toLowerCase() != auth.userModel!.email.toLowerCase()) {
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email must match your profile email.')));
+         return;
+      }
+    }
+
+    if (_pinCtrl.text.trim().length != 6) {
+       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid 6-digit pincode.')));
+       return;
+    }
 
     final orderId = await orderController.placeOrder(
       name: _nameCtrl.text.trim(),
@@ -62,13 +152,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
       subtotal: cartController.subtotal,
       deliveryCharge: cartController.shippingFee,
       tax: cartController.tax,
+      discount: cartController.discountAmount,
+      couponCode: cartController.appliedCoupon?.code,
       total: cartController.total,
-      paymentMethod: _paymentMethod,
+      paymentMethod: paymentId != null ? 'Online ($paymentId)' : 'COD',
       note: _noteCtrl.text.trim(),
     );
 
     if (mounted) {
       if (orderId != null) {
+        _placedOrderId = orderId;
+        // Fetch the full order model for invoice generation
+        orderController.getOrderDetails(orderId).first.then((order) {
+          if (mounted) setState(() => _placedOrder = order);
+        });
+
         await cartController.clearCart();
         
         // Send Notification
@@ -216,9 +314,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
           const SizedBox(height: 30),
           _formField('Full Name *', 'Himanshu Rathod', controller: _nameCtrl),
           const SizedBox(height: 20),
-          _formField('Phone *', '+91 98765 43210', controller: _phoneCtrl),
+          _formField('Phone *', '+91 98765 43210', controller: _phoneCtrl, validator: (v) => (v == null || v.length < 10) ? 'Valid Phone Required' : null),
           const SizedBox(height: 20),
-          _formField('Email *', 'devotee@example.com', controller: _emailCtrl),
+          _formField('Email *', 'devotee@example.com', controller: _emailCtrl, validator: (v) => (v == null || !v.contains('@')) ? 'Valid Email Required' : null),
           const SizedBox(height: 20),
           _formField('Address *', 'House No, Street...', controller: _addressCtrl, maxLines: 2),
           const SizedBox(height: 20),
@@ -228,9 +326,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
             Expanded(child: _formField('State *', 'Gujarat', controller: _stateCtrl)),
           ]),
           const SizedBox(height: 20),
-          _formField('Pincode *', '380015', controller: _pinCtrl),
+          _formField('Pincode *', '380015', controller: _pinCtrl, validator: (v) => (v == null || v.length < 6) ? 'Valid Pincode Required' : null),
           const SizedBox(height: 20),
-          _formField('Note (Optional)', 'Notes...', controller: _noteCtrl, maxLines: 2),
+          _formField('Note (Optional)', 'Notes...', controller: _noteCtrl, maxLines: 2, isMandatory: false),
         ],
       ),
     );
@@ -274,6 +372,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
           Text('Summary', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const Divider(height: 30),
           _summaryRow('Subtotal', '₹${cart.subtotal.toStringAsFixed(2)}'),
+          if (cart.discountAmount > 0)
+            _summaryRow('Discount', '- ₹${cart.discountAmount.toStringAsFixed(2)}'),
           _summaryRow('Shipping', '₹${cart.shippingFee.toStringAsFixed(2)}'),
           _summaryRow('Taxes', '₹${cart.tax.toStringAsFixed(2)}'),
           const Divider(),
@@ -298,8 +398,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
         children: [
           if (_currentStep == 2) TextButton.icon(onPressed: () => setState(() => _currentStep = 1), icon: const Icon(Icons.arrow_back), label: const Text('Back')),
           ElevatedButton(
-            onPressed: orderController.isLoading ? null : () { if (_currentStep == 1) { if (_formKey.currentState!.validate()) setState(() => _currentStep = 2); } else _handlePlaceOrder(); },
-            style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white),
+            onPressed: orderController.isLoading ? null : () { 
+              if (_currentStep == 1) { 
+                if (_formKey.currentState!.validate()) {
+                  setState(() => _currentStep = 2); 
+                }
+              } else {
+                _startPayment(); 
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20)),
             child: orderController.isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(_currentStep == 1 ? 'Next' : 'Complete Order'),
           ),
         ],
@@ -313,19 +421,83 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   Widget _buildSuccessView() {
     return Container(
-      padding: const EdgeInsets.all(48),
-      child: Column(children: [
-        const Icon(Icons.check_circle_outline, color: Colors.green, size: 80),
-        const SizedBox(height: 24),
-        Text('Order Placed!', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 40),
-        ElevatedButton(onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/product', (route) => false), child: const Text('Continue Shopping')),
-        TextButton(onPressed: () => Navigator.pushNamed(context, '/my_orders'), child: const Text('View Orders')),
-      ]),
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
+      child: Column(
+        children: [
+          const Icon(Icons.check_circle, color: Colors.green, size: 80),
+          const SizedBox(height: 24),
+          Text('Order Placed!', style: AppTypography.headingStyle(context, fontSize: 28, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Order ID: $_placedOrderId', style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.copy, size: 16, color: Colors.grey),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: () {
+                  if (_placedOrderId != null) {
+                    Clipboard.setData(ClipboardData(text: _placedOrderId!));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Order ID copied to clipboard!'), behavior: SnackBarBehavior.floating),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 40),
+          if (_placedOrder != null) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => InvoiceHelper.printInvoice(_placedOrder!),
+                    icon: const Icon(Icons.picture_as_pdf, size: 18),
+                    label: const Text('Download Invoice', style: TextStyle(fontSize: 12)),
+                    style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, padding: const EdgeInsets.symmetric(vertical: 18)),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => InvoiceHelper.shareToWhatsApp(_placedOrder!),
+                    icon: const Icon(Icons.share, size: 18),
+                    label: const Text('Send to WhatsApp', style: TextStyle(fontSize: 12)),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF25D366), padding: const EdgeInsets.symmetric(vertical: 18)),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+          ],
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/product', (route) => false), 
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 18)),
+              child: const Text('Continue Shopping'),
+            ),
+          ),
+          const SizedBox(height: 24),
+          TextButton.icon(
+            onPressed: () => Navigator.pushNamed(context, '/track', arguments: _placedOrderId), 
+            icon: const Icon(Icons.track_changes, size: 16),
+            label: const Text('Track Order Status'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pushNamed(context, '/my_orders'), 
+            child: const Text('Go to My Orders'),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _formField(String label, String hint, {required TextEditingController controller, int maxLines = 1}) {
+  Widget _formField(String label, String hint, {required TextEditingController controller, int maxLines = 1, String? Function(String?)? validator, bool isMandatory = true}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -333,7 +505,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         const SizedBox(height: 10),
         TextFormField(
           controller: controller, maxLines: maxLines,
-          validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+          validator: validator ?? (isMandatory ? (v) => v == null || v.isEmpty ? 'Required' : null : null),
           decoration: InputDecoration(hintText: hint, filled: true, fillColor: Colors.grey.shade50, border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
         ),
       ],

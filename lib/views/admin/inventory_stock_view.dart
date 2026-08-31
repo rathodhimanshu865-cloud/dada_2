@@ -107,7 +107,19 @@ class InventoryStockView extends StatelessWidget {
               ),
               Expanded(
                 flex: 1,
-                child: Text('${p.stock}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: isLow ? Colors.red : Colors.black87)),
+                child: Row(
+                  children: [
+                    Text('${p.stock}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: isLow ? Colors.red : Colors.black87)),
+                    if (p.stock <= 2) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(4)),
+                        child: const Text('OUT OF STOCK', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ],
+                ),
               ),
               if (isWide)
                 Expanded(
@@ -126,6 +138,11 @@ class InventoryStockView extends StatelessWidget {
                     _replenishBtn(context, '+5', () => prodCtrl.updateProduct(p.copyWith(stock: p.stock + 5))),
                     const SizedBox(width: 4),
                     _replenishBtn(context, '+25', () => prodCtrl.updateProduct(p.copyWith(stock: p.stock + 25)), isPrimary: true),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.edit, size: 16, color: Colors.grey),
+                      onPressed: () => _showManualStockDialog(context, p, prodCtrl),
+                    ),
                   ],
                 ),
               ),
@@ -133,6 +150,32 @@ class InventoryStockView extends StatelessWidget {
           ),
         );
       }
+    );
+  }
+
+  void _showManualStockDialog(BuildContext context, ProductModel p, ProductController prodCtrl) {
+    final TextEditingController stockCtrl = TextEditingController(text: p.stock.toString());
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Manual Stock Update: ${p.name}'),
+        content: TextField(
+          controller: stockCtrl,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(labelText: 'Set Absolute Stock Quantity'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              final newStock = int.tryParse(stockCtrl.text) ?? p.stock;
+              prodCtrl.updateProduct(p.copyWith(stock: newStock));
+              Navigator.pop(context);
+            },
+            child: const Text('Update'),
+          ),
+        ],
+      ),
     );
   }
 

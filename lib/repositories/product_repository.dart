@@ -143,7 +143,9 @@ class ProductRepository {
     Query query = _firestore.collection('products');
 
     if (categoryId != null && categoryId != 'All Sacred Products' && categoryId != 'all' && categoryId.isNotEmpty) {
-      query = query.where('categoryId', isEqualTo: categoryId);
+      // Normalize to match how it's stored in ProductModel.toFirestore
+      final normalizedId = categoryId.toLowerCase().trim();
+      query = query.where('categoryId', isEqualTo: normalizedId);
     }
     
     // User wants to see EVERYTHING they add from admin side.

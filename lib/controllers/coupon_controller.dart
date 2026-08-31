@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../models/coupon_model.dart';
@@ -10,22 +11,40 @@ class CouponController extends ChangeNotifier {
   List<CouponModel> get coupons => _coupons;
   bool get isLoading => _isLoading;
 
+  StreamSubscription? _subscription;
+
   CouponController() {
-    fetchCoupons();
+    _startSubscription();
+  }
+
+  void _startSubscription() {
+    _subscription?.cancel();
+    _isLoading = true;
+    notifyListeners();
+
+    _subscription = _firestore
+        .collection('coupons')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+      _coupons = snapshot.docs.map((doc) => CouponModel.fromFirestore(doc)).toList();
+      _isLoading = false;
+      notifyListeners();
+    }, onError: (e) {
+      debugPrint('Coupon stream error: $e');
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
   Future<void> fetchCoupons() async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      final snapshot = await _firestore.collection('coupons').orderBy('createdAt', descending: true).get();
-      _coupons = snapshot.docs.map((doc) => CouponModel.fromFirestore(doc)).toList();
-    } catch (e) {
-      debugPrint('Error fetching coupons: $e');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    _startSubscription();
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   Future<void> addCoupon(CouponModel coupon) async {

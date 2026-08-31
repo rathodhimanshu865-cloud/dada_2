@@ -29,50 +29,73 @@ class _ProductCardState extends State<ProductCard> {
     final cart = Provider.of<CartController>(context, listen: false);
     final p = widget.product;
 
+    // Logic: If stock is 0, 1, or 2, it is considered Out of Stock as per requirement.
+    final isOutOfStock = p.stock <= 2;
+
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: InkWell(
-        onTap: () => Navigator.pushNamed(context, '/product_details', arguments: p.id),
+        onTap: isOutOfStock ? null : () => Navigator.pushNamed(context, '/product_details', arguments: p.id),
         borderRadius: BorderRadius.circular(16),
-        child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFFAF8F4), // Light beige as per Image 3
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 1. Image Area
-            Expanded(
-              flex: 6,
-              child: Stack(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    margin: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+        child: Opacity(
+          opacity: isOutOfStock ? 0.7 : 1.0,
+          child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFFAF8F4), // Light beige as per Image 3
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Image Area
+              Expanded(
+                flex: 6,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      margin: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: p.imageUrl.isNotEmpty 
+                          ? CachedNetworkImage(
+                              imageUrl: p.imageUrl,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF07404C))),
+                              errorWidget: (context, url, error) => const Icon(Icons.image_outlined, color: Colors.grey, size: 48),
+                            )
+                          : const Icon(Icons.image_outlined, color: Colors.grey, size: 48),
+                      ),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: p.imageUrl.isNotEmpty 
-                        ? CachedNetworkImage(
-                            imageUrl: p.imageUrl,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF07404C))),
-                            errorWidget: (context, url, error) => const Icon(Icons.image_outlined, color: Colors.grey, size: 48),
-                          )
-                        : const Icon(Icons.image_outlined, color: Colors.grey, size: 48),
-                    ),
-                  ),
 
-                  if (p.consecrationBadge.isNotEmpty)
+                    if (isOutOfStock)
+                      Positioned.fill(
+                        child: Container(
+                          margin: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Center(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                              child: const Text('OUT OF STOCK', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1)),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    if (p.consecrationBadge.isNotEmpty && !isOutOfStock)
                     Positioned(
                       top: 24, left: 24,
                       child: Container(
@@ -182,21 +205,25 @@ class _ProductCardState extends State<ProductCard> {
                         ],
                       ),
                       InkWell(
-                        onTap: p.stock > 0 ? () {
-                          cart.addToCart(p, 1);
-                          Scaffold.of(context).openEndDrawer();
+                        onTap: !isOutOfStock ? () {
+                          if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
+                            cart.addToCart(p, 1);
+                            Scaffold.of(context).openEndDrawer();
+                          } else {
+                            Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
+                          }
                         } : null,
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                           decoration: BoxDecoration(
-                            color: p.stock > 0 ? const Color(0xFF07404C) : Colors.grey.shade400,
+                            color: !isOutOfStock ? const Color(0xFF07404C) : Colors.grey.shade400,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             children: [
-                              Icon(p.stock > 0 ? Icons.shopping_bag_outlined : Icons.do_not_disturb_on_outlined, size: 14, color: Colors.white),
+                              Icon(!isOutOfStock ? Icons.shopping_bag_outlined : Icons.do_not_disturb_on_outlined, size: 14, color: Colors.white),
                               const SizedBox(width: 8),
-                              Text(p.stock > 0 ? 'Add' : 'Out of Stock', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),
+                              Text(!isOutOfStock ? 'Add' : 'Out of Stock', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),
                             ],
                           ),
                         ),
@@ -209,6 +236,7 @@ class _ProductCardState extends State<ProductCard> {
           ],
         ),
       ),
+    ),
     ),
   );
 }

@@ -264,7 +264,22 @@ class _ProductListViewState extends State<ProductListView> {
                     ),
                   ),
                   Expanded(flex: 1, child: Text('₹${p.price}', style: const TextStyle(fontSize: 13))),
-                  Expanded(flex: 1, child: Text('${p.stock}', style: TextStyle(fontSize: 13, color: p.stock <= p.minStockAlert ? Colors.red : Colors.teal, fontWeight: FontWeight.bold))),
+                  Expanded(
+                    flex: 1, 
+                    child: Row(
+                      children: [
+                        Text('${p.stock}', style: TextStyle(fontSize: 13, color: p.stock <= p.minStockAlert ? Colors.red : Colors.teal, fontWeight: FontWeight.bold)),
+                        if (p.stock <= 2) ...[
+                           const SizedBox(width: 8),
+                           Container(
+                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                             decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(4)),
+                             child: const Text('OUT OF STOCK', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                           ),
+                        ],
+                      ],
+                    )
+                  ),
                   Expanded(
                     flex: 1,
                     child: Row(

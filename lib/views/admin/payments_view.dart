@@ -53,6 +53,42 @@ class PaymentsView extends StatelessWidget {
                   _buildPaymentBox('ONLINE CARDS / NETBANKING', '₹${cardsTotal.toStringAsFixed(2)}', '100% Secure 256-bit Encrypted', Icons.credit_card_outlined),
                 ],
               ),
+              const SizedBox(height: 48),
+              const Text('Recent Successful Transactions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: orders.where((o) => o.paymentStatus == 'Paid' || o.orderStatus == 'Delivered').length,
+                  separatorBuilder: (c, i) => const Divider(height: 1),
+                  itemBuilder: (c, i) {
+                    final paidOrders = orders.where((o) => o.paymentStatus == 'Paid' || o.orderStatus == 'Delivered').toList();
+                    final o = paidOrders[i];
+                    return ListTile(
+                      dense: true,
+                      leading: Icon(o.paymentMethod == 'COD' ? Icons.handshake_outlined : Icons.account_balance_wallet_outlined, size: 18),
+                      title: Text(o.orderId, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${o.customerName} via ${o.paymentMethod}'),
+                          Text('Breakdown: ₹${o.subtotal.toInt()} (S) - ₹${o.discount.toInt()} (D) + ₹${o.tax.toInt()} (T)', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                        ],
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text('₹${o.totalAmount}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.teal)),
+                          Text(o.paymentStatus, style: const TextStyle(fontSize: 9, color: Colors.grey)),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         );

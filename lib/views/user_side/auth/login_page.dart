@@ -31,7 +31,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this, initialIndex: 1);
+    _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
   }
 
   @override
@@ -58,14 +58,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     try {
       final auth = Provider.of<AuthController>(context, listen: false);
       await auth.login(email, password);
-      // Wait for role to be fetched from Firestore
-      if (auth.role == null) {
-        await Future.delayed(const Duration(milliseconds: 500));
-      }
       if (mounted) {
         auth.toggleLoginPortal(false);
-        // Both User and Admin stay on the User-side panel (Home Page) by default as per request.
-        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
       }
     } catch (e) {
       if (mounted) {

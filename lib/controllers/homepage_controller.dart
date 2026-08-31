@@ -47,38 +47,23 @@ class HomePageController extends ChangeNotifier {
 
   List<Map<String, dynamic>> realTimePhotos = [];
   StreamSubscription<QuerySnapshot>? _photosSubscription;
+  StreamSubscription<DocumentSnapshot>? _cmsSubscription;
 
   HomePageController() {
-    loadData();
+    _initCMSStream();
     _initPhotosStream();
   }
 
-  void _initPhotosStream() {
-    _photosSubscription?.cancel();
-    _photosSubscription = _firestore
-        .collection('photos')
-        .orderBy('uploadedAt', descending: true)
-        .snapshots()
-        .listen((snapshot) {
-      realTimePhotos = snapshot.docs.map((doc) => doc.data()).toList();
-      _safeNotifyListeners();
-    }, onError: (err) {
-      AppLogger.error("Photos stream error", err);
-    });
-  }
-
-  @override
-  void dispose() {
-    _isDisposed = true;
-    _photosSubscription?.cancel();
-    super.dispose();
-  }
-
-  Future<void> loadData() async {
+  void _initCMSStream() {
+    _cmsSubscription?.cancel();
     isLoading = true;
     _safeNotifyListeners();
-    try {
-      final doc = await _firestore.collection('cms').doc('homepage').get();
+
+    _cmsSubscription = _firestore
+        .collection('cms')
+        .doc('homepage')
+        .snapshots()
+        .listen((doc) {
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
         if (data['websiteSettings'] != null) websiteSettings = WebsiteSettings.fromMap(data['websiteSettings']);
@@ -107,16 +92,45 @@ class HomePageController extends ChangeNotifier {
         if (data['videoGalleryData'] != null) videoGalleryData = VideoGalleryPageData.fromMap(data['videoGalleryData']);
         if (data['photoGalleryData'] != null) photoGalleryData = PhotoGalleryPageData.fromMap(data['photoGalleryData']);
       }
-      
-      _firestore.collection('inquiries').get().then((inqSnap) {
-        inquiries = inqSnap.docs.map((doc) => ContactInquiry.fromMap(doc.id, doc.data())).toList();
-        _safeNotifyListeners();
-      });
-    } catch (e) {
-      AppLogger.error("Load error", e);
-    }
-    isLoading = false;
-    _safeNotifyListeners();
+      isLoading = false;
+      _safeNotifyListeners();
+    }, onError: (e) {
+      AppLogger.error("CMS stream error", e);
+      isLoading = false;
+      _safeNotifyListeners();
+    });
+
+    // One-time load for inquiries remains
+    _firestore.collection('inquiries').get().then((inqSnap) {
+      inquiries = inqSnap.docs.map((doc) => ContactInquiry.fromMap(doc.id, doc.data())).toList();
+      _safeNotifyListeners();
+    });
+  }
+
+  void _initPhotosStream() {
+    _photosSubscription?.cancel();
+    _photosSubscription = _firestore
+        .collection('photos')
+        .orderBy('uploadedAt', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+      realTimePhotos = snapshot.docs.map((doc) => doc.data()).toList();
+      _safeNotifyListeners();
+    }, onError: (err) {
+      AppLogger.error("Photos stream error", err);
+    });
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    _photosSubscription?.cancel();
+    _cmsSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> loadData() async {
+    _initCMSStream();
   }
 
   // Management functions

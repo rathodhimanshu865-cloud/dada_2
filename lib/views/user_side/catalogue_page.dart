@@ -23,11 +23,7 @@ class _CataloguePageState extends State<CataloguePage> {
       final String? categoryId = ModalRoute.of(context)?.settings.arguments as String?;
       final prodController = Provider.of<ProductController>(context, listen: false);
       
-      if (categoryId != null) {
-        prodController.selectCategory(categoryId);
-      } else {
-        prodController.fetchBrowsingProducts(refresh: true);
-      }
+      prodController.selectCategory(categoryId ?? 'all');
     });
   }
 
@@ -36,15 +32,19 @@ class _CataloguePageState extends State<CataloguePage> {
     final homeController = Provider.of<HomePageController>(context, listen: false);
     final productController = Provider.of<ProductController>(context);
 
+    final List<ProductModel> displayProducts = productController.searchQuery.isEmpty 
+        ? (productController.browsingProducts.isNotEmpty ? productController.browsingProducts : productController.filteredProducts)
+        : productController.searchResults;
+
     return ProductCartLayout(
       controller: homeController,
       slivers: [
         SliverToBoxAdapter(child: _buildHeroBanner(context)),
         const SliverToBoxAdapter(child: SizedBox(height: 40)),
-        SliverToBoxAdapter(child: _buildFilterRow(context, productController)),
+        SliverToBoxAdapter(child: _buildFilterRow(context, productController, displayProducts)),
         const SliverToBoxAdapter(child: SizedBox(height: 40)),
         
-        if (productController.isBrowsingLoading && productController.browsingProducts.isEmpty)
+        if (productController.isBrowsingLoading && displayProducts.isEmpty)
           const SliverFillRemaining(
             child: Center(
               child: Column(
@@ -57,7 +57,7 @@ class _CataloguePageState extends State<CataloguePage> {
               ),
             ),
           )
-        else if (productController.browsingProducts.isEmpty)
+        else if (displayProducts.isEmpty)
           SliverFillRemaining(
             child: Center(
               child: Column(
@@ -71,7 +71,7 @@ class _CataloguePageState extends State<CataloguePage> {
             ),
           )
         else
-          _buildProductGrid(context, productController),
+          _buildProductGrid(context, productController, displayProducts),
           
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
@@ -120,7 +120,7 @@ class _CataloguePageState extends State<CataloguePage> {
     );
   }
 
-  Widget _buildFilterRow(BuildContext context, ProductController prod) {
+  Widget _buildFilterRow(BuildContext context, ProductController prod, List<ProductModel> displayProducts) {
     // 1. Static map of icons for known categories
     final Map<String, IconData> iconMap = {
       'keychain': Icons.vpn_key_outlined,
@@ -133,25 +133,18 @@ class _CataloguePageState extends State<CataloguePage> {
       'other': Icons.more_horiz_outlined,
     };
 
-    // 2. Build the list of categories to display
+    // 2. Build the list of categories to display in the exact requested order
     final List<Map<String, dynamic>> uiCategories = [
-      {'name': 'All Sacred Products', 'id': 'all', 'icon': null},
-      // Map database categories to their icons, ensuring correct IDs
-      ...prod.categoryObjects.map((c) => {
-        'name': c.name,
-        'id': c.id,
-        'icon': iconMap[c.id.toLowerCase()] ?? iconMap[c.name.toLowerCase().replaceAll(' ', '_')] ?? Icons.category_outlined,
-      }),
+      {'name': 'All Products', 'id': 'all', 'icon': null},
+      {'name': 'Acrylic Photo Frame', 'id': 'acrylic_photo_frame', 'icon': iconMap['acrylic_photo_frame']},
+      {'name': 'Footprints / Paduka', 'id': 'footprints_paduka', 'icon': iconMap['footprints_paduka']},
+      {'name': 'Keychain', 'id': 'keychain', 'icon': iconMap['keychain']},
+      {'name': 'Other Products', 'id': 'other', 'icon': iconMap['other']},
+      {'name': 'Pouch / Pocket Pin', 'id': 'pouch_pocket_pin', 'icon': iconMap['pouch_pocket_pin']},
+      {'name': 'Rakshasutra / Sacred Thread', 'id': 'rakshasutra_sacred_thread', 'icon': iconMap['rakshasutra_sacred_thread']},
+      {'name': 'Sticker', 'id': 'sticker', 'icon': iconMap['sticker']},
+      {'name': 'Temple', 'id': 'temple', 'icon': iconMap['temple']},
     ];
-
-    // 3. Ensure 'Other Products' is always present if not already in DB
-    if (!uiCategories.any((cat) => cat['id'].toString().toLowerCase() == 'other')) {
-      uiCategories.add({
-        'name': 'Other Products',
-        'id': 'other',
-        'icon': Icons.more_horiz_outlined,
-      });
-    }
 
     return Container(
       width: double.infinity,
@@ -162,51 +155,49 @@ class _CataloguePageState extends State<CataloguePage> {
           constraints: const BoxConstraints(maxWidth: 1400),
           child: Column(
             children: [
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 12,
+                  runSpacing: 12,
                   children: uiCategories.map((cat) {
                     bool isSelected = prod.selectedCategoryId.toLowerCase() == cat['id'].toString().toLowerCase();
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: InkWell(
-                        onTap: () => prod.selectCategory(cat['id']!),
-                        borderRadius: BorderRadius.circular(30),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFF07404C) : Colors.white,
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
-                              color: isSelected ? const Color(0xFF07404C) : Colors.grey.shade200,
-                              width: 1,
-                            ),
+                    return InkWell(
+                      onTap: () => prod.selectCategory(cat['id']!),
+                      borderRadius: BorderRadius.circular(30),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: isSelected ? const Color(0xFF07404C) : Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: isSelected ? const Color(0xFF07404C) : Colors.grey.shade200,
+                            width: 1,
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (cat['icon'] != null) ...[
-                                Icon(
-                                  cat['icon'] as IconData,
-                                  size: 16,
-                                  color: isSelected ? Colors.amber.shade200 : const Color(0xFF07404C),
-                                ),
-                                const SizedBox(width: 8),
-                              ],
-                              Text(
-                                cat['name']!.toUpperCase(),
-                                style: TextStyle(
-                                  color: isSelected ? Colors.white : Colors.grey.shade700,
-                                  fontWeight: isSelected ? FontWeight.w900 : FontWeight.bold,
-                                  fontSize: 10,
-                                  letterSpacing: 0.5,
-                                ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (cat['icon'] != null) ...[
+                              Icon(
+                                cat['icon'] as IconData,
+                                size: 16,
+                                color: isSelected ? Colors.amber.shade200 : const Color(0xFF07404C),
                               ),
+                              const SizedBox(width: 10),
                             ],
-                          ),
+                            Text(
+                              cat['name']!.toUpperCase(),
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : Colors.grey.shade700,
+                                fontWeight: isSelected ? FontWeight.w900 : FontWeight.bold,
+                                fontSize: 10,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     );
@@ -248,17 +239,6 @@ class _CataloguePageState extends State<CataloguePage> {
                       ),
                     ),
                     const SizedBox(width: 24),
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: prod.onlyInStock,
-                          onChanged: (v) => prod.updateFilters(inStock: v),
-                          activeColor: const Color(0xFF07404C),
-                        ),
-                        const Text('In-Stock Only', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-                      ],
-                    ),
-                    const SizedBox(width: 24),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
@@ -268,14 +248,20 @@ class _CataloguePageState extends State<CataloguePage> {
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
-                          value: prod.sortBy,
+                          value: prod.sortBy == 'name' ? 'A-Z' : (prod.sortBy == 'price' ? 'Price: Low to High' : 'Latest Arrival'),
                           items: const [
-                            DropdownMenuItem(value: 'createdAt', child: Text('Latest Arrival', style: TextStyle(fontSize: 13))),
-                            DropdownMenuItem(value: 'price', child: Text('Price: Low to High', style: TextStyle(fontSize: 13))),
-                            DropdownMenuItem(value: 'name', child: Text('Name: A-Z', style: TextStyle(fontSize: 13))),
+                            DropdownMenuItem(value: 'A-Z', child: Text('A-Z', style: TextStyle(fontSize: 13))),
+                            DropdownMenuItem(value: 'Price: Low to High', child: Text('Price: Low to High', style: TextStyle(fontSize: 13))),
+                            DropdownMenuItem(value: 'Latest Arrival', child: Text('Latest Arrival', style: TextStyle(fontSize: 13))),
                           ],
                           onChanged: (v) {
-                            if (v != null) prod.updateSort(v, true);
+                            if (v == 'A-Z') {
+                              prod.updateSort('name', false);
+                            } else if (v == 'Price: Low to High') {
+                              prod.updateSort('price', false);
+                            } else if (v == 'Latest Arrival') {
+                              prod.updateSort('createdAt', true);
+                            }
                           },
                         ),
                       ),
@@ -289,7 +275,7 @@ class _CataloguePageState extends State<CataloguePage> {
                 child: Row(
                   children: [
                     Text(
-                      'Showing ${prod.browsingProducts.length} sacred items in ',
+                      'Showing ${displayProducts.length} sacred items in ',
                       style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                     ),
                     Text(
@@ -306,13 +292,7 @@ class _CataloguePageState extends State<CataloguePage> {
     );
   }
 
-  Widget _buildProductGrid(BuildContext context, ProductController prod) {
-    // 1. Prioritize browsingProducts (paged)
-    // 2. If empty, fall back to filteredProducts (cached/local)
-    final List<ProductModel> products = prod.searchQuery.isEmpty 
-        ? (prod.browsingProducts.isNotEmpty ? prod.browsingProducts : prod.filteredProducts)
-        : prod.searchResults;
-
+  Widget _buildProductGrid(BuildContext context, ProductController prod, List<ProductModel> products) {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
       sliver: SliverGrid(

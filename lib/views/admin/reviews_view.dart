@@ -100,7 +100,9 @@ class ReviewsView extends StatelessWidget {
   }
 
   void _showReplyDialog(BuildContext context, String phone) {
-    final reply = "Pranam! Thank you for your kind words and blessings. We are delighted to know that Pu. Dada's sacred offering brought peace to your home. May you always be blessed. - Temple Seva Team";
+    final TextEditingController replyCtrl = TextEditingController(
+      text: "Jai Sachchidanand! Pranam! Thank you for your kind review and blessings. We are delighted to know that Pu. Dada's sacred offering brought peace and positive energy to your home. May you always be blessed with divine grace. - Temple Seva Team"
+    );
     
     showDialog(
       context: context,
@@ -110,19 +112,23 @@ class ReviewsView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Suggested Reply:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            const Text('Suggested Reply (You can edit):', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(8)),
-              child: Text(reply, style: const TextStyle(fontSize: 13, height: 1.5)),
+            TextField(
+              controller: replyCtrl,
+              maxLines: 5,
+              style: const TextStyle(fontSize: 13),
+              decoration: const InputDecoration(border: OutlineInputBorder()),
             ),
           ],
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton.icon(
-            onPressed: () => _sendWhatsApp(phone, reply), 
+            onPressed: () {
+              _sendWhatsApp(phone, replyCtrl.text);
+              Navigator.pop(context);
+            }, 
             icon: const Icon(Icons.chat),
             label: const Text('Send via WhatsApp'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white),

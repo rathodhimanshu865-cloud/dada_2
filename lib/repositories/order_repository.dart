@@ -5,17 +5,39 @@ class OrderRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> placeOrder(OrderModel order) async {
-    await _firestore.collection('orders').doc(order.orderId).set(order.toFirestore());
+    final batch = _firestore.batch();
+    
+    // 1. Create the order
+    final orderRef = _firestore.collection('orders').doc(order.orderId);
+    batch.set(orderRef, order.toFirestore());
+    
+    // 2. Decrement stock for each item
+    for (var item in order.items) {
+      final productId = item['productId'];
+      final quantity = item['quantity'] ?? 0;
+      
+      if (productId != null && quantity > 0) {
+        final productRef = _firestore.collection('products').doc(productId);
+        batch.update(productRef, {
+          'stock': FieldValue.increment(-quantity),
+          'salesCount': FieldValue.increment(quantity),
+        });
+      }
+    }
+    
+    await batch.commit();
   }
 
   Stream<List<OrderModel>> getUserOrders(String userId) {
     return _firestore
         .collection('orders')
         .where('userId', isEqualTo: userId)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => OrderModel.fromFirestore(doc)).toList());
+        .map((snapshot) {
+           final orders = snapshot.docs.map((doc) => OrderModel.fromFirestore(doc)).toList();
+           orders.sort((a, b) => (b.createdAt ?? DateTime(0)).compareTo(a.createdAt ?? DateTime(0)));
+           return orders;
+        });
   }
 
   Stream<OrderModel?> getOrderDetails(String orderId) {

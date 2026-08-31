@@ -363,13 +363,30 @@ class _ProductHeaderState extends State<ProductHeader> {
   }
 
   Widget _buildCatalogueDropdown(BuildContext context, Color textColor, Color primaryColor) {
+    // Icons mapping for visual consistency
+    final Map<String, IconData> iconMap = {
+      'keychain': Icons.vpn_key_outlined,
+      'acrylic_photo_frame': Icons.crop_original,
+      'temple': Icons.temple_hindu_outlined,
+      'footprints_paduka': Icons.pets_outlined,
+      'sticker': Icons.sticky_note_2_outlined,
+      'pouch_pocket_pin': Icons.wallet_outlined,
+      'rakshasutra_sacred_thread': Icons.gesture,
+      'other': Icons.more_horiz_outlined,
+    };
+
     return Consumer<ProductController>(
       builder: (context, prod, child) {
-        final categories = prod.categories.where((c) => c != 'All Sacred Products').toList();
         return Theme(
           data: Theme.of(context).copyWith(hoverColor: Colors.transparent),
           child: PopupMenuButton<String>(
-            offset: const Offset(0, 45), elevation: 8, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Colors.grey.shade300)), color: Colors.white,
+            offset: const Offset(0, 45),
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: Colors.grey.shade300),
+            ),
+            color: Colors.white,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -380,32 +397,53 @@ class _ProductHeaderState extends State<ProductHeader> {
             ),
             itemBuilder: (context) => [
               PopupMenuItem<String>(
-                enabled: false, padding: EdgeInsets.zero,
+                enabled: false,
+                padding: EdgeInsets.zero,
                 child: Container(
-                  width: 500, padding: const EdgeInsets.all(24),
+                  width: 320,
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Sacred Categories', style: AppTypography.headingStyle(context, fontSize: 18, fontWeight: FontWeight.bold, color: primaryColor)),
                       const SizedBox(height: 20),
-                      Wrap(
-                        spacing: 20, runSpacing: 20,
-                        children: categories.map((cat) => SizedBox(
-                          width: 200,
-                          child: InkWell(
-                            onTap: () {
-                              prod.selectCategory(cat);
-                              Navigator.pop(context);
-                              // Use replacement to keep the stack clean
-                              Navigator.pushReplacementNamed(context, '/catalogue');
-                            },
-                            child: Row(children: [const Icon(Icons.category_outlined, size: 20), const SizedBox(width: 12), Expanded(child: Text(cat, style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFF2B2B2B))))]),
+                      ...prod.categoryObjects.map((cat) => Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.pushNamed(context, '/catalogue', arguments: cat.id);
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                iconMap[cat.id.toLowerCase()] ?? iconMap[cat.name.toLowerCase().replaceAll(' ', '_')] ?? Icons.category_outlined,
+                                size: 18,
+                                color: Colors.grey.shade600,
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  cat.name,
+                                  style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFF2B2B2B)),
+                                ),
+                              ),
+                            ],
                           ),
-                        )).toList(),
-                      ),
-                      const SizedBox(height: 30),
+                        ),
+                      )).toList(),
+                      const SizedBox(height: 16),
                       const Divider(),
-                      Center(child: TextButton(onPressed: () { Navigator.pop(context); Navigator.pushReplacementNamed(context, '/catalogue'); }, child: Text('Explore All Products >', style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.bold, color: primaryColor)))),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pushNamed(context, '/catalogue', arguments: 'all');
+                          },
+                          child: Text('Explore All Products >', style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.bold, color: primaryColor)),
+                        ),
+                      ),
                     ],
                   ),
                 ),
