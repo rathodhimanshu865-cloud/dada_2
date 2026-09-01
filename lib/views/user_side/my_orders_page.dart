@@ -191,6 +191,22 @@ class MyOrdersPage extends StatelessWidget {
                 if (order.items.length > 2)
                   Text('+ ${order.items.length - 2} more items', style: TextStyle(color: Colors.grey.shade500, fontSize: 12, fontWeight: FontWeight.bold)),
                 const Divider(height: 40),
+                if (order.trackingId != null && order.trackingId!.isNotEmpty) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(8)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('TRACKING INFORMATION', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue, letterSpacing: 0.5)),
+                        const SizedBox(height: 8),
+                        Text('${order.trackingCarrier}: ${order.trackingId}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -202,23 +218,24 @@ class MyOrdersPage extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton(
+                      child: ElevatedButton.icon(
                         onPressed: () {
-                          // TODO: Navigate to Order Details / Track
                           Navigator.pushNamed(context, '/track', arguments: order.orderId);
                         },
+                        icon: const Icon(Icons.track_changes, size: 16),
                         style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                        child: const Text('TRACK ORDER', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        label: const Text('TRACK ORDER', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
-                      child: OutlinedButton(
+                      child: OutlinedButton.icon(
                         onPressed: () {
                            _showOrderDetails(context, order);
                         },
+                        icon: const Icon(Icons.description_outlined, size: 16),
                         style: OutlinedButton.styleFrom(side: BorderSide(color: primaryTeal), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                        child: Text('VIEW DETAILS', style: TextStyle(color: primaryTeal, fontWeight: FontWeight.bold, fontSize: 12)),
+                        label: Text('VIEW DETAILS', style: TextStyle(color: primaryTeal, fontWeight: FontWeight.bold, fontSize: 12)),
                       ),
                     ),
                   ],
@@ -270,6 +287,8 @@ class MyOrdersPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _infoRow('Status', order.orderStatus, isBold: true),
+                    if (order.trackingId != null && order.trackingId!.isNotEmpty)
+                       _infoRow('Tracking', '${order.trackingCarrier}: ${order.trackingId}', isBold: true, color: Colors.blue),
                     _infoRow('Payment', '${order.paymentMethod} (${order.paymentStatus})'),
                     _infoRow('Delivery Address', '${order.customerName}\n${order.address}, ${order.city}, ${order.state} - ${order.pincode}'),
                     const SizedBox(height: 30),
@@ -297,7 +316,7 @@ class MyOrdersPage extends StatelessWidget {
     );
   }
 
-  Widget _infoRow(String label, String value, {bool isBold = false}) {
+  Widget _infoRow(String label, String value, {bool isBold = false, Color? color}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Column(
@@ -305,7 +324,7 @@ class MyOrdersPage extends StatelessWidget {
         children: [
           Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
           const SizedBox(height: 6),
-          Text(value, style: TextStyle(fontSize: 14, fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
+          Text(value, style: TextStyle(fontSize: 14, fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color)),
         ],
       ),
     );

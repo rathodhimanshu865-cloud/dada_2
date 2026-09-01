@@ -82,7 +82,7 @@ class PaymentsView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text('₹${o.totalAmount}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.teal)),
-                          Text(o.paymentStatus, style: const TextStyle(fontSize: 9, color: Colors.grey)),
+                          const Text('Successful', style: TextStyle(fontSize: 9, color: Colors.grey)),
                         ],
                       ),
                     );

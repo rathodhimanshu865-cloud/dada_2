@@ -197,35 +197,7 @@ class _OrderDispatchViewState extends State<OrderDispatchView> {
               const SizedBox(width: 24),
               Expanded(
                 flex: 2,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'DTDC Express / Blue Dart: DADA-ID-123',
-                          hintStyle: const TextStyle(fontSize: 11),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          filled: true,
-                          fillColor: Colors.blue.shade50,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide.none),
-                        ),
-                        controller: TextEditingController(text: order.trackingId != null ? '${order.trackingCarrier}: ${order.trackingId}' : ''),
-                        onSubmitted: (val) {
-                          final parts = val.split(':');
-                          if (parts.length == 2) {
-                            orderCtrl.updateOrder(order.copyWith(trackingCarrier: parts[0].trim(), trackingId: parts[1].trim()));
-                          }
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    ElevatedButton(
-                      onPressed: () {}, 
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade200, foregroundColor: Colors.black87, elevation: 0),
-                      child: const Text('Update Tracking', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold))
-                    ),
-                  ],
-                ),
+                child: _TrackingUpdateField(order: order, orderCtrl: orderCtrl),
               ),
               const SizedBox(width: 16),
               ElevatedButton.icon(
@@ -246,13 +218,89 @@ class _OrderDispatchViewState extends State<OrderDispatchView> {
       ),
     );
   }
-
   Widget _priceBubble(String text, Color color) {
     return Container(
       margin: const EdgeInsets.only(left: 4),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
       child: Text(text, style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: color)),
+    );
+  }
+}
+
+class _TrackingUpdateField extends StatefulWidget {
+  final OrderModel order;
+  final OrderController orderCtrl;
+  const _TrackingUpdateField({required this.order, required this.orderCtrl});
+
+  @override
+  State<_TrackingUpdateField> createState() => _TrackingUpdateFieldState();
+}
+
+class _TrackingUpdateFieldState extends State<_TrackingUpdateField> {
+  late TextEditingController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(text: widget.order.trackingId != null ? '${widget.order.trackingCarrier}: ${widget.order.trackingId}' : '');
+  }
+
+  @override
+  void didUpdateWidget(_TrackingUpdateField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.order.trackingId != oldWidget.order.trackingId) {
+      _ctrl.text = widget.order.trackingId != null ? '${widget.order.trackingCarrier}: ${widget.order.trackingId}' : '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _update() {
+    final val = _ctrl.text.trim();
+    if (val.isEmpty) return;
+    
+    final parts = val.split(':');
+    if (parts.length == 2) {
+      widget.orderCtrl.updateOrder(widget.order.copyWith(
+        trackingCarrier: parts[0].trim(), 
+        trackingId: parts[1].trim()
+      ));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tracking updated!'), behavior: SnackBarBehavior.floating));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid format. Use "Carrier: ID"'), backgroundColor: Colors.redAccent));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: 'DTDC Express / Blue Dart: DADA-ID-123',
+              hintStyle: const TextStyle(fontSize: 11),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              filled: true,
+              fillColor: Colors.blue.shade50,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide.none),
+            ),
+            controller: _ctrl,
+            onSubmitted: (_) => _update(),
+          ),
+        ),
+        const SizedBox(width: 12),
+        ElevatedButton(
+          onPressed: _update, 
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade200, foregroundColor: Colors.black87, elevation: 0),
+          child: const Text('Update Tracking', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold))
+        ),
+      ],
     );
   }
 }
