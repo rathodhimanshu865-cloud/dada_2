@@ -311,67 +311,72 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           color: Colors.grey.shade100,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Stack(
-          children: [
-            AnimatedAlign(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              alignment: _tabController.index == 0 ? Alignment.centerLeft : Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: Container(
-                  width: (450 - 48 - 8) / 2, // Approx half width
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Row(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double boxWidth = constraints.maxWidth;
+            return Stack(
               children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _tabController.animateTo(0)),
+                AnimatedAlign(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  alignment: _tabController.index == 0 ? Alignment.centerLeft : Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
                     child: Container(
-                      color: Colors.transparent,
-                      alignment: Alignment.center,
-                      child: Text(
-                        'SIGN IN',
-                        style: AppTypography.bodyStyle(context, 
-                          fontWeight: FontWeight.bold, 
-                          fontSize: 12, 
-                          color: _tabController.index == 0 ? primaryTeal : Colors.grey,
-                          letterSpacing: 1,
-                        ),
+                      width: (boxWidth - 8) / 2,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                        ],
                       ),
                     ),
                   ),
                 ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _tabController.animateTo(1)),
-                    child: Container(
-                      color: Colors.transparent,
-                      alignment: Alignment.center,
-                      child: Text(
-                        'CREATE ACCOUNT',
-                        style: AppTypography.bodyStyle(context, 
-                          fontWeight: FontWeight.bold, 
-                          fontSize: 12, 
-                          color: _tabController.index == 1 ? primaryTeal : Colors.grey,
-                          letterSpacing: 1,
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _tabController.animateTo(0)),
+                        child: Container(
+                          color: Colors.transparent,
+                          alignment: Alignment.center,
+                          child: Text(
+                            'SIGN IN',
+                            style: AppTypography.bodyStyle(context, 
+                              fontWeight: FontWeight.bold, 
+                              fontSize: 12, 
+                              color: _tabController.index == 0 ? primaryTeal : Colors.grey,
+                              letterSpacing: 1,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _tabController.animateTo(1)),
+                        child: Container(
+                          color: Colors.transparent,
+                          alignment: Alignment.center,
+                          child: Text(
+                            'CREATE ACCOUNT',
+                            style: AppTypography.bodyStyle(context, 
+                              fontWeight: FontWeight.bold, 
+                              fontSize: 12, 
+                              color: _tabController.index == 1 ? primaryTeal : Colors.grey,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ),
-          ],
+            );
+          }
         ),
       ),
     );

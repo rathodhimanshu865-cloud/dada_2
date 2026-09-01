@@ -10,11 +10,13 @@ import '../../controllers/cart_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/review_controller.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/product_model.dart';
 import '../../models/review_model.dart';
 import 'sections/product_cart_layout.dart';
 import 'sections/product_card.dart';
 import '../../utils/app_typography.dart';
+import '../../utils/responsive_utils.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   const ProductDetailsPage({super.key});
@@ -120,38 +122,39 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         }
 
         final p = snapshot.data!;
+        final bool isMobile = Responsive.isMobile(context);
+        final bool isTablet = Responsive.isTablet(context);
         final List<String> images = p.imageUrls.isNotEmpty 
             ? p.imageUrls.where((url) => url.isNotEmpty).toList() 
             : (p.imageUrl.isNotEmpty ? [p.imageUrl] : <String>['https://via.placeholder.com/600']);
 
         List<Widget> contentSlivers = [
-          SliverToBoxAdapter(child: _buildTopHeader(p)),
+          SliverToBoxAdapter(child: _buildTopHeader(p, isMobile)),
           SliverToBoxAdapter(
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1400),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                  padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 40, vertical: 20),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      bool isMobile = constraints.maxWidth < 900;
                       return Column(
                         children: [
                           if (isMobile) ...[
-                            _buildGallery(images, p),
+                            _buildGallery(images, p, isMobile),
                             const SizedBox(height: 32),
-                            _buildProductInfo(p),
+                            _buildProductInfo(p, isMobile),
                           ] else
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(flex: 5, child: _buildGallery(images, p)),
+                                Expanded(flex: 5, child: _buildGallery(images, p, isMobile)),
                                 const SizedBox(width: 48),
-                                Expanded(flex: 5, child: _buildProductInfo(p)),
+                                Expanded(flex: 5, child: _buildProductInfo(p, isMobile)),
                               ],
                             ),
                           const SizedBox(height: 32),
-                          _buildFrequentlyBlessedTogether(p, productController),
+                          _buildFrequentlyBlessedTogether(p, productController, isMobile),
                           const SizedBox(height: 32),
                           _buildDetailsTabs(p),
                         ],
@@ -165,11 +168,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           const SliverToBoxAdapter(child: SizedBox(height: 40)),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: _buildRecommendationTitle("Similar Devotional Keychains"),
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 40),
+              child: _buildRecommendationTitle(AppLocalizations.of(context)!.similarProducts),
             ),
           ),
-          _buildSimilarProductsGrid(productController, 'keychain'),
+          _buildSimilarProductsGrid(productController, 'keychain', isMobile),
           const SliverToBoxAdapter(child: SizedBox(height: 60)),
         ];
 
@@ -182,21 +185,21 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildTopHeader(ProductModel p) {
+  Widget _buildTopHeader(ProductModel p, bool isMobile) {
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: isMobile ? 20 : 40),
       color: Colors.white,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1400),
           child: Row(
             children: [
-              Text('Sacred Catalog', style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
+              Text(AppLocalizations.of(context)!.sacredCatalog, style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
               Icon(Icons.chevron_right, size: 12, color: Colors.grey.shade400),
-              Text(p.categoryId.toUpperCase(), style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
+              Flexible(child: Text(p.categoryId.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w600))),
               Icon(Icons.chevron_right, size: 12, color: Colors.grey.shade400),
-              Text(p.localizedName(lang), style: const TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.bold)),
+              Flexible(child: Text(p.localizedName(lang), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.bold))),
             ],
           ),
         ),
@@ -204,7 +207,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildGallery(List<String> images, ProductModel p) {
+  Widget _buildGallery(List<String> images, ProductModel p, bool isMobile) {
     return Column(
       children: [
         Stack(
@@ -212,7 +215,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             GestureDetector(
               onTap: () => _showFullScreenImage(context, images[_selectedImageIndex]),
               child: Container(
-                height: 550,
+                height: isMobile ? 350 : 550,
                 width: double.infinity,
                 decoration: BoxDecoration(color: const Color(0xFFF9F9F9), borderRadius: BorderRadius.circular(8)),
                 child: ClipRRect(
@@ -231,7 +234,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(color: const Color(0xFF07404C), borderRadius: BorderRadius.circular(30)),
-                child: const Text('POPULAR', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                child: Text(AppLocalizations.of(context)!.popular, style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
               ),
             ),
             Positioned(
@@ -241,23 +244,26 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           ],
         ),
         const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: images.asMap().entries.map((e) => GestureDetector(
-            onTap: () => setState(() => _selectedImageIndex = e.key),
-            child: Container(
-              margin: const EdgeInsets.only(right: 12),
-              width: 70, height: 70,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: _selectedImageIndex == e.key ? primaryTeal : Colors.grey.shade200, width: 2),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: images.asMap().entries.map((e) => GestureDetector(
+              onTap: () => setState(() => _selectedImageIndex = e.key),
+              child: Container(
+                margin: const EdgeInsets.only(right: 12),
+                width: isMobile ? 60 : 70, height: isMobile ? 60 : 70,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: _selectedImageIndex == e.key ? primaryTeal : Colors.grey.shade200, width: 2),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(6), 
+                  child: CachedNetworkImage(imageUrl: e.value, fit: BoxFit.cover),
+                ),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(6), 
-                child: CachedNetworkImage(imageUrl: e.value, fit: BoxFit.cover),
-              ),
-            ),
-          )).toList(),
+            )).toList(),
+          ),
         ),
         const SizedBox(height: 16),
         Container(
@@ -268,7 +274,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             children: [
               const Icon(Icons.verified_user_outlined, size: 12, color: Colors.green),
               const SizedBox(width: 8),
-              Text('100% Genuine Atelier Stock', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
+              Text(AppLocalizations.of(context)!.genuineStockLabel, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
             ],
           ),
         ),
@@ -293,7 +299,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildProductInfo(ProductModel p) {
+  Widget _buildProductInfo(ProductModel p, bool isMobile) {
     final auth = Provider.of<AuthController>(context, listen: false);
     final cart = Provider.of<CartController>(context, listen: false);
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
@@ -301,7 +307,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     final isOutOfStock = p.stock <= 2;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -309,15 +315,15 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           children: [
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
                 children: [
                   Text(p.categoryId.toUpperCase(), style: TextStyle(color: templeGold, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
                   const SizedBox(height: 12),
-                  Text(p.localizedName(lang), style: GoogleFonts.cormorantGaramond(fontSize: 36, fontWeight: FontWeight.w700, color: primaryTeal)),
+                  Text(p.localizedName(lang), textAlign: isMobile ? TextAlign.center : TextAlign.start, style: GoogleFonts.cormorantGaramond(fontSize: isMobile ? 28 : 36, fontWeight: FontWeight.w700, color: primaryTeal)),
                 ],
               ),
             ),
-            Column(
+            if (!isMobile) Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Row(
@@ -333,25 +339,40 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ),
           ],
         ),
+        if (isMobile) ...[
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(5, (i) => Icon(
+              i < p.rating ? Icons.star : Icons.star_border,
+              color: Colors.amber,
+              size: 16,
+            )),
+          ),
+          const SizedBox(height: 4),
+          Text('${p.rating} (${p.reviewCount} reviews)', style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
+        ],
         const SizedBox(height: 12),
-        Text(p.localizedShortSummary(lang), style: const TextStyle(color: Colors.black54, fontSize: 14, height: 1.5)),
+        Text(p.localizedShortSummary(lang), textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(color: Colors.black54, fontSize: 14, height: 1.5)),
         const SizedBox(height: 20),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(color: const Color(0xFFFDFBF7), borderRadius: BorderRadius.circular(6), border: Border.all(color: templeGold.withOpacity(0.1))),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.auto_awesome, color: templeGold, size: 14),
               const SizedBox(width: 10),
-              const Expanded(child: Text('Sanctified & Consecrated: Energized with holy temple mantras.', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF2B2B2B)))),
+              Flexible(child: Text(AppLocalizations.of(context)!.sanctifiedConsecrated, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF2B2B2B)))),
             ],
           ),
         ),
         const SizedBox(height: 24),
         Row(
+          mainAxisAlignment: isMobile ? MainAxisAlignment.center : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic,
           children: [
-            Text('₹${p.price.toInt()}', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: primaryTeal)),
+            Text('₹${p.price.toInt()}', style: TextStyle(fontSize: isMobile ? 24 : 28, fontWeight: FontWeight.w900, color: primaryTeal)),
             const SizedBox(width: 10),
             if (p.comparePrice != null) ...[
               Text('₹${p.comparePrice!.toInt()}', style: const TextStyle(fontSize: 14, color: Colors.grey, decoration: TextDecoration.lineThrough)),
@@ -365,26 +386,28 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           ],
         ),
         const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(color: isOutOfStock ? Colors.red.shade50 : const Color(0xFFE6F7F0), borderRadius: BorderRadius.circular(4)),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(width: 5, height: 5, decoration: BoxDecoration(color: isOutOfStock ? Colors.red : const Color(0xFF10B981), shape: BoxShape.circle)),
-              const SizedBox(width: 6),
-              Text(isOutOfStock ? 'OUT OF STOCK — Sacred item currently unavailable' : 'In Sanctified Stock — Auspicious 24-hr temple dispatch', style: TextStyle(color: isOutOfStock ? Colors.red : const Color(0xFF065F46), fontSize: 11, fontWeight: FontWeight.bold)),
-            ],
+        Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(color: isOutOfStock ? Colors.red.shade50 : const Color(0xFFE6F7F0), borderRadius: BorderRadius.circular(4)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(width: 5, height: 5, decoration: BoxDecoration(color: isOutOfStock ? Colors.red : const Color(0xFF10B981), shape: BoxShape.circle)),
+                const SizedBox(width: 6),
+                Text(isOutOfStock ? AppLocalizations.of(context)!.outOfStockSacred : AppLocalizations.of(context)!.inSanctifiedStock, style: TextStyle(color: isOutOfStock ? Colors.red : const Color(0xFF065F46), fontSize: 11, fontWeight: FontWeight.bold)),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 24),
-        const Text('Attach divine positivity directly to your smartphone. Durable braided sacred loop with lightweight acrylic charm featuring Dada and Radhe Radhe blessing.', style: TextStyle(color: Colors.grey, fontSize: 12, height: 1.5)),
+        Text('Attach divine positivity directly to your smartphone. Durable braided sacred loop with lightweight acrylic charm featuring Dada and Radhe Radhe blessing.', textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(color: Colors.grey, fontSize: 12, height: 1.5)),
         const SizedBox(height: 24),
         
         Row(
           children: [
-            _qtySelector(),
-            const SizedBox(width: 12),
+            if (!isMobile) _qtySelector(),
+            if (!isMobile) const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton(
                 onPressed: !isOutOfStock ? () {
@@ -400,7 +423,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   }
                 } : null,
                 style: ElevatedButton.styleFrom(backgroundColor: !isOutOfStock ? primaryTeal : Colors.grey.shade400, padding: const EdgeInsets.symmetric(vertical: 20), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
-                child: Text(!isOutOfStock ? 'ADD TO BAG • ₹${(p.price * _quantity).toInt()}' : 'OUT OF STOCK', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12)),
+                child: Text(!isOutOfStock ? '${AppLocalizations.of(context)!.addToBag} • ₹${(p.price * _quantity).toInt()}' : AppLocalizations.of(context)!.outOfStock, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12)),
               ),
             ),
             const SizedBox(width: 12),
@@ -411,19 +434,25 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                  auth.toggleLoginPortal(true);
                }
             }),
-            const SizedBox(width: 8),
-            _circleIcon(Icons.share_outlined, onTap: () {
-              final lang = Provider.of<LanguageController>(context, listen: false).locale.languageCode;
-              final String url = 'https://dada-store.web.app/product_details?id=${p.id}';
-              Share.share('Check out this sacred item: ${p.localizedName(lang)}\n$url');
-            }),
+            if (!isMobile) ...[
+              const SizedBox(width: 8),
+              _circleIcon(Icons.share_outlined, onTap: () {
+                final lang = Provider.of<LanguageController>(context, listen: false).locale.languageCode;
+                final String url = 'https://dada-store.web.app/product_details?id=${p.id}';
+                Share.share('Check out this sacred item: ${p.localizedName(lang)}\n$url');
+              }),
+            ],
           ],
         ),
+        if (isMobile) ...[
+          const SizedBox(height: 12),
+          _qtySelector(),
+        ],
         const SizedBox(height: 12),
         ElevatedButton(
           onPressed: !isOutOfStock ? () {
             if (!_isPincodeValid) {
-              setState(() => _pincodeError = 'Please enter a pincode');
+              setState(() => _pincodeError = AppLocalizations.of(context)!.enterPincode);
               return;
             }
             if (auth.isAuthenticated) {
@@ -438,14 +467,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             minimumSize: const Size(double.infinity, 55),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           ),
-          child: Text(!isOutOfStock ? '⚡ INSTANT SACRED CHECKOUT (COD / ONLINE)' : 'CURRENTLY UNAVAILABLE', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12, letterSpacing: 1)),
+          child: Text(!isOutOfStock ? AppLocalizations.of(context)!.instantSacredCheckout : AppLocalizations.of(context)!.outOfStock, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12, letterSpacing: 1)),
         ),
         const SizedBox(height: 12),
         _buildWhatsAppBtn(p, lang),
         const SizedBox(height: 24),
-        _buildDeliveryChecker(),
+        _buildDeliveryChecker(isMobile),
         const SizedBox(height: 32),
-        _buildTrustFeatures(),
+        _buildTrustFeatures(isMobile),
       ],
     );
   }
@@ -463,17 +492,17 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
         }
       },
-      child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.chat_bubble_outline, color: Color(0xFF25D366), size: 16), SizedBox(width: 10), Text('Order / Inquire via WhatsApp', style: TextStyle(color: Color(0xFF25D366), fontWeight: FontWeight.bold, fontSize: 12))]),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.chat_bubble_outline, color: Color(0xFF25D366), size: 16), const SizedBox(width: 10), Text(AppLocalizations.of(context)!.orderInquireWhatsapp, style: const TextStyle(color: Color(0xFF25D366), fontWeight: FontWeight.bold, fontSize: 12))]),
     ),
   );
 
-  Widget _buildDeliveryChecker() => Container(
+  Widget _buildDeliveryChecker(bool isMobile) => Container(
     padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(color: const Color(0xFFFDFBF7), borderRadius: BorderRadius.circular(8), border: Border.all(color: templeGold.withOpacity(0.1))),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(children: [Icon(Icons.location_on_outlined, size: 14, color: templeGold), const SizedBox(width: 8), const Text('Delivery & Payment Availability', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)), const Spacer(), const Text('Cash on Delivery Available', style: TextStyle(fontSize: 9, color: Colors.green, fontWeight: FontWeight.bold))]),
+        Row(children: [Icon(Icons.location_on_outlined, size: 14, color: templeGold), const SizedBox(width: 8), Text(AppLocalizations.of(context)!.deliveryPaymentAvailability, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)), const Spacer(), if(!isMobile) Text(AppLocalizations.of(context)!.cashOnDeliveryAvailable, style: const TextStyle(fontSize: 9, color: Colors.green, fontWeight: FontWeight.bold))]),
         const SizedBox(height: 16),
         Row(
           children: [
@@ -486,7 +515,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 style: const TextStyle(fontSize: 13),
                 decoration: InputDecoration(
                   counterText: '',
-                  hintText: 'Enter 6-digit Pincode', 
+                  hintText: AppLocalizations.of(context)!.enterPincode, 
                   hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
                   fillColor: Colors.white, 
                   filled: true,
@@ -497,7 +526,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
             ),
             const SizedBox(width: 10),
-            ElevatedButton(onPressed: () => _validatePincode(_pincodeCtrl.text), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF07404C), padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))), child: const Text('Check', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))),
+            ElevatedButton(onPressed: () => _validatePincode(_pincodeCtrl.text), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF07404C), padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))), child: Text(AppLocalizations.of(context)!.check, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))),
           ],
         ),
         if (_pincodeError != null)
@@ -506,9 +535,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
              child: Text(_pincodeError!, style: const TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold)),
            ),
         const SizedBox(height: 16),
-        _deliveryInfoItem(Icons.local_shipping_outlined, 'FREE Standard Delivery', 'Ordered by 4 PM for same-day sanctum dispatch.'),
+        _deliveryInfoItem(Icons.local_shipping_outlined, AppLocalizations.of(context)!.freeStandardDelivery, AppLocalizations.of(context)!.orderedBy4PM),
         const SizedBox(height: 12),
-        _deliveryInfoItem(Icons.replay_outlined, '7-Day Replacement Guarantee', 'We replace damaged deity frames instantly.'),
+        _deliveryInfoItem(Icons.replay_outlined, AppLocalizations.of(context)!.replacementGuarantee, AppLocalizations.of(context)!.weReplaceDamagedDeity),
       ],
     ),
   );
@@ -522,14 +551,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     ],
   );
 
-  Widget _buildTrustFeatures() => Column(
+  Widget _buildTrustFeatures(bool isMobile) => Column(
     children: [
        Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade100), borderRadius: BorderRadius.circular(8)),
         child: Column(
           children: [
-            Row(children: [Icon(Icons.lock_outline, size: 12, color: primaryTeal), const SizedBox(width: 10), const Text('100% Safe & Secure Payment Options', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)), const Spacer(), const Text('256-Bit SSL Encrypted', style: TextStyle(fontSize: 8, color: Colors.grey, fontWeight: FontWeight.bold))]),
+            Row(children: [Icon(Icons.lock_outline, size: 12, color: primaryTeal), const SizedBox(width: 10), Text(AppLocalizations.of(context)!.safeSecurePayment, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)), const Spacer(), Text(AppLocalizations.of(context)!.sslEncrypted, style: const TextStyle(fontSize: 8, color: Colors.grey, fontWeight: FontWeight.bold))]),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -546,9 +575,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       const SizedBox(height: 16),
       Wrap(
         spacing: 16, runSpacing: 12,
+        alignment: WrapAlignment.center,
         children: [
-          _trustIconItem(Icons.eco_outlined, '100% Vedic Pure', 'Natural materials'),
-          _trustIconItem(Icons.auto_awesome, 'Abhimantrit', 'Mantra energized'),
+          _trustIconItem(Icons.eco_outlined, AppLocalizations.of(context)!.vedicPure, AppLocalizations.of(context)!.naturalMaterials, isMobile),
+          _trustIconItem(Icons.auto_awesome, AppLocalizations.of(context)!.abhimantrit, AppLocalizations.of(context)!.mantraEnergized, isMobile),
         ],
       ),
     ],
@@ -556,8 +586,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   Widget _paymentMethodIcon(IconData icon, String label) => Row(children: [Icon(icon, size: 12, color: Colors.grey), const SizedBox(width: 6), Text(label, style: const TextStyle(fontSize: 9, color: Colors.grey, fontWeight: FontWeight.bold))]);
 
-  Widget _trustIconItem(IconData icon, String title, String sub) => Container(
-    width: 180,
+  Widget _trustIconItem(IconData icon, String title, String sub, bool isMobile) => Container(
+    width: isMobile ? double.infinity : 180,
     padding: const EdgeInsets.all(12),
     decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade100), borderRadius: BorderRadius.circular(8)),
     child: Row(
@@ -569,7 +599,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     ),
   );
 
-  Widget _buildFrequentlyBlessedTogether(ProductModel p, ProductController ctrl) {
+  Widget _buildFrequentlyBlessedTogether(ProductModel p, ProductController ctrl, bool isMobile) {
     final others = ctrl.allProducts.where((item) => item.id != p.id).take(2).toList();
     if (others.length < 2) return const SizedBox.shrink();
 
@@ -577,7 +607,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     double discounted = total * 0.9;
 
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(isMobile ? 16 : 32),
       decoration: BoxDecoration(
         color: const Color(0xFFFDFBF7),
         borderRadius: BorderRadius.circular(16),
@@ -590,37 +620,39 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             children: [
               Icon(Icons.auto_awesome_outlined, color: templeGold, size: 18),
               const SizedBox(width: 12),
-              Text("Frequently Blessed Together — Save 10% on Complete Sacred Set", style: GoogleFonts.cormorantGaramond(fontSize: 22, fontWeight: FontWeight.bold, color: primaryTeal)),
+              Expanded(child: Text(AppLocalizations.of(context)!.frequentlyBlessedTogether, style: GoogleFonts.cormorantGaramond(fontSize: isMobile ? 18 : 22, fontWeight: FontWeight.bold, color: primaryTeal))),
             ],
           ),
           const SizedBox(height: 24),
-          Row(
+          Flex(
+            direction: isMobile ? Axis.vertical : Axis.horizontal,
             children: [
               Expanded(
-                flex: 4,
+                flex: isMobile ? 0 : 4,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
                       _bundleItem(p, true),
-                      const Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Icon(Icons.add, size: 14, color: Colors.grey)),
+                      const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.add, size: 14, color: Colors.grey)),
                       _bundleItem(others[0], true),
-                      const Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Icon(Icons.add, size: 14, color: Colors.grey)),
+                      const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.add, size: 14, color: Colors.grey)),
                       _bundleItem(others[1], true),
                     ],
                   ),
                 ),
               ),
-              Container(height: 100, width: 1, color: Colors.grey.shade200, margin: const EdgeInsets.symmetric(horizontal: 32)),
+              if (!isMobile) Container(height: 100, width: 1, color: Colors.grey.shade200, margin: const EdgeInsets.symmetric(horizontal: 32)),
+              if (isMobile) const SizedBox(height: 24),
               Expanded(
-                flex: 2,
+                flex: isMobile ? 0 : 2,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.end,
                   children: [
-                    const Text("Bundle Total (10% Off):", style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold)),
+                    Text(AppLocalizations.of(context)!.bundleTotal, style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: isMobile ? MainAxisAlignment.center : MainAxisAlignment.end,
                       children: [
                         Text("₹${discounted.toStringAsFixed(1)}", style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.w900, color: primaryTeal)),
                         const SizedBox(width: 10),
@@ -637,7 +669,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                          Scaffold.of(context).openEndDrawer();
                       },
                       icon: const Icon(Icons.shopping_bag_outlined, size: 14),
-                      label: const Text("ADD COMPLETE SET TO BAG", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                      label: Text(AppLocalizations.of(context)!.addCompleteSet, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18)),
                     ),
                   ],
@@ -653,7 +685,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Widget _bundleItem(ProductModel item, bool selected) {
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
     return Container(
-      width: 190,
+      width: 160,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -665,7 +697,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: CachedNetworkImage(imageUrl: item.imageUrl, width: 45, height: 45, fit: BoxFit.cover, errorWidget: (c,u,e) => const Icon(Icons.image_outlined, size: 24)),
+            child: CachedNetworkImage(imageUrl: item.imageUrl, width: 40, height: 40, fit: BoxFit.cover, errorWidget: (c,u,e) => const Icon(Icons.image_outlined, size: 20)),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -675,23 +707,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               children: [
                 Text(
                   item.localizedName(lang), 
-                  style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 10, color: Colors.black87),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 9, color: Colors.black87),
                   maxLines: 1, overflow: TextOverflow.ellipsis
                 ),
                 const SizedBox(height: 2),
                 Text(
                   "₹${item.price.toInt()}", 
-                  style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w800, fontSize: 10, color: primaryTeal),
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 9, color: primaryTeal),
                 ),
               ],
             ),
-          ),
-          Checkbox(
-            value: true, 
-            onChanged: (v) {}, 
-            activeColor: primaryTeal, 
-            visualDensity: VisualDensity.compact,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
           ),
         ],
       ),
@@ -711,11 +736,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
             indicatorSize: TabBarIndicatorSize.label,
             tabs: [
-              const Tab(text: 'Vedic Significance & Details'),
-              const Tab(text: 'Specifications & Dimensions'),
-              const Tab(text: 'Sacred Care & Purity'),
-              Tab(text: 'Devotee Reviews (${p.reviewCount})'),
-              const Tab(text: 'FAQs & Guidance')
+              Tab(text: AppLocalizations.of(context)!.vedicSignificanceTab),
+              Tab(text: AppLocalizations.of(context)!.specificationsTab),
+              Tab(text: AppLocalizations.of(context)!.sacredCareTab),
+              Tab(text: '${AppLocalizations.of(context)!.devoteeReviewsTab} (${p.reviewCount})'),
+              Tab(text: AppLocalizations.of(context)!.faqsTab)
             ],
           ),
           const SizedBox(height: 24),
@@ -729,11 +754,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("About this Sacred Offering:", style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 14)),
+                        Text(AppLocalizations.of(context)!.aboutThisOffering, style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 14)),
                         const SizedBox(height: 12),
                         Text(p.localizedDescription(lang), style: const TextStyle(height: 1.6, color: Colors.black87, fontSize: 13)),
                         const SizedBox(height: 20),
-                        Text("Blessings & Significance:", style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 13)),
+                        Text(AppLocalizations.of(context)!.blessingsSignificance, style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 13)),
                         const SizedBox(height: 8),
                         ...p.localizedHighlights(lang).map((h) => Padding(
                           padding: const EdgeInsets.only(bottom: 6),
@@ -754,13 +779,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       ],
                     ),
                   ),
-                  const SingleChildScrollView(
+                  SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Purity Standards:", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal, fontSize: 14)),
-                        SizedBox(height: 12),
-                        Text("• This item should be handled with spiritual reverence.\n• Avoid placing on the floor or in unclean areas.\n• Clean only with a dry, pure cotton cloth to maintain its consecrated energy.", style: TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
+                        Text(AppLocalizations.of(context)!.purityStandards, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.teal, fontSize: 14)),
+                        const SizedBox(height: 12),
+                        const Text("• This item should be handled with spiritual reverence.\n• Avoid placing on the floor or in unclean areas.\n• Clean only with a dry, pure cotton cloth to maintain its consecrated energy.", style: TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
                       ],
                     ),
                   ),
@@ -940,7 +965,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Submit Your Devotional Review for $productName", 
+            '${AppLocalizations.of(context)!.submitReviewTitle} $productName', 
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87)
           ),
           const SizedBox(height: 16),
@@ -1010,9 +1035,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               }
             },
             icon: const Icon(Icons.send_rounded, size: 14),
-            label: const Text(
-              "PUBLISH REVIEW", 
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 11)
+            label: Text(
+              AppLocalizations.of(context)!.publishReview, 
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 11)
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF071C21), 
@@ -1068,17 +1093,22 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title.toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFF8B4513))),
-        TextButton(onPressed: () {}, child: const Text('EXPLORE FULL COLLECTION →', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.black87))),
+        TextButton(onPressed: () {}, child: Text(AppLocalizations.of(context)!.exploreFullCollection, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.black87))),
       ],
     );
   }
 
-  Widget _buildSimilarProductsGrid(ProductController ctrl, String catId) {
+  Widget _buildSimilarProductsGrid(ProductController ctrl, String catId, bool isMobile) {
     final products = ctrl.allProducts.where((p) => p.categoryId.toLowerCase().contains('keychain')).take(4).toList();
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 40, vertical: 24),
       sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, childAspectRatio: 0.72, crossAxisSpacing: 20, mainAxisSpacing: 20),
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 320,
+          childAspectRatio: 0.72, 
+          crossAxisSpacing: isMobile ? 12 : 20, 
+          mainAxisSpacing: 20
+        ),
         delegate: SliverChildBuilderDelegate((c, i) => ProductCard(product: products[i]), childCount: products.length),
       ),
     );

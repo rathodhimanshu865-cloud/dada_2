@@ -897,6 +897,522 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Revenue'**
   String get revenue;
+
+  /// No description provided for @sacredFoundations.
+  ///
+  /// In en, this message translates to:
+  /// **'Sacred Foundations of Pu. Dada Seva'**
+  String get sacredFoundations;
+
+  /// No description provided for @exploreSacredProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'EXPLORE PU. DADA SACRED PRODUCT COLLECTIONS →'**
+  String get exploreSacredProducts;
+
+  /// No description provided for @biographyDetailsFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Full biography details will appear here as managed from the admin side.'**
+  String get biographyDetailsFallback;
+
+  /// No description provided for @aboutUs.
+  ///
+  /// In en, this message translates to:
+  /// **'ABOUT US'**
+  String get aboutUs;
+
+  /// No description provided for @anIntroduction.
+  ///
+  /// In en, this message translates to:
+  /// **'AN INTRODUCTION'**
+  String get anIntroduction;
+
+  /// No description provided for @vision.
+  ///
+  /// In en, this message translates to:
+  /// **'VISION'**
+  String get vision;
+
+  /// No description provided for @objective.
+  ///
+  /// In en, this message translates to:
+  /// **'OBJECTIVE'**
+  String get objective;
+
+  /// No description provided for @signatureIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'SIGNATURE IDENTITY'**
+  String get signatureIdentity;
+
+  /// No description provided for @pujyaDadaTeachings.
+  ///
+  /// In en, this message translates to:
+  /// **'Pujya Dada Teachings'**
+  String get pujyaDadaTeachings;
+
+  /// No description provided for @sacredProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Sacred Products'**
+  String get sacredProducts;
+
+  /// No description provided for @adminAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Access'**
+  String get adminAccess;
+
+  /// No description provided for @selectedLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Language'**
+  String get selectedLanguage;
+
+  /// No description provided for @trackShipment.
+  ///
+  /// In en, this message translates to:
+  /// **'TRACK SHIPMENT'**
+  String get trackShipment;
+
+  /// No description provided for @myOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'MY ORDERS'**
+  String get myOrders;
+
+  /// No description provided for @loginSignUp.
+  ///
+  /// In en, this message translates to:
+  /// **'LOGIN / SIGN UP'**
+  String get loginSignUp;
+
+  /// No description provided for @sacredCatalogue.
+  ///
+  /// In en, this message translates to:
+  /// **'SACRED CATALOGUE'**
+  String get sacredCatalogue;
+
+  /// No description provided for @searchProductPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, SKU, or keyword...'**
+  String get searchProductPlaceholder;
+
+  /// No description provided for @showingSacredItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing {count} sacred items in '**
+  String showingSacredItems(int count);
+
+  /// No description provided for @loadingSacredProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading sacred products...'**
+  String get loadingSacredProducts;
+
+  /// No description provided for @noProductsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No products found in this category.'**
+  String get noProductsFound;
+
+  /// No description provided for @sortByAz.
+  ///
+  /// In en, this message translates to:
+  /// **'A-Z'**
+  String get sortByAz;
+
+  /// No description provided for @sortByPriceLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Price: Low to High'**
+  String get sortByPriceLow;
+
+  /// No description provided for @sortByLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest Arrival'**
+  String get sortByLatest;
+
+  /// No description provided for @allSacredProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'All Sacred Products'**
+  String get allSacredProducts;
+
+  /// No description provided for @officialStoreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Official Pu. Jignesh Dada Devotional Store'**
+  String get officialStoreLabel;
+
+  /// No description provided for @exploreCollectionsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore revered photo keychains, acrylic frames, home mandirs, and holy puja essentials.'**
+  String get exploreCollectionsDesc;
+
+  /// No description provided for @viewAllCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'VIEW ALL COLLECTIONS'**
+  String get viewAllCollections;
+
+  /// No description provided for @featuredProductsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Every item is crafted with devotion, checked for high structural durability, and energized with Vedic sanctification.'**
+  String get featuredProductsDesc;
+
+  /// No description provided for @browseCompleteCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'BROWSE COMPLETE STORE CATALOG'**
+  String get browseCompleteCatalog;
+
+  /// No description provided for @vedicAssuranceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'VEDIC ASSURANCE & PURITY SEAL'**
+  String get vedicAssuranceLabel;
+
+  /// No description provided for @sacredConsecrationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Sacred Consecration Process'**
+  String get sacredConsecrationTitle;
+
+  /// No description provided for @vedicSanctityDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'We uphold complete sanctity from the artisan\'s hands to your puja room.'**
+  String get vedicSanctityDesc;
+
+  /// No description provided for @gangaJalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ganga Jal & Chandan Snan'**
+  String get gangaJalTitle;
+
+  /// No description provided for @gangaJalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Articles are purified with sacred Haridwar Ganga jal and fragrant sandalwood paste.'**
+  String get gangaJalDesc;
+
+  /// No description provided for @vedicMantraTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vedic Mantra Archana'**
+  String get vedicMantraTitle;
+
+  /// No description provided for @vedicMantraDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Energized by Vedic scholars chanting sacred protection and peace mantras.'**
+  String get vedicMantraDesc;
+
+  /// No description provided for @zeroBreakageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Zero-Breakage Transit'**
+  String get zeroBreakageTitle;
+
+  /// No description provided for @zeroBreakageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-layer protective packaging & sanctified cloth wraps with free replacement assurance.'**
+  String get zeroBreakageDesc;
+
+  /// No description provided for @codAvailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash on Delivery Available'**
+  String get codAvailableTitle;
+
+  /// No description provided for @codAvailableDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with confidence upon doorstep delivery anywhere across India.'**
+  String get codAvailableDesc;
+
+  /// No description provided for @devoteeExperiences.
+  ///
+  /// In en, this message translates to:
+  /// **'DEVOTEE EXPERIENCES'**
+  String get devoteeExperiences;
+
+  /// No description provided for @averageRatingText.
+  ///
+  /// In en, this message translates to:
+  /// **'4.9 / 5 Average Rating across 15,000+ Blessed Homes'**
+  String get averageRatingText;
+
+  /// No description provided for @spiritualEssence.
+  ///
+  /// In en, this message translates to:
+  /// **'SPIRITUAL ESSENCE'**
+  String get spiritualEssence;
+
+  /// No description provided for @sacredCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Sacred Catalog'**
+  String get sacredCatalog;
+
+  /// No description provided for @popular.
+  ///
+  /// In en, this message translates to:
+  /// **'POPULAR'**
+  String get popular;
+
+  /// No description provided for @genuineStockLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'100% Genuine Atelier Stock'**
+  String get genuineStockLabel;
+
+  /// No description provided for @sanctifiedConsecrated.
+  ///
+  /// In en, this message translates to:
+  /// **'Sanctified & Consecrated: Energized with holy temple mantras.'**
+  String get sanctifiedConsecrated;
+
+  /// No description provided for @inSanctifiedStock.
+  ///
+  /// In en, this message translates to:
+  /// **'In Sanctified Stock — Auspicious 24-hr temple dispatch'**
+  String get inSanctifiedStock;
+
+  /// No description provided for @outOfStockSacred.
+  ///
+  /// In en, this message translates to:
+  /// **'OUT OF STOCK — Sacred item currently unavailable'**
+  String get outOfStockSacred;
+
+  /// No description provided for @addToBag.
+  ///
+  /// In en, this message translates to:
+  /// **'ADD TO BAG'**
+  String get addToBag;
+
+  /// No description provided for @instantSacredCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'⚡ INSTANT SACRED CHECKOUT (COD / ONLINE)'**
+  String get instantSacredCheckout;
+
+  /// No description provided for @orderInquireWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'Order / Inquire via WhatsApp'**
+  String get orderInquireWhatsapp;
+
+  /// No description provided for @deliveryPaymentAvailability.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery & Payment Availability'**
+  String get deliveryPaymentAvailability;
+
+  /// No description provided for @cashOnDeliveryAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash on Delivery Available'**
+  String get cashOnDeliveryAvailable;
+
+  /// No description provided for @enterPincode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 6-digit Pincode'**
+  String get enterPincode;
+
+  /// No description provided for @check.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get check;
+
+  /// No description provided for @freeStandardDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'FREE Standard Delivery'**
+  String get freeStandardDelivery;
+
+  /// No description provided for @orderedBy4PM.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered by 4 PM for same-day sanctum dispatch.'**
+  String get orderedBy4PM;
+
+  /// No description provided for @replacementGuarantee.
+  ///
+  /// In en, this message translates to:
+  /// **'7-Day Replacement Guarantee'**
+  String get replacementGuarantee;
+
+  /// No description provided for @weReplaceDamagedDeity.
+  ///
+  /// In en, this message translates to:
+  /// **'We replace damaged deity frames instantly.'**
+  String get weReplaceDamagedDeity;
+
+  /// No description provided for @safeSecurePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'100% Safe & Secure Payment Options'**
+  String get safeSecurePayment;
+
+  /// No description provided for @sslEncrypted.
+  ///
+  /// In en, this message translates to:
+  /// **'256-Bit SSL Encrypted'**
+  String get sslEncrypted;
+
+  /// No description provided for @vedicPure.
+  ///
+  /// In en, this message translates to:
+  /// **'100% Vedic Pure'**
+  String get vedicPure;
+
+  /// No description provided for @naturalMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'Natural materials'**
+  String get naturalMaterials;
+
+  /// No description provided for @abhimantrit.
+  ///
+  /// In en, this message translates to:
+  /// **'Abhimantrit'**
+  String get abhimantrit;
+
+  /// No description provided for @mantraEnergized.
+  ///
+  /// In en, this message translates to:
+  /// **'Mantra energized'**
+  String get mantraEnergized;
+
+  /// No description provided for @frequentlyBlessedTogether.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequently Blessed Together — Save 10% on Complete Sacred Set'**
+  String get frequentlyBlessedTogether;
+
+  /// No description provided for @bundleTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundle Total (10% Off):'**
+  String get bundleTotal;
+
+  /// No description provided for @addCompleteSet.
+  ///
+  /// In en, this message translates to:
+  /// **'ADD COMPLETE SET TO BAG'**
+  String get addCompleteSet;
+
+  /// No description provided for @vedicSignificanceTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Vedic Significance & Details'**
+  String get vedicSignificanceTab;
+
+  /// No description provided for @specificationsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Specifications & Dimensions'**
+  String get specificationsTab;
+
+  /// No description provided for @sacredCareTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Sacred Care & Purity'**
+  String get sacredCareTab;
+
+  /// No description provided for @devoteeReviewsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Devotee Reviews'**
+  String get devoteeReviewsTab;
+
+  /// No description provided for @faqsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'FAQs & Guidance'**
+  String get faqsTab;
+
+  /// No description provided for @aboutThisOffering.
+  ///
+  /// In en, this message translates to:
+  /// **'About this Sacred Offering:'**
+  String get aboutThisOffering;
+
+  /// No description provided for @blessingsSignificance.
+  ///
+  /// In en, this message translates to:
+  /// **'Blessings & Significance:'**
+  String get blessingsSignificance;
+
+  /// No description provided for @purityStandards.
+  ///
+  /// In en, this message translates to:
+  /// **'Purity Standards:'**
+  String get purityStandards;
+
+  /// No description provided for @submitReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Your Devotional Review for'**
+  String get submitReviewTitle;
+
+  /// No description provided for @publishReview.
+  ///
+  /// In en, this message translates to:
+  /// **'PUBLISH REVIEW'**
+  String get publishReview;
+
+  /// No description provided for @similarProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Similar Devotional Keychains'**
+  String get similarProducts;
+
+  /// No description provided for @exploreFullCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'EXPLORE FULL COLLECTION →'**
+  String get exploreFullCollection;
+
+  /// No description provided for @coreCompetencies.
+  ///
+  /// In en, this message translates to:
+  /// **'CORE COMPETENCIES'**
+  String get coreCompetencies;
+
+  /// No description provided for @professionalHighlights.
+  ///
+  /// In en, this message translates to:
+  /// **'PROFESSIONAL HIGHLIGHTS'**
+  String get professionalHighlights;
+
+  /// No description provided for @socialInitiative.
+  ///
+  /// In en, this message translates to:
+  /// **'SOCIAL INITIATIVE'**
+  String get socialInitiative;
+
+  /// No description provided for @philosophyOfLife.
+  ///
+  /// In en, this message translates to:
+  /// **'PHILOSOPHY OF LIFE'**
+  String get philosophyOfLife;
+
+  /// No description provided for @personalAttributes.
+  ///
+  /// In en, this message translates to:
+  /// **'PERSONAL ATTRIBUTES'**
+  String get personalAttributes;
 }
 
 class _AppLocalizationsDelegate

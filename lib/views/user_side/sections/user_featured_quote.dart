@@ -11,7 +11,8 @@ class UserFeaturedQuote extends StatelessWidget {
     final lang = Localizations.localeOf(context).languageCode;
     if (quoteData.quote.isEmpty) return const SizedBox.shrink();
 
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 1100;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 120, horizontal: isMobile ? 20 : 40),
@@ -21,13 +22,13 @@ class UserFeaturedQuote extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 900),
           child: Column(
             children: [
-              Icon(Icons.format_quote_rounded, size: isMobile ? 50 : 80, color: const Color(0xFFC89A5B)),
+              Icon(Icons.format_quote_rounded, size: isMobile ? 40 : 80, color: const Color(0xFFC89A5B)),
               SizedBox(height: isMobile ? 20 : 40),
               Text(
                 quoteData.localizedQuote(lang),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: isMobile ? 22 : 36,
+                  fontSize: isMobile ? (screenWidth < 600 ? 18 : 24) : 36,
                   fontFamily: 'serif',
                   fontStyle: FontStyle.italic,
                   color: const Color(0xFF2B2B2B),
@@ -39,7 +40,8 @@ class UserFeaturedQuote extends StatelessWidget {
               const SizedBox(height: 30),
               Text(
                 quoteData.localizedAuthor(lang).toUpperCase(),
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 4, color: Color(0xFFC89A5B)),
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: isMobile ? 12 : 14, fontWeight: FontWeight.bold, letterSpacing: 4, color: const Color(0xFFC89A5B)),
               ),
             ],
           ),

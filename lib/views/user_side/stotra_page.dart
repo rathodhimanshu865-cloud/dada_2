@@ -31,7 +31,8 @@ class StotraPage extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 1100;
 
     return UserPageLayout(
       controller: controller,

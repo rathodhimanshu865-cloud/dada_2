@@ -31,9 +31,10 @@ class WishlistPage extends StatelessWidget {
   }
 
   Widget _buildHeroBanner(BuildContext context) {
+    final bool isMobile = MediaQuery.of(context).size.width < 1100;
     return Container(
-      width: double.infinity, color: const Color(0xFF0F4C5C), padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 20),
-      child: Column(children: [Text('Your Sacred Wishlist', style: AppTypography.headingStyle(context, fontSize: 42, fontWeight: FontWeight.bold, color: Colors.white)), const SizedBox(height: 10), Text('Sacred items you have cherished and saved for your divine collection.', style: AppTypography.bodyStyle(context, fontSize: 16, color: Colors.white.withOpacity(0.8)))]),
+      width: double.infinity, color: const Color(0xFF0F4C5C), padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 60, horizontal: 20),
+      child: Column(children: [Text('Your Sacred Wishlist', textAlign: TextAlign.center, style: AppTypography.headingStyle(context, fontSize: isMobile ? 28 : 42, fontWeight: FontWeight.bold, color: Colors.white)), const SizedBox(height: 10), Text('Sacred items you have cherished and saved for your divine collection.', textAlign: TextAlign.center, style: AppTypography.bodyStyle(context, fontSize: isMobile ? 14 : 16, color: Colors.white.withOpacity(0.8)))]),
     );
   }
 
@@ -42,7 +43,31 @@ class WishlistPage extends StatelessWidget {
     if (wishlist.isEmpty) {
       return Center(child: Padding(padding: const EdgeInsets.symmetric(vertical: 100), child: Column(children: [Icon(Icons.favorite_border, size: 80, color: Colors.grey.shade300), const SizedBox(height: 24), Text('Your wishlist is currently empty.', style: AppTypography.bodyStyle(context, fontSize: 18, color: Colors.grey.shade600)), const SizedBox(height: 30), ElevatedButton(onPressed: () => Navigator.pushNamed(context, '/catalogue'), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F4C5C), padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20)), child: const Text('EXPLORE CATALOGUE'))])));
     }
-    return Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1200), child: GridView.builder(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, childAspectRatio: 0.6, crossAxisSpacing: 25, mainAxisSpacing: 35), itemCount: wishlist.length, itemBuilder: (context, index) => _wishlistProductCard(context, wishlist[index], prod, cart))));
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1200), 
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              int cols = constraints.maxWidth > 1000 ? 4 : (constraints.maxWidth > 700 ? 3 : 2);
+              return GridView.builder(
+                shrinkWrap: true, 
+                physics: const NeverScrollableScrollPhysics(), 
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: cols, 
+                  childAspectRatio: 0.62, 
+                  crossAxisSpacing: 20, 
+                  mainAxisSpacing: 20
+                ), 
+                itemCount: wishlist.length, 
+                itemBuilder: (context, index) => _wishlistProductCard(context, wishlist[index], prod, cart)
+              );
+            }
+          ),
+        )
+      )
+    );
   }
 
   Widget _wishlistProductCard(BuildContext context, ProductModel product, ProductController prod, CartController cart) {

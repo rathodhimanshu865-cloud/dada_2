@@ -4,9 +4,11 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/language_controller.dart';
 import '../../controllers/profile_controller.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/homepage_model.dart';
 import '../../models/profile_model.dart';
 import '../../utils/app_typography.dart';
+import '../../utils/responsive_utils.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 
@@ -52,6 +54,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Aggressive scroll reset: Ensures that even on a hot-reload, 
     // the page jumps to the very top to reveal the Hero section.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -64,9 +67,8 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
     final home    = Provider.of<HomePageController>(context);
     final prof    = Provider.of<ProfileController>(context);
     final lang    = Provider.of<LanguageController>(context).locale.languageCode;
-    final w       = MediaQuery.of(context).size.width;
-    final isMob   = w < 700;
-    final isDsk   = w > 1100;
+    final bool isMob = context.isMobile;
+    final bool isDsk = context.isDesktop;
     final p       = prof.profileData;
 
     return UserPageLayout(
@@ -76,7 +78,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── 1. HERO ──────────────────────────────────────────────────────
-          _Hero(data: home.aboutDadaPage, lang: lang, isMob: isMob, isDsk: isDsk),
+          _Hero(data: home.aboutDadaPage, lang: lang, isMob: isMob, isDsk: isDsk, l10n: l10n),
 
           if (prof.isLoading)
             const Padding(padding: EdgeInsets.all(100), child: Center(child: CircularProgressIndicator(color: _teal)))
@@ -84,31 +86,31 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
 
             // ── 2. INTRODUCTION ──────────────────────────────────────────
             if (p.localizedContentHTML(lang).isNotEmpty)
-              _IntroBlock(html: p.localizedContentHTML(lang), portrait: home.aboutDadaPage.heroImage, isMob: isMob, isDsk: isDsk, lang: lang),
+              _IntroBlock(html: p.localizedContentHTML(lang), portrait: home.aboutDadaPage.heroImage, isMob: isMob, isDsk: isDsk, lang: lang, l10n: l10n),
 
             // ── 3. CORE COMPETENCIES ─────────────────────────────────────
             if (p.localizedCoreCompetencies(lang).isNotEmpty)
-              _CompetenciesBlock(items: p.localizedCoreCompetencies(lang), isMob: isMob, isDsk: isDsk, lang: lang),
+              _CompetenciesBlock(items: p.localizedCoreCompetencies(lang), isMob: isMob, isDsk: isDsk, lang: lang, l10n: l10n),
 
             // ── 4. PROFESSIONAL HIGHLIGHTS ───────────────────────────────
             if (p.localizedProfessionalHighlights(lang).isNotEmpty)
-              _HighlightsBlock(items: p.localizedProfessionalHighlights(lang), isMob: isMob, isDsk: isDsk, lang: lang),
+              _HighlightsBlock(items: p.localizedProfessionalHighlights(lang), isMob: isMob, isDsk: isDsk, lang: lang, l10n: l10n),
 
             // ── 5. SOCIAL INITIATIVE ─────────────────────────────────────
             if (p.localizedSocialTitle(lang).isNotEmpty || p.localizedSocialVision(lang).isNotEmpty)
-              _SocialBlock(p: p, isMob: isMob, isDsk: isDsk, lang: lang),
+              _SocialBlock(p: p, isMob: isMob, isDsk: isDsk, lang: lang, l10n: l10n),
 
             // ── 6. PHILOSOPHY OF LIFE ────────────────────────────────────
             if (p.localizedPhilosophy(lang).isNotEmpty)
-              _PhilosophyBlock(quote: p.localizedPhilosophy(lang), isMob: isMob, lang: lang),
+              _PhilosophyBlock(quote: p.localizedPhilosophy(lang), isMob: isMob, lang: lang, l10n: l10n),
 
             // ── 7. PERSONAL ATTRIBUTES ───────────────────────────────────
             if (p.localizedPersonalAttributes(lang).isNotEmpty)
-              _AttributesBlock(items: p.localizedPersonalAttributes(lang), isMob: isMob, isDsk: isDsk, lang: lang),
+              _AttributesBlock(items: p.localizedPersonalAttributes(lang), isMob: isMob, isDsk: isDsk, lang: lang, l10n: l10n),
 
             // ── 8. SIGNATURE IDENTITY ────────────────────────────────────
             if (p.localizedSignatureTitle(lang).isNotEmpty || p.localizedSignatureSubtitle(lang).isNotEmpty)
-              _SignatureBlock(title: p.localizedSignatureTitle(lang), subtitle: p.localizedSignatureSubtitle(lang), isMob: isMob, isDsk: isDsk, lang: lang),
+              _SignatureBlock(title: p.localizedSignatureTitle(lang), subtitle: p.localizedSignatureSubtitle(lang), isMob: isMob, isDsk: isDsk, lang: lang, l10n: l10n),
           ],
 
           // ── 9. FOOTER ────────────────────────────────────────────────────
@@ -126,7 +128,8 @@ class _Hero extends StatefulWidget {
   final AboutDadaPageData data;
   final String lang;
   final bool isMob, isDsk;
-  const _Hero({required this.data, required this.lang, required this.isMob, required this.isDsk});
+  final AppLocalizations l10n;
+  const _Hero({required this.data, required this.lang, required this.isMob, required this.isDsk, required this.l10n});
 
   @override
   State<_Hero> createState() => _HeroState();
@@ -202,7 +205,6 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
   }
 
   Widget _desktopLayout(String title, String subtitle, bool hasImg) {
-    String aboutLabel = widget.lang == 'hi' ? 'हमारे बारे में' : widget.lang == 'gu' ? 'અમારા વિશે' : 'ABOUT US';
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -222,7 +224,7 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: _teal.withOpacity(0.1)),
                   ),
-                  child: Text(aboutLabel, style: const TextStyle(color: _teal, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 2)),
+                  child: Text(widget.l10n.aboutUs, style: const TextStyle(color: _teal, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 2)),
                 ),
                 const SizedBox(width: 16),
                 Container(width: 40, height: 1, color: _gold),
@@ -272,7 +274,6 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
   }
 
   Widget _mobileLayout(String title, String subtitle, bool hasImg) {
-    String aboutLabel = widget.lang == 'hi' ? 'हमारे बारे में' : widget.lang == 'gu' ? 'અમારા વિશે' : 'ABOUT US';
     return FadeTransition(
       opacity: _fade,
       child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
@@ -281,7 +282,7 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(color: _teal.withOpacity(0.06), borderRadius: BorderRadius.circular(4)),
-          child: Text(aboutLabel, style: const TextStyle(color: _teal, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 2)),
+          child: Text(widget.l10n.aboutUs, style: const TextStyle(color: _teal, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 2)),
         ),
         const SizedBox(height: 20),
         
@@ -362,7 +363,8 @@ class _PortraitFrame extends StatelessWidget {
 class _IntroBlock extends StatefulWidget {
   final String html, portrait, lang;
   final bool isMob, isDsk;
-  const _IntroBlock({required this.html, required this.portrait, required this.isMob, required this.isDsk, required this.lang});
+  final AppLocalizations l10n;
+  const _IntroBlock({required this.html, required this.portrait, required this.isMob, required this.isDsk, required this.lang, required this.l10n});
 
   @override
   State<_IntroBlock> createState() => _IntroBlockState();
@@ -382,8 +384,6 @@ class _IntroBlockState extends State<_IntroBlock> {
   @override
   Widget build(BuildContext context) {
     final hPad = widget.isMob ? 24.0 : (widget.isDsk ? 120.0 : 60.0);
-    String labelText = widget.lang == 'hi' ? 'एक परिचय' : widget.lang == 'gu' ? 'એક પરિચય' : 'AN INTRODUCTION';
-    String titleText = widget.lang == 'hi' ? 'प्रेरक जीवन और यात्रा' : widget.lang == 'gu' ? 'પ્રેરણાદાયક જીવન અને યાત્રા' : 'The Inspiring Life & Journey';
     
     return Container(
       color: Colors.white,
@@ -395,9 +395,9 @@ class _IntroBlockState extends State<_IntroBlock> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Section label
-              _Label(labelText, widget.isMob),
+              _Label(widget.l10n.anIntroduction, widget.isMob),
               const SizedBox(height: 8),
-              Text(titleText,
+              Text(widget.lang == 'hi' ? 'प्रेरक जीवन और यात्रा' : widget.lang == 'gu' ? 'પ્રેરણાદાયક જીવન અને યાત્રા' : 'The Inspiring Life & Journey',
                 style: AppTypography.headingStyle(context, fontSize: widget.isMob ? 26 : 38, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
               const SizedBox(height: 48),
 
@@ -457,7 +457,8 @@ class _CompetenciesBlock extends StatelessWidget {
   final List<String> items;
   final bool isMob, isDsk;
   final String lang;
-  const _CompetenciesBlock({required this.items, required this.isMob, required this.isDsk, required this.lang});
+  final AppLocalizations l10n;
+  const _CompetenciesBlock({required this.items, required this.isMob, required this.isDsk, required this.lang, required this.l10n});
 
   static const _icons = [
     Icons.menu_book_rounded, Icons.self_improvement_rounded, Icons.star_half_rounded,
@@ -469,7 +470,6 @@ class _CompetenciesBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cols = isMob ? 1 : (isDsk ? 3 : 2);
-    String labelText = lang == 'hi' ? 'मुख्य दक्षताएं' : lang == 'gu' ? 'મુખ્ય કુશળતા' : 'CORE COMPETENCIES';
     String titleText = lang == 'hi' ? 'आध्यात्मिक विशेषज्ञता और सेवा' : lang == 'gu' ? 'આધ્યાત્મિક કુશળતા અને સેવા' : 'Spiritual Expertise & Service';
     
     return Container(
@@ -485,7 +485,7 @@ class _CompetenciesBlock extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Label(labelText, isMob, onDark: true),
+              _Label(l10n.coreCompetencies, isMob, onDark: true),
               const SizedBox(height: 8),
               Text(titleText,
                 style: AppTypography.headingStyle(context, fontSize: isMob ? 26 : 38, color: Colors.white, fontWeight: FontWeight.w700, height: 1.2)),
@@ -575,12 +575,12 @@ class _HighlightsBlock extends StatelessWidget {
   final List<String> items;
   final bool isMob, isDsk;
   final String lang;
-  const _HighlightsBlock({required this.items, required this.isMob, required this.isDsk, required this.lang});
+  final AppLocalizations l10n;
+  const _HighlightsBlock({required this.items, required this.isMob, required this.isDsk, required this.lang, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
     final hPad = isMob ? 24.0 : (isDsk ? 120.0 : 60.0);
-    String labelText = lang == 'hi' ? 'व्यावसायिक मुख्य अंश' : lang == 'gu' ? 'વ્યાવસાયિક મુખ્ય અંશ' : 'PROFESSIONAL HIGHLIGHTS';
     String titleText = lang == 'hi' ? 'प्रमुख उपलब्धियां और उल्लेखनीय कार्य' : lang == 'gu' ? 'મુખ્ય સિદ્ધિઓ અને નોંધપાત્ર કાર્ય' : 'Key Achievements & Notable Work';
 
     return Container(
@@ -592,7 +592,7 @@ class _HighlightsBlock extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Label(labelText, isMob),
+              _Label(l10n.professionalHighlights, isMob),
               const SizedBox(height: 8),
               Text(titleText,
                 style: AppTypography.headingStyle(context, fontSize: isMob ? 26 : 38, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
@@ -684,12 +684,11 @@ class _SocialBlock extends StatelessWidget {
   final ProfileData p;
   final bool isMob, isDsk;
   final String lang;
-  const _SocialBlock({required this.p, required this.isMob, required this.isDsk, required this.lang});
+  final AppLocalizations l10n;
+  const _SocialBlock({required this.p, required this.isMob, required this.isDsk, required this.lang, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
-    String labelText = lang == 'hi' ? 'सामाजिक पहल' : lang == 'gu' ? 'સામાજિક પહેલ' : 'SOCIAL INITIATIVE';
-    
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -705,7 +704,7 @@ class _SocialBlock extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Label(labelText, isMob, onDark: true),
+              _Label(l10n.socialInitiative, isMob, onDark: true),
               const SizedBox(height: 8),
               if (p.localizedSocialTitle(lang).isNotEmpty) ...[
                 Text(p.localizedSocialTitle(lang),
@@ -737,14 +736,10 @@ class _SocialBlock extends StatelessWidget {
   }
 
   List<Widget> _pillars(BuildContext ctx) {
-    String visionLabel = lang == 'hi' ? 'दृष्टि' : lang == 'gu' ? 'દ્રષ્ટિ' : 'VISION';
-    String missionLabel = lang == 'hi' ? 'मिशन' : lang == 'gu' ? 'મિશન' : 'MISSION';
-    String objLabel = lang == 'hi' ? 'उद्દેશ्य' : lang == 'gu' ? 'ઉદ્દેશ્ય' : 'OBJECTIVE';
-
     final data = [
-      if (p.localizedSocialVision(lang).isNotEmpty)    (Icons.visibility_outlined, visionLabel,    p.localizedSocialVision(lang)),
-      if (p.localizedSocialMission(lang).isNotEmpty)   (Icons.flag_outlined,        missionLabel,   p.localizedSocialMission(lang)),
-      if (p.localizedSocialObjective(lang).isNotEmpty) (Icons.track_changes_rounded, objLabel, p.localizedSocialObjective(lang)),
+      if (p.localizedSocialVision(lang).isNotEmpty)    (Icons.visibility_outlined, l10n.vision,    p.localizedSocialVision(lang)),
+      if (p.localizedSocialMission(lang).isNotEmpty)   (Icons.flag_outlined,        l10n.mission,   p.localizedSocialMission(lang)),
+      if (p.localizedSocialObjective(lang).isNotEmpty) (Icons.track_changes_rounded, l10n.objective, p.localizedSocialObjective(lang)),
     ];
     return data.map((d) => _PillarCard(icon: d.$1, label: d.$2, text: d.$3, isMob: isMob)).toList();
   }
@@ -804,12 +799,11 @@ class _PhilosophyBlock extends StatelessWidget {
   final String quote;
   final bool isMob;
   final String lang;
-  const _PhilosophyBlock({required this.quote, required this.isMob, required this.lang});
+  final AppLocalizations l10n;
+  const _PhilosophyBlock({required this.quote, required this.isMob, required this.lang, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
-    String labelText = lang == 'hi' ? 'जीवन का दर्शन' : lang == 'gu' ? 'જીવનનું દર્શન' : 'PHILOSOPHY OF LIFE';
-    
     return Container(
       color: Colors.white,
       padding: EdgeInsets.symmetric(horizontal: isMob ? 24 : 60, vertical: isMob ? 60 : 100),
@@ -818,7 +812,7 @@ class _PhilosophyBlock extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 900),
           child: Column(
             children: [
-              _Label(labelText, isMob),
+              _Label(l10n.philosophyOfLife, isMob),
               const SizedBox(height: 48),
               Icon(Icons.format_quote_rounded, color: _gold.withOpacity(0.2), size: 60),
               const SizedBox(height: 24),
@@ -850,7 +844,8 @@ class _AttributesBlock extends StatelessWidget {
   final List<String> items;
   final bool isMob, isDsk;
   final String lang;
-  const _AttributesBlock({required this.items, required this.isMob, required this.isDsk, required this.lang});
+  final AppLocalizations l10n;
+  const _AttributesBlock({required this.items, required this.isMob, required this.isDsk, required this.lang, required this.l10n});
 
   static const _icons = [
     Icons.favorite_rounded, Icons.handshake_rounded, Icons.self_improvement_rounded,
@@ -860,7 +855,6 @@ class _AttributesBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cols = isMob ? 1 : (isDsk ? 2 : 2);
-    String labelText = lang == 'hi' ? 'व्यक्तिगत विशेषताएं' : lang == 'gu' ? 'વ્યક્તિગત લાક્ષણિકતાઓ' : 'PERSONAL ATTRIBUTES';
     String titleText = lang == 'hi' ? 'चरित्र, मूल्य और जीवन सिद्धांत' : lang == 'gu' ? 'ચારિત્ર્ય, મૂલ્યો અને જીવન સિદ્ધાંતો' : 'Character, Values & Life Principles';
 
     return Container(
@@ -873,7 +867,7 @@ class _AttributesBlock extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Label(labelText, isMob),
+              _Label(l10n.personalAttributes, isMob),
               const SizedBox(height: 8),
               Text(titleText,
                 style: AppTypography.headingStyle(context, fontSize: isMob ? 26 : 38, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
@@ -957,12 +951,11 @@ class _SignatureBlock extends StatelessWidget {
   final String subtitle;
   final bool isMob, isDsk;
   final String lang;
-  const _SignatureBlock({required this.title, required this.subtitle, required this.isMob, required this.isDsk, required this.lang});
+  final AppLocalizations l10n;
+  const _SignatureBlock({required this.title, required this.subtitle, required this.isMob, required this.isDsk, required this.lang, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
-    String labelText = lang == 'hi' ? 'हस्ताक्षर पहचान' : lang == 'gu' ? 'હસ્તાક્ષર ઓળખ' : 'SIGNATURE IDENTITY';
-
     return Container(
       width: double.infinity,
       color: Colors.white,
@@ -976,7 +969,7 @@ class _SignatureBlock extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                labelText,
+                l10n.signatureIdentity,
                 style: AppTypography.headingStyle(
                   context,
                   fontSize: isMob ? 26 : 32,

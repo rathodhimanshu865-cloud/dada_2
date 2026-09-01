@@ -5,6 +5,7 @@ import '../../../models/homepage_model.dart';
 
 import '../../../utils/app_typography.dart';
 import '../../../utils/katha_helper.dart';
+import '../../../utils/responsive_utils.dart';
 import 'katha_calendar_view.dart';
 
 class UserUpcomingKathas extends StatelessWidget {
@@ -14,10 +15,11 @@ class UserUpcomingKathas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (controller.upcomingKathas.isEmpty) return const SizedBox.shrink();
+    final bool isMobile = !context.isDesktop;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 40),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 100, horizontal: isMobile ? 20 : 40),
       color: const Color(0xFFF3EEE6),
       child: Column(
         children: [
@@ -37,9 +39,10 @@ class UserUpcomingKathas extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 AppLocalizations.of(context)!.upcomingKathas,
+                textAlign: TextAlign.center,
                 style: AppTypography.headingStyle(
                   context,
-                  fontSize: 42,
+                  fontSize: isMobile ? 32 : 42,
                   fontWeight: FontWeight.w900,
                   color: const Color(0xFF0F4C5C),
                 ),
@@ -52,13 +55,14 @@ class UserUpcomingKathas extends StatelessWidget {
           const SizedBox(height: 50),
 
           // View Toggles: List View & Calendar
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 20,
+            runSpacing: 20,
             children: [
               _viewButton(context, AppLocalizations.of(context)!.listView, Icons.list_alt_rounded, () {
                 Navigator.pushNamed(context, '/upcoming_ram_kathas');
               }),
-              const SizedBox(width: 20),
               _viewButton(context, AppLocalizations.of(context)!.calendar, Icons.calendar_month_outlined, () {
                 showDialog(
                   context: context,
@@ -73,21 +77,18 @@ class UserUpcomingKathas extends StatelessWidget {
           // Well-arranged Grid of Cards
           Container(
             constraints: const BoxConstraints(maxWidth: 1100),
-            child: LayoutBuilder(builder: (context, constraints) {
-              int crossAxisCount = constraints.maxWidth > 1000 ? 3 : (constraints.maxWidth > 700 ? 2 : 1);
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: 25,
-                  mainAxisSpacing: 25,
-                  childAspectRatio: 1.15,
-                ),
-                itemCount: controller.upcomingKathas.take(3).length,
-                itemBuilder: (context, index) => _buildEventCard(context, controller.upcomingKathas[index]),
-              );
-            }),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 400,
+                crossAxisSpacing: 25,
+                mainAxisSpacing: 25,
+                mainAxisExtent: isMobile ? 350 : 380,
+              ),
+              itemCount: controller.upcomingKathas.take(isMobile ? 2 : 3).length,
+              itemBuilder: (context, index) => _buildEventCard(context, controller.upcomingKathas[index]),
+            ),
           ),
 
           const SizedBox(height: 60),

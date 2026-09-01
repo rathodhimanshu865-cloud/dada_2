@@ -16,13 +16,16 @@ class MyOrdersPage extends StatelessWidget {
     final orderController = Provider.of<OrderController>(context);
     final Color primaryTeal = const Color(0xFF0F4C5C);
 
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 1100;
+
     return ProductCartLayout(
       controller: homeController,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 20, vertical: isMobile ? 30 : 60),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -30,14 +33,14 @@ class MyOrdersPage extends StatelessWidget {
                   'Your Sacred Orders',
                   style: AppTypography.headingStyle(
                     context,
-                    fontSize: 42,
+                    fontSize: isMobile ? 28 : 42,
                     fontWeight: FontWeight.bold,
                     color: primaryTeal,
                   ),
                 ),
                 const SizedBox(height: 10),
-                Text('Track your divine collections and blessings history.', style: TextStyle(color: Colors.grey.shade600, fontSize: 16)),
-                const SizedBox(height: 40),
+                Text('Track your divine collections and blessings history.', style: TextStyle(color: Colors.grey.shade600, fontSize: isMobile ? 14 : 16)),
+                SizedBox(height: isMobile ? 24 : 40),
                 StreamBuilder<List<OrderModel>>(
                   stream: orderController.userOrders,
                   builder: (context, snapshot) {
@@ -59,7 +62,7 @@ class MyOrdersPage extends StatelessWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: orders.length,
                       separatorBuilder: (context, index) => const SizedBox(height: 24),
-                      itemBuilder: (context, index) => _buildOrderCard(context, orders[index]),
+                      itemBuilder: (context, index) => _buildOrderCard(context, orders[index], isMobile),
                     );
                   },
                 ),
@@ -74,17 +77,17 @@ class MyOrdersPage extends StatelessWidget {
   Widget _buildErrorState(BuildContext context, OrderController controller) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(80),
+      padding: const EdgeInsets.all(40),
       child: Column(
         children: [
-          const Icon(Icons.error_outline, size: 80, color: Colors.redAccent),
+          const Icon(Icons.error_outline, size: 64, color: Colors.redAccent),
           const SizedBox(height: 24),
           const Text('Something went wrong', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
-          const Text('We could not load your orders. Please try again.', style: TextStyle(color: Colors.grey)),
+          const Text('We could not load your orders. Please try again.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
           const SizedBox(height: 32),
           ElevatedButton(
-            onPressed: () => controller.clearError(), // This will trigger a rebuild and retry
+            onPressed: () => controller.clearError(), 
             child: const Text('RETRY'),
           ),
         ],
@@ -95,7 +98,7 @@ class MyOrdersPage extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(80),
+      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 20),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
       child: Column(
         children: [
@@ -103,7 +106,7 @@ class MyOrdersPage extends StatelessWidget {
           const SizedBox(height: 24),
           Text('No orders yet', style: AppTypography.bodyStyle(context, fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
-          Text('You haven\'t placed any sacred orders yet.', style: TextStyle(color: Colors.grey.shade500)),
+          Text('You haven\'t placed any sacred orders yet.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade500)),
           const SizedBox(height: 32),
           ElevatedButton(
             onPressed: () => Navigator.pushNamed(context, '/catalogue'),
@@ -115,7 +118,7 @@ class MyOrdersPage extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderCard(BuildContext context, OrderModel order) {
+  Widget _buildOrderCard(BuildContext context, OrderModel order, bool isMobile) {
     final Color primaryTeal = const Color(0xFF0F4C5C);
     
     return Container(
@@ -129,20 +132,22 @@ class MyOrdersPage extends StatelessWidget {
         children: [
           // Order Header
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(isMobile ? 16 : 24),
             decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: const BorderRadius.vertical(top: Radius.circular(16))),
             child: Row(
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('ORDER ID', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade500, letterSpacing: 1)),
-                    const SizedBox(height: 4),
-                    Text(order.orderId, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('ORDER ID', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey.shade500, letterSpacing: 1)),
+                      const SizedBox(height: 4),
+                      Text(order.orderId, style: TextStyle(fontWeight: FontWeight.w900, fontSize: isMobile ? 12 : 14), overflow: TextOverflow.ellipsis),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 40),
-                Column(
+                SizedBox(width: isMobile ? 10 : 40),
+                if (!isMobile) Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('DATE PLACED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade500, letterSpacing: 1)),
@@ -150,14 +155,24 @@ class MyOrdersPage extends StatelessWidget {
                     Text(order.createdAt != null ? DateFormat('dd MMM yyyy').format(order.createdAt!) : 'Recent', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                   ],
                 ),
-                const Spacer(),
-                _buildStatusBadge(order.orderStatus),
+                if (!isMobile) const Spacer(),
+                _buildStatusBadge(order.orderStatus, isMobile),
+              ],
+            ),
+          ),
+          if (isMobile) Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(order.createdAt != null ? DateFormat('dd MMM yyyy').format(order.createdAt!) : 'Recent', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+                _buildStatusBadge(order.orderStatus, isMobile),
               ],
             ),
           ),
           // Order Items Preview
           Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(isMobile ? 16 : 24),
             child: Column(
               children: [
                 ...order.items.take(2).map((item) => Padding(
@@ -165,7 +180,7 @@ class MyOrdersPage extends StatelessWidget {
                   child: Row(
                     children: [
                       Container(
-                        width: 60, height: 60,
+                        width: 50, height: 50,
                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade100)),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
@@ -174,14 +189,14 @@ class MyOrdersPage extends StatelessWidget {
                             : const Icon(Icons.image_outlined, color: Colors.grey),
                         ),
                       ),
-                      const SizedBox(width: 20),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(item['productName'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                            Text(item['productName'], maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold, fontSize: isMobile ? 13 : 15)),
                             const SizedBox(height: 4),
-                            Text('Quantity: ${item['quantity']} • Price: ₹${item['price']}', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                            Text('Qty: ${item['quantity']} • ₹${item['price']}', style: TextStyle(color: Colors.grey.shade600, fontSize: 11)),
                           ],
                         ),
                       ),
@@ -189,19 +204,19 @@ class MyOrdersPage extends StatelessWidget {
                   ),
                 )),
                 if (order.items.length > 2)
-                  Text('+ ${order.items.length - 2} more items', style: TextStyle(color: Colors.grey.shade500, fontSize: 12, fontWeight: FontWeight.bold)),
-                const Divider(height: 40),
+                  Text('+ ${order.items.length - 2} more items', style: TextStyle(color: Colors.grey.shade500, fontSize: 11, fontWeight: FontWeight.bold)),
+                const Divider(height: 32),
                 if (order.trackingId != null && order.trackingId!.isNotEmpty) ...[
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(8)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('TRACKING INFORMATION', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue, letterSpacing: 0.5)),
-                        const SizedBox(height: 8),
-                        Text('${order.trackingCarrier}: ${order.trackingId}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        const Text('TRACKING INFORMATION', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.blue, letterSpacing: 0.5)),
+                        const SizedBox(height: 4),
+                        Text('${order.trackingCarrier}: ${order.trackingId}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                       ],
                     ),
                   ),
@@ -210,8 +225,8 @@ class MyOrdersPage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('TOTAL AMOUNT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
-                    Text('₹ ${order.totalAmount.toStringAsFixed(2)}', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 20, color: primaryTeal)),
+                    Text('TOTAL AMOUNT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
+                    Text('₹ ${order.totalAmount.toStringAsFixed(2)}', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: isMobile ? 18 : 20, color: primaryTeal)),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -222,20 +237,20 @@ class MyOrdersPage extends StatelessWidget {
                         onPressed: () {
                           Navigator.pushNamed(context, '/track', arguments: order.orderId);
                         },
-                        icon: const Icon(Icons.track_changes, size: 16),
+                        icon: const Icon(Icons.track_changes, size: 14),
                         style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                        label: const Text('TRACK ORDER', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        label: Text('TRACK', style: TextStyle(fontWeight: FontWeight.bold, fontSize: isMobile ? 10 : 12)),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () {
                            _showOrderDetails(context, order);
                         },
-                        icon: const Icon(Icons.description_outlined, size: 16),
+                        icon: const Icon(Icons.description_outlined, size: 14),
                         style: OutlinedButton.styleFrom(side: BorderSide(color: primaryTeal), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                        label: Text('VIEW DETAILS', style: TextStyle(color: primaryTeal, fontWeight: FontWeight.bold, fontSize: 12)),
+                        label: Text('DETAILS', style: TextStyle(color: primaryTeal, fontWeight: FontWeight.bold, fontSize: isMobile ? 10 : 12)),
                       ),
                     ),
                   ],
@@ -248,39 +263,40 @@ class MyOrdersPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge(String status) {
+  Widget _buildStatusBadge(String status, bool isMobile) {
     Color color = Colors.orange;
     if (status == 'Delivered') color = Colors.green;
     if (status == 'Cancelled') color = Colors.red;
     if (status == 'Shipped') color = Colors.blue;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: isMobile ? 4 : 6),
       decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withOpacity(0.2))),
-      child: Text(status.toUpperCase(), style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+      child: Text(status.toUpperCase(), style: TextStyle(color: color, fontSize: isMobile ? 8 : 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
     );
   }
 
   void _showOrderDetails(BuildContext context, OrderModel order) {
+    final isMobile = MediaQuery.of(context).size.width < 900;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.85,
+        height: MediaQuery.of(context).size.height * (isMobile ? 0.95 : 0.85),
         decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(isMobile ? 20 : 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Order Details', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                Text('Order Details', style: TextStyle(fontSize: isMobile ? 20 : 24, fontWeight: FontWeight.bold)),
                 IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
               ],
             ),
-            const Divider(height: 40),
+            const Divider(height: 30),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -291,14 +307,14 @@ class MyOrdersPage extends StatelessWidget {
                        _infoRow('Tracking', '${order.trackingCarrier}: ${order.trackingId}', isBold: true, color: Colors.blue),
                     _infoRow('Payment', '${order.paymentMethod} (${order.paymentStatus})'),
                     _infoRow('Delivery Address', '${order.customerName}\n${order.address}, ${order.city}, ${order.state} - ${order.pincode}'),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 20),
                     const Text('Items', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 10),
                     ...order.items.map((item) => ListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: Text(item['productName']),
-                      subtitle: Text('Qty: ${item['quantity']}'),
-                      trailing: Text('₹${(item['price'] * item['quantity']).toStringAsFixed(2)}'),
+                      title: Text(item['productName'], style: const TextStyle(fontSize: 14)),
+                      subtitle: Text('Qty: ${item['quantity']}', style: const TextStyle(fontSize: 12)),
+                      trailing: Text('₹${(item['price'] * item['quantity']).toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                     )),
                     const Divider(height: 40),
                     _summaryRow('Subtotal', '₹${order.subtotal.toStringAsFixed(2)}'),

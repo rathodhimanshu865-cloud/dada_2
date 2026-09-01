@@ -45,8 +45,16 @@ class _UserHeroSliderState extends State<UserHeroSlider> {
     final slides = widget.controller.heroSection.slides;
     if (slides.isEmpty) return const SizedBox.shrink();
 
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 1100;
+    
+    // On mobile/tablet, maybe don't use full screen height if it's too tall
+    // but on desktop full screen height is premium.
+    final double sliderHeight = isMobile ? screenHeight * 0.7 : screenHeight;
+
     return SizedBox(
-      height: MediaQuery.of(context).size.height, // Full screen height
+      height: sliderHeight,
       width: double.infinity,
       child: Stack(
         children: [
@@ -60,7 +68,7 @@ class _UserHeroSliderState extends State<UserHeroSlider> {
           // Navigation Indicators
           if (slides.length > 1)
             Positioned(
-              bottom: 40,
+              bottom: isMobile ? 20 : 40,
               left: 0, right: 0,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

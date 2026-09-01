@@ -20,7 +20,8 @@ class UserLatestVideos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (controller.videos.isEmpty) return const SizedBox.shrink();
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 1100;
 
     return Container(
       width: double.infinity,
@@ -47,6 +48,7 @@ class UserLatestVideos extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 AppLocalizations.of(context)!.latestVideos,
+                textAlign: TextAlign.center,
                 style: AppTypography.headingStyle(
                   context,
                   fontSize: isMobile ? 32 : 42,

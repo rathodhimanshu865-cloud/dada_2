@@ -221,6 +221,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Widget _buildProfileFields() {
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -234,13 +235,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
         const SizedBox(height: 16),
         _buildTextField(_addressCtrl, 'Street Address', Icons.location_on_outlined, enabled: _isEditing, maxLines: 2),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(child: _buildTextField(_cityCtrl, 'City', null, enabled: _isEditing)),
-            const SizedBox(width: 16),
-            Expanded(child: _buildTextField(_stateCtrl, 'State', null, enabled: _isEditing)),
-          ],
-        ),
+        if (isMobile) ...[
+          _buildTextField(_cityCtrl, 'City', null, enabled: _isEditing),
+          const SizedBox(height: 16),
+          _buildTextField(_stateCtrl, 'State', null, enabled: _isEditing),
+        ] else
+          Row(
+            children: [
+              Expanded(child: _buildTextField(_cityCtrl, 'City', null, enabled: _isEditing)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildTextField(_stateCtrl, 'State', null, enabled: _isEditing)),
+            ],
+          ),
         const SizedBox(height: 16),
         _buildTextField(_pinCtrl, 'Pincode', null, enabled: _isEditing),
       ],

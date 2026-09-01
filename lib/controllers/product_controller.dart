@@ -80,6 +80,15 @@ class ProductController extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   String? get browsingErrorMessage => _browsingErrorMessage;
   String get selectedCategoryId => _selectedCategoryId;
+  
+  String get selectedCategory {
+    if (_selectedCategoryId == 'all') return 'All Sacred Products';
+    final cat = _categoryObjects.firstWhere(
+      (c) => c.id.toLowerCase().trim() == _selectedCategoryId.toLowerCase().trim(), 
+      orElse: () => CategoryModel(id: '', name: _selectedCategoryId, imageUrl: '')
+    );
+    return cat.name;
+  }
 
   void clearError() {
     _errorMessage = null;
@@ -92,14 +101,14 @@ class ProductController extends ChangeNotifier {
   
   List<String> get categories => ['All Sacred Products', ..._categoryObjects.map((c) => c.name)];
   
-  String get selectedCategory {
-    if (_selectedCategoryId == 'all') return 'All Sacred Products';
+  String localizedSelectedCategory(String lang) {
+    if (_selectedCategoryId == 'all') return 'All Sacred Products'; // UI will translate this
     final search = _selectedCategoryId.toLowerCase().trim();
     final cat = _categoryObjects.firstWhere(
       (c) => c.id.toLowerCase().trim() == search || c.name.toLowerCase().trim() == search, 
       orElse: () => CategoryModel(id: '', name: _selectedCategoryId, imageUrl: '')
     );
-    return cat.name;
+    return cat.localizedName(lang);
   }
 
   String get searchQuery => _searchQuery;

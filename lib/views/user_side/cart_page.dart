@@ -15,13 +15,16 @@ class CartPage extends StatelessWidget {
     final homeController = Provider.of<HomePageController>(context, listen: false);
     final cartController = Provider.of<CartController>(context);
 
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 1100;
+
     return ProductCartLayout(
       controller: homeController,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 20, vertical: isMobile ? 30 : 60),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -29,12 +32,12 @@ class CartPage extends StatelessWidget {
                   'Your Shopping Bag',
                   style: AppTypography.headingStyle(
                     context,
-                    fontSize: 42,
+                    fontSize: isMobile ? 28 : 42,
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF0F4C5C),
                   ),
                 ),
-                const SizedBox(height: 40),
+                SizedBox(height: isMobile ? 20 : 40),
                 if (cartController.isLoading && cartController.items.isEmpty)
                    const Center(child: Padding(padding: EdgeInsets.all(100), child: CircularProgressIndicator()))
                 else if (cartController.errorMessage != null)
@@ -42,7 +45,7 @@ class CartPage extends StatelessWidget {
                 else if (cartController.items.isEmpty)
                   _buildEmptyState(context)
                 else
-                  _buildCartContent(context, cartController),
+                  _buildCartContent(context, cartController, isMobile),
               ],
             ),
           ),
@@ -79,54 +82,58 @@ class CartPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey.shade300),
-          const SizedBox(height: 24),
-          Text(
-            'Your bag is currently empty.',
-            style: AppTypography.bodyStyle(context, fontSize: 18, color: Colors.grey.shade600),
-          ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: () => Navigator.pushNamed(context, '/catalogue'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0F4C5C),
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey.shade300),
+            const SizedBox(height: 24),
+            Text(
+              'Your bag is currently empty.',
+              textAlign: TextAlign.center,
+              style: AppTypography.bodyStyle(context, fontSize: 18, color: Colors.grey.shade600),
             ),
-            child: const Text('EXPLORE CATALOGUE'),
-          ),
-        ],
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, '/catalogue'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F4C5C),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              ),
+              child: const Text('EXPLORE CATALOGUE'),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildCartContent(BuildContext context, CartController cart) {
+  Widget _buildCartContent(BuildContext context, CartController cart, bool isMobile) {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth < 900) {
           return Column(
             children: [
-              _buildCartItemsList(context, cart),
+              _buildCartItemsList(context, cart, isMobile),
               const SizedBox(height: 40),
-              _buildOrderSummary(context, cart),
+              _buildOrderSummary(context, cart, isMobile),
             ],
           );
         }
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(flex: 2, child: _buildCartItemsList(context, cart)),
+            Expanded(flex: 2, child: _buildCartItemsList(context, cart, isMobile)),
             const SizedBox(width: 40),
-            Expanded(flex: 1, child: _buildOrderSummary(context, cart)),
+            Expanded(flex: 1, child: _buildOrderSummary(context, cart, isMobile)),
           ],
         );
       }
     );
   }
 
-  Widget _buildCartItemsList(BuildContext context, CartController cart) {
+  Widget _buildCartItemsList(BuildContext context, CartController cart, bool isMobile) {
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -135,7 +142,7 @@ class CartPage extends StatelessWidget {
       itemBuilder: (context, index) {
         final item = cart.items[index];
         return Container(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(isMobile ? 12 : 20),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -148,31 +155,31 @@ class CartPage extends StatelessWidget {
                 child: item.imageUrl.isNotEmpty 
                   ? CachedNetworkImage(
                       imageUrl: item.imageUrl,
-                      width: 100, height: 100,
+                      width: isMobile ? 60 : 100, height: isMobile ? 60 : 100,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
                       errorWidget: (context, url, error) => const Icon(Icons.image_outlined, color: Colors.grey),
                     )
-                  : Container(width: 100, height: 100, color: Colors.grey.shade50, child: const Icon(Icons.image_outlined)),
+                  : Container(width: isMobile ? 60 : 100, height: isMobile ? 60 : 100, color: Colors.grey.shade50, child: const Icon(Icons.image_outlined)),
               ),
-              const SizedBox(width: 24),
+              SizedBox(width: isMobile ? 12 : 24),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(item.productName, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18)),
+                    Text(item.productName, maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: isMobile ? 14 : 18)),
                     const SizedBox(height: 8),
-                    Text('₹ ${item.price.toStringAsFixed(2)}', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+                    Text('₹ ${item.price.toStringAsFixed(2)}', style: TextStyle(color: Colors.grey.shade600, fontSize: isMobile ? 12 : 14)),
                   ],
                 ),
               ),
-              _buildQuantitySelector(context, cart, item),
-              const SizedBox(width: 40),
-              Text('₹ ${(item.price * item.quantity).toStringAsFixed(2)}', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18)),
-              const SizedBox(width: 20),
+              _buildQuantitySelector(context, cart, item, isMobile),
+              if(!isMobile) const SizedBox(width: 40),
+              if(!isMobile) Text('₹ ${(item.price * item.quantity).toStringAsFixed(2)}', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18)),
+              SizedBox(width: isMobile ? 8 : 20),
               IconButton(
                 onPressed: () => cart.removeItem(item.productId),
-                icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                icon: Icon(Icons.delete_outline, color: Colors.redAccent, size: isMobile ? 20 : 24),
               ),
             ],
           ),
@@ -181,26 +188,27 @@ class CartPage extends StatelessWidget {
     );
   }
 
-  Widget _buildQuantitySelector(BuildContext context, CartController cart, item) {
+  Widget _buildQuantitySelector(BuildContext context, CartController cart, item, bool isMobile) {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade200),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(onPressed: () => cart.updateQuantity(item.productId, -1), icon: const Icon(Icons.remove, size: 16)),
+          IconButton(onPressed: () => cart.updateQuantity(item.productId, -1), icon: Icon(Icons.remove, size: isMobile ? 14 : 16), padding: isMobile ? EdgeInsets.zero : null, constraints: isMobile ? const BoxConstraints() : null),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text('${item.quantity}', style: const TextStyle(fontWeight: FontWeight.bold)),
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 6 : 12),
+            child: Text('${item.quantity}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14)),
           ),
-          IconButton(onPressed: () => cart.updateQuantity(item.productId, 1), icon: const Icon(Icons.add, size: 16)),
+          IconButton(onPressed: () => cart.updateQuantity(item.productId, 1), icon: Icon(Icons.add, size: isMobile ? 14 : 16), padding: isMobile ? EdgeInsets.zero : null, constraints: isMobile ? const BoxConstraints() : null),
         ],
       ),
     );
   }
 
-  Widget _buildOrderSummary(BuildContext context, CartController cart) {
+  Widget _buildOrderSummary(BuildContext context, CartController cart, bool isMobile) {
     final Color teal = const Color(0xFF0F4C5C);
     final couponCtrl = Provider.of<CouponController>(context);
 
@@ -208,7 +216,7 @@ class CartPage extends StatelessWidget {
       children: [
         // Coupon Section
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(isMobile ? 16 : 24),
           margin: const EdgeInsets.only(bottom: 20),
           decoration: BoxDecoration(
             color: Colors.white,
@@ -247,7 +255,7 @@ class CartPage extends StatelessWidget {
                         }
                       },
                       child: Container(
-                        width: 200,
+                        width: isMobile ? double.infinity : 200,
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: isApplied ? const Color(0xFFFDFBF7) : Colors.white,
@@ -283,7 +291,7 @@ class CartPage extends StatelessWidget {
                               ),
                               child: Text(
                                 isApplied ? 'APPLIED' : 'APPLY COUPON',
-                                textAlign: Alignment.center.x == 0 ? TextAlign.center : TextAlign.center,
+                                textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: isApplied ? Colors.green : teal, letterSpacing: 0.5),
                               ),
                             ),
@@ -300,8 +308,7 @@ class CartPage extends StatelessWidget {
                   children: [
                     const Icon(Icons.check_circle, color: Colors.green, size: 16),
                     const SizedBox(width: 8),
-                    Text('Coupon ${cart.appliedCoupon!.code} Applied Successfully!', style: const TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.bold)),
-                    const Spacer(),
+                    Expanded(child: Text('Coupon ${cart.appliedCoupon!.code} Applied Successfully!', style: const TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.bold))),
                     TextButton(onPressed: cart.removeCoupon, child: const Text('REMOVE', style: TextStyle(color: Colors.red, fontSize: 11, fontWeight: FontWeight.bold))),
                   ],
                 ),
@@ -311,7 +318,7 @@ class CartPage extends StatelessWidget {
         ),
 
         Container(
-          padding: const EdgeInsets.all(32),
+          padding: EdgeInsets.all(isMobile ? 20 : 32),
           decoration: BoxDecoration(
             color: Colors.grey.shade50,
             borderRadius: BorderRadius.circular(16),
@@ -331,15 +338,17 @@ class CartPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Final Total', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18)),
-                      if (cart.discountAmount > 0)
-                        Text('You saved ₹${cart.discountAmount.toInt()}!', style: const TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Final Total', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18)),
+                        if (cart.discountAmount > 0)
+                          Text('You saved ₹${cart.discountAmount.toInt()}!', style: const TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
                   ),
-                  Text('₹ ${cart.total.toStringAsFixed(2)}', style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.bold, color: teal)),
+                  Text('₹ ${cart.total.toStringAsFixed(2)}', style: AppTypography.headingStyle(context, fontSize: isMobile ? 20 : 24, fontWeight: FontWeight.bold, color: teal)),
                 ],
               ),
               const SizedBox(height: 40),

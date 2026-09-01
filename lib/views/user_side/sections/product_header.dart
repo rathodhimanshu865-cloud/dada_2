@@ -197,7 +197,65 @@ class _ProductHeaderState extends State<ProductHeader> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isMobile = MediaQuery.of(context).size.width < 1100;
     const Color darkCharcoal = Color(0xFF2B2B2B);
+
+    if (isMobile) {
+      return Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 2.0)),
+          boxShadow: widget.isSticky ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))] : [],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.menu, color: darkCharcoal),
+              onPressed: () {
+                if (widget.scaffoldKey?.currentState != null) {
+                   widget.scaffoldKey!.currentState?.openDrawer();
+                }
+              },
+            ),
+            Expanded(
+              child: CompositedTransformTarget(
+                link: _layerLink,
+                child: Container(
+                  height: 40,
+                  decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8), color: Colors.grey.shade50),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 8),
+                      const Icon(Icons.search, color: Colors.grey, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: _onSearchChanged,
+                          style: const TextStyle(fontSize: 12),
+                          decoration: const InputDecoration(
+                            hintText: 'Search...',
+                            hintStyle: TextStyle(color: Colors.grey, fontSize: 12),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(vertical: 8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            _wishlistButton(context, darkCharcoal, compact: true),
+          ],
+        ),
+      );
+    }
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -328,7 +386,7 @@ class _ProductHeaderState extends State<ProductHeader> {
     );
   }
 
-  Widget _wishlistButton(BuildContext context, Color color) {
+  Widget _wishlistButton(BuildContext context, Color color, {bool compact = false}) {
     return Consumer<ProductController>(
       builder: (context, prod, child) {
         return InkWell(
@@ -338,20 +396,22 @@ class _ProductHeaderState extends State<ProductHeader> {
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Icon(Icons.favorite_border, color: color, size: 20),
+                  Icon(Icons.favorite_border, color: color, size: compact ? 24 : 20),
                   if (prod.wishlistIds.isNotEmpty)
                     Positioned(
                       right: -6, top: -6,
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: const BoxDecoration(color: Color(0xFFC89A5B), shape: BoxShape.circle),
-                        child: Text('${prod.wishlistIds.length}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                        child: Text('${prod.wishlistIds.length}', style: TextStyle(color: Colors.white, fontSize: compact ? 8 : 10, fontWeight: FontWeight.bold)),
                       ),
                     ),
                 ],
               ),
-              const SizedBox(width: 8),
-              Text('Favorites', style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: color)),
+              if (!compact) ...[
+                const SizedBox(width: 8),
+                Text('Favorites', style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: color)),
+              ],
             ],
           ),
         );

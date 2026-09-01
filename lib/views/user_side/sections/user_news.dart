@@ -22,13 +22,14 @@ class UserNews extends StatelessWidget {
     final news = controller.homepageData.news;
     if (news.isEmpty) return const SizedBox.shrink();
 
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 1100;
     final displayNews = news.take(4).toList();
 
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        vertical: isMobile ? 70 : 120,
+        vertical: isMobile ? 60 : 120,
         horizontal: isMobile ? 20 : 40,
       ),
       color: const Color(0xFFFAF8F4),
@@ -50,6 +51,7 @@ class UserNews extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 AppLocalizations.of(context)!.newsAndEvents,
+                textAlign: TextAlign.center,
                 style: AppTypography.headingStyle(
                   context,
                   fontSize: isMobile ? 30 : 42,
@@ -68,9 +70,9 @@ class UserNews extends StatelessWidget {
           Container(
             constraints: const BoxConstraints(maxWidth: 1300),
             child: LayoutBuilder(builder: (context, constraints) {
-              int cols = constraints.maxWidth > 1000
+              int cols = constraints.maxWidth > 1200
                   ? 4
-                  : (constraints.maxWidth > 700 ? 2 : 1);
+                  : (constraints.maxWidth > 800 ? 2 : 1);
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -78,7 +80,7 @@ class UserNews extends StatelessWidget {
                   crossAxisCount: cols,
                   crossAxisSpacing: isMobile ? 15 : 25,
                   mainAxisSpacing: isMobile ? 30 : 40,
-                  childAspectRatio: isMobile ? 0.9 : 0.8,
+                  childAspectRatio: isMobile ? (cols == 1 ? 1.2 : 0.9) : 0.8,
                 ),
                 itemCount: displayNews.length,
                 itemBuilder: (context, index) =>
@@ -142,8 +144,11 @@ class UserNews extends StatelessWidget {
 
   Widget _buildNewsCard(BuildContext context, NewsItem item) {
     final lang = Localizations.localeOf(context).languageCode;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 1100;
+    
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
         Expanded(
           child: GestureDetector(
@@ -155,7 +160,7 @@ class UserNews extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
+                    color: Colors.black.withOpacity(0.06),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -174,7 +179,7 @@ class UserNews extends StatelessWidget {
         GestureDetector(
           onTap: () => _launchUrl(item.url),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
             children: [
               Text(
                 item.localizedCategory(lang).toUpperCase(),
@@ -189,6 +194,7 @@ class UserNews extends StatelessWidget {
               const SizedBox(height: 10),
               Text(
                 item.localizedTitle(lang),
+                textAlign: isMobile ? TextAlign.center : TextAlign.start,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: AppTypography.headingStyle(

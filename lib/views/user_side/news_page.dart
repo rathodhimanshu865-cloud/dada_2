@@ -7,6 +7,7 @@ import '../../models/homepage_model.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 import '../../utils/app_typography.dart';
+import '../../utils/responsive_utils.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 
 class NewsPage extends StatelessWidget {
@@ -59,7 +60,7 @@ class NewsPage extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    final bool isMobile = context.isMobile;
 
     return UserPageLayout(
       controller: controller,
@@ -102,25 +103,20 @@ class NewsPage extends StatelessWidget {
 
           // News Grid — responsive padding
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
-            child: LayoutBuilder(builder: (context, constraints) {
-              int crossAxisCount = constraints.maxWidth > 1200
-                  ? 3
-                  : (constraints.maxWidth > 700 ? 2 : 1);
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: isMobile ? 15 : 30,
-                  mainAxisSpacing: isMobile ? 30 : 50,
-                  childAspectRatio: isMobile ? 0.9 : 0.85,
-                ),
-                itemCount: newsList.length,
-                itemBuilder: (context, index) =>
-                    _buildNewsCard(context, newsList[index], accentBrown, primaryTeal, lang),
-              );
-            }),
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 40),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 400,
+                crossAxisSpacing: isMobile ? 15 : 30,
+                mainAxisSpacing: isMobile ? 30 : 50,
+                childAspectRatio: isMobile ? 0.9 : 0.85,
+              ),
+              itemCount: newsList.length,
+              itemBuilder: (context, index) =>
+                  _buildNewsCard(context, newsList[index], accentBrown, primaryTeal, lang),
+            ),
           ),
 
           SizedBox(height: isMobile ? 60 : 120),

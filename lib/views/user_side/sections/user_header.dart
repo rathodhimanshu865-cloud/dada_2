@@ -12,6 +12,7 @@ import '../../../controllers/notification_controller.dart';
 import 'notification_drawer.dart';
 import '../../../models/homepage_model.dart';
 import '../../../utils/app_typography.dart';
+import '../../../utils/responsive_utils.dart';
 
 class UserHeader extends StatefulWidget {
   final HomePageController controller;
@@ -116,7 +117,8 @@ class _UserHeaderState extends State<UserHeader>
     final String currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
     final l10n = AppLocalizations.of(context)!;
-    final bool isMobile = MediaQuery.of(context).size.width < 1100;
+    final double screenWidth = context.screenWidth;
+    final bool isMobile = !context.isDesktop;
     final Color bgColor = _parseColor(settings.headerBackgroundColor);
     final bool isHomePage = currentRoute == '/';
 
@@ -124,13 +126,13 @@ class _UserHeaderState extends State<UserHeader>
       valueListenable: _scrollOffset,
       builder: (context, offset, child) {
         final bool isSticky = !widget.productPage && offset > 50 && settings.stickyHeaderEnabled;
-        final double headerHeight = isSticky ? 75 : 95;
-        final double marginHorizontal = isSticky ? 40 : 0;
-        final double marginTop = isSticky ? 15 : 0;
-        final double borderRadius = isSticky ? 24.0 : 0.0;
-        final double logoSize = isSticky ? 55 : 75;
-        final double glassOpacity = isSticky ? 0.92 : 0.0;
-        final double blurAmount = isSticky ? 20.0 : 0.0;
+        final double headerHeight = isSticky ? 75 : (isMobile ? 70 : 95);
+        final double marginHorizontal = isSticky ? (screenWidth > 1400 ? (screenWidth - 1300) / 2 : (isMobile ? 15 : 40)) : 0;
+        final double marginTop = isSticky ? (isMobile ? 10 : 15) : 0;
+        final double borderRadius = isSticky ? (isMobile ? 16.0 : 24.0) : 0.0;
+        final double logoSize = isSticky ? (isMobile ? 45 : 55) : (isMobile ? 60 : 75);
+        final double glassOpacity = (isSticky || !isHomePage) ? 0.96 : 0.0;
+        final double blurAmount = (isSticky || !isHomePage) ? 20.0 : 0.0;
 
         final Color navTextColor = (isSticky || !isHomePage)
             ? const Color(0xFF07404C)
@@ -181,21 +183,14 @@ class _UserHeaderState extends State<UserHeader>
                         child: Row(
                           children: [
                             _buildBranding(logoSize, isSticky, navTextColor, lang),
-                            const SizedBox(width: 40),
+                            const Spacer(),
                             if (!isMobile) ...[
-                              Expanded(
-                                child: Center(
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: _buildNavigation(
-                                      l10n,
-                                      currentRoute,
-                                      isSticky,
-                                      navTextColor,
-                                      activeNavColor,
-                                    ),
-                                  ),
-                                ),
+                              _buildNavigation(
+                                l10n,
+                                currentRoute,
+                                isSticky,
+                                navTextColor,
+                                activeNavColor,
                               ),
                               const SizedBox(width: 20),
                               _buildActionControls(
@@ -338,7 +333,7 @@ class _UserHeaderState extends State<UserHeader>
                     },
                   ),
                   ListTile(
-                    title: const Text('TRACK SHIPMENT'),
+                    title: Text(l10n.trackShipment),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, '/track');
@@ -418,8 +413,8 @@ class _UserHeaderState extends State<UserHeader>
                         context,
                         listen: false,
                       ).isAuthenticated
-                      ? 'MY ORDERS'
-                      : 'LOGIN / SIGN UP',
+                      ? l10n.myOrders
+                      : l10n.loginSignUp,
                   style: TextStyle(
                     color:
                         currentRoute == '/my_orders'
@@ -441,9 +436,9 @@ class _UserHeaderState extends State<UserHeader>
                 },
               ),
               const Divider(height: 40),
-              const Text(
-                "Select Language",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Text(
+                l10n.selectedLanguage,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -579,7 +574,7 @@ class _UserHeaderState extends State<UserHeader>
           activeColor,
         ),
         _navItem(
-          'Product',
+          l10n.products,
           '/product',
           currentRoute == '/product',
           isSticky,
@@ -881,6 +876,7 @@ class _UserHeaderState extends State<UserHeader>
 
   Widget _buildAuthButton(Color textColor) {
     final auth = Provider.of<AuthController>(context);
+    final l10n = AppLocalizations.of(context)!;
     return PopupMenuButton<String>(
       icon: Icon(Icons.person_outline, color: textColor),
       onSelected: (v) async {
@@ -894,19 +890,19 @@ class _UserHeaderState extends State<UserHeader>
       },
       itemBuilder: (context) => auth.isAuthenticated
           ? [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'orders',
-                child: Text('My Orders'),
+                child: Text(l10n.myOrders),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'logout',
-                child: Text('Logout', style: TextStyle(color: Colors.redAccent)),
+                child: Text(l10n.close, style: const TextStyle(color: Colors.redAccent)),
               ),
             ]
           : [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'login',
-                child: Text('Login / Sign Up'),
+                child: Text(l10n.loginSignUp),
               ),
             ],
     );

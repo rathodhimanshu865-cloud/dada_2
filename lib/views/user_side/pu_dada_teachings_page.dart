@@ -20,19 +20,21 @@ class PuDadaTeachingsPage extends StatelessWidget {
     final goldAccent = const Color(0xFFC89A5B);
     final bgLight = const Color(0xFFF9F7F2);
 
+    final bool isMobile = MediaQuery.of(context).size.width < 1100;
+
     return ProductCartLayout(
       controller: controller,
       child: Container(
         color: bgLight,
         child: Column(
           children: [
-            _buildHeroBanner(context, t, primaryTeal, goldAccent, lang),
-            const SizedBox(height: 80),
-            _buildDivinePurpose(context, t, primaryTeal, goldAccent, lang),
-            const SizedBox(height: 80),
-            _buildThreePillars(context, t, primaryTeal, goldAccent, lang),
+            _buildHeroBanner(context, t, primaryTeal, goldAccent, lang, isMobile),
+            SizedBox(height: isMobile ? 40 : 80),
+            _buildDivinePurpose(context, t, primaryTeal, goldAccent, lang, isMobile),
+            SizedBox(height: isMobile ? 60 : 80),
+            _buildThreePillars(context, t, primaryTeal, goldAccent, lang, isMobile),
             const SizedBox(height: 60),
-            _buildCTAButton(context, primaryTeal),
+            _buildCTAButton(context, primaryTeal, isMobile),
             const SizedBox(height: 80),
           ],
         ),
@@ -40,11 +42,11 @@ class PuDadaTeachingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroBanner(BuildContext context, TeachingsPageData t, Color primaryColor, Color goldColor, String lang) {
+  Widget _buildHeroBanner(BuildContext context, TeachingsPageData t, Color primaryColor, Color goldColor, String lang, bool isMobile) {
     return Container(
       width: double.infinity,
       color: primaryColor,
-      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 20),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 120, horizontal: 20),
       decoration: t.heroImage.isNotEmpty ? BoxDecoration(
         image: DecorationImage(image: NetworkImage(t.heroImage), fit: BoxFit.cover, colorFilter: ColorFilter.mode(primaryColor.withOpacity(0.8), BlendMode.multiply))
       ) : null,
@@ -67,7 +69,7 @@ class PuDadaTeachingsPage extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       AppLocalizations.of(context)!.divineDiscourses.toUpperCase(),
-                      style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                      style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5),
                     ),
                   ],
                 ),
@@ -76,13 +78,13 @@ class PuDadaTeachingsPage extends StatelessWidget {
               Text(
                 t.localizedHeroTitle(lang),
                 textAlign: TextAlign.center,
-                style: AppTypography.headingStyle(context, fontSize: 48, fontWeight: FontWeight.bold, color: Colors.white).copyWith(height: 1.2),
+                style: AppTypography.headingStyle(context, fontSize: isMobile ? 32 : 56, fontWeight: FontWeight.bold, color: Colors.white).copyWith(height: 1.2),
               ),
               const SizedBox(height: 24),
               Text(
                 t.localizedHeroSubtitle(lang),
                 textAlign: TextAlign.center,
-                style: AppTypography.bodyStyle(context, fontSize: 18, color: Colors.white.withOpacity(0.8)).copyWith(height: 1.5),
+                style: AppTypography.bodyStyle(context, fontSize: isMobile ? 15 : 18, color: Colors.white.withOpacity(0.8)).copyWith(height: 1.5),
               ),
             ],
           ),
@@ -91,50 +93,57 @@ class PuDadaTeachingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDivinePurpose(BuildContext context, TeachingsPageData t, Color primaryColor, Color goldColor, String lang) {
+  Widget _buildDivinePurpose(BuildContext context, TeachingsPageData t, Color primaryColor, Color goldColor, String lang, bool isMobile) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: Row(
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 40),
+          child: Flex(
+            direction: isMobile ? Axis.vertical : Axis.horizontal,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                flex: 1,
+                flex: isMobile ? 0 : 1,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
                   children: [
-                    Text(AppLocalizations.of(context)!.mission.toUpperCase(), style: TextStyle(color: goldColor, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                    Text(AppLocalizations.of(context)!.mission.toUpperCase(), style: TextStyle(color: goldColor, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                     const SizedBox(height: 16),
                     Text(
                       t.localizedDivinePurposeTitle(lang),
-                      style: AppTypography.headingStyle(context, fontSize: 36, fontWeight: FontWeight.bold, color: primaryColor).copyWith(height: 1.2),
+                      textAlign: isMobile ? TextAlign.center : TextAlign.start,
+                      style: AppTypography.headingStyle(context, fontSize: isMobile ? 28 : 36, fontWeight: FontWeight.bold, color: primaryColor).copyWith(height: 1.2),
                     ),
                     const SizedBox(height: 24),
                     Text(
                       t.localizedDivinePurposeDesc1(lang),
-                      style: AppTypography.bodyStyle(context, fontSize: 16, color: Colors.grey.shade700).copyWith(height: 1.6),
+                      textAlign: isMobile ? TextAlign.center : TextAlign.start,
+                      style: AppTypography.bodyStyle(context, fontSize: isMobile ? 14 : 16, color: Colors.grey.shade700).copyWith(height: 1.6),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       t.localizedDivinePurposeDesc2(lang),
-                      style: AppTypography.bodyStyle(context, fontSize: 16, color: Colors.grey.shade700).copyWith(height: 1.6),
+                      textAlign: isMobile ? TextAlign.center : TextAlign.start,
+                      style: AppTypography.bodyStyle(context, fontSize: isMobile ? 14 : 16, color: Colors.grey.shade700).copyWith(height: 1.6),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 80),
+              if (!isMobile) const SizedBox(width: 80),
+              if (isMobile) const SizedBox(height: 40),
               Expanded(
-                flex: 1,
+                flex: isMobile ? 0 : 1,
                 child: Container(
-                  height: 400,
+                  height: isMobile ? 300 : 450,
+                  width: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     image: DecorationImage(
                       image: NetworkImage(t.divinePurposeImage.isNotEmpty ? t.divinePurposeImage : 'https://via.placeholder.com/600x400'),
                       fit: BoxFit.cover,
                     ),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 30, offset: const Offset(0, 15))],
                   ),
                 ),
               ),
@@ -145,97 +154,114 @@ class PuDadaTeachingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildThreePillars(BuildContext context, TeachingsPageData t, Color primaryColor, Color goldColor, String lang) {
+  Widget _buildThreePillars(BuildContext context, TeachingsPageData t, Color primaryColor, Color goldColor, String lang, bool isMobile) {
     final pillars = t.pillars;
 
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
-        child: Column(
-          children: [
-            Text(
-              'Sacred Foundations of Pu. Dada Seva',
-              textAlign: TextAlign.center,
-              style: AppTypography.headingStyle(context, fontSize: 32, fontWeight: FontWeight.bold, color: primaryColor),
-            ),
-            const SizedBox(height: 40),
-            Row(
-              children: pillars.map((p) => _pillarCard(context, Icons.auto_awesome, p.localizedTitle(lang), p.localizedDescription(lang), goldColor)).toList(),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: [
+              Text(
+                AppLocalizations.of(context)!.sacredFoundations,
+                textAlign: TextAlign.center,
+                style: AppTypography.headingStyle(context, fontSize: isMobile ? 26 : 36, fontWeight: FontWeight.bold, color: primaryColor),
+              ),
+              const SizedBox(height: 40),
+              if (isMobile)
+                Column(
+                  children: pillars.map((p) => Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: _pillarCard(context, Icons.auto_awesome, p.localizedTitle(lang), p.localizedDescription(lang), goldColor, isMobile),
+                  )).toList(),
+                )
+              else
+                Row(
+                  children: pillars.map((p) => _pillarCard(context, Icons.auto_awesome, p.localizedTitle(lang), p.localizedDescription(lang), goldColor, isMobile)).toList(),
+                ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _pillarCard(BuildContext context, IconData icon, String title, String description, Color goldColor) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
+  Widget _pillarCard(BuildContext context, IconData icon, String title, String description, Color goldColor, bool isMobile) {
+    final card = Container(
+      padding: EdgeInsets.all(isMobile ? 24 : 32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: goldColor.withOpacity(0.1),
+              shape: BoxShape.circle,
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: goldColor.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: goldColor, size: 28),
+            child: Icon(icon, color: goldColor, size: 24),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            title,
+            style: AppTypography.headingStyle(
+              context,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF0F4C5C),
             ),
-            const SizedBox(height: 24),
-            Text(
-              title,
-              style: AppTypography.headingStyle(
-                context,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF0F4C5C),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              description,
-              style: AppTypography.bodyStyle(
-                context,
-                fontSize: 15,
-                color: Colors.grey.shade600,
-              ).copyWith(height: 1.5),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            description,
+            style: AppTypography.bodyStyle(
+              context,
+              fontSize: 14,
+              color: Colors.grey.shade600,
+            ).copyWith(height: 1.5),
+          ),
+        ],
       ),
     );
+
+    return isMobile ? card : Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: card));
   }
 
-  Widget _buildCTAButton(BuildContext context, Color primaryColor) {
-    return ElevatedButton(
-      onPressed: () {
-        Navigator.pushNamed(context, '/catalogue');
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: primaryColor,
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      child: Text(
-        'EXPLORE PU. DADA SACRED PRODUCT COLLECTIONS \u2192',
-        style: AppTypography.bodyStyle(
-          context,
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
+  Widget _buildCTAButton(BuildContext context, Color primaryColor, bool isMobile) {
+    return SizedBox(
+      width: isMobile ? double.infinity : null,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.pushNamed(context, '/catalogue');
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primaryColor,
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          child: Text(
+            AppLocalizations.of(context)!.exploreSacredProducts,
+            style: AppTypography.bodyStyle(
+              context,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );

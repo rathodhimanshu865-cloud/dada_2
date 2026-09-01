@@ -33,7 +33,8 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
     }
 
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 1100;
 
     return UserPageLayout(
       controller: controller,
@@ -50,14 +51,10 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
               children: [
                 Text(
                   AppLocalizations.of(context)!.upcomingKathas,
+                  textAlign: TextAlign.center,
                   style: AppTypography.headingStyle(
                     context,
-                    fontSize: AppTypography.getResponsiveSize(
-                      context,
-                      desktop: 52,
-                      tablet: 44,
-                      mobile: 34,
-                    ),
+                    fontSize: isMobile ? 32 : 52,
                     fontWeight: FontWeight.bold,
                     color: primaryTeal,
                   ),
@@ -65,6 +62,7 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
                 const SizedBox(height: 12),
                 Text(
                   AppLocalizations.of(context)!.homeKathasUpcoming,
+                  textAlign: TextAlign.center,
                   style: AppTypography.bodyStyle(
                     context,
                     color: primaryTeal.withValues(alpha: 0.6),

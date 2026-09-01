@@ -5,6 +5,7 @@ import '../../controllers/language_controller.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 import '../../utils/app_typography.dart';
+import '../../utils/responsive_utils.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 
 class PhotoGalleryPage extends StatefulWidget {
@@ -31,7 +32,8 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    final bool isMobile = context.isMobile;
+    final bool isTablet = context.isTablet;
 
     return UserPageLayout(
       controller: controller,
@@ -73,7 +75,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
   }
 
   Widget _buildPhotoSection(BuildContext context, List<String> photoUrls) {
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    final bool isMobile = context.isMobile;
     if (photoUrls.isEmpty) {
       return Padding(padding: const EdgeInsets.symmetric(vertical: 100), child: Text(AppLocalizations.of(context)!.noPhotosAdded, style: const TextStyle(color: Colors.grey, fontSize: 18)));
     }
@@ -81,13 +83,15 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 40),
           child: LayoutBuilder(builder: (context, constraints) {
-            int cols = constraints.maxWidth > 1200 ? 4 : (constraints.maxWidth > 800 ? 3 : (constraints.maxWidth > 500 ? 2 : 1));
+            int cols = context.isDesktop ? 4 : (context.isTablet ? 3 : 2);
+            if (constraints.maxWidth < 500) cols = 1;
+            
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: List.generate(cols * 2 - 1, (index) {
-                if (index.isOdd) return SizedBox(width: isMobile ? 15 : 30);
+                if (index.isOdd) return SizedBox(width: isMobile ? 15 : 20);
                 int colIdx = index ~/ 2;
                 return Expanded(
                   child: Column(

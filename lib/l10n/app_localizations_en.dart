@@ -413,4 +413,280 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get revenue => 'Revenue';
+
+  @override
+  String get sacredFoundations => 'Sacred Foundations of Pu. Dada Seva';
+
+  @override
+  String get exploreSacredProducts =>
+      'EXPLORE PU. DADA SACRED PRODUCT COLLECTIONS →';
+
+  @override
+  String get biographyDetailsFallback =>
+      'Full biography details will appear here as managed from the admin side.';
+
+  @override
+  String get aboutUs => 'ABOUT US';
+
+  @override
+  String get anIntroduction => 'AN INTRODUCTION';
+
+  @override
+  String get vision => 'VISION';
+
+  @override
+  String get objective => 'OBJECTIVE';
+
+  @override
+  String get signatureIdentity => 'SIGNATURE IDENTITY';
+
+  @override
+  String get pujyaDadaTeachings => 'Pujya Dada Teachings';
+
+  @override
+  String get sacredProducts => 'Sacred Products';
+
+  @override
+  String get adminAccess => 'Admin Access';
+
+  @override
+  String get selectedLanguage => 'Select Language';
+
+  @override
+  String get trackShipment => 'TRACK SHIPMENT';
+
+  @override
+  String get myOrders => 'MY ORDERS';
+
+  @override
+  String get loginSignUp => 'LOGIN / SIGN UP';
+
+  @override
+  String get sacredCatalogue => 'SACRED CATALOGUE';
+
+  @override
+  String get searchProductPlaceholder => 'Search by name, SKU, or keyword...';
+
+  @override
+  String showingSacredItems(int count) {
+    return 'Showing $count sacred items in ';
+  }
+
+  @override
+  String get loadingSacredProducts => 'Loading sacred products...';
+
+  @override
+  String get noProductsFound => 'No products found in this category.';
+
+  @override
+  String get sortByAz => 'A-Z';
+
+  @override
+  String get sortByPriceLow => 'Price: Low to High';
+
+  @override
+  String get sortByLatest => 'Latest Arrival';
+
+  @override
+  String get allSacredProducts => 'All Sacred Products';
+
+  @override
+  String get officialStoreLabel => 'Official Pu. Jignesh Dada Devotional Store';
+
+  @override
+  String get exploreCollectionsDesc =>
+      'Explore revered photo keychains, acrylic frames, home mandirs, and holy puja essentials.';
+
+  @override
+  String get viewAllCollections => 'VIEW ALL COLLECTIONS';
+
+  @override
+  String get featuredProductsDesc =>
+      'Every item is crafted with devotion, checked for high structural durability, and energized with Vedic sanctification.';
+
+  @override
+  String get browseCompleteCatalog => 'BROWSE COMPLETE STORE CATALOG';
+
+  @override
+  String get vedicAssuranceLabel => 'VEDIC ASSURANCE & PURITY SEAL';
+
+  @override
+  String get sacredConsecrationTitle => 'The Sacred Consecration Process';
+
+  @override
+  String get vedicSanctityDesc =>
+      'We uphold complete sanctity from the artisan\'s hands to your puja room.';
+
+  @override
+  String get gangaJalTitle => 'Ganga Jal & Chandan Snan';
+
+  @override
+  String get gangaJalDesc =>
+      'Articles are purified with sacred Haridwar Ganga jal and fragrant sandalwood paste.';
+
+  @override
+  String get vedicMantraTitle => 'Vedic Mantra Archana';
+
+  @override
+  String get vedicMantraDesc =>
+      'Energized by Vedic scholars chanting sacred protection and peace mantras.';
+
+  @override
+  String get zeroBreakageTitle => 'Zero-Breakage Transit';
+
+  @override
+  String get zeroBreakageDesc =>
+      'Multi-layer protective packaging & sanctified cloth wraps with free replacement assurance.';
+
+  @override
+  String get codAvailableTitle => 'Cash on Delivery Available';
+
+  @override
+  String get codAvailableDesc =>
+      'Pay with confidence upon doorstep delivery anywhere across India.';
+
+  @override
+  String get devoteeExperiences => 'DEVOTEE EXPERIENCES';
+
+  @override
+  String get averageRatingText =>
+      '4.9 / 5 Average Rating across 15,000+ Blessed Homes';
+
+  @override
+  String get spiritualEssence => 'SPIRITUAL ESSENCE';
+
+  @override
+  String get sacredCatalog => 'Sacred Catalog';
+
+  @override
+  String get popular => 'POPULAR';
+
+  @override
+  String get genuineStockLabel => '100% Genuine Atelier Stock';
+
+  @override
+  String get sanctifiedConsecrated =>
+      'Sanctified & Consecrated: Energized with holy temple mantras.';
+
+  @override
+  String get inSanctifiedStock =>
+      'In Sanctified Stock — Auspicious 24-hr temple dispatch';
+
+  @override
+  String get outOfStockSacred =>
+      'OUT OF STOCK — Sacred item currently unavailable';
+
+  @override
+  String get addToBag => 'ADD TO BAG';
+
+  @override
+  String get instantSacredCheckout =>
+      '⚡ INSTANT SACRED CHECKOUT (COD / ONLINE)';
+
+  @override
+  String get orderInquireWhatsapp => 'Order / Inquire via WhatsApp';
+
+  @override
+  String get deliveryPaymentAvailability => 'Delivery & Payment Availability';
+
+  @override
+  String get cashOnDeliveryAvailable => 'Cash on Delivery Available';
+
+  @override
+  String get enterPincode => 'Enter 6-digit Pincode';
+
+  @override
+  String get check => 'Check';
+
+  @override
+  String get freeStandardDelivery => 'FREE Standard Delivery';
+
+  @override
+  String get orderedBy4PM => 'Ordered by 4 PM for same-day sanctum dispatch.';
+
+  @override
+  String get replacementGuarantee => '7-Day Replacement Guarantee';
+
+  @override
+  String get weReplaceDamagedDeity =>
+      'We replace damaged deity frames instantly.';
+
+  @override
+  String get safeSecurePayment => '100% Safe & Secure Payment Options';
+
+  @override
+  String get sslEncrypted => '256-Bit SSL Encrypted';
+
+  @override
+  String get vedicPure => '100% Vedic Pure';
+
+  @override
+  String get naturalMaterials => 'Natural materials';
+
+  @override
+  String get abhimantrit => 'Abhimantrit';
+
+  @override
+  String get mantraEnergized => 'Mantra energized';
+
+  @override
+  String get frequentlyBlessedTogether =>
+      'Frequently Blessed Together — Save 10% on Complete Sacred Set';
+
+  @override
+  String get bundleTotal => 'Bundle Total (10% Off):';
+
+  @override
+  String get addCompleteSet => 'ADD COMPLETE SET TO BAG';
+
+  @override
+  String get vedicSignificanceTab => 'Vedic Significance & Details';
+
+  @override
+  String get specificationsTab => 'Specifications & Dimensions';
+
+  @override
+  String get sacredCareTab => 'Sacred Care & Purity';
+
+  @override
+  String get devoteeReviewsTab => 'Devotee Reviews';
+
+  @override
+  String get faqsTab => 'FAQs & Guidance';
+
+  @override
+  String get aboutThisOffering => 'About this Sacred Offering:';
+
+  @override
+  String get blessingsSignificance => 'Blessings & Significance:';
+
+  @override
+  String get purityStandards => 'Purity Standards:';
+
+  @override
+  String get submitReviewTitle => 'Submit Your Devotional Review for';
+
+  @override
+  String get publishReview => 'PUBLISH REVIEW';
+
+  @override
+  String get similarProducts => 'Similar Devotional Keychains';
+
+  @override
+  String get exploreFullCollection => 'EXPLORE FULL COLLECTION →';
+
+  @override
+  String get coreCompetencies => 'CORE COMPETENCIES';
+
+  @override
+  String get professionalHighlights => 'PROFESSIONAL HIGHLIGHTS';
+
+  @override
+  String get socialInitiative => 'SOCIAL INITIATIVE';
+
+  @override
+  String get philosophyOfLife => 'PHILOSOPHY OF LIFE';
+
+  @override
+  String get personalAttributes => 'PERSONAL ATTRIBUTES';
 }

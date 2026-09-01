@@ -66,6 +66,7 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
   @override
   Widget build(BuildContext context) {
     const double header1Height = 95.0;
+    final bool isMobile = MediaQuery.of(context).size.width < 1100;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -77,7 +78,7 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
           CustomScrollView(
             controller: _activeController,
             slivers: [
-              const SliverToBoxAdapter(child: SizedBox(height: 159)),
+              SliverToBoxAdapter(child: SizedBox(height: isMobile ? 120 : 159)),
               if (widget.slivers != null) 
                 ...widget.slivers!.whereType<Widget>()
               else 
@@ -87,19 +88,20 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
           ),
           
           // Header 2 (Product Header) - Sticky logic
-          ValueListenableBuilder<double>(
-            valueListenable: _scrollOffset,
-            builder: (context, offset, child) {
-              double top = (header1Height - offset).clamp(0.0, header1Height);
-              bool isSticky = offset >= header1Height;
-              return Positioned(
-                top: top,
-                left: 0,
-                right: 0,
-                child: ProductHeader(isSticky: isSticky, scaffoldKey: _scaffoldKey),
-              );
-            },
-          ),
+          if (!isMobile)
+            ValueListenableBuilder<double>(
+              valueListenable: _scrollOffset,
+              builder: (context, offset, child) {
+                double top = (header1Height - offset).clamp(0.0, header1Height);
+                bool isSticky = offset >= header1Height;
+                return Positioned(
+                  top: top,
+                  left: 0,
+                  right: 0,
+                  child: ProductHeader(isSticky: isSticky, scaffoldKey: _scaffoldKey),
+                );
+              },
+            ),
 
           // Header 1 (Main Default Header)
           UserHeader(

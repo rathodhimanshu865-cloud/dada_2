@@ -6,6 +6,7 @@ import '../../controllers/language_controller.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 import '../../utils/app_typography.dart';
+import '../../utils/responsive_utils.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 
 class VideoGalleryPage extends StatelessWidget {
@@ -33,7 +34,7 @@ class VideoGalleryPage extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    final bool isMobile = context.isMobile;
 
     return UserPageLayout(
       controller: controller,
@@ -76,18 +77,20 @@ class VideoGalleryPage extends StatelessWidget {
 
   Widget _buildVideoSection(BuildContext context, dynamic category, Color primaryTeal, Color accentBrown, String lang) {
     if (category.videos.isEmpty) return const SizedBox.shrink();
+    final bool isMobile = context.isMobile;
 
     return Column(
       children: [
         Column(children: [Text(category.localizedCategoryTitle(lang).toUpperCase(), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF444444), letterSpacing: 2)), const SizedBox(height: 15), Container(width: 60, height: 3, color: accentBrown)]),
         const SizedBox(height: 60),
         LayoutBuilder(builder: (context, constraints) {
-          int cols = constraints.maxWidth > 1200 ? 4 : (constraints.maxWidth > 800 ? 3 : (constraints.maxWidth > 500 ? 2 : 1));
-          bool isMobile = MediaQuery.of(context).size.width < 900;
+          int cols = context.isDesktop ? 3 : (context.isTablet ? 2 : 1);
+          if (constraints.maxWidth < 600) cols = 1;
+
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: List.generate(cols * 2 - 1, (index) {
-              if (index.isOdd) return SizedBox(width: isMobile ? 15 : 30);
+              if (index.isOdd) return SizedBox(width: isMobile ? 15 : 20);
               int colIdx = index ~/ 2;
               return Expanded(
                 child: Column(
@@ -100,7 +103,7 @@ class VideoGalleryPage extends StatelessWidget {
             }),
           );
         }),
-        const SizedBox(height: 120),
+        const SizedBox(height: 80),
       ],
     );
   }

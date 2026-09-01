@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/language_controller.dart';
+import '../../l10n/app_localizations.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 import '../../utils/app_typography.dart';
@@ -23,8 +24,9 @@ class AboutShivPage extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
-    final isMobile = MediaQuery.of(context).size.width < 900;
-    final horizontalPad = isMobile ? 20.0 : 100.0;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 1100;
+    final horizontalPad = isMobile ? 20.0 : (screenWidth > 1400 ? (screenWidth - 1200) / 2 : 100.0);
 
     return UserPageLayout(
       controller: controller,
@@ -111,7 +113,7 @@ class AboutShivPage extends StatelessWidget {
                 const Icon(Icons.wb_sunny_outlined, color: accentBrown, size: 35),
                 const SizedBox(height: 50),
                 Text(
-                  data.localizedBioText(lang).isNotEmpty ? data.localizedBioText(lang) : 'Full biography details will appear here as managed from the admin side.',
+                  data.localizedBioText(lang).isNotEmpty ? data.localizedBioText(lang) : AppLocalizations.of(context)!.biographyDetailsFallback,
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: isMobile ? 14 : 16, color: const Color(0xFF333333), height: 1.9, letterSpacing: 0.3),
                 ),

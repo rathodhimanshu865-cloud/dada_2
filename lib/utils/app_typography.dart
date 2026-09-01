@@ -47,4 +47,12 @@ class AppTypography {
     if (width >= 600) return tablet;
     return mobile;
   }
+
+  static double dynamicFontSize(BuildContext context, double baseSize) {
+    double width = MediaQuery.of(context).size.width;
+    if (width >= 1400) return baseSize;
+    if (width >= 1024) return baseSize * 0.9;
+    if (width >= 600) return baseSize * 0.8;
+    return baseSize * 0.75;
+  }
 }

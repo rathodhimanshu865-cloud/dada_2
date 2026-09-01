@@ -15,13 +15,14 @@ class UserPhotoGallery extends StatelessWidget {
         .toList();
     if (allPhotos.isEmpty) return const SizedBox.shrink();
 
-    final isMobile = MediaQuery.of(context).size.width < 900;
-    final displayPhotos = allPhotos.take(isMobile ? 4 : 4).toList();
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 1100;
+    final displayPhotos = allPhotos.take(isMobile ? 6 : 4).toList();
 
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        vertical: isMobile ? 70 : 120,
+        vertical: isMobile ? 60 : 120,
         horizontal: isMobile ? 20 : 40,
       ),
       color: const Color(0xFFFAF8F4),
@@ -43,9 +44,10 @@ class UserPhotoGallery extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 AppLocalizations.of(context)!.divineGallery,
+                textAlign: TextAlign.center,
                 style: AppTypography.headingStyle(
                   context,
-                  fontSize: isMobile ? 30 : 42,
+                  fontSize: isMobile ? 32 : 42,
                   fontWeight: FontWeight.w900,
                   color: const Color(0xFF0F4C5C),
                 ),
@@ -63,13 +65,13 @@ class UserPhotoGallery extends StatelessWidget {
             child: LayoutBuilder(builder: (context, constraints) {
               int cols = constraints.maxWidth > 1200
                   ? 4
-                  : (constraints.maxWidth > 800 ? 3 : 2);
+                  : (constraints.maxWidth > 800 ? 3 : (constraints.maxWidth > 500 ? 2 : 1));
 
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: List.generate(cols * 2 - 1, (index) {
                   if (index.isOdd) {
-                    return SizedBox(width: isMobile ? 10 : 20);
+                    return SizedBox(width: isMobile ? 12 : 20);
                   }
                   int colIdx = index ~/ 2;
                   return Expanded(

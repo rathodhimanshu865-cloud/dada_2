@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../controllers/homepage_controller.dart';
+import '../../../utils/responsive_utils.dart';
 import 'user_header.dart';
 import 'cart_drawer.dart';
 
@@ -45,22 +46,24 @@ class _UserPageLayoutState extends State<UserPageLayout> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       endDrawer: const CartDrawer(),
-      body: Stack(
-        children: [
-          // MAIN SCROLLABLE CONTENT
-          SingleChildScrollView(
-            controller: _activeController,
-            child: widget.child,
-          ),
-
-          // FLOATING PREMIUM HEADER
-          UserHeader(
-            controller: widget.controller,
-            scrollController: _activeController,
-            productPage: widget.productPage,
-            scaffoldKey: _scaffoldKey,
-          ),
-        ],
+      body: SelectionArea(
+        child: Stack(
+          children: [
+            // MAIN SCROLLABLE CONTENT
+            SingleChildScrollView(
+              controller: _activeController,
+              child: widget.child,
+            ),
+  
+            // FLOATING PREMIUM HEADER
+            UserHeader(
+              controller: widget.controller,
+              scrollController: _activeController,
+              productPage: widget.productPage,
+              scaffoldKey: _scaffoldKey,
+            ),
+          ],
+        ),
       ),
     );
   }

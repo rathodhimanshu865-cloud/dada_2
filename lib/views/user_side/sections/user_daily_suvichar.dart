@@ -37,7 +37,8 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
     final lang = Localizations.localeOf(context).languageCode;
     if (suvichar.imageUrl.isEmpty) return const SizedBox.shrink();
 
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 1100;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 120, horizontal: isMobile ? 15 : 40),
@@ -66,12 +67,13 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
                     children: [
                       Text(
                         AppLocalizations.of(context)!.dadasDailySuvichar,
-                        style: const TextStyle(color: Color(0xFFC89A5B), letterSpacing: 4, fontWeight: FontWeight.bold, fontSize: 11),
+                        style: TextStyle(color: const Color(0xFFC89A5B), letterSpacing: isMobile ? 2 : 4, fontWeight: FontWeight.bold, fontSize: 11),
                       ),
                       const SizedBox(height: 10),
                       Text(
                         suvichar.localizedDate(lang),
-                        style: const TextStyle(fontSize: 16, color: Color(0xFF6D6D6D), fontWeight: FontWeight.w300),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: isMobile ? 14 : 16, color: const Color(0xFF6D6D6D), fontWeight: FontWeight.w300),
                       ),
                     ],
                   ),
@@ -100,14 +102,16 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
                       icon: Icons.share_outlined,
                       onTap: () => _shareContent(suvichar.imageUrl),
                       tooltip: AppLocalizations.of(context)!.shareLink,
+                      isMobile: isMobile,
                     ),
-                    const SizedBox(width: 40),
+                    SizedBox(width: isMobile ? 20 : 40),
                     _buildActionButton(
                       icon: Icons.download_outlined,
                       onTap: () => _downloadImage(suvichar.imageUrl),
                       tooltip: AppLocalizations.of(context)!.openToDownload,
+                      isMobile: isMobile,
                     ),
-                    const SizedBox(width: 40),
+                    SizedBox(width: isMobile ? 20 : 40),
                     _buildActionButton(
                       icon: _isLiked ? Icons.favorite : Icons.favorite_border_rounded,
                       color: _isLiked ? Colors.red : const Color(0xFFC89A5B),
@@ -117,6 +121,7 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
                         });
                       },
                       tooltip: AppLocalizations.of(context)!.like,
+                      isMobile: isMobile,
                     ),
                   ],
                 ),
@@ -133,6 +138,7 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
     required VoidCallback onTap, 
     String? tooltip,
     Color? color,
+    required bool isMobile,
   }) {
     return Tooltip(
       message: tooltip ?? '',
@@ -140,13 +146,13 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
         onTap: onTap,
         borderRadius: BorderRadius.circular(999),
         child: Container(
-          width: 60, // Bigger buttons as requested
-          height: 60,
+          width: isMobile ? 50 : 60, 
+          height: isMobile ? 50 : 60,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: const Color(0xFFC89A5B).withOpacity(0.2)),
           ),
-          child: Icon(icon, size: 26, color: color ?? const Color(0xFFC89A5B)),
+          child: Icon(icon, size: isMobile ? 22 : 26, color: color ?? const Color(0xFFC89A5B)),
         ),
       ),
     );

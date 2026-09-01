@@ -40,7 +40,8 @@ class _KathaListPageState extends State<KathaListPage> {
   Widget build(BuildContext context) {
     final controller = Provider.of<HomePageController>(context);
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 1100;
 
     if (controller.isLoading) {
       return Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));

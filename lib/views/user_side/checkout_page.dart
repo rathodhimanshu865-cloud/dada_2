@@ -194,10 +194,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
-    final cartController = Provider.of<CartController>(context);
-    final orderController = Provider.of<OrderController>(context);
-    
-    if (_currentStep < 3 && cartController.items.isEmpty) {
+    final cartCtrl = Provider.of<CartController>(context);
+    final orderCtrl = Provider.of<OrderController>(context);
+    final bool isMobile = MediaQuery.of(context).size.width < 900;
+
+    if (_currentStep < 3 && cartCtrl.items.isEmpty) {
       return Scaffold(
         body: Center(
           child: Column(
@@ -219,31 +220,33 @@ class _CheckoutPageState extends State<CheckoutPage> {
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40),
+            padding: EdgeInsets.symmetric(vertical: isMobile ? 20 : 40),
             child: Container(
               constraints: const BoxConstraints(maxWidth: 900),
-              margin: const EdgeInsets.symmetric(horizontal: 20),
+              margin: EdgeInsets.symmetric(horizontal: isMobile ? 10 : 20),
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 40, offset: const Offset(0, 10))]),
-              child: _currentStep == 3 ? _buildSuccessView() : Form(
+              child: _currentStep == 3 ? _buildCheckoutSuccessView(isMobile) : Form(
                 key: _formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildHeader(),
-                    _buildStepper(),
+                    _buildHeader(isMobile),
+                    _buildStepper(isMobile),
                     LayoutBuilder(
-                      builder: (context, constraints) {
-                        bool isMobile = constraints.maxWidth < 650;
-                        return Row(
+                      builder: (layoutContext, constraints) {
+                        bool stackSummary = constraints.maxWidth < 700;
+                        return Flex(
+                          direction: stackSummary ? Axis.vertical : Axis.horizontal,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(flex: 3, child: _currentStep == 1 ? _buildDeliveryForm() : _buildPaymentForm()),
-                            if (!isMobile) Expanded(flex: 2, child: _buildOrderSummary(context, cartController)),
+                            Expanded(flex: stackSummary ? 0 : 3, child: _currentStep == 1 ? _buildDeliveryForm(isMobile) : _buildPaymentForm(isMobile)),
+                            if (!stackSummary) Expanded(flex: 2, child: _buildOrderSummary(context, cartCtrl)),
+                            if (stackSummary) _buildOrderSummary(context, cartCtrl),
                           ],
                         );
                       },
                     ),
-                    _buildFooterActions(orderController),
+                    _buildCheckoutFooterActions(orderCtrl, isMobile),
                     _buildBottomBar(),
                   ],
                 ),
@@ -255,14 +258,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isMobile) {
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isMobile ? 16 : 24),
       child: Row(
         children: [
-          Text('DADA', style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: 2, color: Colors.black)),
+          Text('DADA', style: AppTypography.headingStyle(context, fontSize: isMobile ? 20 : 24, fontWeight: FontWeight.w900, letterSpacing: 2, color: Colors.black)),
           const SizedBox(width: 16),
-          Container(
+          if (!isMobile) Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(color: primaryTeal.withOpacity(0.05), borderRadius: BorderRadius.circular(20), border: Border.all(color: primaryTeal.withOpacity(0.2))),
             child: Text('SECURE SACRED CHECKOUT', style: AppTypography.bodyStyle(context, color: primaryTeal, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1)),
@@ -274,22 +277,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Widget _buildStepper() {
+  Widget _buildStepper(bool isMobile) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24, vertical: 15),
       decoration: BoxDecoration(color: Colors.grey.shade50, border: Border.symmetric(horizontal: BorderSide(color: Colors.grey.shade100))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _stepItem(1, 'Address', isActive: _currentStep == 1),
-          _stepItem(2, 'Payment', isActive: _currentStep == 2),
-          _stepItem(3, 'Placed', isActive: _currentStep == 3),
+          _stepItem(1, 'Address', isActive: _currentStep == 1, isMobile: isMobile),
+          _stepItem(2, 'Payment', isActive: _currentStep == 2, isMobile: isMobile),
+          _stepItem(3, 'Placed', isActive: _currentStep == 3, isMobile: isMobile),
         ],
       ),
     );
   }
 
-  Widget _stepItem(int index, String label, {bool isActive = false}) {
+  Widget _stepItem(int index, String label, {bool isActive = false, bool isMobile = false}) {
     return Row(
       children: [
         Container(
@@ -299,14 +302,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
           child: Text('$index', style: TextStyle(color: isActive ? Colors.white : Colors.grey, fontSize: 11, fontWeight: FontWeight.bold)),
         ),
         const SizedBox(width: 10),
-        Text(label, style: AppTypography.bodyStyle(context, fontSize: 12, color: isActive ? Colors.black : Colors.grey.shade500, fontWeight: isActive ? FontWeight.bold : FontWeight.normal)),
+        if (!isMobile || isActive) Text(label, style: AppTypography.bodyStyle(context, fontSize: 12, color: isActive ? Colors.black : Colors.grey.shade500, fontWeight: isActive ? FontWeight.bold : FontWeight.normal)),
       ],
     );
   }
 
-  Widget _buildDeliveryForm() {
+  Widget _buildDeliveryForm(bool isMobile) {
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(isMobile ? 20 : 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -334,9 +337,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Widget _buildPaymentForm() {
+  Widget _buildPaymentForm(bool isMobile) {
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(isMobile ? 20 : 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -390,13 +393,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Widget _buildFooterActions(OrderController orderController) {
+  Widget _buildCheckoutFooterActions(OrderController orderController, bool isMobile) {
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(isMobile ? 20 : 32),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           if (_currentStep == 2) TextButton.icon(onPressed: () => setState(() => _currentStep = 1), icon: const Icon(Icons.arrow_back), label: const Text('Back')),
+          if (_currentStep == 1) const Spacer(),
           ElevatedButton(
             onPressed: orderController.isLoading ? null : () { 
               if (_currentStep == 1) { 
@@ -407,8 +411,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 _startPayment(); 
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20)),
-            child: orderController.isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(_currentStep == 1 ? 'Next' : 'Complete Order'),
+            style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white, padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 32, vertical: 20)),
+            child: orderController.isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(_currentStep == 1 ? 'Next Step' : 'Complete Order'),
           ),
         ],
       ),
@@ -416,20 +420,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildBottomBar() {
-    return Container(padding: const EdgeInsets.all(16), child: const Center(child: Text('Secure Checkout', style: TextStyle(fontSize: 10, color: Colors.grey))));
+    return Container(padding: const EdgeInsets.all(16), child: const Center(child: Text('Secure Checkout • Encrypted & Protected', style: TextStyle(fontSize: 10, color: Colors.grey))));
   }
 
-  Widget _buildSuccessView() {
+  Widget _buildCheckoutSuccessView(bool isMobile) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
+      padding: EdgeInsets.symmetric(vertical: 48, horizontal: isMobile ? 16 : 32),
       child: Column(
         children: [
           const Icon(Icons.check_circle, color: Colors.green, size: 80),
           const SizedBox(height: 24),
           Text('Order Placed!', style: AppTypography.headingStyle(context, fontSize: 28, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text('Order ID: $_placedOrderId', style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
               const SizedBox(width: 8),
@@ -450,24 +455,27 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
           const SizedBox(height: 40),
           if (_placedOrder != null) ...[
-            Row(
+            Flex(
+              direction: isMobile ? Axis.vertical : Axis.horizontal,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
+                SizedBox(
+                  width: isMobile ? double.infinity : null,
                   child: ElevatedButton.icon(
                     onPressed: () => InvoiceHelper.printInvoice(_placedOrder!),
                     icon: const Icon(Icons.picture_as_pdf, size: 18),
                     label: const Text('Download Invoice', style: TextStyle(fontSize: 12)),
-                    style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, padding: const EdgeInsets.symmetric(vertical: 18)),
+                    style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24)),
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
+                if (isMobile) const SizedBox(height: 16) else const SizedBox(width: 16),
+                SizedBox(
+                  width: isMobile ? double.infinity : null,
                   child: ElevatedButton.icon(
                     onPressed: () => InvoiceHelper.shareToWhatsApp(_placedOrder!),
                     icon: const Icon(Icons.share, size: 18),
                     label: const Text('Send to WhatsApp', style: TextStyle(fontSize: 12)),
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF25D366), padding: const EdgeInsets.symmetric(vertical: 18)),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF25D366), padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24)),
                   ),
                 ),
               ],

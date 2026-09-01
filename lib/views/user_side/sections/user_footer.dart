@@ -4,6 +4,7 @@ import 'package:dada_2/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../controllers/language_controller.dart';
+import '../../../utils/responsive_utils.dart';
 
 class UserFooter extends StatelessWidget {
   final HomePageController controller;
@@ -20,14 +21,18 @@ class UserFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    final bool isMobile = context.isMobile;
+    final bool isTablet = context.isTablet;
 
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
         color: Color(0xFF0F4C5C), // Deep Teal from the image
       ),
-      padding: EdgeInsets.symmetric(vertical: 60, horizontal: isMobile ? 30 : 80),
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 40 : 80, 
+        horizontal: isMobile ? 20 : (isTablet ? 40 : 80)
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -57,13 +62,13 @@ class UserFooter extends StatelessWidget {
           
           // Section-wise Links
           Wrap(
-            spacing: isMobile ? 40 : 100,
+            spacing: isMobile ? 40 : (isTablet ? 60 : 100),
             runSpacing: 40,
             children: [
               _buildLinkSection(context, AppLocalizations.of(context)!.organization, [
                 {'label': AppLocalizations.of(context)!.home, 'route': '/'},
                 {'label': AppLocalizations.of(context)!.aboutDada, 'route': '/about_dada'},
-                {'label': 'Pujya Dada Teachings', 'route': '/teachings'},
+                {'label': AppLocalizations.of(context)!.pujyaDadaTeachings, 'route': '/teachings'},
                 {'label': AppLocalizations.of(context)!.newsAndEvents, 'route': '/news'},
               ]),
               _buildLinkSection(context, AppLocalizations.of(context)!.katha, [
@@ -78,7 +83,7 @@ class UserFooter extends StatelessWidget {
                 {'label': AppLocalizations.of(context)!.videoGallery, 'route': '/video_gallery'},
                 {'label': AppLocalizations.of(context)!.stotraBhajan, 'route': '/stotra'},
                 {'label': AppLocalizations.of(context)!.contactUs, 'route': '/contact_us'},
-                {'label': 'Sacred Products', 'route': '/product'},
+                {'label': AppLocalizations.of(context)!.sacredProducts, 'route': '/product'},
               ]),
               // Dynamic Sections from Admin
               ...controller.footer.linkSections.map((sec) => _buildLinkSection(context, sec.localizedTitle(lang), 
@@ -94,15 +99,18 @@ class UserFooter extends StatelessWidget {
           Flex(
             direction: isMobile ? Axis.vertical : Axis.horizontal,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.center,
             children: [
               Text(
                 controller.footer.localizedCopyright(lang),
+                textAlign: isMobile ? TextAlign.center : TextAlign.start,
                 style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14),
               ),
               if (isMobile) const SizedBox(height: 20),
               Wrap(
-                alignment: WrapAlignment.center,
+                alignment: isMobile ? WrapAlignment.center : WrapAlignment.end,
                 spacing: 30,
+                runSpacing: 10,
                 children: [
                   _buildBottomLink(controller.footer.localizedPrivacyLabel(lang), controller.footer.privacyUrl),
                   _buildBottomLink(controller.footer.localizedTermsLabel(lang), controller.footer.termsUrl),
@@ -110,7 +118,7 @@ class UserFooter extends StatelessWidget {
                   InkWell(
                     onTap: () => Navigator.pushNamed(context, '/admin_login'),
                     child: Text(
-                      'Admin Access',
+                      AppLocalizations.of(context)!.adminAccess,
                       style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14),
                     ),
                   ),

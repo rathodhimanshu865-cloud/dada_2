@@ -4,10 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/language_controller.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/product_controller.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/product_model.dart';
 import 'sections/product_cart_layout.dart';
 import 'sections/product_card.dart';
 import '../../utils/app_typography.dart';
+import '../../utils/responsive_utils.dart';
 
 class CataloguePage extends StatefulWidget {
   const CataloguePage({super.key});
@@ -32,6 +34,8 @@ class _CataloguePageState extends State<CataloguePage> {
   Widget build(BuildContext context) {
     final homeController = Provider.of<HomePageController>(context, listen: false);
     final productController = Provider.of<ProductController>(context);
+    final bool isMobile = context.isMobile;
+    final bool isTablet = context.isTablet;
 
     final List<ProductModel> displayProducts = productController.searchQuery.isEmpty 
         ? (productController.browsingProducts.isNotEmpty ? productController.browsingProducts : productController.filteredProducts)
@@ -40,20 +44,20 @@ class _CataloguePageState extends State<CataloguePage> {
     return ProductCartLayout(
       controller: homeController,
       slivers: [
-        SliverToBoxAdapter(child: _buildHeroBanner(context)),
-        const SliverToBoxAdapter(child: SizedBox(height: 40)),
-        SliverToBoxAdapter(child: _buildFilterRow(context, productController, displayProducts)),
-        const SliverToBoxAdapter(child: SizedBox(height: 40)),
+        SliverToBoxAdapter(child: _buildHeroBanner(context, isMobile)),
+        SliverToBoxAdapter(child: SizedBox(height: isMobile ? 20 : 40)),
+        SliverToBoxAdapter(child: _buildFilterRow(context, productController, displayProducts, isMobile)),
+        SliverToBoxAdapter(child: SizedBox(height: isMobile ? 20 : 40)),
         
         if (productController.isBrowsingLoading && displayProducts.isEmpty)
-          const SliverFillRemaining(
+          SliverFillRemaining(
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(color: Color(0xFF0F4C5C)),
-                  SizedBox(height: 16),
-                  Text('Loading sacred products...', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold))
+                  const CircularProgressIndicator(color: Color(0xFF0F4C5C)),
+                  const SizedBox(height: 16),
+                  Text(AppLocalizations.of(context)!.loadingSacredProducts, style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold))
                 ],
               ),
             ),
@@ -66,13 +70,13 @@ class _CataloguePageState extends State<CataloguePage> {
                 children: [
                   Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey.shade200),
                   const SizedBox(height: 24),
-                  const Text('No products found in this category.', style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(AppLocalizations.of(context)!.noProductsFound, style: const TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
           )
         else
-          _buildProductGrid(context, productController, displayProducts),
+          _buildProductGrid(context, productController, displayProducts, isMobile),
           
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
@@ -80,13 +84,13 @@ class _CataloguePageState extends State<CataloguePage> {
     );
   }
 
-  Widget _buildHeroBanner(BuildContext context) {
+  Widget _buildHeroBanner(BuildContext context, bool isMobile) {
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
     final settings = Provider.of<HomePageController>(context).websiteSettings;
     return Container(
       width: double.infinity,
       color: const Color(0xFF07404C),
-      padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 20),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 60, horizontal: 20),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
@@ -98,21 +102,21 @@ class _CataloguePageState extends State<CataloguePage> {
                   border: Border.all(color: Colors.white24),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text('SACRED CATALOGUE', style: TextStyle(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                child: Text(AppLocalizations.of(context)!.sacredCatalogue, style: const TextStyle(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
               ),
               const SizedBox(height: 24),
               Text(
                 settings.localizedCatalogueHeading(lang),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.cormorantGaramond(
-                  fontSize: 56,
+                  fontSize: isMobile ? 36 : 56,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
-                settings.catalogueSubtitle,
+                settings.localizedCatalogueSubtitle(lang),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.plusJakartaSans(color: Colors.white.withOpacity(0.5), fontSize: 16, letterSpacing: 0.5),
               ),
@@ -123,7 +127,7 @@ class _CataloguePageState extends State<CataloguePage> {
     );
   }
 
-  Widget _buildFilterRow(BuildContext context, ProductController prod, List<ProductModel> displayProducts) {
+  Widget _buildFilterRow(BuildContext context, ProductController prod, List<ProductModel> displayProducts, bool isMobile) {
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
     // 1. Static map of icons for known categories
     final Map<String, IconData> iconMap = {
@@ -139,27 +143,13 @@ class _CataloguePageState extends State<CataloguePage> {
 
     // 2. Use real categories from database if available
     final List<Map<String, dynamic>> uiCategories = [
-      {'name': 'All Products', 'id': 'all', 'icon': null},
+      {'name': AppLocalizations.of(context)!.allSacredProducts, 'id': 'all', 'icon': null},
       ...prod.categoryObjects.map((c) => {
         'name': c.localizedName(lang),
         'id': c.id,
         'icon': iconMap[c.id.toLowerCase()] ?? Icons.auto_awesome_outlined,
       }),
     ];
-
-    if (prod.categoryObjects.isEmpty) {
-        // Fallback to static if not loaded yet
-        uiCategories.addAll([
-          {'name': 'Acrylic Photo Frame', 'id': 'acrylic_photo_frame', 'icon': iconMap['acrylic_photo_frame']},
-          {'name': 'Footprints / Paduka', 'id': 'footprints_paduka', 'icon': iconMap['footprints_paduka']},
-          {'name': 'Keychain', 'id': 'keychain', 'icon': iconMap['keychain']},
-          {'name': 'Other Products', 'id': 'other', 'icon': iconMap['other']},
-          {'name': 'Pouch / Pocket Pin', 'id': 'pouch_pocket_pin', 'icon': iconMap['pouch_pocket_pin']},
-          {'name': 'Rakshasutra / Sacred Thread', 'id': 'rakshasutra_sacred_thread', 'icon': iconMap['rakshasutra_sacred_thread']},
-          {'name': 'Sticker', 'id': 'sticker', 'icon': iconMap['sticker']},
-          {'name': 'Temple', 'id': 'temple', 'icon': iconMap['temple']},
-        ]);
-    }
 
     return Container(
       width: double.infinity,
@@ -171,7 +161,7 @@ class _CataloguePageState extends State<CataloguePage> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
+                padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 40),
                 child: Wrap(
                   alignment: WrapAlignment.center,
                   spacing: 12,
@@ -183,7 +173,7 @@ class _CataloguePageState extends State<CataloguePage> {
                       borderRadius: BorderRadius.circular(30),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         decoration: BoxDecoration(
                           color: isSelected ? const Color(0xFF07404C) : Colors.white,
                           borderRadius: BorderRadius.circular(30),
@@ -198,17 +188,17 @@ class _CataloguePageState extends State<CataloguePage> {
                             if (cat['icon'] != null) ...[
                               Icon(
                                 cat['icon'] as IconData,
-                                size: 16,
+                                size: 14,
                                 color: isSelected ? Colors.amber.shade200 : const Color(0xFF07404C),
                               ),
-                              const SizedBox(width: 10),
+                              const SizedBox(width: 8),
                             ],
                             Text(
                               cat['name']!.toUpperCase(),
                               style: TextStyle(
                                 color: isSelected ? Colors.white : Colors.grey.shade700,
                                 fontWeight: isSelected ? FontWeight.w900 : FontWeight.bold,
-                                fontSize: 10,
+                                fontSize: 9,
                                 letterSpacing: 0.5,
                               ),
                             ),
@@ -221,12 +211,14 @@ class _CataloguePageState extends State<CataloguePage> {
               ),
               const SizedBox(height: 30),
               
-              // Search and Sort Bar as per image
+              // Search and Sort Bar
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Row(
+                padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 40),
+                child: Flex(
+                  direction: isMobile ? Axis.vertical : Axis.horizontal,
                   children: [
                     Expanded(
+                      flex: isMobile ? 0 : 1,
                       child: Container(
                         height: 48,
                         decoration: BoxDecoration(
@@ -242,9 +234,9 @@ class _CataloguePageState extends State<CataloguePage> {
                             Expanded(
                               child: TextField(
                                 onChanged: (v) => prod.performSearch(v),
-                                decoration: const InputDecoration(
-                                  hintText: 'Search by name, SKU, or keyword...',
-                                  hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
+                                decoration: InputDecoration(
+                                  hintText: AppLocalizations.of(context)!.searchProductPlaceholder,
+                                  hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
                                   border: InputBorder.none,
                                 ),
                               ),
@@ -253,8 +245,10 @@ class _CataloguePageState extends State<CataloguePage> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 24),
+                    if (isMobile) const SizedBox(height: 16),
+                    if (!isMobile) const SizedBox(width: 24),
                     Container(
+                      width: isMobile ? double.infinity : null,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -263,11 +257,12 @@ class _CataloguePageState extends State<CataloguePage> {
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
+                          isExpanded: isMobile,
                           value: prod.sortBy == 'name' ? 'A-Z' : (prod.sortBy == 'price' ? 'Price: Low to High' : 'Latest Arrival'),
-                          items: const [
-                            DropdownMenuItem(value: 'A-Z', child: Text('A-Z', style: TextStyle(fontSize: 13))),
-                            DropdownMenuItem(value: 'Price: Low to High', child: Text('Price: Low to High', style: TextStyle(fontSize: 13))),
-                            DropdownMenuItem(value: 'Latest Arrival', child: Text('Latest Arrival', style: TextStyle(fontSize: 13))),
+                          items: [
+                            DropdownMenuItem(value: 'A-Z', child: Text(AppLocalizations.of(context)!.sortByAz, style: const TextStyle(fontSize: 13))),
+                            DropdownMenuItem(value: 'Price: Low to High', child: Text(AppLocalizations.of(context)!.sortByPriceLow, style: const TextStyle(fontSize: 13))),
+                            DropdownMenuItem(value: 'Latest Arrival', child: Text(AppLocalizations.of(context)!.sortByLatest, style: const TextStyle(fontSize: 13))),
                           ],
                           onChanged: (v) {
                             if (v == 'A-Z') {
@@ -286,15 +281,19 @@ class _CataloguePageState extends State<CataloguePage> {
               ),
               const SizedBox(height: 20),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
+                padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 40),
                 child: Row(
                   children: [
-                    Text(
-                      'Showing ${displayProducts.length} sacred items in ',
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    Expanded(
+                      child: Text(
+                        AppLocalizations.of(context)!.showingSacredItems(displayProducts.length),
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                      ),
                     ),
                     Text(
-                      prod.selectedCategory,
+                      prod.selectedCategoryId == 'all' 
+                        ? AppLocalizations.of(context)!.allSacredProducts 
+                        : prod.localizedSelectedCategory(lang),
                       style: const TextStyle(color: Color(0xFFAD8B63), fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                   ],
@@ -307,14 +306,14 @@ class _CataloguePageState extends State<CataloguePage> {
     );
   }
 
-  Widget _buildProductGrid(BuildContext context, ProductController prod, List<ProductModel> products) {
+  Widget _buildProductGrid(BuildContext context, ProductController prod, List<ProductModel> products, bool isMobile) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 40),
       sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 320,
           childAspectRatio: 0.72,
-          crossAxisSpacing: 24,
+          crossAxisSpacing: isMobile ? 12 : 24,
           mainAxisSpacing: 40,
         ),
         delegate: SliverChildBuilderDelegate(
