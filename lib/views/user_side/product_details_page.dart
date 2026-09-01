@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../controllers/language_controller.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/cart_controller.dart';
 import '../../controllers/product_controller.dart';
@@ -182,6 +183,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Widget _buildTopHeader(ProductModel p) {
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
       color: Colors.white,
@@ -194,7 +196,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               Icon(Icons.chevron_right, size: 12, color: Colors.grey.shade400),
               Text(p.categoryId.toUpperCase(), style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
               Icon(Icons.chevron_right, size: 12, color: Colors.grey.shade400),
-              Text(p.name, style: const TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.bold)),
+              Text(p.localizedName(lang), style: const TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -294,6 +296,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Widget _buildProductInfo(ProductModel p) {
     final auth = Provider.of<AuthController>(context, listen: false);
     final cart = Provider.of<CartController>(context, listen: false);
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
     final isOutOfStock = p.stock <= 2;
 
@@ -310,7 +313,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 children: [
                   Text(p.categoryId.toUpperCase(), style: TextStyle(color: templeGold, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
                   const SizedBox(height: 12),
-                  Text(p.name, style: GoogleFonts.cormorantGaramond(fontSize: 36, fontWeight: FontWeight.w700, color: primaryTeal)),
+                  Text(p.localizedName(lang), style: GoogleFonts.cormorantGaramond(fontSize: 36, fontWeight: FontWeight.w700, color: primaryTeal)),
                 ],
               ),
             ),
@@ -331,7 +334,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           ],
         ),
         const SizedBox(height: 12),
-        Text(p.shortSummary, style: const TextStyle(color: Colors.black54, fontSize: 14, height: 1.5)),
+        Text(p.localizedShortSummary(lang), style: const TextStyle(color: Colors.black54, fontSize: 14, height: 1.5)),
         const SizedBox(height: 20),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -410,8 +413,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             }),
             const SizedBox(width: 8),
             _circleIcon(Icons.share_outlined, onTap: () {
+              final lang = Provider.of<LanguageController>(context, listen: false).locale.languageCode;
               final String url = 'https://dada-store.web.app/product_details?id=${p.id}';
-              Share.share('Check out this sacred item: ${p.name}\n$url');
+              Share.share('Check out this sacred item: ${p.localizedName(lang)}\n$url');
             }),
           ],
         ),
@@ -437,7 +441,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           child: Text(!isOutOfStock ? '⚡ INSTANT SACRED CHECKOUT (COD / ONLINE)' : 'CURRENTLY UNAVAILABLE', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12, letterSpacing: 1)),
         ),
         const SizedBox(height: 12),
-        _buildWhatsAppBtn(p),
+        _buildWhatsAppBtn(p, lang),
         const SizedBox(height: 24),
         _buildDeliveryChecker(),
         const SizedBox(height: 32),
@@ -446,14 +450,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildWhatsAppBtn(ProductModel p) => Container(
+  Widget _buildWhatsAppBtn(ProductModel p, String lang) => Container(
     height: 55,
     width: double.infinity,
     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4), border: Border.all(color: const Color(0xFF25D366))),
     child: InkWell(
       onTap: () async {
         const phone = "919876543210";
-        final message = "Pranam! I would like to order: ${p.name}\nQuantity: $_quantity\nPrice: ₹${p.price.toInt()}\nProduct Link: https://dada-store.web.app/product_details?id=${p.id}";
+        final message = "Pranam! I would like to order: ${p.localizedName(lang)}\nQuantity: $_quantity\nPrice: ₹${p.price.toInt()}\nProduct Link: https://dada-store.web.app/product_details?id=${p.id}";
         final url = "https://wa.me/$phone?text=${Uri.encodeComponent(message)}";
         if (await canLaunchUrl(Uri.parse(url))) {
           await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
@@ -647,6 +651,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Widget _bundleItem(ProductModel item, bool selected) {
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
     return Container(
       width: 190,
       padding: const EdgeInsets.all(8),
@@ -669,7 +674,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  item.name, 
+                  item.localizedName(lang), 
                   style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 10, color: Colors.black87),
                   maxLines: 1, overflow: TextOverflow.ellipsis
                 ),
@@ -693,87 +698,93 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildDetailsTabs(ProductModel p) => DefaultTabController(
-    length: 5,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TabBar(
-          isScrollable: true,
-          indicatorColor: primaryTeal, labelColor: primaryTeal, unselectedLabelColor: Colors.grey,
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-          indicatorSize: TabBarIndicatorSize.label,
-          tabs: [
-            const Tab(text: 'Vedic Significance & Details'),
-            const Tab(text: 'Specifications & Dimensions'),
-            const Tab(text: 'Sacred Care & Purity'),
-            Tab(text: 'Devotee Reviews (${p.reviewCount})'),
-            const Tab(text: 'FAQs & Guidance')
-          ],
-        ),
-        const SizedBox(height: 24),
-        ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 300, maxHeight: 1000),
-          child: SizedBox(
-            height: 500,
-            child: TabBarView(
-              children: [
-                SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("About this Sacred Offering:", style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 14)),
-                      const SizedBox(height: 12),
-                      Text(p.description, style: const TextStyle(height: 1.6, color: Colors.black87, fontSize: 13)),
-                      const SizedBox(height: 20),
-                      Text("Blessings & Significance:", style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 13)),
-                      const SizedBox(height: 8),
-                      const Text("• Energized with authentic Vedic mantras for spiritual protection.\n• Crafted by skilled artisans with devotional focus.\n• Brings Pu. Dada's divine presence and peace to your surroundings.", style: TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
-                    ],
+  Widget _buildDetailsTabs(ProductModel p) {
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
+    return DefaultTabController(
+      length: 5,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TabBar(
+            isScrollable: true,
+            indicatorColor: primaryTeal, labelColor: primaryTeal, unselectedLabelColor: Colors.grey,
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            indicatorSize: TabBarIndicatorSize.label,
+            tabs: [
+              const Tab(text: 'Vedic Significance & Details'),
+              const Tab(text: 'Specifications & Dimensions'),
+              const Tab(text: 'Sacred Care & Purity'),
+              Tab(text: 'Devotee Reviews (${p.reviewCount})'),
+              const Tab(text: 'FAQs & Guidance')
+            ],
+          ),
+          const SizedBox(height: 24),
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 300, maxHeight: 1000),
+            child: SizedBox(
+              height: 500,
+              child: TabBarView(
+                children: [
+                  SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("About this Sacred Offering:", style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 14)),
+                        const SizedBox(height: 12),
+                        Text(p.localizedDescription(lang), style: const TextStyle(height: 1.6, color: Colors.black87, fontSize: 13)),
+                        const SizedBox(height: 20),
+                        Text("Blessings & Significance:", style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 13)),
+                        const SizedBox(height: 8),
+                        ...p.localizedHighlights(lang).map((h) => Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Text("• $h", style: const TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
+                        )),
+                      ],
+                    ),
                   ),
-                ),
-                SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _specRow("Material", "Premium Consecrated Material / Sacred Wood"),
-                      _specRow("SKU", "DADA-${p.id.substring(0, 5).toUpperCase()}"),
-                      _specRow("Category", p.categoryId),
-                      _specRow("Origin", "Authentic Ashram Atelier"),
-                      _specRow("Weight", "Approx 50g - 150g"),
-                    ],
+                  SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _specRow("Material", "Premium Consecrated Material / Sacred Wood"),
+                        _specRow("SKU", "DADA-${p.id.substring(0, 5).toUpperCase()}"),
+                        _specRow("Category", p.categoryId),
+                        _specRow("Origin", "Authentic Ashram Atelier"),
+                        _specRow("Weight", "Approx 50g - 150g"),
+                      ],
+                    ),
                   ),
-                ),
-                const SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Purity Standards:", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal, fontSize: 14)),
-                      SizedBox(height: 12),
-                      Text("• This item should be handled with spiritual reverence.\n• Avoid placing on the floor or in unclean areas.\n• Clean only with a dry, pure cotton cloth to maintain its consecrated energy.", style: TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
-                    ],
+                  const SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Purity Standards:", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal, fontSize: 14)),
+                        SizedBox(height: 12),
+                        Text("• This item should be handled with spiritual reverence.\n• Avoid placing on the floor or in unclean areas.\n• Clean only with a dry, pure cotton cloth to maintain its consecrated energy.", style: TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
+                      ],
+                    ),
                   ),
-                ),
-                _buildReviewsTab(p),
-                const SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Q: Is this item already energized?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                      Text("A: Yes, all our offerings are sanctified through a special Puja Seva before dispatch.", style: TextStyle(color: Colors.black54, fontSize: 12)),
-                      SizedBox(height: 16),
-                      Text("Q: Can I gift this to someone?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                      Text("A: Absolutely. Giving a sacred offering is considered an act of great merit (Punya).", style: TextStyle(color: Colors.black54, fontSize: 12)),
-                    ],
+                  _buildReviewsTab(p),
+                  const SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Q: Is this item already energized?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        Text("A: Yes, all our offerings are sanctified through a special Puja Seva before dispatch.", style: TextStyle(color: Colors.black54, fontSize: 12)),
+                        SizedBox(height: 16),
+                        Text("Q: Can I gift this to someone?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        Text("A: Absolutely. Giving a sacred offering is considered an act of great merit (Punya).", style: TextStyle(color: Colors.black54, fontSize: 12)),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 
   Widget _specRow(String label, String value) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 8),

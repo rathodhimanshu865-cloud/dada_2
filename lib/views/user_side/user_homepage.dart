@@ -46,17 +46,15 @@ class _UserHomePageState extends State<UserHomePage> {
       scrollController: _scrollController,
       child: Column(
         children: [
-          UserHeroSlider(controller: controller),
-          UserFeaturedQuote(controller: controller),
-          UserAboutPreview(controller: controller),
-          UserUpcomingKathas(controller: controller),
-          UserLatestVideos(controller: controller),
-          UserPhotoGallery(controller: controller),
-          // Spiritual Teachings removed
-          UserDailySuvichar(controller: controller),
-          UserRamKatha(controller: controller), // This is the "About Katha" preview section
-          // Testimonials removed
-          UserNews(controller: controller),
+          if (controller.homepageData.showHeroSlider) UserHeroSlider(controller: controller),
+          if (controller.homepageData.showFeaturedQuote) UserFeaturedQuote(controller: controller),
+          if (controller.homepageData.showAboutPreview) UserAboutPreview(controller: controller),
+          if (controller.homepageData.showUpcomingKathas) UserUpcomingKathas(controller: controller),
+          if (controller.homepageData.showLatestVideos) UserLatestVideos(controller: controller),
+          if (controller.homepageData.showPhotoGallery) UserPhotoGallery(controller: controller),
+          if (controller.homepageData.showDailySuvichar) UserDailySuvichar(controller: controller),
+          if (controller.homepageData.showRamKathaSection) UserRamKatha(controller: controller),
+          if (controller.homepageData.showNewsSection) UserNews(controller: controller),
           UserFooter(controller: controller),
         ],
       ),

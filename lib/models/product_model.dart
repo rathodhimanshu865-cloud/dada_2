@@ -16,7 +16,11 @@ class ProductModel {
   final String sku;
   final String consecrationBadge; // e.g., Sanctified, Bestseller
   final String shortSummary;
+  final String shortSummaryHi;
+  final String shortSummaryGu;
   final List<String> highlights;
+  final List<String> highlightsHi;
+  final List<String> highlightsGu;
   final String imageUrl; 
   final List<String> imageUrls; 
   final List<String> finishes;
@@ -61,7 +65,11 @@ class ProductModel {
     this.sku = '',
     this.consecrationBadge = '',
     this.shortSummary = '',
+    this.shortSummaryHi = '',
+    this.shortSummaryGu = '',
     this.highlights = const [],
+    this.highlightsHi = const [],
+    this.highlightsGu = const [],
     this.imageUrl = '',
     this.imageUrls = const [],
     this.finishes = const [],
@@ -93,7 +101,11 @@ class ProductModel {
     String? sku,
     String? consecrationBadge,
     String? shortSummary,
+    String? shortSummaryHi,
+    String? shortSummaryGu,
     List<String>? highlights,
+    List<String>? highlightsHi,
+    List<String>? highlightsGu,
     String? imageUrl,
     List<String>? imageUrls,
     List<String>? finishes,
@@ -124,7 +136,11 @@ class ProductModel {
       sku: sku ?? this.sku,
       consecrationBadge: consecrationBadge ?? this.consecrationBadge,
       shortSummary: shortSummary ?? this.shortSummary,
+      shortSummaryHi: shortSummaryHi ?? this.shortSummaryHi,
+      shortSummaryGu: shortSummaryGu ?? this.shortSummaryGu,
       highlights: highlights ?? this.highlights,
+      highlightsHi: highlightsHi ?? this.highlightsHi,
+      highlightsGu: highlightsGu ?? this.highlightsGu,
       imageUrl: imageUrl ?? this.imageUrl,
       imageUrls: imageUrls ?? this.imageUrls,
       finishes: finishes ?? this.finishes,
@@ -166,7 +182,11 @@ class ProductModel {
       sku: data['sku'] ?? '',
       consecrationBadge: data['consecrationBadge'] ?? '',
       shortSummary: data['shortSummary'] ?? '',
+      shortSummaryHi: data['shortSummaryHi'] ?? '',
+      shortSummaryGu: data['shortSummaryGu'] ?? '',
       highlights: parseList(data['highlights']),
+      highlightsHi: parseList(data['highlightsHi']),
+      highlightsGu: parseList(data['highlightsGu']),
       imageUrl: data['imageUrl'] ?? '',
       imageUrls: parseList(data['imageUrls']),
       finishes: parseList(data['finishes']),
@@ -200,7 +220,11 @@ class ProductModel {
       'sku': sku,
       'consecrationBadge': consecrationBadge,
       'shortSummary': shortSummary,
+      'shortSummaryHi': shortSummaryHi,
+      'shortSummaryGu': shortSummaryGu,
       'highlights': highlights,
+      'highlightsHi': highlightsHi,
+      'highlightsGu': highlightsGu,
       'imageUrl': imageUrl,
       'imageUrls': imageUrls,
       'finishes': finishes,
@@ -227,5 +251,23 @@ class ProductModel {
     if (langCode == 'hi' && nameHi.isNotEmpty) return nameHi;
     if (langCode == 'gu' && nameGu.isNotEmpty) return nameGu;
     return name;
+  }
+
+  String localizedDescription(String langCode) {
+    if (langCode == 'hi' && descriptionHi.isNotEmpty) return descriptionHi;
+    if (langCode == 'gu' && descriptionGu.isNotEmpty) return descriptionGu;
+    return description;
+  }
+
+  String localizedShortSummary(String langCode) {
+    if (langCode == 'hi' && shortSummaryHi.isNotEmpty) return shortSummaryHi;
+    if (langCode == 'gu' && shortSummaryGu.isNotEmpty) return shortSummaryGu;
+    return shortSummary;
+  }
+
+  List<String> localizedHighlights(String langCode) {
+    if (langCode == 'hi' && highlightsHi.isNotEmpty) return highlightsHi;
+    if (langCode == 'gu' && highlightsGu.isNotEmpty) return highlightsGu;
+    return highlights;
   }
 }

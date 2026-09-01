@@ -52,9 +52,9 @@ class _StoreSettingsViewState extends State<StoreSettingsView> with SingleTicker
           child: TabBarView(
             controller: _tabController,
             children: [
-              _buildScrollableCMS(100, controller), // Home Portal
-              _buildScrollableCMS(101, controller), // Product Catalogue
-              _buildScrollableCMS(102, controller), // Pujya Dada Teachings
+              _buildScrollableCMS('home_portal', controller), // Home Portal
+              _buildScrollableCMS('catalogue', controller), // Product Catalogue
+              _buildScrollableCMS('teachings', controller), // Pujya Dada Teachings
             ],
           ),
         ),
@@ -62,7 +62,7 @@ class _StoreSettingsViewState extends State<StoreSettingsView> with SingleTicker
     );
   }
 
-  Widget _buildScrollableCMS(int index, HomePageController controller) {
-    return CMSViewsHelper.buildCMSView(index, controller, context, _fieldLoading, setState);
+  Widget _buildScrollableCMS(String type, HomePageController controller) {
+    return CMSViewsHelper.buildCMSView(type, controller, context, _fieldLoading, setState);
   }
 }

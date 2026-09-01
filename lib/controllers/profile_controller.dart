@@ -92,6 +92,8 @@ class ProfileController extends ChangeNotifier {
       if (p.philosophyOfLife.isNotEmpty) futures.add(TranslationService.translateToAll(p.philosophyOfLife).then((res) { p.philosophyOfLifeHi = res['hi']!; p.philosophyOfLifeGu = res['gu']!; }));
       if (p.signatureIdentityTitle.isNotEmpty) futures.add(TranslationService.translateToAll(p.signatureIdentityTitle).then((res) { p.signatureIdentityTitleHi = res['hi']!; p.signatureIdentityTitleGu = res['gu']!; }));
       if (p.signatureIdentitySubtitle.isNotEmpty) futures.add(TranslationService.translateToAll(p.signatureIdentitySubtitle).then((res) { p.signatureIdentitySubtitleHi = res['hi']!; p.signatureIdentitySubtitleGu = res['gu']!; }));
+      
+      if (p.contentHTML.isNotEmpty) futures.add(TranslationService.translateToAll(p.contentHTML).then((res) { p.contentHTMLHi = res['hi']!; p.contentHTMLGu = res['gu']!; }));
 
       if (p.coreCompetencies.isNotEmpty) {
         futures.add(TranslationService.translateBatch(p.coreCompetencies, 'hi').then((res) => p.coreCompetenciesHi = res));

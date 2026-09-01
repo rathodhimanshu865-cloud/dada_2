@@ -39,8 +39,8 @@ class AuthController extends ChangeNotifier {
   bool get isAuthenticated => _user != null;
   bool get isAdmin => _role?.toLowerCase() == 'admin';
 
-  User? get adminUser => _adminUser;
-  bool get isAdminAuthenticated => _adminUser != null && _adminRole?.toLowerCase() == 'admin';
+  User? get adminUser => _user;
+  bool get isAdminAuthenticated => _user != null && _role?.toLowerCase() == 'admin';
 
   bool get showLoginPortal => _showLoginPortal;
   bool get isLoading => _isLoading;
@@ -261,28 +261,15 @@ class AuthController extends ChangeNotifier {
     _safeNotifyListeners();
 
     try {
-      // Lazy Initialize Secondary Firebase App for Admin Session
-      try {
-        FirebaseAuth.instanceFor(app: Firebase.app('AdminApp'));
-      } catch (e) {
-        await Firebase.initializeApp(
-          name: 'AdminApp',
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
-      }
-      
-      _adminAuth = FirebaseAuth.instanceFor(app: Firebase.app('AdminApp'));
-      final credential = await _adminAuth!.signInWithEmailAndPassword(email: email, password: password);
+      final credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
       
       if (credential.user != null) {
-        final role = await _getRoleOnly(credential.user!.uid);
-        if (role?.toLowerCase() != 'admin') {
-          await _adminAuth?.signOut();
+        await _fetchUserRole(credential.user!.uid);
+        if (_role?.toLowerCase() != 'admin') {
+          await _auth.signOut();
           _errorMessage = "Access Denied: You do not have administrator privileges.";
           throw Exception(_errorMessage);
         }
-        _adminUser = credential.user;
-        _adminRole = role;
       }
     } catch (e) {
       AppLogger.error("Admin Login error", e);
@@ -304,10 +291,7 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<void> adminLogout() async {
-    await _adminAuth?.signOut();
-    _adminUser = null;
-    _adminRole = null;
-    _safeNotifyListeners();
+    await logout();
   }
 
   @override

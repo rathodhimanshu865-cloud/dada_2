@@ -15,16 +15,31 @@ import 'store_settings_view.dart';
 import 'product_dialog_helper.dart';
 
 class ProductManagementView extends StatefulWidget {
-  const ProductManagementView({super.key});
+  final int initialSubMenu;
+  const ProductManagementView({super.key, this.initialSubMenu = 0});
 
   @override
   State<ProductManagementView> createState() => _ProductManagementViewState();
 }
 
 class _ProductManagementViewState extends State<ProductManagementView> {
-  int _activeSubMenu = 0;
+  late int _activeSubMenu;
   final Color primaryTeal = const Color(0xFF0F4C5C);
   final ScrollController _headerScrollCtrl = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _activeSubMenu = widget.initialSubMenu;
+  }
+
+  @override
+  void didUpdateWidget(ProductManagementView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialSubMenu != widget.initialSubMenu) {
+      _activeSubMenu = widget.initialSubMenu;
+    }
+  }
 
   @override
   void dispose() {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../controllers/language_controller.dart';
 import '../../../models/product_model.dart';
 import '../../../controllers/product_controller.dart';
 import '../../../controllers/cart_controller.dart';
@@ -40,6 +41,7 @@ class _ProductQuickViewState extends State<ProductQuickView> {
     final p = widget.product;
     final cart = Provider.of<CartController>(context, listen: false);
     final auth = Provider.of<AuthController>(context, listen: false);
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
     return Dialog(
       backgroundColor: Colors.white,
@@ -165,9 +167,9 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                               child: Text(p.categoryId.toUpperCase(), style: TextStyle(color: primaryTeal, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
                             ),
                             const SizedBox(height: 12),
-                            Text(p.name, style: GoogleFonts.cormorantGaramond(fontSize: 32, fontWeight: FontWeight.w700, color: primaryTeal)),
+                            Text(p.localizedName(lang), style: GoogleFonts.cormorantGaramond(fontSize: 32, fontWeight: FontWeight.w700, color: primaryTeal)),
                             const SizedBox(height: 4),
-                            Text(p.shortSummary, style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                            Text(p.localizedShortSummary(lang), style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
                             const SizedBox(height: 16),
                             Row(
                               children: [

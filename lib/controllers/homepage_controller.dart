@@ -48,10 +48,26 @@ class HomePageController extends ChangeNotifier {
   List<Map<String, dynamic>> realTimePhotos = [];
   StreamSubscription<QuerySnapshot>? _photosSubscription;
   StreamSubscription<DocumentSnapshot>? _cmsSubscription;
+  StreamSubscription<QuerySnapshot>? _inquiriesSubscription;
 
   HomePageController() {
     _initCMSStream();
     _initPhotosStream();
+    _initInquiriesStream();
+  }
+
+  void _initInquiriesStream() {
+    _inquiriesSubscription?.cancel();
+    _inquiriesSubscription = _firestore
+        .collection('inquiries')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+      inquiries = snapshot.docs.map((doc) => ContactInquiry.fromMap(doc.id, doc.data() as Map<String, dynamic>)).toList();
+      _safeNotifyListeners();
+    }, onError: (e) {
+      AppLogger.error("Inquiries stream error", e);
+    });
   }
 
   void _initCMSStream() {
@@ -99,12 +115,6 @@ class HomePageController extends ChangeNotifier {
       isLoading = false;
       _safeNotifyListeners();
     });
-
-    // One-time load for inquiries remains
-    _firestore.collection('inquiries').get().then((inqSnap) {
-      inquiries = inqSnap.docs.map((doc) => ContactInquiry.fromMap(doc.id, doc.data())).toList();
-      _safeNotifyListeners();
-    });
   }
 
   void _initPhotosStream() {
@@ -126,6 +136,7 @@ class HomePageController extends ChangeNotifier {
     _isDisposed = true;
     _photosSubscription?.cancel();
     _cmsSubscription?.cancel();
+    _inquiriesSubscription?.cancel();
     super.dispose();
   }
 
@@ -156,6 +167,26 @@ class HomePageController extends ChangeNotifier {
   void removeVideoCategory(int i) { videoGalleryData.categories.removeAt(i); _safeNotifyListeners(); }
   void addVideoToCategory(int catIndex) { videoGalleryData.categories[catIndex].videos.add(VideoGalleryEntry()); _safeNotifyListeners(); }
   void removeVideoFromCategory(int catIndex, int vidIndex) { videoGalleryData.categories[catIndex].videos.removeAt(vidIndex); _safeNotifyListeners(); }
+
+  void addFooterLinkSection() { footer.linkSections.add(FooterLinkSection(title: 'New Section')); _safeNotifyListeners(); }
+  void removeFooterLinkSection(int i) { footer.linkSections.removeAt(i); _safeNotifyListeners(); }
+  void addFooterLink(int sectionIndex) { footer.linkSections[sectionIndex].links.add(FooterLink(label: 'New Link', route: '/')); _safeNotifyListeners(); }
+  void removeFooterLink(int sectionIndex, int linkIndex) { footer.linkSections[sectionIndex].links.removeAt(linkIndex); _safeNotifyListeners(); }
+
+  void toggleHomeVisibility(String section) {
+    switch (section) {
+      case 'hero': homepageData.showHeroSlider = !homepageData.showHeroSlider; break;
+      case 'quote': homepageData.showFeaturedQuote = !homepageData.showFeaturedQuote; break;
+      case 'about': homepageData.showAboutPreview = !homepageData.showAboutPreview; break;
+      case 'katha': homepageData.showUpcomingKathas = !homepageData.showUpcomingKathas; break;
+      case 'videos': homepageData.showLatestVideos = !homepageData.showLatestVideos; break;
+      case 'gallery': homepageData.showPhotoGallery = !homepageData.showPhotoGallery; break;
+      case 'suvichar': homepageData.showDailySuvichar = !homepageData.showDailySuvichar; break;
+      case 'ramkatha': homepageData.showRamKathaSection = !homepageData.showRamKathaSection; break;
+      case 'news': homepageData.showNewsSection = !homepageData.showNewsSection; break;
+    }
+    _safeNotifyListeners();
+  }
 
   Future<void> submitInquiry(ContactInquiry inquiry) async {
     try {
@@ -251,16 +282,22 @@ class HomePageController extends ChangeNotifier {
           TranslationService.translateToAll(s.heading),
           TranslationService.translateToAll(s.subtitle),
           TranslationService.translateToAll(s.description),
+          TranslationService.translateToAll(s.primaryCtaText),
+          TranslationService.translateToAll(s.secondaryCtaText),
         ]);
         final r0 = results[0] as Map<String, String>;
         final r1 = results[1] as Map<String, String>;
         final r2 = results[2] as Map<String, String>;
         final r3 = results[3] as Map<String, String>;
+        final r4 = results[4] as Map<String, String>;
+        final r5 = results[5] as Map<String, String>;
         
         s.badgeHi = r0['hi']!; s.badgeGu = r0['gu']!;
         s.headingHi = r1['hi']!; s.headingGu = r1['gu']!;
         s.subtitleHi = r2['hi']!; s.subtitleGu = r2['gu']!;
         s.descriptionHi = r3['hi']!; s.descriptionGu = r3['gu']!;
+        s.primaryCtaTextHi = r4['hi']!; s.primaryCtaTextGu = r4['gu']!;
+        s.secondaryCtaTextHi = r5['hi']!; s.secondaryCtaTextGu = r5['gu']!;
       }));
 
       // 3. Upcoming Kathas
@@ -335,11 +372,14 @@ class HomePageController extends ChangeNotifier {
           final results = await Future.wait([
             TranslationService.translateToAll(ni.title),
             TranslationService.translateToAll(ni.category),
+            TranslationService.translateToAll(ni.date),
           ]);
           final r0 = results[0] as Map<String, String>;
           final r1 = results[1] as Map<String, String>;
+          final r2 = results[2] as Map<String, String>;
           ni.titleHi = r0['hi']!; ni.titleGu = r0['gu']!;
           ni.categoryHi = r1['hi']!; ni.categoryGu = r1['gu']!;
+          ni.dateHi = r2['hi']!; ni.dateGu = r2['gu']!;
         }),
       ]);
 
@@ -349,16 +389,19 @@ class HomePageController extends ChangeNotifier {
         TranslationService.translateToAll(homepageData.featuredQuote.author),
         TranslationService.translateToAll(ramKatha.description1),
         TranslationService.translateToAll(ramKatha.description2),
+        TranslationService.translateToAll(dailySuvichar.date),
       ]);
       final q0 = qTasks[0] as Map<String, String>;
       final q1 = qTasks[1] as Map<String, String>;
       final q2 = qTasks[2] as Map<String, String>;
       final q3 = qTasks[3] as Map<String, String>;
+      final q4 = qTasks[4] as Map<String, String>;
 
       homepageData.featuredQuote.quoteHi = q0['hi']!; homepageData.featuredQuote.quoteGu = q0['gu']!;
       homepageData.featuredQuote.authorHi = q1['hi']!; homepageData.featuredQuote.authorGu = q1['gu']!;
       ramKatha.description1Hi = q2['hi']!; ramKatha.description1Gu = q2['gu']!;
       ramKatha.description2Hi = q3['hi']!; ramKatha.description2Gu = q3['gu']!;
+      dailySuvichar.dateHi = q4['hi']!; dailySuvichar.dateGu = q4['gu']!;
 
       // 7. Full Katha List
       await Future.wait(allKathas.map((kr) async {
@@ -399,76 +442,123 @@ class HomePageController extends ChangeNotifier {
         TranslationService.translateToAll(stotraSection.pageTitle),
         TranslationService.translateToAll(contactPageData.address),
         TranslationService.translateToAll(footer.description),
+        TranslationService.translateToAll(footer.copyright),
+        TranslationService.translateToAll(footer.privacyLabel),
+        TranslationService.translateToAll(footer.termsLabel),
+        TranslationService.translateToAll(footer.cookieLabel),
       ]);
       final m0 = miscTasks[0] as Map<String, String>;
       final m1 = miscTasks[1] as Map<String, String>;
       final m2 = miscTasks[2] as Map<String, String>;
+      final m3 = miscTasks[3] as Map<String, String>;
+      final m4 = miscTasks[4] as Map<String, String>;
+      final m5 = miscTasks[5] as Map<String, String>;
+      final m6 = miscTasks[6] as Map<String, String>;
 
       stotraSection.pageTitleHi = m0['hi']!; stotraSection.pageTitleGu = m0['gu']!;
       contactPageData.addressHi = m1['hi']!; contactPageData.addressGu = m1['gu']!;
       footer.descriptionHi = m2['hi']!; footer.descriptionGu = m2['gu']!;
+      footer.copyrightHi = m3['hi']!; footer.copyrightGu = m3['gu']!;
+      footer.privacyLabelHi = m4['hi']!; footer.privacyLabelGu = m4['gu']!;
+      footer.termsLabelHi = m5['hi']!; footer.termsLabelGu = m5['gu']!;
+      footer.cookieLabelHi = m6['hi']!; footer.cookieLabelGu = m6['gu']!;
       
       await Future.wait(stotraSection.items.map((si) async {
         final sit = await TranslationService.translateToAll(si.title);
         si.titleHi = sit['hi']!; si.titleGu = sit['gu']!;
       }));
 
-      // 10. Katha Pages
-      final kPages = [bhagvatKathaPage, deviKathaPage, shivKathaPage];
-      await Future.wait(kPages.map((kp) async {
+      await Future.wait(footer.linkSections.map((sec) async {
+        final st = await TranslationService.translateToAll(sec.title);
+        sec.titleHi = st['hi']!; sec.titleGu = st['gu']!;
+        await Future.wait(sec.links.map((link) async {
+          final lt = await TranslationService.translateToAll(link.label);
+          link.labelHi = lt['hi']!; link.labelGu = lt['gu']!;
+        }));
+      }));
+
+      // 10. Home Portal Data
+      final hp = homepageData.homePortal;
+      final hpTasks = await Future.wait([
+        TranslationService.translateToAll(hp.heroHeading),
+        TranslationService.translateToAll(hp.heroSubtitle),
+        TranslationService.translateToAll(hp.heroCta1Text),
+        TranslationService.translateToAll(hp.heroCta2Text),
+        TranslationService.translateToAll(hp.heroCardTitle),
+        TranslationService.translateToAll(hp.heroCardSubtitle),
+        TranslationService.translateToAll(hp.collectionsHeading),
+        TranslationService.translateToAll(hp.featuredHeading),
+        TranslationService.translateToAll(hp.testimonialsHeading),
+        TranslationService.translateToAll(hp.wisdomHeading),
+        TranslationService.translateToAll(hp.whatsappTitle),
+        TranslationService.translateToAll(hp.whatsappSubtitle),
+        TranslationService.translateToAll(hp.whatsappBtnText),
+      ]);
+      hp.heroHeadingHi = (hpTasks[0] as Map<String, String>)['hi']!; hp.heroHeadingGu = (hpTasks[0] as Map<String, String>)['gu']!;
+      hp.heroSubtitleHi = (hpTasks[1] as Map<String, String>)['hi']!; hp.heroSubtitleGu = (hpTasks[1] as Map<String, String>)['gu']!;
+      hp.heroCta1TextHi = (hpTasks[2] as Map<String, String>)['hi']!; hp.heroCta1TextGu = (hpTasks[2] as Map<String, String>)['gu']!;
+      hp.heroCta2TextHi = (hpTasks[3] as Map<String, String>)['hi']!; hp.heroCta2TextGu = (hpTasks[3] as Map<String, String>)['gu']!;
+      hp.heroCardTitleHi = (hpTasks[4] as Map<String, String>)['hi']!; hp.heroCardTitleGu = (hpTasks[4] as Map<String, String>)['gu']!;
+      hp.heroCardSubtitleHi = (hpTasks[5] as Map<String, String>)['hi']!; hp.heroCardSubtitleGu = (hpTasks[5] as Map<String, String>)['gu']!;
+      hp.collectionsHeadingHi = (hpTasks[6] as Map<String, String>)['hi']!; hp.collectionsHeadingGu = (hpTasks[6] as Map<String, String>)['gu']!;
+      hp.featuredHeadingHi = (hpTasks[7] as Map<String, String>)['hi']!; hp.featuredHeadingGu = (hpTasks[7] as Map<String, String>)['gu']!;
+      hp.testimonialsHeadingHi = (hpTasks[8] as Map<String, String>)['hi']!; hp.testimonialsHeadingGu = (hpTasks[8] as Map<String, String>)['gu']!;
+      hp.wisdomHeadingHi = (hpTasks[9] as Map<String, String>)['hi']!; hp.wisdomHeadingGu = (hpTasks[9] as Map<String, String>)['gu']!;
+      hp.whatsappTitleHi = (hpTasks[10] as Map<String, String>)['hi']!; hp.whatsappTitleGu = (hpTasks[10] as Map<String, String>)['gu']!;
+      hp.whatsappSubtitleHi = (hpTasks[11] as Map<String, String>)['hi']!; hp.whatsappSubtitleGu = (hpTasks[11] as Map<String, String>)['gu']!;
+      hp.whatsappBtnTextHi = (hpTasks[12] as Map<String, String>)['hi']!; hp.whatsappBtnTextGu = (hpTasks[12] as Map<String, String>)['gu']!;
+
+      // 11. Teachings Page
+      final tp = homepageData.teachingsPage;
+      final tpTasks = await Future.wait([
+        TranslationService.translateToAll(tp.heroTitle),
+        TranslationService.translateToAll(tp.heroSubtitle),
+        TranslationService.translateToAll(tp.divinePurposeTitle),
+        TranslationService.translateToAll(tp.divinePurposeDesc1),
+        TranslationService.translateToAll(tp.divinePurposeDesc2),
+      ]);
+      tp.heroTitleHi = (tpTasks[0] as Map<String, String>)['hi']!; tp.heroTitleGu = (tpTasks[0] as Map<String, String>)['gu']!;
+      tp.heroSubtitleHi = (tpTasks[1] as Map<String, String>)['hi']!; tp.heroSubtitleGu = (tpTasks[1] as Map<String, String>)['gu']!;
+      tp.divinePurposeTitleHi = (tpTasks[2] as Map<String, String>)['hi']!; tp.divinePurposeTitleGu = (tpTasks[2] as Map<String, String>)['gu']!;
+      tp.divinePurposeDesc1Hi = (tpTasks[3] as Map<String, String>)['hi']!; tp.divinePurposeDesc1Gu = (tpTasks[3] as Map<String, String>)['gu']!;
+      tp.divinePurposeDesc2Hi = (tpTasks[4] as Map<String, String>)['hi']!; tp.divinePurposeDesc2Gu = (tpTasks[4] as Map<String, String>)['gu']!;
+
+      await Future.wait(tp.pillars.map((p) async {
         final results = await Future.wait([
-          TranslationService.translateToAll(kp.heroBadge),
-          TranslationService.translateToAll(kp.heroTitle),
-          TranslationService.translateToAll(kp.heroDesc1),
-          TranslationService.translateToAll(kp.heroDesc2),
-          TranslationService.translateToAll(kp.bioText),
-          TranslationService.translateToAll(kp.quoteText),
-          TranslationService.translateToAll(kp.quoteAuthor),
-          TranslationService.translateToAll(kp.highlight1Title),
-          TranslationService.translateToAll(kp.highlight1Desc),
-          TranslationService.translateToAll(kp.highlight2Title),
-          TranslationService.translateToAll(kp.highlight2Desc),
-          TranslationService.translateToAll(kp.highlight3Title),
-          TranslationService.translateToAll(kp.highlight3Desc),
-          TranslationService.translateToAll(kp.ctaTitle),
-          TranslationService.translateToAll(kp.ctaSubtitle),
-          TranslationService.translateToAll(kp.ctaButtonText),
+          TranslationService.translateToAll(p.title),
+          TranslationService.translateToAll(p.subtitle),
+          TranslationService.translateToAll(p.description),
+        ]);
+        p.titleHi = (results[0] as Map<String, String>)['hi']!; p.titleGu = (results[0] as Map<String, String>)['gu']!;
+        p.subtitleHi = (results[1] as Map<String, String>)['hi']!; p.subtitleGu = (results[1] as Map<String, String>)['gu']!;
+        p.descriptionHi = (results[2] as Map<String, String>)['hi']!; p.descriptionGu = (results[2] as Map<String, String>)['gu']!;
+      }));
+
+      // 12. About Dada Page Phases
+      await Future.wait(aboutDadaPage.phases.map((ph) async {
+        final results = await Future.wait([
+          TranslationService.translateToAll(ph.title),
+          TranslationService.translateToAll(ph.subtitle),
+          TranslationService.translateToAll(ph.content),
+        ]);
+        ph.titleHi = (results[0] as Map<String, String>)['hi']!; ph.titleGu = (results[0] as Map<String, String>)['gu']!;
+        ph.subtitleHi = (results[1] as Map<String, String>)['hi']!; ph.subtitleGu = (results[1] as Map<String, String>)['gu']!;
+        ph.contentHi = (results[2] as Map<String, String>)['hi']!; ph.contentGu = (results[2] as Map<String, String>)['gu']!;
+      }));
+
+      // 13. Katha Pages Additional Fields (Year/Dates)
+      await Future.wait(allKathas.map((kr) async {
+        final results = await Future.wait([
+          TranslationService.translateToAll(kr.year),
+          TranslationService.translateToAll(kr.dates),
         ]);
         final r0 = results[0] as Map<String, String>;
         final r1 = results[1] as Map<String, String>;
-        final r2 = results[2] as Map<String, String>;
-        final r3 = results[3] as Map<String, String>;
-        final r4 = results[4] as Map<String, String>;
-        final r5 = results[5] as Map<String, String>;
-        final r6 = results[6] as Map<String, String>;
-        final r7 = results[7] as Map<String, String>;
-        final r8 = results[8] as Map<String, String>;
-        final r9 = results[9] as Map<String, String>;
-        final r10 = results[10] as Map<String, String>;
-        final r11 = results[11] as Map<String, String>;
-        final r12 = results[12] as Map<String, String>;
-        final r13 = results[13] as Map<String, String>;
-        final r14 = results[14] as Map<String, String>;
-        final r15 = results[15] as Map<String, String>;
-
-        kp.heroBadgeHi = r0['hi']!; kp.heroBadgeGu = r0['gu']!;
-        kp.heroTitleHi = r1['hi']!; kp.heroTitleGu = r1['gu']!;
-        kp.heroDesc1Hi = r2['hi']!; kp.heroDesc1Gu = r2['gu']!;
-        kp.heroDesc2Hi = r3['hi']!; kp.heroDesc2Gu = r3['gu']!;
-        kp.bioTextHi = r4['hi']!; kp.bioTextGu = r4['gu']!;
-        kp.quoteTextHi = r5['hi']!; kp.quoteTextGu = r5['gu']!;
-        kp.quoteAuthorHi = r6['hi']!; kp.quoteAuthorGu = r6['gu']!;
-        kp.highlight1TitleHi = r7['hi']!; kp.highlight1TitleGu = r7['gu']!;
-        kp.highlight1DescHi = r8['hi']!; kp.highlight1DescGu = r8['gu']!;
-        kp.highlight2TitleHi = r9['hi']!; kp.highlight2TitleGu = r9['gu']!;
-        kp.highlight2DescHi = r10['hi']!; kp.highlight2DescGu = r10['gu']!;
-        kp.highlight3TitleHi = r11['hi']!; kp.highlight3TitleGu = r11['gu']!;
-        kp.highlight3DescHi = r12['hi']!; kp.highlight3DescGu = r12['gu']!;
-        kp.ctaTitleHi = r13['hi']!; kp.ctaTitleGu = r13['gu']!;
-        kp.ctaSubtitleHi = r14['hi']!; kp.ctaSubtitleGu = r14['gu']!;
-        kp.ctaButtonTextHi = r15['hi']!; kp.ctaButtonTextGu = r15['gu']!;
+        kr.yearHi = r0['hi']!; kr.yearGu = r0['gu']!;
+        kr.datesHi = r1['hi']!; kr.datesGu = r1['gu']!;
       }));
 
+      // 14. Final Publish
       await publish();
     } catch (e) {
       AppLogger.error("Translation error", e);

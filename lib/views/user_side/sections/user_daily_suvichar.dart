@@ -34,6 +34,7 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
   @override
   Widget build(BuildContext context) {
     final suvichar = widget.controller.dailySuvichar;
+    final lang = Localizations.localeOf(context).languageCode;
     if (suvichar.imageUrl.isEmpty) return const SizedBox.shrink();
 
     final isMobile = MediaQuery.of(context).size.width < 900;
@@ -69,7 +70,7 @@ class _UserDailySuvicharState extends State<UserDailySuvichar> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        suvichar.date,
+                        suvichar.localizedDate(lang),
                         style: const TextStyle(fontSize: 16, color: Color(0xFF6D6D6D), fontWeight: FontWeight.w300),
                       ),
                     ],

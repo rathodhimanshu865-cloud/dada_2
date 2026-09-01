@@ -19,206 +19,108 @@ class UserFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const accentGrey = Color(0xFF757575);
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
     final isMobile = MediaQuery.of(context).size.width < 900;
 
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        color: Color(0xFF0F4C5C), // Deep Teal from the provided image
+        color: Color(0xFF0F4C5C), // Deep Teal from the image
       ),
+      padding: EdgeInsets.symmetric(vertical: 60, horizontal: isMobile ? 30 : 80),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Thin divider at the top
-          Container(
-            height: 1,
-            width: double.infinity,
-            color: Colors.white12,
+          // Branding
+          Text(
+            controller.websiteSettings.localizedName(lang).toUpperCase(),
+            style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: 2),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            controller.footer.localizedDescription(lang),
+            style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 16, height: 1.6),
+          ),
+          const SizedBox(height: 30),
+          
+          // Social Icons
+          Row(
+            children: [
+              _buildSocialIcon(Icons.facebook, controller.footer.facebookUrl),
+              _buildSocialIcon(Icons.camera_alt_outlined, controller.footer.instagramUrl),
+              _buildSocialIcon(Icons.play_arrow_rounded, controller.footer.youtubeUrl),
+              _buildSocialIcon(Icons.chat_bubble_outline, controller.footer.whatsappUrl),
+            ],
           ),
           
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 80, horizontal: isMobile ? 30 : 80),
-            child: Column(
-              children: [
-                if (isMobile)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Branding
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            controller.websiteSettings.name.toUpperCase(),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: 2, fontFamily: 'serif'),
-                          ),
-                          const SizedBox(height: 30),
-                          SizedBox(
-                            width: double.infinity,
-                            child: Text(
-                              controller.footer.localizedDescription(lang),
-                              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 15, height: 1.8),
-                            ),
-                          ),
-                          const SizedBox(height: 40),
-                          Row(
-                            children: [
-                              _buildSocialIcon(Icons.facebook, controller.footer.facebookUrl),
-                              _buildSocialIcon(Icons.camera_alt_outlined, controller.footer.instagramUrl),
-                              _buildSocialIcon(Icons.play_arrow_rounded, controller.footer.youtubeUrl),
-                              _buildSocialIcon(Icons.chat_bubble_outline, controller.footer.whatsappUrl),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 50),
-                      // Links
-                      Wrap(
-                        spacing: 40,
-                        runSpacing: 40,
-                        children: [
-                          _buildFooterColumn(context, AppLocalizations.of(context)!.organization, [
-                            {"label": AppLocalizations.of(context)!.home, "route": "/"},
-                            {"label": AppLocalizations.of(context)!.aboutDada, "route": "/about_dada"},
-                            {"label": AppLocalizations.of(context)!.mission, "route": "/about_dada"},
-                            {"label": AppLocalizations.of(context)!.contactUs, "route": "/contact_us"},
-                          ], true),
-                          _buildFooterColumn(context, AppLocalizations.of(context)!.katha, [
-                            {"label": AppLocalizations.of(context)!.upcomingKathas, "route": "/upcoming_ram_kathas"},
-                            {"label": AppLocalizations.of(context)!.fullKathaList, "route": "/katha_list"},
-                            {"label": AppLocalizations.of(context)!.bhagvatKatha, "route": "/about_katha"},
-                            {"label": AppLocalizations.of(context)!.shivmahapuran, "route": "/about_shiv_katha"},
-                          ], true),
-                          _buildFooterColumn(context, AppLocalizations.of(context)!.resources, [
-                            {"label": AppLocalizations.of(context)!.stotraBhajan, "route": "/stotra"},
-                            {"label": AppLocalizations.of(context)!.photoGallery, "route": "/photo_gallery"},
-                            {"label": AppLocalizations.of(context)!.videoGallery, "route": "/video_gallery"},
-                            {"label": AppLocalizations.of(context)!.adminPanel, "route": "/admin_login"},
-                          ], true),
-                        ],
-                      ),
-                    ],
-                  )
-                else
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Branding
-                      Expanded(
-                        flex: 4,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              controller.websiteSettings.localizedName(lang).toUpperCase(),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: 2, fontFamily: 'serif'),
-                            ),
-                            const SizedBox(height: 30),
-                            SizedBox(
-                              width: 400,
-                              child: Text(
-                                controller.footer.localizedDescription(lang),
-                                style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 15, height: 1.8),
-                              ),
-                            ),
-                            const SizedBox(height: 40),
-                            Row(
-                              children: [
-                                _buildSocialIcon(Icons.facebook, controller.footer.facebookUrl),
-                                _buildSocialIcon(Icons.camera_alt_outlined, controller.footer.instagramUrl),
-                                _buildSocialIcon(Icons.play_arrow_rounded, controller.footer.youtubeUrl),
-                                _buildSocialIcon(Icons.chat_bubble_outline, controller.footer.whatsappUrl),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      // Links
-                      _buildFooterColumn(context, AppLocalizations.of(context)!.organization, [
-                        {"label": AppLocalizations.of(context)!.home, "route": "/"},
-                        {"label": AppLocalizations.of(context)!.aboutDada, "route": "/about_dada"},
-                        {"label": AppLocalizations.of(context)!.mission, "route": "/about_dada"},
-                        {"label": AppLocalizations.of(context)!.contactUs, "route": "/contact_us"},
-                      ], false),
-                      
-                      _buildFooterColumn(context, AppLocalizations.of(context)!.katha, [
-                        {"label": AppLocalizations.of(context)!.upcomingKathas, "route": "/upcoming_ram_kathas"},
-                        {"label": AppLocalizations.of(context)!.fullKathaList, "route": "/katha_list"},
-                        {"label": AppLocalizations.of(context)!.bhagvatKatha, "route": "/about_katha"},
-                        {"label": AppLocalizations.of(context)!.shivmahapuran, "route": "/about_shiv_katha"},
-                      ], false),
-                      
-                      _buildFooterColumn(context, AppLocalizations.of(context)!.resources, [
-                        {"label": AppLocalizations.of(context)!.stotraBhajan, "route": "/stotra"},
-                        {"label": AppLocalizations.of(context)!.photoGallery, "route": "/photo_gallery"},
-                        {"label": AppLocalizations.of(context)!.videoGallery, "route": "/video_gallery"},
-                        {"label": AppLocalizations.of(context)!.adminPanel, "route": "/admin_login"},
-                      ], false),
-                    ],
+          const SizedBox(height: 50),
+          
+          // Section-wise Links
+          Wrap(
+            spacing: isMobile ? 40 : 100,
+            runSpacing: 40,
+            children: [
+              _buildLinkSection(context, AppLocalizations.of(context)!.organization, [
+                {'label': AppLocalizations.of(context)!.home, 'route': '/'},
+                {'label': AppLocalizations.of(context)!.aboutDada, 'route': '/about_dada'},
+                {'label': 'Pujya Dada Teachings', 'route': '/teachings'},
+                {'label': AppLocalizations.of(context)!.newsAndEvents, 'route': '/news'},
+              ]),
+              _buildLinkSection(context, AppLocalizations.of(context)!.katha, [
+                {'label': AppLocalizations.of(context)!.shrimadBhagvatKatha, 'route': '/about_katha'},
+                {'label': AppLocalizations.of(context)!.deviBhagvatKatha, 'route': '/about_devi_katha'},
+                {'label': AppLocalizations.of(context)!.shivmahapuranKatha, 'route': '/about_shiv_katha'},
+                {'label': AppLocalizations.of(context)!.fullKathaList, 'route': '/katha_list'},
+                {'label': AppLocalizations.of(context)!.upcomingKathas, 'route': '/upcoming_ram_kathas'},
+              ]),
+              _buildLinkSection(context, AppLocalizations.of(context)!.resources, [
+                {'label': AppLocalizations.of(context)!.photoGallery, 'route': '/photo_gallery'},
+                {'label': AppLocalizations.of(context)!.videoGallery, 'route': '/video_gallery'},
+                {'label': AppLocalizations.of(context)!.stotraBhajan, 'route': '/stotra'},
+                {'label': AppLocalizations.of(context)!.contactUs, 'route': '/contact_us'},
+                {'label': 'Sacred Products', 'route': '/product'},
+              ]),
+              // Dynamic Sections from Admin
+              ...controller.footer.linkSections.map((sec) => _buildLinkSection(context, sec.localizedTitle(lang), 
+                sec.links.map((l) => {'label': l.localizedLabel(lang), 'route': l.route}).toList())),
+            ],
+          ),
+          
+          const SizedBox(height: 60),
+          const Divider(color: Colors.white12),
+          const SizedBox(height: 30),
+          
+          // Bottom Bar
+          Flex(
+            direction: isMobile ? Axis.vertical : Axis.horizontal,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                controller.footer.localizedCopyright(lang),
+                style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14),
+              ),
+              if (isMobile) const SizedBox(height: 20),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 30,
+                children: [
+                  _buildBottomLink(controller.footer.localizedPrivacyLabel(lang), controller.footer.privacyUrl),
+                  _buildBottomLink(controller.footer.localizedTermsLabel(lang), controller.footer.termsUrl),
+                  _buildBottomLink(controller.footer.localizedCookieLabel(lang), controller.footer.cookieUrl),
+                  InkWell(
+                    onTap: () => Navigator.pushNamed(context, '/admin_login'),
+                    child: Text(
+                      'Admin Access',
+                      style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14),
+                    ),
                   ),
-                
-                const SizedBox(height: 60),
-                const Divider(color: Colors.white10),
-                const SizedBox(height: 30),
-                
-                Flex(
-                  direction: isMobile ? Axis.vertical : Axis.horizontal,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      controller.footer.copyright,
-                      textAlign: isMobile ? TextAlign.center : TextAlign.left,
-                      style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13),
-                    ),
-                    if (isMobile) const SizedBox(height: 20),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 30,
-                      children: [
-                        _buildBottomLink(AppLocalizations.of(context)!.privacyPolicy),
-                        _buildBottomLink(AppLocalizations.of(context)!.termsOfService),
-                        _buildBottomLink(AppLocalizations.of(context)!.cookiePolicy),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
     );
-  }
-
-  Widget _buildFooterColumn(BuildContext context, String title, List<Map<String, dynamic>> links, bool isMobile) {
-    Widget content = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 2),
-        ),
-        const SizedBox(height: 35),
-        ...links.map((link) => Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: InkWell(
-            onTap: () => Navigator.pushNamed(context, link['route'] ?? '/'),
-            child: Text(
-              (link['label'] ?? '') as String,
-              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 15, fontWeight: FontWeight.w300),
-            ),
-          ),
-        )),
-      ],
-    );
-
-    return isMobile ? content : Expanded(flex: 2, child: content);
   }
 
   Widget _buildSocialIcon(IconData icon, String url) {
@@ -226,15 +128,41 @@ class UserFooter extends StatelessWidget {
       padding: const EdgeInsets.only(right: 25),
       child: InkWell(
         onTap: () => _launchUrl(url),
-        child: Icon(icon, color: Colors.white.withOpacity(0.4), size: 22),
+        child: Icon(icon, color: Colors.white.withOpacity(0.5), size: 22),
       ),
     );
   }
 
-  Widget _buildBottomLink(String text) {
-    return Text(
-      text,
-      style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13),
+  Widget _buildLinkSection(BuildContext context, String title, List<Map<String, String>> links) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title.toUpperCase(),
+          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 1.5),
+        ),
+        const SizedBox(height: 25),
+        ...links.map((link) => Padding(
+          padding: const EdgeInsets.only(bottom: 15),
+          child: InkWell(
+            onTap: () => Navigator.pushNamed(context, link['route']!),
+            child: Text(
+              link['label']!,
+              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 15),
+            ),
+          ),
+        )),
+      ],
+    );
+  }
+
+  Widget _buildBottomLink(String text, String url) {
+    return InkWell(
+      onTap: () => _launchUrl(url),
+      child: Text(
+        text,
+        style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14),
+      ),
     );
   }
 }

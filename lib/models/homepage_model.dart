@@ -68,6 +68,7 @@ class WebsiteSettings {
   // Translations
   String nameHi; String nameGu;
   String catalogueHeadingHi; String catalogueHeadingGu;
+  String catalogueSubtitleHi; String catalogueSubtitleGu;
 
   WebsiteSettings({
     this.name = '',
@@ -78,10 +79,12 @@ class WebsiteSettings {
     this.supportedPaymentMethods = const ['COD', 'UPI', 'Card', 'Net Banking'],
     this.nameHi = '', this.nameGu = '',
     this.catalogueHeadingHi = '', this.catalogueHeadingGu = '',
+    this.catalogueSubtitleHi = '', this.catalogueSubtitleGu = '',
   }) : headerSettings = headerSettings ?? HeaderSettings();
 
   String localizedName(String lang) => lang == 'hi' && nameHi.isNotEmpty ? nameHi : lang == 'gu' && nameGu.isNotEmpty ? nameGu : name;
   String localizedCatalogueHeading(String lang) => lang == 'hi' && catalogueHeadingHi.isNotEmpty ? catalogueHeadingHi : lang == 'gu' && catalogueHeadingGu.isNotEmpty ? catalogueHeadingGu : catalogueHeading;
+  String localizedCatalogueSubtitle(String lang) => lang == 'hi' && catalogueSubtitleHi.isNotEmpty ? catalogueSubtitleHi : lang == 'gu' && catalogueSubtitleGu.isNotEmpty ? catalogueSubtitleGu : catalogueSubtitle;
 
   Map<String, dynamic> toMap() => {
         'name': name,
@@ -92,6 +95,7 @@ class WebsiteSettings {
         'supportedPaymentMethods': supportedPaymentMethods,
         'name_hi': nameHi, 'name_gu': nameGu,
         'catalogueHeading_hi': catalogueHeadingHi, 'catalogueHeading_gu': catalogueHeadingGu,
+        'catalogueSubtitle_hi': catalogueSubtitleHi, 'catalogueSubtitle_gu': catalogueSubtitleGu,
       };
 
   factory WebsiteSettings.fromMap(Map<String, dynamic> map) => WebsiteSettings(
@@ -105,6 +109,7 @@ class WebsiteSettings {
         supportedPaymentMethods: List<String>.from(map['supportedPaymentMethods'] ?? ['COD', 'UPI', 'Card', 'Net Banking']),
         nameHi: map['name_hi'] ?? '', nameGu: map['name_gu'] ?? '',
         catalogueHeadingHi: map['catalogueHeading_hi'] ?? '', catalogueHeadingGu: map['catalogueHeading_gu'] ?? '',
+        catalogueSubtitleHi: map['catalogueSubtitle_hi'] ?? '', catalogueSubtitleGu: map['catalogueSubtitle_gu'] ?? '',
       );
 }
 
@@ -151,7 +156,10 @@ class TeachingsPageData {
 
   // Translations
   String heroTitleHi; String heroTitleGu;
+  String heroSubtitleHi; String heroSubtitleGu;
   String divinePurposeTitleHi; String divinePurposeTitleGu;
+  String divinePurposeDesc1Hi; String divinePurposeDesc1Gu;
+  String divinePurposeDesc2Hi; String divinePurposeDesc2Gu;
 
   TeachingsPageData({
     this.heroTitle = 'Spiritual Grace, Eternal Darshan & Sacred Teachings',
@@ -163,7 +171,10 @@ class TeachingsPageData {
     this.divinePurposeImage = '',
     List<TeachingCard>? pillars,
     this.heroTitleHi = '', this.heroTitleGu = '',
+    this.heroSubtitleHi = '', this.heroSubtitleGu = '',
     this.divinePurposeTitleHi = '', this.divinePurposeTitleGu = '',
+    this.divinePurposeDesc1Hi = '', this.divinePurposeDesc1Gu = '',
+    this.divinePurposeDesc2Hi = '', this.divinePurposeDesc2Gu = '',
   }) : pillars = pillars ?? [];
 
   Map<String, dynamic> toMap() => {
@@ -172,7 +183,10 @@ class TeachingsPageData {
     'divinePurposeDesc2': divinePurposeDesc2, 'divinePurposeImage': divinePurposeImage,
     'pillars': pillars.map((e) => e.toMap()).toList(),
     'heroTitle_hi': heroTitleHi, 'heroTitle_gu': heroTitleGu,
+    'heroSubtitle_hi': heroSubtitleHi, 'heroSubtitle_gu': heroSubtitleGu,
     'divinePurposeTitle_hi': divinePurposeTitleHi, 'divinePurposeTitle_gu': divinePurposeTitleGu,
+    'divinePurposeDesc1_hi': divinePurposeDesc1Hi, 'divinePurposeDesc1_gu': divinePurposeDesc1Gu,
+    'divinePurposeDesc2_hi': divinePurposeDesc2Hi, 'divinePurposeDesc2_gu': divinePurposeDesc2Gu,
   };
 
   factory TeachingsPageData.fromMap(Map<String, dynamic> map) => TeachingsPageData(
@@ -185,8 +199,17 @@ class TeachingsPageData {
     divinePurposeImage: map['divinePurposeImage'] ?? '',
     pillars: (map['pillars'] as List? ?? []).map((e) => TeachingCard.fromMap(e)).toList(),
     heroTitleHi: map['heroTitle_hi'] ?? '', heroTitleGu: map['heroTitle_gu'] ?? '',
+    heroSubtitleHi: map['heroSubtitle_hi'] ?? '', heroSubtitleGu: map['heroSubtitle_gu'] ?? '',
     divinePurposeTitleHi: map['divinePurposeTitle_hi'] ?? '', divinePurposeTitleGu: map['divinePurposeTitle_gu'] ?? '',
+    divinePurposeDesc1Hi: map['divinePurposeDesc1_hi'] ?? '', divinePurposeDesc1Gu: map['divinePurposeDesc1_gu'] ?? '',
+    divinePurposeDesc2Hi: map['divinePurposeDesc2_hi'] ?? '', divinePurposeDesc2Gu: map['divinePurposeDesc2_gu'] ?? '',
   );
+
+  String localizedHeroTitle(String lang) => lang == 'hi' && heroTitleHi.isNotEmpty ? heroTitleHi : lang == 'gu' && heroTitleGu.isNotEmpty ? heroTitleGu : heroTitle;
+  String localizedHeroSubtitle(String lang) => lang == 'hi' && heroSubtitleHi.isNotEmpty ? heroSubtitleHi : lang == 'gu' && heroSubtitleGu.isNotEmpty ? heroSubtitleGu : heroSubtitle;
+  String localizedDivinePurposeTitle(String lang) => lang == 'hi' && divinePurposeTitleHi.isNotEmpty ? divinePurposeTitleHi : lang == 'gu' && divinePurposeTitleGu.isNotEmpty ? divinePurposeTitleGu : divinePurposeTitle;
+  String localizedDivinePurposeDesc1(String lang) => lang == 'hi' && divinePurposeDesc1Hi.isNotEmpty ? divinePurposeDesc1Hi : lang == 'gu' && divinePurposeDesc1Gu.isNotEmpty ? divinePurposeDesc1Gu : divinePurposeDesc1;
+  String localizedDivinePurposeDesc2(String lang) => lang == 'hi' && divinePurposeDesc2Hi.isNotEmpty ? divinePurposeDesc2Hi : lang == 'gu' && divinePurposeDesc2Gu.isNotEmpty ? divinePurposeDesc2Gu : divinePurposeDesc2;
 }
 
 class HomePortalData {
@@ -213,6 +236,21 @@ class HomePortalData {
   String whatsappSubtitle;
   String whatsappBtnText;
 
+  // Translations
+  String heroHeadingHi; String heroHeadingGu;
+  String heroSubtitleHi; String heroSubtitleGu;
+  String heroCta1TextHi; String heroCta1TextGu;
+  String heroCta2TextHi; String heroCta2TextGu;
+  String heroCardTitleHi; String heroCardTitleGu;
+  String heroCardSubtitleHi; String heroCardSubtitleGu;
+  String collectionsHeadingHi; String collectionsHeadingGu;
+  String featuredHeadingHi; String featuredHeadingGu;
+  String testimonialsHeadingHi; String testimonialsHeadingGu;
+  String wisdomHeadingHi; String wisdomHeadingGu;
+  String whatsappTitleHi; String whatsappTitleGu;
+  String whatsappSubtitleHi; String whatsappSubtitleGu;
+  String whatsappBtnTextHi; String whatsappBtnTextGu;
+
   HomePortalData({
     this.heroHeading = 'Sacred Darshan, Consecrated Altars & Holy Granths',
     this.heroSubtitle = 'Elevate your home mandir, car sanctuary, and everyday journey with authentic devotional treasures.',
@@ -229,13 +267,53 @@ class HomePortalData {
     this.whatsappTitle = 'Need Guidance on Mandir Sizing or Sacred Articles?',
     this.whatsappSubtitle = 'Our Devotee Seva Sevaks are available on WhatsApp for puja vidhi inquiries and custom altar consultations.',
     this.whatsappBtnText = 'CONNECT ON WHATSAPP',
+    this.heroHeadingHi = '', this.heroHeadingGu = '',
+    this.heroSubtitleHi = '', this.heroSubtitleGu = '',
+    this.heroCta1TextHi = '', this.heroCta1TextGu = '',
+    this.heroCta2TextHi = '', this.heroCta2TextGu = '',
+    this.heroCardTitleHi = '', this.heroCardTitleGu = '',
+    this.heroCardSubtitleHi = '', this.heroCardSubtitleGu = '',
+    this.collectionsHeadingHi = '', this.collectionsHeadingGu = '',
+    this.featuredHeadingHi = '', this.featuredHeadingGu = '',
+    this.testimonialsHeadingHi = '', this.testimonialsHeadingGu = '',
+    this.wisdomHeadingHi = '', this.wisdomHeadingGu = '',
+    this.whatsappTitleHi = '', this.whatsappTitleGu = '',
+    this.whatsappSubtitleHi = '', this.whatsappSubtitleGu = '',
+    this.whatsappBtnTextHi = '', this.whatsappBtnTextGu = '',
   });
+
+  String localizedHeroHeading(String lang) => lang == 'hi' && heroHeadingHi.isNotEmpty ? heroHeadingHi : lang == 'gu' && heroHeadingGu.isNotEmpty ? heroHeadingGu : heroHeading;
+  String localizedHeroSubtitle(String lang) => lang == 'hi' && heroSubtitleHi.isNotEmpty ? heroSubtitleHi : lang == 'gu' && heroSubtitleGu.isNotEmpty ? heroSubtitleGu : heroSubtitle;
+  String localizedHeroCta1Text(String lang) => lang == 'hi' && heroCta1TextHi.isNotEmpty ? heroCta1TextHi : lang == 'gu' && heroCta1TextGu.isNotEmpty ? heroCta1TextGu : heroCta1Text;
+  String localizedHeroCta2Text(String lang) => lang == 'hi' && heroCta2TextHi.isNotEmpty ? heroCta2TextHi : lang == 'gu' && heroCta2TextGu.isNotEmpty ? heroCta2TextGu : heroCta2Text;
+  String localizedHeroCardTitle(String lang) => lang == 'hi' && heroCardTitleHi.isNotEmpty ? heroCardTitleHi : lang == 'gu' && heroCardTitleGu.isNotEmpty ? heroCardTitleGu : heroCardTitle;
+  String localizedHeroCardSubtitle(String lang) => lang == 'hi' && heroCardSubtitleHi.isNotEmpty ? heroCardSubtitleHi : lang == 'gu' && heroCardSubtitleGu.isNotEmpty ? heroCardSubtitleGu : heroCardSubtitle;
+  String localizedCollectionsHeading(String lang) => lang == 'hi' && collectionsHeadingHi.isNotEmpty ? collectionsHeadingHi : lang == 'gu' && collectionsHeadingGu.isNotEmpty ? collectionsHeadingGu : collectionsHeading;
+  String localizedFeaturedHeading(String lang) => lang == 'hi' && featuredHeadingHi.isNotEmpty ? featuredHeadingHi : lang == 'gu' && featuredHeadingGu.isNotEmpty ? featuredHeadingGu : featuredHeading;
+  String localizedTestimonialsHeading(String lang) => lang == 'hi' && testimonialsHeadingHi.isNotEmpty ? testimonialsHeadingHi : lang == 'gu' && testimonialsHeadingGu.isNotEmpty ? testimonialsHeadingGu : testimonialsHeading;
+  String localizedWisdomHeading(String lang) => lang == 'hi' && wisdomHeadingHi.isNotEmpty ? wisdomHeadingHi : lang == 'gu' && wisdomHeadingGu.isNotEmpty ? wisdomHeadingGu : wisdomHeading;
+  String localizedWhatsappTitle(String lang) => lang == 'hi' && whatsappTitleHi.isNotEmpty ? whatsappTitleHi : lang == 'gu' && whatsappTitleGu.isNotEmpty ? whatsappTitleGu : whatsappTitle;
+  String localizedWhatsappSubtitle(String lang) => lang == 'hi' && whatsappSubtitleHi.isNotEmpty ? whatsappSubtitleHi : lang == 'gu' && whatsappSubtitleGu.isNotEmpty ? whatsappSubtitleGu : whatsappSubtitle;
+  String localizedWhatsappBtnText(String lang) => lang == 'hi' && whatsappBtnTextHi.isNotEmpty ? whatsappBtnTextHi : lang == 'gu' && whatsappBtnTextGu.isNotEmpty ? whatsappBtnTextGu : whatsappBtnText;
 
   Map<String, dynamic> toMap() => {
     'heroHeading': heroHeading, 'heroSubtitle': heroSubtitle, 'heroCta1Text': heroCta1Text, 'heroCta2Text': heroCta2Text,
     'heroImage': heroImage, 'heroSideImage': heroSideImage, 'heroCardTitle': heroCardTitle, 'heroCardSubtitle': heroCardSubtitle,
     'collectionsHeading': collectionsHeading, 'featuredHeading': featuredHeading, 'testimonialsHeading': testimonialsHeading, 
     'wisdomHeading': wisdomHeading, 'whatsappTitle': whatsappTitle, 'whatsappSubtitle': whatsappSubtitle, 'whatsappBtnText': whatsappBtnText,
+    'heroHeading_hi': heroHeadingHi, 'heroHeading_gu': heroHeadingGu,
+    'heroSubtitle_hi': heroSubtitleHi, 'heroSubtitle_gu': heroSubtitleGu,
+    'heroCta1Text_hi': heroCta1TextHi, 'heroCta1Text_gu': heroCta1TextGu,
+    'heroCta2Text_hi': heroCta2TextHi, 'heroCta2Text_gu': heroCta2TextGu,
+    'heroCardTitle_hi': heroCardTitleHi, 'heroCardTitle_gu': heroCardTitleGu,
+    'heroCardSubtitle_hi': heroCardSubtitleHi, 'heroCardSubtitle_gu': heroCardSubtitleGu,
+    'collectionsHeading_hi': collectionsHeadingHi, 'collectionsHeading_gu': collectionsHeadingGu,
+    'featuredHeading_hi': featuredHeadingHi, 'featuredHeading_gu': featuredHeadingGu,
+    'testimonialsHeading_hi': testimonialsHeadingHi, 'testimonialsHeading_gu': testimonialsHeadingGu,
+    'wisdomHeading_hi': wisdomHeadingHi, 'wisdomHeading_gu': wisdomHeadingGu,
+    'whatsappTitle_hi': whatsappTitleHi, 'whatsappTitle_gu': whatsappTitleGu,
+    'whatsappSubtitle_hi': whatsappSubtitleHi, 'whatsappSubtitle_gu': whatsappSubtitleGu,
+    'whatsappBtnText_hi': whatsappBtnTextHi, 'whatsappBtnText_gu': whatsappBtnTextGu,
   };
 
   factory HomePortalData.fromMap(Map<String, dynamic> map) => HomePortalData(
@@ -254,6 +332,19 @@ class HomePortalData {
     whatsappTitle: map['whatsappTitle'] ?? 'Need Guidance on Mandir Sizing or Sacred Articles?',
     whatsappSubtitle: map['whatsappSubtitle'] ?? '',
     whatsappBtnText: map['whatsappBtnText'] ?? 'CONNECT ON WHATSAPP',
+    heroHeadingHi: map['heroHeading_hi'] ?? '', heroHeadingGu: map['heroHeading_gu'] ?? '',
+    heroSubtitleHi: map['heroSubtitle_hi'] ?? '', heroSubtitleGu: map['heroSubtitle_gu'] ?? '',
+    heroCta1TextHi: map['heroCta1Text_hi'] ?? '', heroCta1TextGu: map['heroCta1Text_gu'] ?? '',
+    heroCta2TextHi: map['heroCta2Text_hi'] ?? '', heroCta2TextGu: map['heroCta2Text_gu'] ?? '',
+    heroCardTitleHi: map['heroCardTitle_hi'] ?? '', heroCardTitleGu: map['heroCardTitle_gu'] ?? '',
+    heroCardSubtitleHi: map['heroCardSubtitle_hi'] ?? '', heroCardSubtitleGu: map['heroCardSubtitle_gu'] ?? '',
+    collectionsHeadingHi: map['collectionsHeading_hi'] ?? '', collectionsHeadingGu: map['collectionsHeading_gu'] ?? '',
+    featuredHeadingHi: map['featuredHeading_hi'] ?? '', featuredHeadingGu: map['featuredHeading_gu'] ?? '',
+    testimonialsHeadingHi: map['testimonialsHeading_hi'] ?? '', testimonialsHeadingGu: map['testimonialsHeading_gu'] ?? '',
+    wisdomHeadingHi: map['wisdomHeading_hi'] ?? '', wisdomHeadingGu: map['wisdomHeading_gu'] ?? '',
+    whatsappTitleHi: map['whatsappTitle_hi'] ?? '', whatsappTitleGu: map['whatsappTitle_gu'] ?? '',
+    whatsappSubtitleHi: map['whatsappSubtitle_hi'] ?? '', whatsappSubtitleGu: map['whatsappSubtitle_gu'] ?? '',
+    whatsappBtnTextHi: map['whatsappBtnText_hi'] ?? '', whatsappBtnTextGu: map['whatsappBtnText_gu'] ?? '',
   );
 }
 
@@ -272,6 +363,8 @@ class HeroSlide {
   String headingHi; String headingGu;
   String subtitleHi; String subtitleGu;
   String descriptionHi; String descriptionGu;
+  String primaryCtaTextHi; String primaryCtaTextGu;
+  String secondaryCtaTextHi; String secondaryCtaTextGu;
 
   HeroSlide({
     this.image = '',
@@ -287,12 +380,16 @@ class HeroSlide {
     this.headingHi = '', this.headingGu = '',
     this.subtitleHi = '', this.subtitleGu = '',
     this.descriptionHi = '', this.descriptionGu = '',
+    this.primaryCtaTextHi = '', this.primaryCtaTextGu = '',
+    this.secondaryCtaTextHi = '', this.secondaryCtaTextGu = '',
   });
 
   String localizedBadge(String lang) => lang == 'hi' && badgeHi.isNotEmpty ? badgeHi : lang == 'gu' && badgeGu.isNotEmpty ? badgeGu : badge;
   String localizedHeading(String lang) => lang == 'hi' && headingHi.isNotEmpty ? headingHi : lang == 'gu' && headingGu.isNotEmpty ? headingGu : heading;
   String localizedSubtitle(String lang) => lang == 'hi' && subtitleHi.isNotEmpty ? subtitleHi : lang == 'gu' && subtitleGu.isNotEmpty ? subtitleGu : subtitle;
   String localizedDescription(String lang) => lang == 'hi' && descriptionHi.isNotEmpty ? descriptionHi : lang == 'gu' && descriptionGu.isNotEmpty ? descriptionGu : description;
+  String localizedPrimaryCtaText(String lang) => lang == 'hi' && primaryCtaTextHi.isNotEmpty ? primaryCtaTextHi : lang == 'gu' && primaryCtaTextGu.isNotEmpty ? primaryCtaTextGu : primaryCtaText;
+  String localizedSecondaryCtaText(String lang) => lang == 'hi' && secondaryCtaTextHi.isNotEmpty ? secondaryCtaTextHi : lang == 'gu' && secondaryCtaTextGu.isNotEmpty ? secondaryCtaTextGu : secondaryCtaText;
 
   Map<String, dynamic> toMap() => {
     'image': image, 'badge': badge, 'heading': heading, 'subtitle': subtitle,
@@ -302,6 +399,8 @@ class HeroSlide {
     'heading_hi': headingHi, 'heading_gu': headingGu,
     'subtitle_hi': subtitleHi, 'subtitle_gu': subtitleGu,
     'description_hi': descriptionHi, 'description_gu': descriptionGu,
+    'primaryCtaText_hi': primaryCtaTextHi, 'primaryCtaText_gu': primaryCtaTextGu,
+    'secondaryCtaText_hi': secondaryCtaTextHi, 'secondaryCtaText_gu': secondaryCtaTextGu,
   };
 
   factory HeroSlide.fromMap(Map<String, dynamic> map) => HeroSlide(
@@ -318,6 +417,8 @@ class HeroSlide {
     headingHi: map['heading_hi'] ?? '', headingGu: map['heading_gu'] ?? '',
     subtitleHi: map['subtitle_hi'] ?? '', subtitleGu: map['subtitle_gu'] ?? '',
     descriptionHi: map['description_hi'] ?? '', descriptionGu: map['description_gu'] ?? '',
+    primaryCtaTextHi: map['primaryCtaText_hi'] ?? '', primaryCtaTextGu: map['primaryCtaText_gu'] ?? '',
+    secondaryCtaTextHi: map['secondaryCtaText_hi'] ?? '', secondaryCtaTextGu: map['secondaryCtaText_gu'] ?? '',
   );
 }
 
@@ -405,18 +506,30 @@ class NewsItem {
   // Translations
   String titleHi; String titleGu;
   String categoryHi; String categoryGu;
+  String dateHi; String dateGu;
 
   NewsItem({
-    this.title = '', this.category = '', this.date = '', this.image = '', this.url = '',
-    this.titleHi = '', this.titleGu = '', this.categoryHi = '', this.categoryGu = '',
+    this.title = '',
+    this.category = '',
+    this.date = '',
+    this.image = '',
+    this.url = '',
+    this.titleHi = '',
+    this.titleGu = '',
+    this.categoryHi = '',
+    this.categoryGu = '',
+    this.dateHi = '',
+    this.dateGu = '',
   });
 
   String localizedTitle(String lang) => lang == 'hi' && titleHi.isNotEmpty ? titleHi : lang == 'gu' && titleGu.isNotEmpty ? titleGu : title;
   String localizedCategory(String lang) => lang == 'hi' && categoryHi.isNotEmpty ? categoryHi : lang == 'gu' && categoryGu.isNotEmpty ? categoryGu : category;
+  String localizedDate(String lang) => lang == 'hi' && dateHi.isNotEmpty ? dateHi : lang == 'gu' && dateGu.isNotEmpty ? dateGu : date;
 
   Map<String, dynamic> toMap() => {
     'title': title, 'category': category, 'date': date, 'image': image, 'url': url,
     'title_hi': titleHi, 'title_gu': titleGu, 'category_hi': categoryHi, 'category_gu': categoryGu,
+    'date_hi': dateHi, 'date_gu': dateGu,
   };
 
   factory NewsItem.fromMap(Map<String, dynamic> map) => NewsItem(
@@ -427,6 +540,7 @@ class NewsItem {
     url: map['url'] ?? '',
     titleHi: map['title_hi'] ?? '', titleGu: map['title_gu'] ?? '',
     categoryHi: map['category_hi'] ?? '', categoryGu: map['category_gu'] ?? '',
+    dateHi: map['date_hi'] ?? '', dateGu: map['date_gu'] ?? '',
   );
 }
 
@@ -438,6 +552,17 @@ class HomepageData {
   TeachingsPageData teachingsPage;
   HomePortalData homePortal;
 
+  // Visibility Toggles
+  bool showHeroSlider;
+  bool showFeaturedQuote;
+  bool showAboutPreview;
+  bool showUpcomingKathas;
+  bool showLatestVideos;
+  bool showPhotoGallery;
+  bool showDailySuvichar;
+  bool showRamKathaSection;
+  bool showNewsSection;
+
   HomepageData({
     FeaturedQuote? featuredQuote,
     List<TeachingCard>? teachings,
@@ -445,6 +570,15 @@ class HomepageData {
     List<NewsItem>? news,
     TeachingsPageData? teachingsPage,
     HomePortalData? homePortal,
+    this.showHeroSlider = true,
+    this.showFeaturedQuote = true,
+    this.showAboutPreview = true,
+    this.showUpcomingKathas = true,
+    this.showLatestVideos = true,
+    this.showPhotoGallery = true,
+    this.showDailySuvichar = true,
+    this.showRamKathaSection = true,
+    this.showNewsSection = true,
   }) : featuredQuote = featuredQuote ?? FeaturedQuote(),
        teachings = teachings ?? [],
        testimonials = testimonials ?? [],
@@ -459,6 +593,15 @@ class HomepageData {
     'news': news.map((e) => e.toMap()).toList(),
     'teachingsPage': teachingsPage.toMap(),
     'homePortal': homePortal.toMap(),
+    'showHeroSlider': showHeroSlider,
+    'showFeaturedQuote': showFeaturedQuote,
+    'showAboutPreview': showAboutPreview,
+    'showUpcomingKathas': showUpcomingKathas,
+    'showLatestVideos': showLatestVideos,
+    'showPhotoGallery': showPhotoGallery,
+    'showDailySuvichar': showDailySuvichar,
+    'showRamKathaSection': showRamKathaSection,
+    'showNewsSection': showNewsSection,
   };
 
   factory HomepageData.fromMap(Map<String, dynamic> map) => HomepageData(
@@ -468,6 +611,15 @@ class HomepageData {
     news: (map['news'] as List? ?? []).map((e) => NewsItem.fromMap(e)).toList(),
     teachingsPage: TeachingsPageData.fromMap(map['teachingsPage'] ?? {}),
     homePortal: HomePortalData.fromMap(map['homePortal'] ?? {}),
+    showHeroSlider: map['showHeroSlider'] ?? true,
+    showFeaturedQuote: map['showFeaturedQuote'] ?? true,
+    showAboutPreview: map['showAboutPreview'] ?? true,
+    showUpcomingKathas: map['showUpcomingKathas'] ?? true,
+    showLatestVideos: map['showLatestVideos'] ?? true,
+    showPhotoGallery: map['showPhotoGallery'] ?? true,
+    showDailySuvichar: map['showDailySuvichar'] ?? true,
+    showRamKathaSection: map['showRamKathaSection'] ?? true,
+    showNewsSection: map['showNewsSection'] ?? true,
   );
 }
 
@@ -621,13 +773,22 @@ class AboutSection {
 class DailySuvichar {
   String imageUrl;
   String date;
+  // Translations
+  String dateHi; String dateGu;
 
-  DailySuvichar({this.imageUrl = '', this.date = ''});
+  DailySuvichar({this.imageUrl = '', this.date = '', this.dateHi = '', this.dateGu = ''});
 
-  Map<String, dynamic> toMap() => {'imageUrl': imageUrl, 'date': date};
+  String localizedDate(String lang) => lang == 'hi' && dateHi.isNotEmpty ? dateHi : lang == 'gu' && dateGu.isNotEmpty ? dateGu : date;
+
+  Map<String, dynamic> toMap() => {'imageUrl': imageUrl, 'date': date, 'date_hi': dateHi, 'date_gu': dateGu};
 
   factory DailySuvichar.fromMap(Map<String, dynamic> map) =>
-      DailySuvichar(imageUrl: map['imageUrl'] ?? '', date: map['date'] ?? '');
+      DailySuvichar(
+        imageUrl: map['imageUrl'] ?? '', 
+        date: map['date'] ?? '',
+        dateHi: map['date_hi'] ?? '',
+        dateGu: map['date_gu'] ?? '',
+      );
 }
 
 class VideoItem {
@@ -699,6 +860,49 @@ class RamKathaSection {
   );
 }
 
+class FooterLink {
+  String label;
+  String route;
+  // Translations
+  String labelHi; String labelGu;
+
+  FooterLink({this.label = '', this.route = '/', this.labelHi = '', this.labelGu = ''});
+
+  String localizedLabel(String lang) => lang == 'hi' && labelHi.isNotEmpty ? labelHi : lang == 'gu' && labelGu.isNotEmpty ? labelGu : label;
+
+  Map<String, dynamic> toMap() => {'label': label, 'route': route, 'label_hi': labelHi, 'label_gu': labelGu};
+  factory FooterLink.fromMap(Map<String, dynamic> map) => FooterLink(
+    label: map['label'] ?? '',
+    route: map['route'] ?? '/',
+    labelHi: map['label_hi'] ?? '',
+    labelGu: map['label_gu'] ?? '',
+  );
+}
+
+class FooterLinkSection {
+  String title;
+  List<FooterLink> links;
+  // Translations
+  String titleHi; String titleGu;
+
+  FooterLinkSection({this.title = '', List<FooterLink>? links, this.titleHi = '', this.titleGu = ''}) : links = links ?? [];
+
+  String localizedTitle(String lang) => lang == 'hi' && titleHi.isNotEmpty ? titleHi : lang == 'gu' && titleGu.isNotEmpty ? titleGu : title;
+
+  Map<String, dynamic> toMap() => {
+    'title': title,
+    'links': links.map((e) => e.toMap()).toList(),
+    'title_hi': titleHi,
+    'title_gu': titleGu,
+  };
+  factory FooterLinkSection.fromMap(Map<String, dynamic> map) => FooterLinkSection(
+    title: map['title'] ?? '',
+    links: (map['links'] as List? ?? []).map((e) => FooterLink.fromMap(e)).toList(),
+    titleHi: map['title_hi'] ?? '',
+    titleGu: map['title_gu'] ?? '',
+  );
+}
+
 class FooterData {
   String description;
   String copyright;
@@ -706,8 +910,21 @@ class FooterData {
   String instagramUrl;
   String facebookUrl;
   String whatsappUrl;
+  
+  String privacyLabel;
+  String privacyUrl;
+  String termsLabel;
+  String termsUrl;
+  String cookieLabel;
+  String cookieUrl;
+
+  List<FooterLinkSection> linkSections;
   // Translations
   String descriptionHi; String descriptionGu;
+  String copyrightHi; String copyrightGu;
+  String privacyLabelHi; String privacyLabelGu;
+  String termsLabelHi; String termsLabelGu;
+  String cookieLabelHi; String cookieLabelGu;
 
   FooterData({
     this.description = '', 
@@ -716,11 +933,30 @@ class FooterData {
     this.instagramUrl = '',
     this.facebookUrl = '',
     this.whatsappUrl = '',
+    this.privacyLabel = 'Privacy Policy',
+    this.privacyUrl = '',
+    this.termsLabel = 'Terms of Service',
+    this.termsUrl = '',
+    this.cookieLabel = 'Cookie Policy',
+    this.cookieUrl = '',
+    List<FooterLinkSection>? linkSections,
     this.descriptionHi = '',
     this.descriptionGu = '',
-  });
+    this.copyrightHi = '',
+    this.copyrightGu = '',
+    this.privacyLabelHi = '',
+    this.privacyLabelGu = '',
+    this.termsLabelHi = '',
+    this.termsLabelGu = '',
+    this.cookieLabelHi = '',
+    this.cookieLabelGu = '',
+  }) : linkSections = linkSections ?? [];
 
   String localizedDescription(String lang) => lang == 'hi' && descriptionHi.isNotEmpty ? descriptionHi : lang == 'gu' && descriptionGu.isNotEmpty ? descriptionGu : description;
+  String localizedCopyright(String lang) => lang == 'hi' && copyrightHi.isNotEmpty ? copyrightHi : lang == 'gu' && copyrightGu.isNotEmpty ? copyrightGu : copyright;
+  String localizedPrivacyLabel(String lang) => lang == 'hi' && privacyLabelHi.isNotEmpty ? privacyLabelHi : lang == 'gu' && privacyLabelGu.isNotEmpty ? privacyLabelGu : privacyLabel;
+  String localizedTermsLabel(String lang) => lang == 'hi' && termsLabelHi.isNotEmpty ? termsLabelHi : lang == 'gu' && termsLabelGu.isNotEmpty ? termsLabelGu : termsLabel;
+  String localizedCookieLabel(String lang) => lang == 'hi' && cookieLabelHi.isNotEmpty ? cookieLabelHi : lang == 'gu' && cookieLabelGu.isNotEmpty ? cookieLabelGu : cookieLabel;
 
   Map<String, dynamic> toMap() => {
     'description': description,
@@ -729,8 +965,23 @@ class FooterData {
     'instagramUrl': instagramUrl,
     'facebookUrl': facebookUrl,
     'whatsappUrl': whatsappUrl,
+    'privacyLabel': privacyLabel,
+    'privacyUrl': privacyUrl,
+    'termsLabel': termsLabel,
+    'termsUrl': termsUrl,
+    'cookieLabel': cookieLabel,
+    'cookieUrl': cookieUrl,
+    'linkSections': linkSections.map((e) => e.toMap()).toList(),
     'description_hi': descriptionHi,
     'description_gu': descriptionGu,
+    'copyright_hi': copyrightHi,
+    'copyright_gu': copyrightGu,
+    'privacyLabel_hi': privacyLabelHi,
+    'privacyLabel_gu': privacyLabelGu,
+    'termsLabel_hi': termsLabelHi,
+    'termsLabel_gu': termsLabelGu,
+    'cookieLabel_hi': cookieLabelHi,
+    'cookieLabel_gu': cookieLabelGu,
   };
 
   factory FooterData.fromMap(Map<String, dynamic> map) => FooterData(
@@ -740,8 +991,23 @@ class FooterData {
     instagramUrl: map['instagramUrl'] ?? '',
     facebookUrl: map['facebookUrl'] ?? '',
     whatsappUrl: map['whatsappUrl'] ?? '',
+    privacyLabel: map['privacyLabel'] ?? 'Privacy Policy',
+    privacyUrl: map['privacyUrl'] ?? '',
+    termsLabel: map['termsLabel'] ?? 'Terms of Service',
+    termsUrl: map['termsUrl'] ?? '',
+    cookieLabel: map['cookieLabel'] ?? 'Cookie Policy',
+    cookieUrl: map['cookieUrl'] ?? '',
+    linkSections: (map['linkSections'] as List? ?? []).map((e) => FooterLinkSection.fromMap(e)).toList(),
     descriptionHi: map['description_hi'] ?? '',
     descriptionGu: map['description_gu'] ?? '',
+    copyrightHi: map['copyright_hi'] ?? '',
+    copyrightGu: map['copyright_gu'] ?? '',
+    privacyLabelHi: map['privacyLabel_hi'] ?? '',
+    privacyLabelGu: map['privacyLabel_gu'] ?? '',
+    termsLabelHi: map['termsLabel_hi'] ?? '',
+    termsLabelGu: map['termsLabel_gu'] ?? '',
+    cookieLabelHi: map['cookieLabel_hi'] ?? '',
+    cookieLabelGu: map['cookieLabel_gu'] ?? '',
   );
 }
 
@@ -760,6 +1026,10 @@ class KathaRecord {
   String topicHi; String topicGu;
   String locationHi; String locationGu;
   String descriptionHi; String descriptionGu;
+  String yearHi; String yearGu;
+  String datesHi; String datesGu;
+  String countryHi; String countryGu;
+  String languageHi; String languageGu;
 
   KathaRecord({
     this.kathaNumber = '',
@@ -775,11 +1045,19 @@ class KathaRecord {
     this.topicHi = '', this.topicGu = '',
     this.locationHi = '', this.locationGu = '',
     this.descriptionHi = '', this.descriptionGu = '',
+    this.yearHi = '', this.yearGu = '',
+    this.datesHi = '', this.datesGu = '',
+    this.countryHi = '', this.countryGu = '',
+    this.languageHi = '', this.languageGu = '',
   });
 
   String localizedTopic(String lang) => lang == 'hi' && topicHi.isNotEmpty ? topicHi : lang == 'gu' && topicGu.isNotEmpty ? topicGu : topic;
   String localizedLocation(String lang) => lang == 'hi' && locationHi.isNotEmpty ? locationHi : lang == 'gu' && locationGu.isNotEmpty ? locationGu : location;
   String localizedDescription(String lang) => lang == 'hi' && descriptionHi.isNotEmpty ? descriptionHi : lang == 'gu' && descriptionGu.isNotEmpty ? descriptionGu : description;
+  String localizedYear(String lang) => lang == 'hi' && yearHi.isNotEmpty ? yearHi : lang == 'gu' && yearGu.isNotEmpty ? yearGu : year;
+  String localizedDates(String lang) => lang == 'hi' && datesHi.isNotEmpty ? datesHi : lang == 'gu' && datesGu.isNotEmpty ? datesGu : dates;
+  String localizedCountry(String lang) => lang == 'hi' && countryHi.isNotEmpty ? countryHi : lang == 'gu' && countryGu.isNotEmpty ? countryGu : country;
+  String localizedLanguage(String lang) => lang == 'hi' && languageHi.isNotEmpty ? languageHi : lang == 'gu' && languageGu.isNotEmpty ? languageGu : language;
 
   Map<String, dynamic> toMap() => {
     'kathaNumber': kathaNumber,
@@ -795,6 +1073,10 @@ class KathaRecord {
     'topic_hi': topicHi, 'topic_gu': topicGu,
     'location_hi': locationHi, 'location_gu': locationGu,
     'description_hi': descriptionHi, 'description_gu': descriptionGu,
+    'year_hi': yearHi, 'year_gu': yearGu,
+    'dates_hi': datesHi, 'dates_gu': datesGu,
+    'country_hi': countryHi, 'country_gu': countryGu,
+    'language_hi': languageHi, 'language_gu': languageGu,
   };
 
   factory KathaRecord.fromMap(Map<String, dynamic> map) => KathaRecord(
@@ -811,6 +1093,10 @@ class KathaRecord {
     topicHi: map['topic_hi'] ?? '', topicGu: map['topic_gu'] ?? '',
     locationHi: map['location_hi'] ?? '', locationGu: map['location_gu'] ?? '',
     descriptionHi: map['description_hi'] ?? '', descriptionGu: map['description_gu'] ?? '',
+    yearHi: map['year_hi'] ?? '', yearGu: map['year_gu'] ?? '',
+    datesHi: map['dates_hi'] ?? '', datesGu: map['dates_gu'] ?? '',
+    countryHi: map['country_hi'] ?? '', countryGu: map['country_gu'] ?? '',
+    languageHi: map['language_hi'] ?? '', languageGu: map['language_gu'] ?? '',
   );
 }
 

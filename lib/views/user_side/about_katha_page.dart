@@ -45,9 +45,12 @@ class AboutKathaPage extends StatelessWidget {
                     children: [
                       Container(width: 40, height: 1.5, color: accentBrown),
                       const SizedBox(width: 15),
-                      Text(
-                        data.localizedHeroBadge(lang).toUpperCase(),
-                        style: const TextStyle(color: accentBrown, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1.5),
+                      Expanded(
+                        child: Text(
+                          data.localizedHeroBadge(lang).toUpperCase(),
+                          style: const TextStyle(color: accentBrown, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1.5),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),

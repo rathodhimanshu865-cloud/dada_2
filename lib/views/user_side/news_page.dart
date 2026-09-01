@@ -189,7 +189,7 @@ class NewsPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              item.date,
+              item.localizedDate(lang),
               style: AppTypography.bodyStyle(
                 context,
                 color: const Color(0xFF6D6D6D),

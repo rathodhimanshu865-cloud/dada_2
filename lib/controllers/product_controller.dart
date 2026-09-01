@@ -8,6 +8,7 @@ import '../models/product_model.dart';
 import '../models/category_model.dart';
 import '../models/store_config_model.dart';
 import '../repositories/product_repository.dart';
+import '../services/translation_service.dart';
 import '../utils/app_logger.dart';
 
 class ProductController extends ChangeNotifier {
@@ -500,6 +501,52 @@ class ProductController extends ChangeNotifier {
 
   Future<bool> hasProductsInCategory(String categoryId) async {
     return await _repository.hasProductsInCategory(categoryId);
+  }
+
+  Future<void> translateAllStore() async {
+    try {
+      // 1. Translate all categories
+      final categories = await _repository.getCategories().first;
+      for (var cat in categories) {
+        final results = await Future.wait([
+          TranslationService.translateToAll(cat.name),
+          TranslationService.translateToAll(cat.description),
+        ]);
+        final updated = cat.copyWith(
+          nameHi: results[0]['hi']!, nameGu: results[0]['gu']!,
+          descriptionHi: results[1]['hi']!, descriptionGu: results[1]['gu']!,
+        );
+        await updateCategory(updated);
+      }
+
+      // 2. Translate all products
+      final products = await _repository.getAllProducts(limit: 500);
+      for (var prod in products) {
+        final results = await Future.wait([
+          TranslationService.translateToAll(prod.name),
+          TranslationService.translateToAll(prod.description),
+          TranslationService.translateToAll(prod.shortSummary),
+          TranslationService.translateBatch(prod.highlights, 'hi'),
+          TranslationService.translateBatch(prod.highlights, 'gu'),
+        ]);
+        
+        final n = results[0] as Map<String, String>;
+        final d = results[1] as Map<String, String>;
+        final s = results[2] as Map<String, String>;
+        final hHi = results[3] as List<String>;
+        final hGu = results[4] as List<String>;
+
+        final updated = prod.copyWith(
+          nameHi: n['hi']!, nameGu: n['gu']!,
+          descriptionHi: d['hi']!, descriptionGu: d['gu']!,
+          shortSummaryHi: s['hi']!, shortSummaryGu: s['gu']!,
+          highlightsHi: hHi, highlightsGu: hGu,
+        );
+        await updateProduct(updated);
+      }
+    } catch (e) {
+      AppLogger.error("Store translation error", e);
+    }
   }
 
   Future<void> performMigration() async {

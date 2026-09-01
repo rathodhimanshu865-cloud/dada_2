@@ -45,9 +45,12 @@ class AboutShivPage extends StatelessWidget {
                     children: [
                       Container(width: 40, height: 1.5, color: accentBrown),
                       const SizedBox(width: 15),
-                      Text(
-                        data.localizedHeroBadge(lang).toUpperCase(),
-                        style: const TextStyle(color: accentBrown, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1.5),
+                      Expanded(
+                        child: Text(
+                          data.localizedHeroBadge(lang).toUpperCase(),
+                          style: const TextStyle(color: accentBrown, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1.5),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
@@ -129,7 +132,15 @@ class AboutShivPage extends StatelessWidget {
                   children: [
                     const Icon(Icons.format_quote, color: accentBrown, size: 60),
                     const SizedBox(height: 30),
-                    Text(data.localizedQuoteText(lang), style: TextStyle(color: Colors.white, fontSize: isMobile ? 18 : 26, fontFamily: 'serif', height: 1.5)),
+                    Text(
+                      data.localizedQuoteText(lang),
+                      style: AppTypography.headingStyle(
+                        context,
+                        fontSize: isMobile ? 18 : 26,
+                        color: Colors.white,
+                        height: 1.5,
+                      ),
+                    ),
                     const SizedBox(height: 40),
                     Text('- ${data.localizedQuoteAuthor(lang)}', style: TextStyle(color: accentBrown, fontSize: isMobile ? 16 : 20, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 15),
@@ -192,7 +203,16 @@ class AboutShivPage extends StatelessWidget {
                   children: [
                     const Icon(Icons.temple_hindu_outlined, color: Colors.white54, size: 50),
                     const SizedBox(height: 20),
-                    Text(data.localizedCtaTitle(lang), textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+                    Text(
+                      data.localizedCtaTitle(lang),
+                      textAlign: TextAlign.center,
+                      style: AppTypography.headingStyle(
+                        context,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     Text(data.localizedCtaSubtitle(lang), textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 14)),
                     const SizedBox(height: 20),
@@ -218,7 +238,15 @@ class AboutShivPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(data.localizedCtaTitle(lang), style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, fontFamily: 'serif')),
+                          Text(
+                            data.localizedCtaTitle(lang),
+                            style: AppTypography.headingStyle(
+                              context,
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                           const SizedBox(height: 12),
                           Text(data.localizedCtaSubtitle(lang), style: const TextStyle(color: Colors.white70, fontSize: 16)),
                         ],

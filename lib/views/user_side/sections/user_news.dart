@@ -141,6 +141,7 @@ class UserNews extends StatelessWidget {
   }
 
   Widget _buildNewsCard(BuildContext context, NewsItem item) {
+    final lang = Localizations.localeOf(context).languageCode;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -176,7 +177,7 @@ class UserNews extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                item.category.toUpperCase(),
+                item.localizedCategory(lang).toUpperCase(),
                 style: AppTypography.bodyStyle(
                   context,
                   color: const Color(0xFFC89A5B),
@@ -187,7 +188,7 @@ class UserNews extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                item.title,
+                item.localizedTitle(lang),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: AppTypography.headingStyle(
@@ -199,7 +200,7 @@ class UserNews extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                item.date,
+                item.localizedDate(lang),
                 style: AppTypography.bodyStyle(
                   context,
                   color: const Color(0xFF6D6D6D),

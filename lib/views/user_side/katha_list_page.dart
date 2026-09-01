@@ -51,7 +51,7 @@ class _KathaListPageState extends State<KathaListPage> {
       return katha.localizedTopic(lang).toLowerCase().contains(query) ||
              katha.localizedLocation(lang).toLowerCase().contains(query) ||
              katha.kathaNumber.toLowerCase().contains(query) ||
-             katha.year.contains(query);
+             katha.localizedYear(lang).contains(query);
     }).toList();
 
     filteredKathas.sort((a, b) {
@@ -289,8 +289,8 @@ class _KathaListPageState extends State<KathaListPage> {
                     child: Row(
                       children: [
                         Expanded(flex: 1, child: Center(child: _circleId(katha.kathaNumber))),
-                        Expanded(flex: 1, child: Text(katha.year, style: AppTypography.bodyStyle(context, fontSize: 16, fontWeight: FontWeight.w600))),
-                        Expanded(flex: 2, child: Text(katha.dates, style: AppTypography.bodyStyle(context, fontSize: 15, color: accentBrown, fontWeight: FontWeight.w600))),
+                        Expanded(flex: 1, child: Text(katha.localizedYear(lang), style: AppTypography.bodyStyle(context, fontSize: 16, fontWeight: FontWeight.w600))),
+                        Expanded(flex: 2, child: Text(katha.localizedDates(lang), style: AppTypography.bodyStyle(context, fontSize: 15, color: accentBrown, fontWeight: FontWeight.w600))),
                         Expanded(flex: 4, child: Text(katha.localizedTopic(lang).toUpperCase(), style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: 0.5, color: const Color(0xFF333333)))),
                         Expanded(flex: 3, child: Row(children: [Icon(Icons.location_on, size: 18, color: primaryTeal.withValues(alpha: 0.5)), const SizedBox(width: 8), Flexible(child: Text(katha.localizedLocation(lang), style: AppTypography.bodyStyle(context, fontSize: 16, color: Colors.black87)))])),
                         Expanded(flex: 2, child: Row(children: [Icon(Icons.public, size: 18, color: Colors.green.withValues(alpha: 0.5)), const SizedBox(width: 8), Text(katha.country, style: AppTypography.bodyStyle(context, fontSize: 16))])),
@@ -478,7 +478,7 @@ class _KathaListPageState extends State<KathaListPage> {
                       Icon(Icons.calendar_today_outlined, size: 14, color: accentBrown),
                       const SizedBox(width: 6),
                       Text(
-                        '${katha.dates}  ·  ${katha.year}',
+                        '${katha.localizedDates(lang)}  ·  ${katha.localizedYear(lang)}',
                         style: AppTypography.bodyStyle(
                           context,
                           fontSize: 13,
@@ -631,7 +631,7 @@ class _KathaListPageState extends State<KathaListPage> {
                   Container(width: 50, height: 2, color: accentBrown),
                 ]),
                 const SizedBox(height: 10),
-                Text('${katha.dates} | ${katha.year}', style: AppTypography.bodyStyle(context, color: accentBrown, fontSize: 18, fontWeight: FontWeight.w600)),
+                Text('${katha.localizedDates(lang)} | ${katha.localizedYear(lang)}', style: AppTypography.bodyStyle(context, color: accentBrown, fontSize: 18, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 40),
                 Text(
                   katha.localizedDescription(lang).isNotEmpty ? katha.localizedDescription(lang) : AppLocalizations.of(context)!.kathaDetailsFallback,

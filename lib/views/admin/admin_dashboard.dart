@@ -57,7 +57,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
         actions: [
           TextButton.icon(
-            onPressed: () => controller.translateAndPublish(),
+            onPressed: () async {
+              final home = Provider.of<HomePageController>(context, listen: false);
+              final profile = Provider.of<ProfileController>(context, listen: false);
+              final products = Provider.of<ProductController>(context, listen: false);
+              
+              await home.translateAndPublish();
+              await profile.translateAll();
+              await products.translateAllStore();
+              
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All content translated and published!'), backgroundColor: Colors.green));
+              }
+            },
             icon: const Icon(Icons.translate, size: 16, color: Colors.amber),
             label: const Text('TRANSLATE', style: TextStyle(color: Colors.amber, fontSize: 11, fontWeight: FontWeight.bold)),
           ),
@@ -96,24 +108,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _buildSidebar(bool isMobile) {
     final contentMenus = [
-      {'title': 'General Settings', 'icon': Icons.settings},
-      {'title': 'Hero Slider', 'icon': Icons.burst_mode},
-      {'title': 'Biography Editor', 'icon': Icons.person},
-      {'title': 'Katha About Pages', 'icon': Icons.menu_book},
-      {'title': 'Upcoming Kathas', 'icon': Icons.event},
-      {'title': 'Home: About Section', 'icon': Icons.home},
-      {'title': 'Home: Featured Quote', 'icon': Icons.format_quote},
-      {'title': 'Home: Daily Suvichar', 'icon': Icons.today},
-      {'title': 'Home: Ram Katha Section', 'icon': Icons.auto_stories},
-      {'title': 'News & Updates', 'icon': Icons.newspaper},
+      {'title': 'Header, Footer, & General Settings', 'icon': Icons.settings},
+      {'title': 'Home Page', 'icon': Icons.home},
+      {'title': 'About Dada Page', 'icon': Icons.person},
+      {'title': 'Katha Pages', 'icon': Icons.menu_book},
       {'title': 'Full Katha List', 'icon': Icons.list_alt},
+      {'title': 'Upcoming Kathas', 'icon': Icons.event},
+      {'title': 'Stotra Bhajan', 'icon': Icons.music_note},
       {'title': 'Photo Gallery', 'icon': Icons.photo_library},
       {'title': 'Video Gallery', 'icon': Icons.video_library},
-      {'title': 'Stotra / Bhajan', 'icon': Icons.music_note},
-      {'title': 'Contact / Inquiries', 'icon': Icons.contact_mail},
-      {'title': 'Footer Settings', 'icon': Icons.south},
-      {'title': 'Reviews Management', 'icon': Icons.star_rate_outlined},
-      {'title': 'Product Management', 'icon': Icons.shopping_bag_outlined},
+      {'title': 'News Gallery', 'icon': Icons.newspaper},
+      {'title': 'Contact & Enquiries', 'icon': Icons.contact_mail},
+      {'title': 'Product Management', 'icon': Icons.shopping_bag},
     ];
 
     return Container(
@@ -165,12 +171,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Widget _buildMainContent(HomePageController controller) {
-    if (currentMenuIndex == 17) {
-      return const ProductManagementView();
+    switch (currentMenuIndex) {
+      case 0: return CMSViewsHelper.buildCMSView('settings', controller, context, _fieldLoading, setState);
+      case 1: return CMSViewsHelper.buildCMSView('home', controller, context, _fieldLoading, setState);
+      case 2: return CMSViewsHelper.buildCMSView('about_page', controller, context, _fieldLoading, setState);
+      case 3: return CMSViewsHelper.buildCMSView('katha_pages', controller, context, _fieldLoading, setState);
+      case 4: return CMSViewsHelper.buildCMSView('katha_list', controller, context, _fieldLoading, setState);
+      case 5: return CMSViewsHelper.buildCMSView('upcoming', controller, context, _fieldLoading, setState);
+      case 6: return CMSViewsHelper.buildCMSView('stotra', controller, context, _fieldLoading, setState);
+      case 7: return CMSViewsHelper.buildCMSView('photo', controller, context, _fieldLoading, setState);
+      case 8: return CMSViewsHelper.buildCMSView('video', controller, context, _fieldLoading, setState);
+      case 9: return CMSViewsHelper.buildCMSView('news', controller, context, _fieldLoading, setState);
+      case 10: return CMSViewsHelper.buildCMSView('contact', controller, context, _fieldLoading, setState);
+      case 11: return const ProductManagementView(initialSubMenu: 0);
+      default: return const Center(child: Text('Select a menu'));
     }
-    if (currentMenuIndex >= 0 && currentMenuIndex <= 16) {
-      return CMSViewsHelper.buildCMSView(currentMenuIndex, controller, context, _fieldLoading, setState);
-    }
-    return const Center(child: Text('Select a menu'));
   }
 }

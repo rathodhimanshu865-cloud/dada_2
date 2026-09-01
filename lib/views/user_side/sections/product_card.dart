@@ -157,81 +157,84 @@ class _ProductCardState extends State<ProductCard> {
             // 2. Info Area
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(color: const Color(0xFFC89A5B).withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-                        child: Text(p.categoryId.toUpperCase(), style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 7, fontWeight: FontWeight.w900, letterSpacing: 1)),
-                      ),
-                      Row(
-                        children: [
-                          const Icon(Icons.star, color: Color(0xFFC89A5B), size: 12),
-                          const SizedBox(width: 4),
-                          Text(p.rating.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
-                          Text(' (${p.reviewCount})', style: const TextStyle(color: Colors.grey, fontSize: 10)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    p.name,
-                    style: AppTypography.headingStyle(context, fontWeight: FontWeight.w700, fontSize: 18, color: const Color(0xFF07404C)),
-                    maxLines: 1, overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    p.shortSummary,
-                    style: TextStyle(color: Colors.grey.shade500, fontSize: 11, height: 1.4),
-                    maxLines: 2, overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text('₹${p.price.toInt()}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: Color(0xFF07404C))),
-                          if (p.comparePrice != null && p.comparePrice! > p.price) ...[
-                            const SizedBox(width: 8),
-                            Text('₹${p.comparePrice!.toInt()}', style: const TextStyle(color: Colors.grey, fontSize: 12, decoration: TextDecoration.lineThrough)),
+              child: Builder(builder: (context) {
+                final lang = Localizations.localeOf(context).languageCode;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(color: const Color(0xFFC89A5B).withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
+                          child: Text(p.categoryId.toUpperCase(), style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 7, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.star, color: Color(0xFFC89A5B), size: 12),
+                            const SizedBox(width: 4),
+                            Text(p.rating.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                            Text(' (${p.reviewCount})', style: const TextStyle(color: Colors.grey, fontSize: 10)),
                           ],
-                        ],
-                      ),
-                      InkWell(
-                        onTap: !isOutOfStock ? () {
-                          if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
-                            cart.addToCart(p, 1);
-                            Scaffold.of(context).openEndDrawer();
-                          } else {
-                            Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
-                          }
-                        } : null,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: !isOutOfStock ? const Color(0xFF07404C) : Colors.grey.shade400,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(!isOutOfStock ? Icons.shopping_bag_outlined : Icons.do_not_disturb_on_outlined, size: 14, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      p.localizedName(lang),
+                      style: AppTypography.headingStyle(context, fontWeight: FontWeight.w700, fontSize: 18, color: const Color(0xFF07404C)),
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      p.localizedShortSummary(lang),
+                      style: TextStyle(color: Colors.grey.shade500, fontSize: 11, height: 1.4),
+                      maxLines: 2, overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text('₹${p.price.toInt()}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: Color(0xFF07404C))),
+                            if (p.comparePrice != null && p.comparePrice! > p.price) ...[
                               const SizedBox(width: 8),
-                              Text(!isOutOfStock ? 'Add' : 'Out of Stock', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),
+                              Text('₹${p.comparePrice!.toInt()}', style: const TextStyle(color: Colors.grey, fontSize: 12, decoration: TextDecoration.lineThrough)),
                             ],
+                          ],
+                        ),
+                        InkWell(
+                          onTap: !isOutOfStock ? () {
+                            if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
+                              cart.addToCart(p, 1);
+                              Scaffold.of(context).openEndDrawer();
+                            } else {
+                              Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
+                            }
+                          } : null,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: !isOutOfStock ? const Color(0xFF07404C) : Colors.grey.shade400,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(!isOutOfStock ? Icons.shopping_bag_outlined : Icons.do_not_disturb_on_outlined, size: 14, color: Colors.white),
+                                const SizedBox(width: 8),
+                                Text(!isOutOfStock ? 'Add' : 'Out of Stock', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                      ],
+                    ),
+                  ],
+                );
+              }),
             ),
           ],
         ),

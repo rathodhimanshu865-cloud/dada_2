@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../models/homepage_model.dart';
 
 import '../../../utils/app_typography.dart';
+import '../../../utils/katha_helper.dart';
 import 'katha_calendar_view.dart';
 
 class UserUpcomingKathas extends StatelessWidget {
@@ -163,7 +163,7 @@ class UserUpcomingKathas extends StatelessWidget {
               ],
             ),
             child: InkWell(
-              onTap: () => _showMoreDetails(context, katha, lang),
+              onTap: () => KathaHelper.showMoreDetails(context, katha, lang),
               borderRadius: BorderRadius.circular(12),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -172,7 +172,7 @@ class UserUpcomingKathas extends StatelessWidget {
                   children: [
                     const SizedBox(height: 8),
                     Text(
-                      _formatDateRange(katha, lang).toUpperCase(),
+                      KathaHelper.formatDateRange(katha, lang).toUpperCase(),
                       textAlign: TextAlign.center,
                       style: AppTypography.bodyStyle(
                         context,
@@ -284,147 +284,6 @@ class UserUpcomingKathas extends StatelessWidget {
   }
 
   String _formatDateRange(UpcomingKatha katha, String lang) {
-    if (katha.startDate != null && katha.endDate != null) {
-      final start = DateFormat('dd MMM yyyy').format(katha.startDate!);
-      final end = DateFormat('dd MMM yyyy').format(katha.endDate!);
-      if (start == end) return start;
-      return '$start - $end';
-    }
-    return katha.localizedDateString(lang);
-  }
-
-  void _showMoreDetails(BuildContext context, UpcomingKatha katha, String lang) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        final isMobile = MediaQuery.of(context).size.width < 900;
-        const primaryTeal = Color(0xFF0F4C5C);
-        const accentBrown = Color(0xFFC19A6B);
-
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          insetPadding: EdgeInsets.all(isMobile ? 16 : 40),
-          child: Container(
-            width: isMobile ? double.infinity : 600,
-            padding: EdgeInsets.all(isMobile ? 24 : 50),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${AppLocalizations.of(context)!.kathaPrefix} ${katha.kathaNumber} — ${katha.localizedName(lang)}',
-                          style: AppTypography.headingStyle(
-                            context,
-                            fontSize: isMobile ? 20 : 26,
-                            fontWeight: FontWeight.bold,
-                            color: primaryTeal,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        icon: const Icon(Icons.close, size: 26),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Container(width: 80, height: 3, color: accentBrown),
-                  const SizedBox(height: 30),
-                  _detailRow(context, AppLocalizations.of(context)!.kathaDate, _formatDateRange(katha, lang), isMobile),
-                  _detailRow(context, AppLocalizations.of(context)!.kathaTiming, katha.timing, isMobile),
-                  _detailRow(context, AppLocalizations.of(context)!.kathaLocation, katha.localizedLocation(lang), isMobile),
-                  _detailRow(context, AppLocalizations.of(context)!.kathaHosting, katha.hosting, isMobile),
-                  if (katha.localizedDescription(lang).isNotEmpty) ...[
-                    const SizedBox(height: 20),
-                    Text(
-                      AppLocalizations.of(context)!.moreDetails,
-                      style: AppTypography.bodyStyle(
-                        context,
-                        fontWeight: FontWeight.bold,
-                        fontSize: isMobile ? 14 : 16,
-                        color: primaryTeal.withOpacity(0.8),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      katha.localizedDescription(lang),
-                      style: AppTypography.bodyStyle(
-                        context,
-                        fontSize: isMobile ? 14 : 16,
-                        color: Colors.black87,
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 40),
-                  Center(child: Container(width: 80, height: 1, color: Colors.grey[200])),
-                  const SizedBox(height: 30),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryTeal,
-                        padding: EdgeInsets.symmetric(horizontal: isMobile ? 30 : 50, vertical: isMobile ? 15 : 20),
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context)!.close,
-                        style: AppTypography.bodyStyle(
-                          context,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _detailRow(BuildContext context, String label, String value, bool isMobile) {
-    const primaryTeal = Color(0xFF0F4C5C);
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 8 : 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: isMobile ? 120 : 180,
-            child: Text(
-              label,
-              style: AppTypography.bodyStyle(
-                context,
-                fontWeight: FontWeight.bold,
-                fontSize: isMobile ? 14 : 16,
-                color: primaryTeal.withOpacity(0.8),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value.isNotEmpty ? value : '-',
-              style: AppTypography.bodyStyle(
-                context,
-                fontSize: isMobile ? 14 : 16,
-                color: Colors.black87,
-                height: 1.4,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    return KathaHelper.formatDateRange(katha, lang);
   }
 }

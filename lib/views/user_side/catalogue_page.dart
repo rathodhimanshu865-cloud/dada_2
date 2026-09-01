@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../controllers/language_controller.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../models/product_model.dart';
@@ -80,6 +81,8 @@ class _CataloguePageState extends State<CataloguePage> {
   }
 
   Widget _buildHeroBanner(BuildContext context) {
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
+    final settings = Provider.of<HomePageController>(context).websiteSettings;
     return Container(
       width: double.infinity,
       color: const Color(0xFF07404C),
@@ -99,7 +102,7 @@ class _CataloguePageState extends State<CataloguePage> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Sacred Offerings of Pu. Dada',
+                settings.localizedCatalogueHeading(lang),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.cormorantGaramond(
                   fontSize: 56,
@@ -109,7 +112,7 @@ class _CataloguePageState extends State<CataloguePage> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Explore authentic handcrafted and consecrated items added directly from the ashram.',
+                settings.catalogueSubtitle,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.plusJakartaSans(color: Colors.white.withOpacity(0.5), fontSize: 16, letterSpacing: 0.5),
               ),
@@ -121,6 +124,7 @@ class _CataloguePageState extends State<CataloguePage> {
   }
 
   Widget _buildFilterRow(BuildContext context, ProductController prod, List<ProductModel> displayProducts) {
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
     // 1. Static map of icons for known categories
     final Map<String, IconData> iconMap = {
       'keychain': Icons.vpn_key_outlined,
@@ -133,18 +137,29 @@ class _CataloguePageState extends State<CataloguePage> {
       'other': Icons.more_horiz_outlined,
     };
 
-    // 2. Build the list of categories to display in the exact requested order
+    // 2. Use real categories from database if available
     final List<Map<String, dynamic>> uiCategories = [
       {'name': 'All Products', 'id': 'all', 'icon': null},
-      {'name': 'Acrylic Photo Frame', 'id': 'acrylic_photo_frame', 'icon': iconMap['acrylic_photo_frame']},
-      {'name': 'Footprints / Paduka', 'id': 'footprints_paduka', 'icon': iconMap['footprints_paduka']},
-      {'name': 'Keychain', 'id': 'keychain', 'icon': iconMap['keychain']},
-      {'name': 'Other Products', 'id': 'other', 'icon': iconMap['other']},
-      {'name': 'Pouch / Pocket Pin', 'id': 'pouch_pocket_pin', 'icon': iconMap['pouch_pocket_pin']},
-      {'name': 'Rakshasutra / Sacred Thread', 'id': 'rakshasutra_sacred_thread', 'icon': iconMap['rakshasutra_sacred_thread']},
-      {'name': 'Sticker', 'id': 'sticker', 'icon': iconMap['sticker']},
-      {'name': 'Temple', 'id': 'temple', 'icon': iconMap['temple']},
+      ...prod.categoryObjects.map((c) => {
+        'name': c.localizedName(lang),
+        'id': c.id,
+        'icon': iconMap[c.id.toLowerCase()] ?? Icons.auto_awesome_outlined,
+      }),
     ];
+
+    if (prod.categoryObjects.isEmpty) {
+        // Fallback to static if not loaded yet
+        uiCategories.addAll([
+          {'name': 'Acrylic Photo Frame', 'id': 'acrylic_photo_frame', 'icon': iconMap['acrylic_photo_frame']},
+          {'name': 'Footprints / Paduka', 'id': 'footprints_paduka', 'icon': iconMap['footprints_paduka']},
+          {'name': 'Keychain', 'id': 'keychain', 'icon': iconMap['keychain']},
+          {'name': 'Other Products', 'id': 'other', 'icon': iconMap['other']},
+          {'name': 'Pouch / Pocket Pin', 'id': 'pouch_pocket_pin', 'icon': iconMap['pouch_pocket_pin']},
+          {'name': 'Rakshasutra / Sacred Thread', 'id': 'rakshasutra_sacred_thread', 'icon': iconMap['rakshasutra_sacred_thread']},
+          {'name': 'Sticker', 'id': 'sticker', 'icon': iconMap['sticker']},
+          {'name': 'Temple', 'id': 'temple', 'icon': iconMap['temple']},
+        ]);
+    }
 
     return Container(
       width: double.infinity,

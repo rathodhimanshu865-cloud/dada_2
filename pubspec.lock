@@ -125,10 +125,10 @@ packages:
     dependency: transitive
     description:
       name: chewie
-      sha256: "507f7dbcb2018f45ea6297fbbc0c47a3dc51432779d32495e97a06c4bc9f728c"
+      sha256: c4f98e07e5796cbea032c1574fb0c8a560a93970324009d203735ef5eaa9439e
       url: "https://pub.dev"
     source: hosted
-    version: "1.15.0"
+    version: "1.16.1"
   clock:
     dependency: transitive
     description:
@@ -593,18 +593,18 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_widget_from_html
-      sha256: "4fa9a0d34df0a40ac8dd20765dc83bbd8f36ceecfffa2a72a7ab178548804a04"
+      sha256: "2a83cd1c9ae1985366fa99228cabcb6dd87007710e235585c5d54902b3d69a36"
       url: "https://pub.dev"
     source: hosted
-    version: "0.17.2"
+    version: "0.17.3"
   flutter_widget_from_html_core:
     dependency: transitive
     description:
       name: flutter_widget_from_html_core
-      sha256: "7ff010b116f6abc16429923e616fbc727f3f65ef4cee12ffdb280aeecbc21e7f"
+      sha256: "388f81dd21c2de547abf7071433297f8a3f2a308bc1eb12f099a93f4d71e5155"
       url: "https://pub.dev"
     source: hosted
-    version: "0.17.2"
+    version: "0.17.3"
   fwfh_cached_network_image:
     dependency: transitive
     description:
@@ -801,10 +801,10 @@ packages:
     dependency: transitive
     description:
       name: jni_flutter
-      sha256: "7b717011ea40d04fd47c2731d3d1d36eb99eba3435c2753d62489e8c3c9991d5"
+      sha256: b2310cdd4c18c65c081ab141a41efa94aa26c65431803703ece51996f174f351
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.3"
   jni_util:
     dependency: transitive
     description:
@@ -1582,18 +1582,18 @@ packages:
     dependency: transitive
     description:
       name: wakelock_plus
-      sha256: "7253bca0fcf40d8413ddfcf4d2a1fa0a82475e79be25a4f2c564b695c9351486"
+      sha256: "22b3e7e937721de70e63c85e7139f4ac781dc22863b9262431a53ac030eb074b"
       url: "https://pub.dev"
     source: hosted
-    version: "1.7.0"
+    version: "1.8.0"
   wakelock_plus_platform_interface:
     dependency: transitive
     description:
       name: wakelock_plus_platform_interface
-      sha256: "0618d1799f0b28bcf98255b4ee8313e6fc4d38589dc4ee5fe5840d57d1aff6da"
+      sha256: "764c25504562abc8ac3406f5d175f126b276e6ba916c7c2675690b73368ca384"
       url: "https://pub.dev"
     source: hosted
-    version: "1.6.0"
+    version: "1.7.0"
   web:
     dependency: transitive
     description:

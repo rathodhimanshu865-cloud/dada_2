@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
-import '../../../controllers/auth_controller.dart';
-import '../../../utils/app_typography.dart';
+import '../../controllers/auth_controller.dart';
+import '../../utils/app_typography.dart';
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});
@@ -13,7 +13,7 @@ class AdminLoginPage extends StatefulWidget {
 }
 
 class _AdminLoginPageState extends State<AdminLoginPage> {
-  final _emailController = TextEditingController(); // Changed from username to email
+  final _usernameController = TextEditingController();
   final _passController = TextEditingController();
   bool _obscurePass = true;
   bool _isLoading = false;
@@ -22,12 +22,12 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   final Color accentGold = const Color(0xFFC89A5B);
 
   Future<void> _login() async {
-    final email = _emailController.text.trim();
+    final username = _usernameController.text.trim();
     final password = _passController.text.trim();
 
-    if (email.isEmpty || password.isEmpty) {
+    if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email and password'), backgroundColor: Colors.redAccent),
+        const SnackBar(content: Text('Please enter your username and password'), backgroundColor: Colors.redAccent),
       );
       return;
     }
@@ -35,7 +35,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     setState(() => _isLoading = true);
     try {
       final auth = Provider.of<AuthController>(context, listen: false);
-      await auth.adminLogin(email, password);
+      await auth.adminLogin(username, password);
       
       if (mounted) {
         if (auth.isAdminAuthenticated) {
@@ -47,14 +47,14 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
         String message;
         switch (e.code) {
           case 'user-not-found':
-            message = 'No admin account found with this email.';
+            message = 'No admin account found with this username.';
             break;
           case 'wrong-password':
           case 'invalid-credential':
-            message = 'Incorrect email or password.';
+            message = 'Incorrect username or password.';
             break;
           case 'invalid-email':
-            message = 'Please enter a valid email address.';
+            message = 'Please enter a valid credential.';
             break;
           case 'user-disabled':
             message = 'This admin account has been disabled.';
@@ -131,8 +131,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLabel(AppLocalizations.of(context)!.email), // Changed label
-                      _buildTextField(_emailController, Icons.email_outlined, 'admin@example.com'),
+                      _buildLabel(AppLocalizations.of(context)!.email),
+                      _buildTextField(_usernameController, Icons.email_outlined, 'admin@example.com'),
                       const SizedBox(height: 24),
                       _buildLabel(AppLocalizations.of(context)!.password),
                       _buildTextField(_passController, Icons.lock_outline, '••••••••', isPassword: true),
