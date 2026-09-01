@@ -266,13 +266,10 @@ class _ProductHeaderState extends State<ProductHeader> {
               ),
               Row(
                 children: [
-                  _notificationButton(context, darkCharcoal),
-                  const SizedBox(width: 20),
                   _wishlistButton(context, darkCharcoal),
-                  const SizedBox(width: 20),
-                  _cartButton(context, darkCharcoal),
                 ],
               ),
+
             ],
           ),
         ),

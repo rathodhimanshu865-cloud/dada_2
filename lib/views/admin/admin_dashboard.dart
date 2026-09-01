@@ -112,6 +112,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       {'title': 'Stotra / Bhajan', 'icon': Icons.music_note},
       {'title': 'Contact / Inquiries', 'icon': Icons.contact_mail},
       {'title': 'Footer Settings', 'icon': Icons.south},
+      {'title': 'Reviews Management', 'icon': Icons.star_rate_outlined},
       {'title': 'Product Management', 'icon': Icons.shopping_bag_outlined},
     ];
 
@@ -164,10 +165,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Widget _buildMainContent(HomePageController controller) {
-    if (currentMenuIndex == 16) {
+    if (currentMenuIndex == 17) {
       return const ProductManagementView();
     }
-    if (currentMenuIndex >= 0 && currentMenuIndex <= 15) {
+    if (currentMenuIndex >= 0 && currentMenuIndex <= 16) {
       return CMSViewsHelper.buildCMSView(currentMenuIndex, controller, context, _fieldLoading, setState);
     }
     return const Center(child: Text('Select a menu'));

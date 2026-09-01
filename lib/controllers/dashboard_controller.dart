@@ -35,6 +35,7 @@ class DashboardController extends ChangeNotifier {
   StreamSubscription? _categoriesSub;
   StreamSubscription? _usersSub;
   StreamSubscription? _ordersSub;
+  Timer? _debounceTimer;
 
   void _initRealTimeStats() {
     _productsSub?.cancel();
@@ -42,12 +43,18 @@ class DashboardController extends ChangeNotifier {
     _usersSub?.cancel();
     _ordersSub?.cancel();
 
-    // Combine multiple streams for a cohesive dashboard update
-    // For simplicity, we trigger a full recalculation when any major collection changes
-    _productsSub = _firestore.collection('products').snapshots().listen((_) => loadDashboardData());
-    _categoriesSub = _firestore.collection('categories').snapshots().listen((_) => loadDashboardData());
-    _usersSub = _firestore.collection('users').snapshots().listen((_) => loadDashboardData());
-    _ordersSub = _firestore.collection('orders').snapshots().listen((_) => loadDashboardData());
+    // Listen to changes and trigger debounced load
+    _productsSub = _firestore.collection('products').snapshots().listen((_) => _debouncedLoad());
+    _categoriesSub = _firestore.collection('categories').snapshots().listen((_) => _debouncedLoad());
+    _usersSub = _firestore.collection('users').snapshots().listen((_) => _debouncedLoad());
+    _ordersSub = _firestore.collection('orders').snapshots().listen((_) => _debouncedLoad());
+  }
+
+  void _debouncedLoad() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      loadDashboardData();
+    });
   }
 
   void setPeriod(int days) {
@@ -56,6 +63,7 @@ class DashboardController extends ChangeNotifier {
   }
 
   Future<void> loadDashboardData() async {
+    if (_isLoading) return; // Prevent concurrent loads
     _isLoading = true;
     _safeNotifyListeners();
 

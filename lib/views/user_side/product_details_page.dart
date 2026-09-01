@@ -78,8 +78,44 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     return StreamBuilder<ProductModel?>(
       stream: _productStream,
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Error')),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  const Text('Oops! Product not found or failed to load.', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Go Back')),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator(color: Color(0xFF07404C))));
+        }
+
         if (!snapshot.hasData || snapshot.data == null) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return Scaffold(
+            appBar: AppBar(title: const Text('Not Found')),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.search_off, size: 64, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  const Text('This sacred item is no longer available in the store.', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Return to Store')),
+                ],
+              ),
+            ),
+          );
         }
 
         final p = snapshot.data!;

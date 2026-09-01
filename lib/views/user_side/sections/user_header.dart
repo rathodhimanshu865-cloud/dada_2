@@ -181,31 +181,29 @@ class _UserHeaderState extends State<UserHeader>
                         child: Row(
                           children: [
                             _buildBranding(logoSize, isSticky, navTextColor, lang),
-                            const Spacer(),
+                            const SizedBox(width: 40),
                             if (!isMobile) ...[
-                              Flexible(
-                                flex: 10,
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: _buildNavigation(
-                                    l10n,
-                                    currentRoute,
-                                    isSticky,
-                                    navTextColor,
-                                    activeNavColor,
+                              Expanded(
+                                child: Center(
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: _buildNavigation(
+                                      l10n,
+                                      currentRoute,
+                                      isSticky,
+                                      navTextColor,
+                                      activeNavColor,
+                                    ),
                                   ),
                                 ),
                               ),
-                              const Spacer(),
-                              Flexible(
-                                flex: 5,
-                                child: _buildActionControls(
-                                  l10n,
-                                  isSticky,
-                                  settings,
-                                  navTextColor,
-                                  lang,
-                                ),
+                              const SizedBox(width: 20),
+                              _buildActionControls(
+                                l10n,
+                                isSticky,
+                                settings,
+                                navTextColor,
+                                lang,
                               ),
                             ] else ...[
                               IconButton(
@@ -412,24 +410,6 @@ class _UserHeaderState extends State<UserHeader>
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.pushNamed(context, '/contact_us');
-                },
-              ),
-              ListTile(
-                title: const Text(
-                  'MY CART',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                trailing: const Icon(Icons.shopping_bag_outlined),
-                onTap: () {
-                  Navigator.pop(context); 
-                  if (widget.scaffoldKey != null) {
-                    widget.scaffoldKey!.currentState?.openEndDrawer();
-                  } else {
-                    Scaffold.of(context).openEndDrawer();
-                  }
                 },
               ),
               ListTile(
@@ -764,12 +744,9 @@ class _UserHeaderState extends State<UserHeader>
   ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        _buildNotificationButton(textColor),
-        const SizedBox(width: 15),
         _buildAuthButton(textColor),
-        const SizedBox(width: 15),
-        _buildCartButton(textColor),
         const SizedBox(width: 15),
         _buildLanguageSwitcher(l10n, settings, textColor, isSticky),
         if (settings.searchVisibility) ...[

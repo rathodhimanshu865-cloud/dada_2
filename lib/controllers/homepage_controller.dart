@@ -227,150 +227,247 @@ class HomePageController extends ChangeNotifier {
     _safeNotifyListeners();
     try {
       // 1. General Settings
-      final nameT = await TranslationService.translateToAll(websiteSettings.name);
-      websiteSettings.nameHi = nameT['hi']!; websiteSettings.nameGu = nameT['gu']!;
+      final gTasks = await Future.wait([
+        TranslationService.translateToAll(websiteSettings.name),
+        TranslationService.translateToAll(websiteSettings.catalogueHeading),
+        TranslationService.translateToAll(websiteSettings.headerSettings.donateButtonText),
+        TranslationService.translateToAll(websiteSettings.headerSettings.announcementBarText),
+      ]);
       
-      final catT = await TranslationService.translateToAll(websiteSettings.catalogueHeading);
-      websiteSettings.catalogueHeadingHi = catT['hi']!; websiteSettings.catalogueHeadingGu = catT['gu']!;
+      final g0 = gTasks[0] as Map<String, String>;
+      final g1 = gTasks[1] as Map<String, String>;
+      final g2 = gTasks[2] as Map<String, String>;
+      final g3 = gTasks[3] as Map<String, String>;
 
-      final headDonT = await TranslationService.translateToAll(websiteSettings.headerSettings.donateButtonText);
-      websiteSettings.headerSettings.donateButtonTextHi = headDonT['hi']!; websiteSettings.headerSettings.donateButtonTextGu = headDonT['gu']!;
-
-      final headAnnT = await TranslationService.translateToAll(websiteSettings.headerSettings.announcementBarText);
-      websiteSettings.headerSettings.announcementBarTextHi = headAnnT['hi']!; websiteSettings.headerSettings.announcementBarTextGu = headAnnT['gu']!;
+      websiteSettings.nameHi = g0['hi']!; websiteSettings.nameGu = g0['gu']!;
+      websiteSettings.catalogueHeadingHi = g1['hi']!; websiteSettings.catalogueHeadingGu = g1['gu']!;
+      websiteSettings.headerSettings.donateButtonTextHi = g2['hi']!; websiteSettings.headerSettings.donateButtonTextGu = g2['gu']!;
+      websiteSettings.headerSettings.announcementBarTextHi = g3['hi']!; websiteSettings.headerSettings.announcementBarTextGu = g3['gu']!;
 
       // 2. Hero Slider
-      for (var s in heroSection.slides) {
-        final b = await TranslationService.translateToAll(s.badge);
-        s.badgeHi = b['hi']!; s.badgeGu = b['gu']!;
-        final h = await TranslationService.translateToAll(s.heading);
-        s.headingHi = h['hi']!; s.headingGu = h['gu']!;
-        final sub = await TranslationService.translateToAll(s.subtitle);
-        s.subtitleHi = sub['hi']!; s.subtitleGu = sub['gu']!;
-        final d = await TranslationService.translateToAll(s.description);
-        s.descriptionHi = d['hi']!; s.descriptionGu = d['gu']!;
-      }
+      await Future.wait(heroSection.slides.map((s) async {
+        final results = await Future.wait([
+          TranslationService.translateToAll(s.badge),
+          TranslationService.translateToAll(s.heading),
+          TranslationService.translateToAll(s.subtitle),
+          TranslationService.translateToAll(s.description),
+        ]);
+        final r0 = results[0] as Map<String, String>;
+        final r1 = results[1] as Map<String, String>;
+        final r2 = results[2] as Map<String, String>;
+        final r3 = results[3] as Map<String, String>;
+        
+        s.badgeHi = r0['hi']!; s.badgeGu = r0['gu']!;
+        s.headingHi = r1['hi']!; s.headingGu = r1['gu']!;
+        s.subtitleHi = r2['hi']!; s.subtitleGu = r2['gu']!;
+        s.descriptionHi = r3['hi']!; s.descriptionGu = r3['gu']!;
+      }));
 
       // 3. Upcoming Kathas
-      for (var k in upcomingKathas) {
-        final n = await TranslationService.translateToAll(k.name);
-        k.nameHi = n['hi']!; k.nameGu = n['gu']!;
-        final l = await TranslationService.translateToAll(k.location);
-        k.locationHi = l['hi']!; k.locationGu = l['gu']!;
-        final ds = await TranslationService.translateToAll(k.dateString);
-        k.dateStringHi = ds['hi']!; k.dateStringGu = ds['gu']!;
-        final desc = await TranslationService.translateToAll(k.description);
-        k.descriptionHi = desc['hi']!; k.descriptionGu = desc['gu']!;
-        final tim = await TranslationService.translateToAll(k.timing);
-        k.timingHi = tim['hi']!; k.timingGu = tim['gu']!;
-        final host = await TranslationService.translateToAll(k.hosting);
-        k.hostingHi = host['hi']!; k.hostingGu = host['gu']!;
-      }
+      await Future.wait(upcomingKathas.map((k) async {
+        final results = await Future.wait([
+          TranslationService.translateToAll(k.name),
+          TranslationService.translateToAll(k.location),
+          TranslationService.translateToAll(k.dateString),
+          TranslationService.translateToAll(k.description),
+          TranslationService.translateToAll(k.timing),
+          TranslationService.translateToAll(k.hosting),
+        ]);
+        final r0 = results[0] as Map<String, String>;
+        final r1 = results[1] as Map<String, String>;
+        final r2 = results[2] as Map<String, String>;
+        final r3 = results[3] as Map<String, String>;
+        final r4 = results[4] as Map<String, String>;
+        final r5 = results[5] as Map<String, String>;
+
+        k.nameHi = r0['hi']!; k.nameGu = r0['gu']!;
+        k.locationHi = r1['hi']!; k.locationGu = r1['gu']!;
+        k.dateStringHi = r2['hi']!; k.dateStringGu = r2['gu']!;
+        k.descriptionHi = r3['hi']!; k.descriptionGu = r3['gu']!;
+        k.timingHi = r4['hi']!; k.timingGu = r4['gu']!;
+        k.hostingHi = r5['hi']!; k.hostingGu = r5['gu']!;
+      }));
 
       // 4. About Section
-      final abT = await TranslationService.translateToAll(aboutSection.title);
-      aboutSection.titleHi = abT['hi']!; aboutSection.titleGu = abT['gu']!;
-      final abTag = await TranslationService.translateToAll(aboutSection.tagline);
-      aboutSection.taglineHi = abTag['hi']!; aboutSection.taglineGu = abTag['gu']!;
-      final abDesc = await TranslationService.translateToAll(aboutSection.description);
-      aboutSection.descriptionHi = abDesc['hi']!; aboutSection.descriptionGu = abDesc['gu']!;
-      aboutSection.paragraphsHi = await TranslationService.translateBatch(aboutSection.paragraphs, 'hi');
-      aboutSection.paragraphsGu = await TranslationService.translateBatch(aboutSection.paragraphs, 'gu');
+      final abTasks = await Future.wait([
+        TranslationService.translateToAll(aboutSection.title),
+        TranslationService.translateToAll(aboutSection.tagline),
+        TranslationService.translateToAll(aboutSection.description),
+        TranslationService.translateBatch(aboutSection.paragraphs, 'hi'),
+        TranslationService.translateBatch(aboutSection.paragraphs, 'gu'),
+      ]);
+      final ab0 = abTasks[0] as Map<String, String>;
+      final ab1 = abTasks[1] as Map<String, String>;
+      final ab2 = abTasks[2] as Map<String, String>;
 
-      // 5. Homepage Data (Teachings & Testimonials in model)
-      for (var t in homepageData.teachings) {
-        final tT = await TranslationService.translateToAll(t.title);
-        t.titleHi = tT['hi']!; t.titleGu = tT['gu']!;
-        final tS = await TranslationService.translateToAll(t.subtitle);
-        t.subtitleHi = tS['hi']!; t.subtitleGu = tS['gu']!;
-        final tD = await TranslationService.translateToAll(t.description);
-        t.descriptionHi = tD['hi']!; t.descriptionGu = tD['gu']!;
-      }
-      for (var te in homepageData.testimonials) {
-        final teF = await TranslationService.translateToAll(te.feedback);
-        te.feedbackHi = teF['hi']!; te.feedbackGu = teF['gu']!;
-        final teN = await TranslationService.translateToAll(te.name);
-        te.nameHi = teN['hi']!; te.nameGu = teN['gu']!;
-      }
-      for (var ni in homepageData.news) {
-        final niT = await TranslationService.translateToAll(ni.title);
-        ni.titleHi = niT['hi']!; ni.titleGu = niT['gu']!;
-        final niC = await TranslationService.translateToAll(ni.category);
-        ni.categoryHi = niC['hi']!; ni.categoryGu = niC['gu']!;
-      }
+      aboutSection.titleHi = ab0['hi']!; aboutSection.titleGu = ab0['gu']!;
+      aboutSection.taglineHi = ab1['hi']!; aboutSection.taglineGu = ab1['gu']!;
+      aboutSection.descriptionHi = ab2['hi']!; aboutSection.descriptionGu = ab2['gu']!;
+      aboutSection.paragraphsHi = abTasks[3] as List<String>;
+      aboutSection.paragraphsGu = abTasks[4] as List<String>;
+
+      // 5. Homepage Data
+      await Future.wait([
+        ...homepageData.teachings.map((t) async {
+          final results = await Future.wait([
+            TranslationService.translateToAll(t.title),
+            TranslationService.translateToAll(t.subtitle),
+            TranslationService.translateToAll(t.description),
+          ]);
+          final r0 = results[0] as Map<String, String>;
+          final r1 = results[1] as Map<String, String>;
+          final r2 = results[2] as Map<String, String>;
+          t.titleHi = r0['hi']!; t.titleGu = r0['gu']!;
+          t.subtitleHi = r1['hi']!; t.subtitleGu = r1['gu']!;
+          t.descriptionHi = r2['hi']!; t.descriptionGu = r2['gu']!;
+        }),
+        ...homepageData.testimonials.map((te) async {
+          final results = await Future.wait([
+            TranslationService.translateToAll(te.feedback),
+            TranslationService.translateToAll(te.name),
+          ]);
+          final r0 = results[0] as Map<String, String>;
+          final r1 = results[1] as Map<String, String>;
+          te.feedbackHi = r0['hi']!; te.feedbackGu = r0['gu']!;
+          te.nameHi = r1['hi']!; te.nameGu = r1['gu']!;
+        }),
+        ...homepageData.news.map((ni) async {
+          final results = await Future.wait([
+            TranslationService.translateToAll(ni.title),
+            TranslationService.translateToAll(ni.category),
+          ]);
+          final r0 = results[0] as Map<String, String>;
+          final r1 = results[1] as Map<String, String>;
+          ni.titleHi = r0['hi']!; ni.titleGu = r0['gu']!;
+          ni.categoryHi = r1['hi']!; ni.categoryGu = r1['gu']!;
+        }),
+      ]);
 
       // 6. Featured Quote & Ram Katha
-      final qT = await TranslationService.translateToAll(homepageData.featuredQuote.quote);
-      homepageData.featuredQuote.quoteHi = qT['hi']!; homepageData.featuredQuote.quoteGu = qT['gu']!;
-      final qA = await TranslationService.translateToAll(homepageData.featuredQuote.author);
-      homepageData.featuredQuote.authorHi = qA['hi']!; homepageData.featuredQuote.authorGu = qA['gu']!;
+      final qTasks = await Future.wait([
+        TranslationService.translateToAll(homepageData.featuredQuote.quote),
+        TranslationService.translateToAll(homepageData.featuredQuote.author),
+        TranslationService.translateToAll(ramKatha.description1),
+        TranslationService.translateToAll(ramKatha.description2),
+      ]);
+      final q0 = qTasks[0] as Map<String, String>;
+      final q1 = qTasks[1] as Map<String, String>;
+      final q2 = qTasks[2] as Map<String, String>;
+      final q3 = qTasks[3] as Map<String, String>;
 
-      final rkT = await TranslationService.translateToAll(ramKatha.description1);
-      ramKatha.description1Hi = rkT['hi']!; ramKatha.description1Gu = rkT['gu']!;
-      final rkD2 = await TranslationService.translateToAll(ramKatha.description2);
-      ramKatha.description2Hi = rkD2['hi']!; ramKatha.description2Gu = rkD2['gu']!;
+      homepageData.featuredQuote.quoteHi = q0['hi']!; homepageData.featuredQuote.quoteGu = q0['gu']!;
+      homepageData.featuredQuote.authorHi = q1['hi']!; homepageData.featuredQuote.authorGu = q1['gu']!;
+      ramKatha.description1Hi = q2['hi']!; ramKatha.description1Gu = q2['gu']!;
+      ramKatha.description2Hi = q3['hi']!; ramKatha.description2Gu = q3['gu']!;
 
       // 7. Full Katha List
-      for (var kr in allKathas) {
-        final krT = await TranslationService.translateToAll(kr.topic);
-        kr.topicHi = krT['hi']!; kr.topicGu = krT['gu']!;
-        final krL = await TranslationService.translateToAll(kr.location);
-        kr.locationHi = krL['hi']!; kr.locationGu = krL['gu']!;
-        final krD = await TranslationService.translateToAll(kr.description);
-        kr.descriptionHi = krD['hi']!; kr.descriptionGu = krD['gu']!;
-      }
+      await Future.wait(allKathas.map((kr) async {
+        final results = await Future.wait([
+          TranslationService.translateToAll(kr.topic),
+          TranslationService.translateToAll(kr.location),
+          TranslationService.translateToAll(kr.description),
+        ]);
+        final r0 = results[0] as Map<String, String>;
+        final r1 = results[1] as Map<String, String>;
+        final r2 = results[2] as Map<String, String>;
+        kr.topicHi = r0['hi']!; kr.topicGu = r0['gu']!;
+        kr.locationHi = r1['hi']!; kr.locationGu = r1['gu']!;
+        kr.descriptionHi = r2['hi']!; kr.descriptionGu = r2['gu']!;
+      }));
 
       // 8. Gallery
-      for (var ps in photoGalleryData.sections) {
-        final psH = await TranslationService.translateToAll(ps.heading);
-        ps.headingHi = psH['hi']!; ps.headingGu = psH['gu']!;
-      }
-      final pgT = await TranslationService.translateToAll(photoGalleryData.title);
-      photoGalleryData.titleHi = pgT['hi']!; photoGalleryData.titleGu = pgT['gu']!;
-
-      for (var vc in videoGalleryData.categories) {
-        final vcT = await TranslationService.translateToAll(vc.categoryTitle);
-        vc.categoryTitleHi = vcT['hi']!; vc.categoryTitleGu = vcT['gu']!;
-        for (var vge in vc.videos) {
-          final vgeT = await TranslationService.translateToAll(vge.title);
-          vge.titleHi = vgeT['hi']!; vge.titleGu = vgeT['gu']!;
-        }
-      }
+      await Future.wait([
+        ...photoGalleryData.sections.map((ps) async {
+          final h = await TranslationService.translateToAll(ps.heading);
+          ps.headingHi = h['hi']!; ps.headingGu = h['gu']!;
+        }),
+        TranslationService.translateToAll(photoGalleryData.title).then((t) {
+          photoGalleryData.titleHi = t['hi']!; photoGalleryData.titleGu = t['gu']!;
+        }),
+        ...videoGalleryData.categories.map((vc) async {
+          final vt = await TranslationService.translateToAll(vc.categoryTitle);
+          vc.categoryTitleHi = vt['hi']!; vc.categoryTitleGu = vt['gu']!;
+          await Future.wait(vc.videos.map((vge) async {
+            final vgt = await TranslationService.translateToAll(vge.title);
+            vge.titleHi = vgt['hi']!; vge.titleGu = vgt['gu']!;
+          }));
+        }),
+      ]);
 
       // 9. Stotra & Contact & Footer
-      final stST = await TranslationService.translateToAll(stotraSection.pageTitle);
-      stotraSection.pageTitleHi = stST['hi']!; stotraSection.pageTitleGu = stST['gu']!;
-      for (var si in stotraSection.items) {
-        final siT = await TranslationService.translateToAll(si.title);
-        si.titleHi = siT['hi']!; si.titleGu = siT['gu']!;
-      }
+      final miscTasks = await Future.wait([
+        TranslationService.translateToAll(stotraSection.pageTitle),
+        TranslationService.translateToAll(contactPageData.address),
+        TranslationService.translateToAll(footer.description),
+      ]);
+      final m0 = miscTasks[0] as Map<String, String>;
+      final m1 = miscTasks[1] as Map<String, String>;
+      final m2 = miscTasks[2] as Map<String, String>;
 
-      final conA = await TranslationService.translateToAll(contactPageData.address);
-      contactPageData.addressHi = conA['hi']!; contactPageData.addressGu = conA['gu']!;
+      stotraSection.pageTitleHi = m0['hi']!; stotraSection.pageTitleGu = m0['gu']!;
+      contactPageData.addressHi = m1['hi']!; contactPageData.addressGu = m1['gu']!;
+      footer.descriptionHi = m2['hi']!; footer.descriptionGu = m2['gu']!;
+      
+      await Future.wait(stotraSection.items.map((si) async {
+        final sit = await TranslationService.translateToAll(si.title);
+        si.titleHi = sit['hi']!; si.titleGu = sit['gu']!;
+      }));
 
-      final fooD = await TranslationService.translateToAll(footer.description);
-      footer.descriptionHi = fooD['hi']!; footer.descriptionGu = fooD['gu']!;
-
-      // 10. Katha Pages (Bhagvat, Devi, Shiv)
+      // 10. Katha Pages
       final kPages = [bhagvatKathaPage, deviKathaPage, shivKathaPage];
-      for (var kp in kPages) {
-        final b = await TranslationService.translateToAll(kp.heroBadge); kp.heroBadgeHi = b['hi']!; kp.heroBadgeGu = b['gu']!;
-        final t = await TranslationService.translateToAll(kp.heroTitle); kp.heroTitleHi = t['hi']!; kp.heroTitleGu = t['gu']!;
-        final d1 = await TranslationService.translateToAll(kp.heroDesc1); kp.heroDesc1Hi = d1['hi']!; kp.heroDesc1Gu = d1['gu']!;
-        final d2 = await TranslationService.translateToAll(kp.heroDesc2); kp.heroDesc2Hi = d2['hi']!; kp.heroDesc2Gu = d2['gu']!;
-        final bio = await TranslationService.translateToAll(kp.bioText); kp.bioTextHi = bio['hi']!; kp.bioTextGu = bio['gu']!;
-        final q = await TranslationService.translateToAll(kp.quoteText); kp.quoteTextHi = q['hi']!; kp.quoteTextGu = q['gu']!;
-        final qa = await TranslationService.translateToAll(kp.quoteAuthor); kp.quoteAuthorHi = qa['hi']!; kp.quoteAuthorGu = qa['gu']!;
-        final h1t = await TranslationService.translateToAll(kp.highlight1Title); kp.highlight1TitleHi = h1t['hi']!; kp.highlight1TitleGu = h1t['gu']!;
-        final h1d = await TranslationService.translateToAll(kp.highlight1Desc); kp.highlight1DescHi = h1d['hi']!; kp.highlight1DescGu = h1d['gu']!;
-        final h2t = await TranslationService.translateToAll(kp.highlight2Title); kp.highlight2TitleHi = h2t['hi']!; kp.highlight2TitleGu = h2t['gu']!;
-        final h2d = await TranslationService.translateToAll(kp.highlight2Desc); kp.highlight2DescHi = h2d['hi']!; kp.highlight2DescGu = h2d['gu']!;
-        final h3t = await TranslationService.translateToAll(kp.highlight3Title); kp.highlight3TitleHi = h3t['hi']!; kp.highlight3TitleGu = h3t['gu']!;
-        final h3d = await TranslationService.translateToAll(kp.highlight3Desc); kp.highlight3DescHi = h3d['hi']!; kp.highlight3DescGu = h3d['gu']!;
-        final ct = await TranslationService.translateToAll(kp.ctaTitle); kp.ctaTitleHi = ct['hi']!; kp.ctaTitleGu = ct['gu']!;
-        final cs = await TranslationService.translateToAll(kp.ctaSubtitle); kp.ctaSubtitleHi = cs['hi']!; kp.ctaSubtitleGu = cs['gu']!;
-        final cb = await TranslationService.translateToAll(kp.ctaButtonText); kp.ctaButtonTextHi = cb['hi']!; kp.ctaButtonTextGu = cb['gu']!;
-      }
+      await Future.wait(kPages.map((kp) async {
+        final results = await Future.wait([
+          TranslationService.translateToAll(kp.heroBadge),
+          TranslationService.translateToAll(kp.heroTitle),
+          TranslationService.translateToAll(kp.heroDesc1),
+          TranslationService.translateToAll(kp.heroDesc2),
+          TranslationService.translateToAll(kp.bioText),
+          TranslationService.translateToAll(kp.quoteText),
+          TranslationService.translateToAll(kp.quoteAuthor),
+          TranslationService.translateToAll(kp.highlight1Title),
+          TranslationService.translateToAll(kp.highlight1Desc),
+          TranslationService.translateToAll(kp.highlight2Title),
+          TranslationService.translateToAll(kp.highlight2Desc),
+          TranslationService.translateToAll(kp.highlight3Title),
+          TranslationService.translateToAll(kp.highlight3Desc),
+          TranslationService.translateToAll(kp.ctaTitle),
+          TranslationService.translateToAll(kp.ctaSubtitle),
+          TranslationService.translateToAll(kp.ctaButtonText),
+        ]);
+        final r0 = results[0] as Map<String, String>;
+        final r1 = results[1] as Map<String, String>;
+        final r2 = results[2] as Map<String, String>;
+        final r3 = results[3] as Map<String, String>;
+        final r4 = results[4] as Map<String, String>;
+        final r5 = results[5] as Map<String, String>;
+        final r6 = results[6] as Map<String, String>;
+        final r7 = results[7] as Map<String, String>;
+        final r8 = results[8] as Map<String, String>;
+        final r9 = results[9] as Map<String, String>;
+        final r10 = results[10] as Map<String, String>;
+        final r11 = results[11] as Map<String, String>;
+        final r12 = results[12] as Map<String, String>;
+        final r13 = results[13] as Map<String, String>;
+        final r14 = results[14] as Map<String, String>;
+        final r15 = results[15] as Map<String, String>;
+
+        kp.heroBadgeHi = r0['hi']!; kp.heroBadgeGu = r0['gu']!;
+        kp.heroTitleHi = r1['hi']!; kp.heroTitleGu = r1['gu']!;
+        kp.heroDesc1Hi = r2['hi']!; kp.heroDesc1Gu = r2['gu']!;
+        kp.heroDesc2Hi = r3['hi']!; kp.heroDesc2Gu = r3['gu']!;
+        kp.bioTextHi = r4['hi']!; kp.bioTextGu = r4['gu']!;
+        kp.quoteTextHi = r5['hi']!; kp.quoteTextGu = r5['gu']!;
+        kp.quoteAuthorHi = r6['hi']!; kp.quoteAuthorGu = r6['gu']!;
+        kp.highlight1TitleHi = r7['hi']!; kp.highlight1TitleGu = r7['gu']!;
+        kp.highlight1DescHi = r8['hi']!; kp.highlight1DescGu = r8['gu']!;
+        kp.highlight2TitleHi = r9['hi']!; kp.highlight2TitleGu = r9['gu']!;
+        kp.highlight2DescHi = r10['hi']!; kp.highlight2DescGu = r10['gu']!;
+        kp.highlight3TitleHi = r11['hi']!; kp.highlight3TitleGu = r11['gu']!;
+        kp.highlight3DescHi = r12['hi']!; kp.highlight3DescGu = r12['gu']!;
+        kp.ctaTitleHi = r13['hi']!; kp.ctaTitleGu = r13['gu']!;
+        kp.ctaSubtitleHi = r14['hi']!; kp.ctaSubtitleGu = r14['gu']!;
+        kp.ctaButtonTextHi = r15['hi']!; kp.ctaButtonTextGu = r15['gu']!;
+      }));
 
       await publish();
     } catch (e) {
