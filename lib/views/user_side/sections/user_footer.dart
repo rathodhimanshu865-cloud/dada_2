@@ -21,8 +21,8 @@ class UserFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
-    final bool isMobile = context.isMobile;
-    final bool isTablet = context.isTablet;
+    final bool isMobile = Responsive.isMobile(context);
+    final bool isTablet = Responsive.isTablet(context);
 
     return Container(
       width: double.infinity,
@@ -84,6 +84,7 @@ class UserFooter extends StatelessWidget {
                 {'label': AppLocalizations.of(context)!.stotraBhajan, 'route': '/stotra'},
                 {'label': AppLocalizations.of(context)!.contactUs, 'route': '/contact_us'},
                 {'label': AppLocalizations.of(context)!.sacredProducts, 'route': '/product'},
+                {'label': 'My Shopping Bag', 'route': '/cart'},
               ]),
               // Dynamic Sections from Admin
               ...controller.footer.linkSections.map((sec) => _buildLinkSection(context, sec.localizedTitle(lang), 

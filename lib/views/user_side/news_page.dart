@@ -60,7 +60,7 @@ class NewsPage extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
-    final bool isMobile = context.isMobile;
+    final bool isMobile = Responsive.isMobile(context);
 
     return UserPageLayout(
       controller: controller,

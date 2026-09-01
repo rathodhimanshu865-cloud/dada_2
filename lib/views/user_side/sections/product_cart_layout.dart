@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../controllers/homepage_controller.dart';
+import '../../../utils/responsive_utils.dart';
 import 'user_header.dart';
 import 'product_header.dart';
 import 'user_footer.dart';
 import 'cart_drawer.dart';
+import 'category_drawer.dart';
 
 class ProductCartLayout extends StatefulWidget {
   final Widget child;
@@ -66,11 +68,15 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
   @override
   Widget build(BuildContext context) {
     const double header1Height = 95.0;
-    final bool isMobile = MediaQuery.of(context).size.width < 1100;
+    final bool isMobile = Responsive.isMobile(context);
+    final bool isTablet = Responsive.isTablet(context);
+    final bool isDesktop = Responsive.isDesktop(context);
+    final double headerOffset = isMobile ? 80 : 120;
 
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
+      drawer: const CategoryDrawer(),
       endDrawer: const CartDrawer(),
       body: Stack(
         children: [
@@ -78,7 +84,7 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
           CustomScrollView(
             controller: _activeController,
             slivers: [
-              SliverToBoxAdapter(child: SizedBox(height: isMobile ? 120 : 159)),
+              SliverToBoxAdapter(child: SizedBox(height: isDesktop ? 159 : headerOffset)),
               if (widget.slivers != null) 
                 ...widget.slivers!.whereType<Widget>()
               else 
@@ -88,20 +94,19 @@ class _ProductCartLayoutState extends State<ProductCartLayout> {
           ),
           
           // Header 2 (Product Header) - Sticky logic
-          if (!isMobile)
-            ValueListenableBuilder<double>(
-              valueListenable: _scrollOffset,
-              builder: (context, offset, child) {
-                double top = (header1Height - offset).clamp(0.0, header1Height);
-                bool isSticky = offset >= header1Height;
-                return Positioned(
-                  top: top,
-                  left: 0,
-                  right: 0,
-                  child: ProductHeader(isSticky: isSticky, scaffoldKey: _scaffoldKey),
-                );
-              },
-            ),
+          ValueListenableBuilder<double>(
+            valueListenable: _scrollOffset,
+            builder: (context, offset, child) {
+              double top = (header1Height - offset).clamp(0.0, header1Height);
+              bool isSticky = offset >= header1Height;
+              return Positioned(
+                top: !isDesktop ? (isSticky ? 0 : header1Height - offset) : top,
+                left: 0,
+                right: 0,
+                child: ProductHeader(isSticky: isSticky, scaffoldKey: _scaffoldKey),
+              );
+            },
+          ),
 
           // Header 1 (Main Default Header)
           UserHeader(

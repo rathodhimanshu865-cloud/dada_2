@@ -6,6 +6,7 @@ import '../../controllers/product_controller.dart';
 import '../../controllers/language_controller.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/homepage_model.dart';
+import '../../models/category_model.dart';
 import 'sections/product_cart_layout.dart';
 import 'sections/product_card.dart';
 import '../../utils/app_typography.dart';
@@ -24,9 +25,9 @@ class ProductHomePage extends StatelessWidget {
     final productController = Provider.of<ProductController>(context);
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
     final h = homeController.homepageData.homePortal;
-    final bool isMobile = context.isMobile;
-    final bool isTablet = context.isTablet;
-    final bool isDesktop = context.isDesktop;
+    final bool isMobile = Responsive.isMobile(context);
+    final bool isTablet = Responsive.isTablet(context);
+    final bool isDesktop = Responsive.isDesktop(context);
 
     return ProductCartLayout(
       controller: homeController,
@@ -57,7 +58,7 @@ class ProductHomePage extends StatelessWidget {
   }
 
   Widget _buildHeroSection(BuildContext context, HomePortalData h, String lang, bool isMobile) {
-    final bool isTablet = context.isTablet;
+    final bool isTablet = Responsive.isTablet(context);
     final double paddingH = isMobile ? 20 : (isTablet ? 40 : 80);
     final double paddingV = isMobile ? 40 : (isTablet ? 60 : 100);
 
@@ -75,7 +76,7 @@ class ProductHomePage extends StatelessWidget {
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1400),
-          child: !context.isDesktop 
+          child: !Responsive.isDesktop(context) 
             ? Column(
                 children: [
                   _heroContent(context, h, lang, isMobile),
@@ -232,11 +233,11 @@ class ProductHomePage extends StatelessWidget {
               GridView.builder(
                 shrinkWrap: true, 
                 physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 350,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: Responsive.isDesktop(context) ? 4 : (Responsive.isTablet(context) ? 3 : 2),
                   crossAxisSpacing: 24, 
                   mainAxisSpacing: 24, 
-                  childAspectRatio: isMobile ? 0.9 : 1.6
+                  childAspectRatio: Responsive.isDesktop(context) ? 1.4 : 0.85
                 ),
                 itemCount: prod.categoryObjects.length.clamp(0, 8),
                 itemBuilder: (context, index) {
@@ -256,7 +257,14 @@ class ProductHomePage extends StatelessWidget {
                           const SizedBox(height: 20),
                           Text(cat.localizedName(lang), style: AppTypography.headingStyle(context, fontWeight: FontWeight.w900, fontSize: 16, color: const Color(0xFF2B2B2B))),
                           const SizedBox(height: 8),
-                          if (!isMobile) Text(cat.descriptionHi.isNotEmpty ? cat.localizedName(lang) : 'Authentic sacred items consecrated with love.', style: AppTypography.bodyStyle(context, color: Colors.grey.shade500, fontSize: 11, height: 1.4), maxLines: 2, overflow: TextOverflow.ellipsis),
+                          Text(
+                            cat.localizedDescription(lang).isNotEmpty 
+                              ? cat.localizedDescription(lang) 
+                              : 'Authentic sacred items consecrated with love.', 
+                            style: AppTypography.bodyStyle(context, color: Colors.grey.shade500, fontSize: 11, height: 1.4), 
+                            maxLines: 2, 
+                            overflow: TextOverflow.ellipsis
+                          ),
                           const Spacer(),
                           Row(
                             children: [
@@ -293,18 +301,24 @@ class ProductHomePage extends StatelessWidget {
               const SizedBox(height: 16),
               Text(AppLocalizations.of(context)!.featuredProductsDesc, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade500, fontSize: 15)),
               const SizedBox(height: 60),
-              GridView.builder(
-                shrinkWrap: true, 
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 320,
-                  crossAxisSpacing: isMobile ? 12 : 24, 
-                  mainAxisSpacing: 40, 
-                  childAspectRatio: 0.7
+              if (products.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(40),
+                  child: CircularProgressIndicator(color: Color(0xFF0F4C5C)),
+                )
+              else
+                GridView.builder(
+                  shrinkWrap: true, 
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: Responsive.isDesktop(context) ? 4 : (Responsive.isTablet(context) ? 3 : 2),
+                    crossAxisSpacing: isMobile ? 12 : 24, 
+                    mainAxisSpacing: isMobile ? 24 : 40, 
+                    childAspectRatio: Responsive.isDesktop(context) ? 0.72 : 0.65
+                  ),
+                  itemCount: products.length.clamp(0, 8), // Show exactly 2 rows (8 items)
+                  itemBuilder: (context, index) => ProductCard(product: products[index]),
                 ),
-                itemCount: products.length.clamp(0, 8), // Show exactly 2 rows (8 items)
-                itemBuilder: (context, index) => ProductCard(product: products[index]),
-              ),
               const SizedBox(height: 60),
               ElevatedButton(onPressed: () => Navigator.pushNamed(context, '/catalogue'), style: ElevatedButton.styleFrom(backgroundColor: primaryGreen, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), child: Text('${AppLocalizations.of(context)!.browseCompleteCatalog} (${products.length} ITEMS)', textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1))),
             ],

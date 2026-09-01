@@ -516,6 +516,22 @@ class _CartDrawerState extends State<CartDrawer> {
               ),
             ),
           ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 55,
+            child: OutlinedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/cart');
+              },
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFF0F4C5C)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text('VIEW SHOPPING BAG', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 13, color: teal)),
+            ),
+          ),
           const SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

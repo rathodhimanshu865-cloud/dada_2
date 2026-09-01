@@ -104,4 +104,10 @@ class CategoryModel {
     if (langCode == 'gu' && nameGu.isNotEmpty) return nameGu;
     return name;
   }
+
+  String localizedDescription(String langCode) {
+    if (langCode == 'hi' && descriptionHi.isNotEmpty) return descriptionHi;
+    if (langCode == 'gu' && descriptionGu.isNotEmpty) return descriptionGu;
+    return description;
+  }
 }

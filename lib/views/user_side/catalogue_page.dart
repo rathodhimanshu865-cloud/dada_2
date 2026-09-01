@@ -34,8 +34,8 @@ class _CataloguePageState extends State<CataloguePage> {
   Widget build(BuildContext context) {
     final homeController = Provider.of<HomePageController>(context, listen: false);
     final productController = Provider.of<ProductController>(context);
-    final bool isMobile = context.isMobile;
-    final bool isTablet = context.isTablet;
+    final bool isMobile = Responsive.isMobile(context);
+    final bool isTablet = Responsive.isTablet(context);
 
     final List<ProductModel> displayProducts = productController.searchQuery.isEmpty 
         ? (productController.browsingProducts.isNotEmpty ? productController.browsingProducts : productController.filteredProducts)
@@ -307,14 +307,16 @@ class _CataloguePageState extends State<CataloguePage> {
   }
 
   Widget _buildProductGrid(BuildContext context, ProductController prod, List<ProductModel> products, bool isMobile) {
+    final bool isTablet = Responsive.isTablet(context);
+    final bool isDesktop = Responsive.isDesktop(context);
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 40),
       sliver: SliverGrid(
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 320,
-          childAspectRatio: 0.72,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: isDesktop ? 4 : (isTablet ? 3 : 2),
+          childAspectRatio: isDesktop ? 0.72 : 0.65,
           crossAxisSpacing: isMobile ? 12 : 24,
-          mainAxisSpacing: 40,
+          mainAxisSpacing: isMobile ? 24 : 40,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) {

@@ -12,7 +12,7 @@ class UserAboutPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isMobile = context.isMobile;
+    final bool isMobile = Responsive.isMobile(context);
     final String lang = Provider.of<LanguageController>(context).locale.languageCode;
     final about = controller.aboutSection;
 

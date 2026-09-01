@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/cart_controller.dart';
 import '../../controllers/coupon_controller.dart';
+import '../../utils/responsive_utils.dart';
 import 'sections/product_cart_layout.dart';
 import '../../utils/app_typography.dart';
 
@@ -15,8 +16,8 @@ class CartPage extends StatelessWidget {
     final homeController = Provider.of<HomePageController>(context, listen: false);
     final cartController = Provider.of<CartController>(context);
 
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final bool isMobile = screenWidth < 1100;
+    final bool isMobile = Responsive.isMobile(context);
+    final bool isTablet = Responsive.isTablet(context);
 
     return ProductCartLayout(
       controller: homeController,
@@ -110,26 +111,22 @@ class CartPage extends StatelessWidget {
   }
 
   Widget _buildCartContent(BuildContext context, CartController cart, bool isMobile) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth < 900) {
-          return Column(
-            children: [
-              _buildCartItemsList(context, cart, isMobile),
-              const SizedBox(height: 40),
-              _buildOrderSummary(context, cart, isMobile),
-            ],
-          );
-        }
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(flex: 2, child: _buildCartItemsList(context, cart, isMobile)),
-            const SizedBox(width: 40),
-            Expanded(flex: 1, child: _buildOrderSummary(context, cart, isMobile)),
-          ],
-        );
-      }
+    if (!Responsive.isDesktop(context)) {
+      return Column(
+        children: [
+          _buildCartItemsList(context, cart, isMobile),
+          const SizedBox(height: 40),
+          _buildOrderSummary(context, cart, isMobile),
+        ],
+      );
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(flex: 2, child: _buildCartItemsList(context, cart, isMobile)),
+        const SizedBox(width: 40),
+        Expanded(flex: 1, child: _buildOrderSummary(context, cart, isMobile)),
+      ],
     );
   }
 

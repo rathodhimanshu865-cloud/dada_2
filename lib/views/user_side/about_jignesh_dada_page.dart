@@ -67,8 +67,8 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
     final home    = Provider.of<HomePageController>(context);
     final prof    = Provider.of<ProfileController>(context);
     final lang    = Provider.of<LanguageController>(context).locale.languageCode;
-    final bool isMob = context.isMobile;
-    final bool isDsk = context.isDesktop;
+    final bool isMob = Responsive.isMobile(context);
+    final bool isDsk = Responsive.isDesktop(context);
     final p       = prof.profileData;
 
     return UserPageLayout(

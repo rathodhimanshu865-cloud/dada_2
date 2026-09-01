@@ -32,8 +32,8 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
-    final bool isMobile = context.isMobile;
-    final bool isTablet = context.isTablet;
+    final bool isMobile = Responsive.isMobile(context);
+    final bool isTablet = Responsive.isTablet(context);
 
     return UserPageLayout(
       controller: controller,
@@ -75,7 +75,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
   }
 
   Widget _buildPhotoSection(BuildContext context, List<String> photoUrls) {
-    final bool isMobile = context.isMobile;
+    final bool isMobile = Responsive.isMobile(context);
     if (photoUrls.isEmpty) {
       return Padding(padding: const EdgeInsets.symmetric(vertical: 100), child: Text(AppLocalizations.of(context)!.noPhotosAdded, style: const TextStyle(color: Colors.grey, fontSize: 18)));
     }
@@ -85,7 +85,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 40),
           child: LayoutBuilder(builder: (context, constraints) {
-            int cols = context.isDesktop ? 4 : (context.isTablet ? 3 : 2);
+            int cols = Responsive.isDesktop(context) ? 4 : (Responsive.isTablet(context) ? 3 : 2);
             if (constraints.maxWidth < 500) cols = 1;
             
             return Row(

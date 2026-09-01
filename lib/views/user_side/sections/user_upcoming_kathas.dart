@@ -15,7 +15,7 @@ class UserUpcomingKathas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (controller.upcomingKathas.isEmpty) return const SizedBox.shrink();
-    final bool isMobile = !context.isDesktop;
+    final bool isMobile = !Responsive.isDesktop(context);
 
     return Container(
       width: double.infinity,

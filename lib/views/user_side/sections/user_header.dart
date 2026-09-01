@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/language_controller.dart';
 import '../../../controllers/homepage_controller.dart';
+import 'package:dada_2/controllers/product_controller.dart';
 import '../../../controllers/auth_controller.dart';
 import '../../../controllers/cart_controller.dart';
 import '../../../controllers/notification_controller.dart';
@@ -118,7 +119,7 @@ class _UserHeaderState extends State<UserHeader>
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
     final l10n = AppLocalizations.of(context)!;
     final double screenWidth = context.screenWidth;
-    final bool isMobile = !context.isDesktop;
+    final bool isMobile = !Responsive.isDesktop(context);
     final Color bgColor = _parseColor(settings.headerBackgroundColor);
     final bool isHomePage = currentRoute == '/';
 
@@ -183,16 +184,23 @@ class _UserHeaderState extends State<UserHeader>
                         child: Row(
                           children: [
                             _buildBranding(logoSize, isSticky, navTextColor, lang),
-                            const Spacer(),
                             if (!isMobile) ...[
-                              _buildNavigation(
-                                l10n,
-                                currentRoute,
-                                isSticky,
-                                navTextColor,
-                                activeNavColor,
+                              Expanded(
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    physics: const BouncingScrollPhysics(),
+                                    child: _buildNavigation(
+                                      l10n,
+                                      currentRoute,
+                                      isSticky,
+                                      navTextColor,
+                                      activeNavColor,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              const SizedBox(width: 20),
                               _buildActionControls(
                                 l10n,
                                 isSticky,
@@ -201,6 +209,7 @@ class _UserHeaderState extends State<UserHeader>
                                 lang,
                               ),
                             ] else ...[
+                              const Spacer(),
                               IconButton(
                                 icon: Icon(
                                   Icons.menu,
@@ -237,6 +246,7 @@ class _UserHeaderState extends State<UserHeader>
     Color activeColor,
     String lang,
   ) {
+    final prodController = Provider.of<ProductController>(context, listen: false);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -244,212 +254,263 @@ class _UserHeaderState extends State<UserHeader>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: IconButton(
-                  icon: const Icon(Icons.close, size: 30),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ),
-              ListTile(
-                title: Text(
-                  l10n.home,
-                  style: TextStyle(
-                    color: currentRoute == '/' ? activeColor : darkCharcoal,
-                    fontWeight: FontWeight.bold,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (context, scrollController) => SafeArea(
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      icon: const Icon(Icons.close, size: 30),
+                      onPressed: () => Navigator.pop(context),
+                    ),
                   ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/');
-                },
-              ),
+                  ListTile(
+                    title: Text(
+                      l10n.home,
+                      style: TextStyle(
+                        color: currentRoute == '/' ? activeColor : darkCharcoal,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/');
+                    },
+                  ),
 
-              ListTile(
-                title: Text(
-                  l10n.aboutDada,
-                  style: TextStyle(
-                    color: currentRoute == '/about_dada'
-                        ? activeColor
-                        : darkCharcoal,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/about_dada');
-                },
-              ),
-              ExpansionTile(
-                title: Text(
-                  l10n.katha,
-                  style: TextStyle(
-                    color: currentRoute.contains('katha')
-                        ? activeColor
-                        : darkCharcoal,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                children: [
                   ListTile(
-                    title: Text(l10n.shrimadBhagvatKatha),
+                    title: Text(
+                      l10n.aboutDada,
+                      style: TextStyle(
+                        color: currentRoute == '/about_dada'
+                            ? activeColor
+                            : darkCharcoal,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.pushNamed(context, '/about_katha');
+                      Navigator.pushNamed(context, '/about_dada');
+                    },
+                  ),
+                  ExpansionTile(
+                    title: Text(
+                      l10n.katha,
+                      style: TextStyle(
+                        color: currentRoute.contains('katha')
+                            ? activeColor
+                            : darkCharcoal,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    children: [
+                      ListTile(
+                        title: Text(l10n.shrimadBhagvatKatha),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/about_katha');
+                        },
+                      ),
+                      ListTile(
+                        title: Text(l10n.deviBhagvatKatha),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/about_devi_katha');
+                        },
+                      ),
+                      ListTile(
+                        title: Text(l10n.shivmahapuranKatha),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/about_shiv_katha');
+                        },
+                      ),
+                      ListTile(
+                        title: Text(l10n.fullKathaList),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/katha_list');
+                        },
+                      ),
+                      ListTile(
+                        title: Text(l10n.upcomingKathas),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/upcoming_ram_kathas');
+                        },
+                      ),
+                      ListTile(
+                        title: Text(l10n.trackShipment),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/track');
+                        },
+                      ),
+                    ],
+                  ),
+                  ExpansionTile(
+                    title: Text(
+                      l10n.products,
+                      style: TextStyle(
+                        color: currentRoute.contains('catalogue') || currentRoute == '/product'
+                            ? activeColor
+                            : darkCharcoal,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    children: [
+                      ListTile(
+                        title: const Text('All Sacred Products'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/catalogue', arguments: 'all');
+                        },
+                      ),
+                      ...prodController.categoryObjects.map((cat) => ListTile(
+                        title: Text(cat.localizedName(lang)),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/catalogue', arguments: cat.id);
+                        },
+                      )).toList(),
+                    ],
+                  ),
+                  ListTile(
+                    title: Text(
+                      l10n.stotraBhajan,
+                      style: TextStyle(
+                        color: currentRoute == '/stotra'
+                            ? activeColor
+                            : darkCharcoal,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/stotra');
+                    },
+                  ),
+                  ExpansionTile(
+                    title: Text(
+                      l10n.gallery,
+                      style: TextStyle(
+                        color:
+                            currentRoute.contains('gallery') ||
+                                currentRoute == '/news'
+                            ? activeColor
+                            : darkCharcoal,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    children: [
+                      ListTile(
+                        title: Text(l10n.photoGallery),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/photo_gallery');
+                        },
+                      ),
+                      ListTile(
+                        title: Text(l10n.videoGallery),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/video_gallery');
+                        },
+                      ),
+                      ListTile(
+                        title: Text(l10n.newsGallery),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/news');
+                        },
+                      ),
+                    ],
+                  ),
+                  ListTile(
+                    title: Text(
+                      'Shopping Bag',
+                      style: TextStyle(
+                        color: currentRoute == '/cart'
+                            ? activeColor
+                            : darkCharcoal,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/cart');
                     },
                   ),
                   ListTile(
-                    title: Text(l10n.deviBhagvatKatha),
+                    title: Text(
+                      l10n.contact,
+                      style: TextStyle(
+                        color: currentRoute == '/contact_us'
+                            ? activeColor
+                            : darkCharcoal,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.pushNamed(context, '/about_devi_katha');
+                      Navigator.pushNamed(context, '/contact_us');
                     },
                   ),
                   ListTile(
-                    title: Text(l10n.shivmahapuranKatha),
+                    title: Text(
+                      Provider.of<AuthController>(
+                            context,
+                            listen: false,
+                          ).isAuthenticated
+                          ? l10n.myOrders
+                          : l10n.loginSignUp,
+                      style: TextStyle(
+                        color:
+                            currentRoute == '/my_orders'
+                            ? activeColor
+                            : darkCharcoal,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.pushNamed(context, '/about_shiv_katha');
-                    },
-                  ),
-                  ListTile(
-                    title: Text(l10n.fullKathaList),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/katha_list');
-                    },
-                  ),
-                  ListTile(
-                    title: Text(l10n.upcomingKathas),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/upcoming_ram_kathas');
-                    },
-                  ),
-                  ListTile(
-                    title: Text(l10n.trackShipment),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/track');
-                    },
-                  ),
-                ],
-              ),
-              ListTile(
-                title: Text(
-                  l10n.stotraBhajan,
-                  style: TextStyle(
-                    color: currentRoute == '/stotra'
-                        ? activeColor
-                        : darkCharcoal,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/stotra');
-                },
-              ),
-              ExpansionTile(
-                title: Text(
-                  l10n.gallery,
-                  style: TextStyle(
-                    color:
-                        currentRoute.contains('gallery') ||
-                            currentRoute == '/news'
-                        ? activeColor
-                        : darkCharcoal,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                children: [
-                  ListTile(
-                    title: Text(l10n.photoGallery),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/photo_gallery');
-                    },
-                  ),
-                  ListTile(
-                    title: Text(l10n.videoGallery),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/video_gallery');
-                    },
-                  ),
-                  ListTile(
-                    title: Text(l10n.newsGallery),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/news');
-                    },
-                  ),
-                ],
-              ),
-              ListTile(
-                title: Text(
-                  l10n.contact,
-                  style: TextStyle(
-                    color: currentRoute == '/contact_us'
-                        ? activeColor
-                        : darkCharcoal,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/contact_us');
-                },
-              ),
-              ListTile(
-                title: Text(
-                  Provider.of<AuthController>(
+                      if (Provider.of<AuthController>(
                         context,
                         listen: false,
-                      ).isAuthenticated
-                      ? l10n.myOrders
-                      : l10n.loginSignUp,
-                  style: TextStyle(
-                    color:
-                        currentRoute == '/my_orders'
-                        ? activeColor
-                        : darkCharcoal,
-                    fontWeight: FontWeight.bold,
+                      ).isAuthenticated) {
+                        Navigator.pushNamed(context, '/my_orders');
+                      } else {
+                        Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
+                      }
+                    },
                   ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  if (Provider.of<AuthController>(
-                    context,
-                    listen: false,
-                  ).isAuthenticated) {
-                    Navigator.pushNamed(context, '/my_orders');
-                  } else {
-                    Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
-                  }
-                },
-              ),
-              const Divider(height: 40),
-              Text(
-                l10n.selectedLanguage,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _mobileLangButton('EN', 'English'),
-                  _mobileLangButton('HI', 'Hindi'),
-                  _mobileLangButton('GU', 'Gujarati'),
+                  const Divider(height: 40),
+                  Text(
+                    l10n.selectedLanguage,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _mobileLangButton('EN', 'English'),
+                      _mobileLangButton('HI', 'Hindi'),
+                      _mobileLangButton('GU', 'Gujarati'),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
                 ],
               ),
-              const SizedBox(height: 20),
-            ],
+            ),
           ),
         ),
       ),
@@ -622,7 +683,7 @@ class _UserHeaderState extends State<UserHeader>
     Color activeColor,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 11),
       child: InkWell(
         onTap: () => Navigator.pushNamed(context, route),
         hoverColor: Colors.transparent,
@@ -633,10 +694,10 @@ class _UserHeaderState extends State<UserHeader>
               title.toUpperCase(),
               style: AppTypography.bodyStyle(
                 context,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: isActive ? activeColor : textColor.withOpacity(0.8),
-                letterSpacing: 0.2,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: isActive ? activeColor : textColor.withOpacity(0.85),
+                letterSpacing: 0.1,
               ),
             ),
             const SizedBox(height: 6),
@@ -664,7 +725,7 @@ class _UserHeaderState extends State<UserHeader>
     Color activeColor,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 11),
       child: PopupMenuButton<String>(
         offset: const Offset(0, 50),
         elevation: 20,
@@ -680,10 +741,10 @@ class _UserHeaderState extends State<UserHeader>
                   title.toUpperCase(),
                   style: AppTypography.bodyStyle(
                     context,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: isActive ? activeColor : textColor.withOpacity(0.8),
-                    letterSpacing: 0.2,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: isActive ? activeColor : textColor.withOpacity(0.85),
+                    letterSpacing: 0.1,
                   ),
                 ),
                 Icon(
@@ -742,14 +803,14 @@ class _UserHeaderState extends State<UserHeader>
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         _buildAuthButton(textColor),
-        const SizedBox(width: 15),
+        const SizedBox(width: 10),
         _buildLanguageSwitcher(l10n, settings, textColor, isSticky),
         if (settings.searchVisibility) ...[
-          const SizedBox(width: 15),
+          const SizedBox(width: 10),
           _buildSearchButton(isSticky, textColor),
         ],
         if (settings.donateButtonEnabled) ...[
-          const SizedBox(width: 15),
+          const SizedBox(width: 10),
           _buildDonateButton(settings, lang),
         ],
       ],
@@ -814,48 +875,6 @@ class _UserHeaderState extends State<UserHeader>
             end: Offset.zero,
           ).animate(anim1),
           child: child,
-        );
-      },
-    );
-  }
-
-  Widget _buildCartButton(Color textColor) {
-    return Consumer<CartController>(
-      builder: (context, cart, child) {
-        return InkWell(
-          onTap: () {
-            if (widget.scaffoldKey != null) {
-              widget.scaffoldKey!.currentState?.openEndDrawer();
-            } else {
-              Scaffold.of(context).openEndDrawer();
-            }
-          },
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Icon(Icons.shopping_bag_outlined, color: textColor, size: 24),
-              if (cart.totalItems > 0)
-                Positioned(
-                  right: -4,
-                  top: -4,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: templeGold,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '${cart.totalItems}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
         );
       },
     );
@@ -1023,8 +1042,8 @@ class _UserHeaderState extends State<UserHeader>
         Navigator.pushNamed(context, '/product');
       },
       child: Container(
-        width: 40,
-        height: 40,
+        width: 36,
+        height: 36,
         decoration: BoxDecoration(
           color: isSticky
               ? primaryTeal
@@ -1042,7 +1061,7 @@ class _UserHeaderState extends State<UserHeader>
         ),
         child: Icon(
           Icons.search,
-          size: 18,
+          size: 16,
           color: isSticky
               ? Colors.white
               : (textColor == const Color(0xFF07404C) ? textColor : Colors.white),
@@ -1062,7 +1081,8 @@ class _UserHeaderState extends State<UserHeader>
         backgroundColor: templeGold,
         foregroundColor: Colors.white,
         elevation: 5,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        minimumSize: const Size(80, 36),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       ),
       child: Text(
@@ -1070,8 +1090,8 @@ class _UserHeaderState extends State<UserHeader>
         style: AppTypography.bodyStyle(
           context,
           fontWeight: FontWeight.w900,
-          fontSize: 10,
-          letterSpacing: 1.5,
+          fontSize: 9,
+          letterSpacing: 1.2,
           color: Colors.white,
         ),
       ),

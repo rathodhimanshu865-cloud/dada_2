@@ -8,6 +8,7 @@ import '../../../controllers/notification_controller.dart';
 import 'notification_drawer.dart';
 import '../../../models/product_model.dart';
 import '../../../utils/app_typography.dart';
+import '../../../utils/responsive_utils.dart';
 
 class ProductHeader extends StatefulWidget {
   final bool isSticky;
@@ -197,10 +198,10 @@ class _ProductHeaderState extends State<ProductHeader> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isMobile = MediaQuery.of(context).size.width < 1100;
+    final bool isDesktop = Responsive.isDesktop(context);
     const Color darkCharcoal = Color(0xFF2B2B2B);
 
-    if (isMobile) {
+    if (!isDesktop) {
       return Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -251,6 +252,8 @@ class _ProductHeaderState extends State<ProductHeader> {
             ),
             const SizedBox(width: 8),
             _wishlistButton(context, darkCharcoal, compact: true),
+            const SizedBox(width: 8),
+            _cartButton(context, darkCharcoal, compact: true),
           ],
         ),
       );
@@ -325,6 +328,8 @@ class _ProductHeaderState extends State<ProductHeader> {
               Row(
                 children: [
                   _wishlistButton(context, darkCharcoal),
+                  const SizedBox(width: 20),
+                  _cartButton(context, darkCharcoal),
                 ],
               ),
 
@@ -527,7 +532,7 @@ class _ProductHeaderState extends State<ProductHeader> {
     child: Text(title, style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: color))
   );
 
-  Widget _cartButton(BuildContext context, Color color) {
+  Widget _cartButton(BuildContext context, Color color, {bool compact = false}) {
     return Consumer<CartController>(
       builder: (context, cart, child) => InkWell(
         onTap: () {
@@ -542,20 +547,22 @@ class _ProductHeaderState extends State<ProductHeader> {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                Icon(Icons.shopping_cart_outlined, color: color, size: 22),
+                Icon(Icons.shopping_cart_outlined, color: color, size: compact ? 24 : 22),
                 if (cart.totalItems > 0)
                   Positioned(
                     right: -6, top: -6,
                     child: Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(color: Color(0xFF111111), shape: BoxShape.circle),
-                      child: Text('${cart.totalItems}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                      decoration: const BoxDecoration(color: Color(0xFFC89A5B), shape: BoxShape.circle),
+                      child: Text('${cart.totalItems}', style: TextStyle(color: Colors.white, fontSize: compact ? 8 : 10, fontWeight: FontWeight.bold)),
                     ),
                   ),
               ],
             ),
-            const SizedBox(width: 8),
-            Text('Cart', style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: color)),
+            if (!compact) ...[
+              const SizedBox(width: 8),
+              Text('Cart', style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: color)),
+            ],
           ],
         ),
       ),
