@@ -184,6 +184,7 @@ class HomePageController extends ChangeNotifier {
       case 'suvichar': homepageData.showDailySuvichar = !homepageData.showDailySuvichar; break;
       case 'ramkatha': homepageData.showRamKathaSection = !homepageData.showRamKathaSection; break;
       case 'news': homepageData.showNewsSection = !homepageData.showNewsSection; break;
+      case 'teachings': homepageData.showTeachings = !homepageData.showTeachings; break;
     }
     _safeNotifyListeners();
   }
@@ -221,6 +222,65 @@ class HomePageController extends ChangeNotifier {
       _safeNotifyListeners();
     }
     return null;
+  }
+
+  Future<void> translateKathas() async {
+    isLoading = true;
+    _safeNotifyListeners();
+    try {
+      // 1. Translate Upcoming Kathas
+      for (var k in upcomingKathas) {
+        final results = await TranslationService.translateToAll(k.name);
+        k.nameHi = results['hi']!; k.nameGu = results['gu']!;
+        
+        final locResults = await TranslationService.translateToAll(k.location);
+        k.locationHi = locResults['hi']!; k.locationGu = locResults['gu']!;
+        
+        final dateResults = await TranslationService.translateToAll(k.dateString);
+        k.dateStringHi = dateResults['hi']!; k.dateStringGu = dateResults['gu']!;
+        
+        final descResults = await TranslationService.translateToAll(k.description);
+        k.descriptionHi = descResults['hi']!; k.descriptionGu = descResults['gu']!;
+        
+        final timeResults = await TranslationService.translateToAll(k.timing);
+        k.timingHi = timeResults['hi']!; k.timingGu = timeResults['gu']!;
+        
+        final hostResults = await TranslationService.translateToAll(k.hosting);
+        k.hostingHi = hostResults['hi']!; k.hostingGu = hostResults['gu']!;
+      }
+
+      // 2. Translate All Kathas (Full List)
+      for (var kr in allKathas) {
+        final topicResults = await TranslationService.translateToAll(kr.topic);
+        kr.topicHi = topicResults['hi']!; kr.topicGu = topicResults['gu']!;
+        
+        final locResults = await TranslationService.translateToAll(kr.location);
+        kr.locationHi = locResults['hi']!; kr.locationGu = locResults['gu']!;
+        
+        final descResults = await TranslationService.translateToAll(kr.description);
+        kr.descriptionHi = descResults['hi']!; kr.descriptionGu = descResults['gu']!;
+        
+        final yearResults = await TranslationService.translateToAll(kr.year);
+        kr.yearHi = yearResults['hi']!; kr.yearGu = yearResults['gu']!;
+        
+        final datesResults = await TranslationService.translateToAll(kr.dates);
+        kr.datesHi = datesResults['hi']!; kr.datesGu = datesResults['gu']!;
+        
+        final countryResults = await TranslationService.translateToAll(kr.country);
+        kr.countryHi = countryResults['hi']!; kr.countryGu = countryResults['gu']!;
+        
+        final langResults = await TranslationService.translateToAll(kr.language);
+        kr.languageHi = langResults['hi']!; kr.languageGu = langResults['gu']!;
+      }
+
+      // 3. Auto-publish after translation
+      await publish();
+    } catch (e) {
+      AppLogger.error("Katha translation error", e);
+    } finally {
+      isLoading = false;
+      _safeNotifyListeners();
+    }
   }
 
   Future<void> publish() async {

@@ -4,7 +4,8 @@ import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/language_controller.dart';
 import '../../models/homepage_model.dart';
-import 'sections/product_cart_layout.dart';
+import 'sections/user_page_layout.dart';
+import 'sections/user_footer.dart';
 import '../../utils/app_typography.dart';
 
 class PuDadaTeachingsPage extends StatelessWidget {
@@ -13,6 +14,11 @@ class PuDadaTeachingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<HomePageController>(context);
+
+    if (controller.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator(color: Color(0xFF0F4C5C))));
+    }
+
     final t = controller.homepageData.teachingsPage;
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
     
@@ -22,22 +28,21 @@ class PuDadaTeachingsPage extends StatelessWidget {
 
     final bool isMobile = MediaQuery.of(context).size.width < 1100;
 
-    return ProductCartLayout(
+    return UserPageLayout(
       controller: controller,
-      child: Container(
-        color: bgLight,
-        child: Column(
-          children: [
-            _buildHeroBanner(context, t, primaryTeal, goldAccent, lang, isMobile),
-            SizedBox(height: isMobile ? 40 : 80),
-            _buildDivinePurpose(context, t, primaryTeal, goldAccent, lang, isMobile),
-            SizedBox(height: isMobile ? 60 : 80),
-            _buildThreePillars(context, t, primaryTeal, goldAccent, lang, isMobile),
-            const SizedBox(height: 60),
-            _buildCTAButton(context, primaryTeal, isMobile),
-            const SizedBox(height: 80),
-          ],
-        ),
+      child: Column(
+        children: [
+          const SizedBox(height: 120),
+          _buildHeroBanner(context, t, primaryTeal, goldAccent, lang, isMobile),
+          SizedBox(height: isMobile ? 40 : 80),
+          _buildDivinePurpose(context, t, primaryTeal, goldAccent, lang, isMobile),
+          SizedBox(height: isMobile ? 60 : 80),
+          _buildThreePillars(context, t, primaryTeal, goldAccent, lang, isMobile),
+          const SizedBox(height: 60),
+          _buildCTAButton(context, primaryTeal, isMobile),
+          const SizedBox(height: 80),
+          UserFooter(controller: controller),
+        ],
       ),
     );
   }
@@ -172,16 +177,14 @@ class PuDadaTeachingsPage extends StatelessWidget {
               const SizedBox(height: 40),
               if (pillars.isEmpty)
                 _pillarCard(context, Icons.auto_awesome, 'Sacred Wisdom', 'Pure teachings for spiritual enlightenment.', goldColor, isMobile)
-              else if (isMobile)
-                Column(
-                  children: pillars.map((p) => Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
+              else
+                Wrap(
+                  spacing: 24,
+                  runSpacing: 24,
+                  children: pillars.map((p) => SizedBox(
+                    width: isMobile ? double.infinity : 350,
                     child: _pillarCard(context, Icons.auto_awesome, p.localizedTitle(lang), p.localizedDescription(lang), goldColor, isMobile),
                   )).toList(),
-                )
-              else
-                Row(
-                  children: pillars.map((p) => _pillarCard(context, Icons.auto_awesome, p.localizedTitle(lang), p.localizedDescription(lang), goldColor, isMobile)).toList(),
                 ),
             ],
           ),
@@ -191,7 +194,7 @@ class PuDadaTeachingsPage extends StatelessWidget {
   }
 
   Widget _pillarCard(BuildContext context, IconData icon, String title, String description, Color goldColor, bool isMobile) {
-    final card = Container(
+    return Container(
       padding: EdgeInsets.all(isMobile ? 24 : 32),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -237,8 +240,6 @@ class PuDadaTeachingsPage extends StatelessWidget {
         ],
       ),
     );
-
-    return isMobile ? card : Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: card));
   }
 
   Widget _buildCTAButton(BuildContext context, Color primaryColor, bool isMobile) {

@@ -575,6 +575,7 @@ class HomepageData {
   bool showDailySuvichar;
   bool showRamKathaSection;
   bool showNewsSection;
+  bool showTeachings;
 
   HomepageData({
     FeaturedQuote? featuredQuote,
@@ -592,6 +593,7 @@ class HomepageData {
     this.showDailySuvichar = true,
     this.showRamKathaSection = true,
     this.showNewsSection = true,
+    this.showTeachings = true,
   }) : featuredQuote = featuredQuote ?? FeaturedQuote(),
        teachings = teachings ?? [],
        testimonials = testimonials ?? [],
@@ -615,6 +617,7 @@ class HomepageData {
     'showDailySuvichar': showDailySuvichar,
     'showRamKathaSection': showRamKathaSection,
     'showNewsSection': showNewsSection,
+    'showTeachings': showTeachings,
   };
 
   factory HomepageData.fromMap(Map<String, dynamic> map) => HomepageData(
@@ -633,6 +636,7 @@ class HomepageData {
     showDailySuvichar: map['showDailySuvichar'] ?? true,
     showRamKathaSection: map['showRamKathaSection'] ?? true,
     showNewsSection: map['showNewsSection'] ?? true,
+    showTeachings: map['showTeachings'] ?? true,
   );
 }
 
@@ -655,9 +659,12 @@ class UpcomingKatha {
   String hostingHi; String hostingGu;
 
   UpcomingKatha({
-    this.kathaNumber = '', this.name = '', this.dateString = '', this.timing = '',
+    this.kathaNumber = '', 
+    this.name = 'Shrimad Bhagwat Katha', 
+    this.dateString = '', this.timing = '',
     this.location = '', this.hosting = '', this.description = '', this.startDate, this.endDate,
-    this.nameHi = '', this.nameGu = '',
+    this.nameHi = 'श्रीमद् भागवत कथा', 
+    this.nameGu = 'શ્રીમદ્ ભાગવત કથા',
     this.locationHi = '', this.locationGu = '',
     this.dateStringHi = '', this.dateStringGu = '',
     this.descriptionHi = '', this.descriptionGu = '',
@@ -718,8 +725,10 @@ class AboutSection {
     this.tagline = 'A divine voice of compassion, wisdom, and service',
     this.quote = 'Radhe Radhe is not just a greeting; it is a resonance of the soul.',
     List<String>? paragraphs, List<String>? galleryImages,
-    this.titleHi = '', this.titleGu = '',
-    this.taglineHi = '', this.taglineGu = '',
+    this.titleHi = 'पू. जिग्नेश दादा', 
+    this.titleGu = 'પૂ. જીગ્નેશ દાદા',
+    this.taglineHi = 'करुणा, ज्ञान और सेवा की एक दिव्य आवाज़', 
+    this.taglineGu = 'કરુણા, જ્ઞાન અને સેવાનો એક દિવ્ય અવાજ',
     this.descriptionHi = '', this.descriptionGu = '',
     List<String>? paragraphsHi, List<String>? paragraphsGu,
   })  : paragraphs = paragraphs ?? [],

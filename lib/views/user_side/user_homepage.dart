@@ -10,6 +10,7 @@ import 'sections/user_latest_videos.dart';
 import 'sections/user_photo_gallery.dart';
 import 'sections/user_daily_suvichar.dart';
 import 'sections/user_ram_katha.dart';
+import 'sections/user_teachings.dart';
 import 'sections/user_news.dart';
 import 'sections/user_footer.dart';
 
@@ -52,6 +53,7 @@ class _UserHomePageState extends State<UserHomePage> {
           if (controller.homepageData.showUpcomingKathas) UserUpcomingKathas(controller: controller),
           if (controller.homepageData.showLatestVideos) UserLatestVideos(controller: controller),
           if (controller.homepageData.showPhotoGallery) UserPhotoGallery(controller: controller),
+          if (controller.homepageData.showTeachings) UserTeachings(controller: controller),
           if (controller.homepageData.showDailySuvichar) UserDailySuvichar(controller: controller),
           if (controller.homepageData.showRamKathaSection) UserRamKatha(controller: controller),
           if (controller.homepageData.showNewsSection) UserNews(controller: controller),

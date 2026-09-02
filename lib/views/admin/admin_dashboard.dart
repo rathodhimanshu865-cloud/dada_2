@@ -62,6 +62,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
         actions: [
           TextButton.icon(
             onPressed: () async {
+              _showKathaTranslationDialog(context);
+            },
+            icon: const Icon(Icons.translate, size: 16, color: Colors.orangeAccent),
+            label: const Text('TRANSLATE KATHAS', style: TextStyle(color: Colors.orangeAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(width: 8),
+          TextButton.icon(
+            onPressed: () async {
               _showPublishProgressDialog(context);
             },
             icon: const Icon(Icons.publish, size: 16, color: Colors.blueAccent),
@@ -214,6 +222,45 @@ class _AdminDashboardState extends State<AdminDashboard> {
       if (mounted) {
         Navigator.pop(context); // Close progress
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error publishing: $e'), backgroundColor: Colors.red));
+      }
+    });
+  }
+
+  void _showKathaTranslationDialog(BuildContext context) {
+    final home = Provider.of<HomePageController>(context, listen: false);
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.translate, color: Colors.orangeAccent),
+            const SizedBox(width: 12),
+            const Text('Translating Kathas'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: Colors.orangeAccent),
+            SizedBox(height: 20),
+            Text('Using Google Translation for all lists...'),
+            Text('Updating Firebase & sync in progress...', style: TextStyle(fontSize: 12, color: Colors.grey)),
+          ],
+        ),
+      ),
+    );
+
+    home.translateKathas().then((_) {
+      if (mounted) {
+        Navigator.pop(context); // Close progress
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All Katha lists translated and published!'), backgroundColor: Colors.green));
+      }
+    }).catchError((e) {
+      if (mounted) {
+        Navigator.pop(context); // Close progress
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error during translation: $e'), backgroundColor: Colors.red));
       }
     });
   }

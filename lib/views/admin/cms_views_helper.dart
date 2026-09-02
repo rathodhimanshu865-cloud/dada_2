@@ -8,6 +8,7 @@ import '../../controllers/review_controller.dart';
 import '../../models/homepage_model.dart';
 import '../../models/review_model.dart';
 import '../../models/contact_model.dart';
+import '../../services/translation_service.dart';
 import 'biography_editor.dart';
 import 'devotee_management_view.dart';
 
@@ -432,6 +433,15 @@ class CMSViewsHelper {
         _sectionHeader(AppLocalizations.of(context)!.generalTab.toUpperCase() + ' ' + AppLocalizations.of(context)!.storeSettingsTab.toUpperCase()),
         _buildField(AppLocalizations.of(context)!.organizationName, s.name, (v) => s.name = v, context, fieldLoading, setState),
         _buildImageField(context, AppLocalizations.of(context)!.websiteLogo, s.logoUrl, (v) => setState(() => s.logoUrl = v), context, fieldLoading, setState),
+
+        _sectionHeader('GOOGLE CLOUD TRANSLATION'),
+        _buildField('Google Cloud API Key', TranslationService.googleApiKey ?? '', (v) {
+          TranslationService.init(apiKey: v);
+        }, context, fieldLoading, setState),
+        const Padding(
+          padding: EdgeInsets.only(top: 8),
+          child: Text('Required for Google Translation functionality. Leave empty to use fallback provider.', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        ),
         
         _sectionHeader(AppLocalizations.of(context)!.headerTab.toUpperCase() + ' ' + AppLocalizations.of(context)!.storeSettingsTab.toUpperCase()),
         _buildToggle(AppLocalizations.of(context)!.stickyHeader, h.stickyHeaderEnabled, (v) => setState(() => h.stickyHeaderEnabled = v)),
@@ -670,7 +680,8 @@ class CMSViewsHelper {
                       _buildToggle(AppLocalizations.of(context)!.upcomingKathasTitle, h.showUpcomingKathas, (v) => controller.toggleHomeVisibility('katha')),
                       _buildToggle(AppLocalizations.of(context)!.latestVideos, h.showLatestVideos, (v) => controller.toggleHomeVisibility('videos')),
                       _buildToggle(AppLocalizations.of(context)!.photoGalleryTitle, h.showPhotoGallery, (v) => controller.toggleHomeVisibility('gallery')),
-                      _buildToggle(AppLocalizations.of(context)!.dailySuvicharTitle, h.showDailySuvichar, (v) => controller.toggleHomeVisibility('suvichar')),
+              _buildToggle('Show Teachings Section', h.showTeachings, (v) => controller.toggleHomeVisibility('teachings')),
+              _buildToggle(AppLocalizations.of(context)!.dailySuvicharTitle, h.showDailySuvichar, (v) => controller.toggleHomeVisibility('suvichar')),
                       _buildToggle(AppLocalizations.of(context)!.ramKathaPreview, h.showRamKathaSection, (v) => controller.toggleHomeVisibility('ramkatha')),
                       _buildToggle(AppLocalizations.of(context)!.newsUpdatesTitle, h.showNewsSection, (v) => controller.toggleHomeVisibility('news')),
                     ],
@@ -1306,6 +1317,36 @@ class CMSViewsHelper {
         _buildField(AppLocalizations.of(context)!.descPara1, t.divinePurposeDesc1, (v) => t.divinePurposeDesc1 = v, context, fieldLoading, setState, maxLines: 3),
         _buildField(AppLocalizations.of(context)!.descPara2, t.divinePurposeDesc2, (v) => t.divinePurposeDesc2 = v, context, fieldLoading, setState, maxLines: 3),
         _buildImageField(context, AppLocalizations.of(context)!.sideImage, t.divinePurposeImage, (v) => setState(() => t.divinePurposeImage = v), context, fieldLoading, setState),
+        
+        _sectionHeader('SACRED PILLARS (3 SECTIONS)'),
+        ...t.pillars.asMap().entries.map((entry) {
+          final i = entry.key;
+          final p = entry.value;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Pillar #${i + 1}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.amber)),
+              _buildField('Title', p.title, (v) => p.title = v, context, fieldLoading, setState),
+              _buildField('Description', p.description, (v) => p.description = v, context, fieldLoading, setState, maxLines: 3),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () => setState(() => t.pillars.removeAt(i)),
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  label: const Text('Remove Pillar', style: TextStyle(color: Colors.red)),
+                ),
+              ),
+              const Divider(),
+            ],
+          );
+        }),
+        const SizedBox(height: 12),
+        if (t.pillars.length < 3)
+          ElevatedButton.icon(
+            onPressed: () => setState(() => t.pillars.add(TeachingCard())),
+            icon: const Icon(Icons.add),
+            label: const Text('Add Pillar'),
+          ),
         
         const SizedBox(height: 40),
         ElevatedButton(onPressed: controller.publish, child: Text(AppLocalizations.of(context)!.saveTeachingsPage)),

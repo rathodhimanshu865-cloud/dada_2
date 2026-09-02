@@ -630,10 +630,16 @@ class _UserHeaderState extends State<UserHeader>
           textColor,
           activeColor,
         ),
-        _navItem(
+        _buildDropdownNavItem(
           l10n.products,
-          '/product',
-          currentRoute == '/product',
+          [
+            _dropdownItem(l10n.storeHomePortal, '/product'),
+            _dropdownItem(l10n.allSacredProducts, '/catalogue'),
+            const PopupMenuDivider(),
+            _dropdownItem(l10n.pujyaDadaTeachings, '/teachings'),
+            _dropdownItem(l10n.trackShipment, '/track'),
+          ],
+          currentRoute.contains('catalogue') || currentRoute == '/product' || currentRoute == '/teachings',
           isSticky,
           textColor,
           activeColor,

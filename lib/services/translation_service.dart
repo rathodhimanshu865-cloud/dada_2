@@ -64,10 +64,14 @@ class GoogleTranslationProvider implements TranslationProvider {
 class TranslationService {
   static TranslationProvider _provider = MyMemoryProvider();
   static final Map<String, String> _cache = {};
+  
+  // Set your Google Cloud Translation API Key here
+  static String? googleApiKey;
 
-  static void init({String? googleApiKey}) {
-    if (googleApiKey != null && googleApiKey.isNotEmpty) {
-      _provider = GoogleTranslationProvider(googleApiKey);
+  static void init({String? apiKey}) {
+    googleApiKey = apiKey;
+    if (googleApiKey != null && googleApiKey!.isNotEmpty) {
+      _provider = GoogleTranslationProvider(googleApiKey!);
     }
   }
 
