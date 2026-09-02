@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../models/user_model.dart';
 
 class DevoteeManagementView extends StatefulWidget {
@@ -52,9 +53,9 @@ class _DevoteeManagementViewState extends State<DevoteeManagementView> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Devotee User Management', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      Text(AppLocalizations.of(context)!.devoteeUserManagement, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Text('View registered devotees, their contact information, and sacred purchase history.', 
+                      Text(AppLocalizations.of(context)!.viewRegisteredDevotees, 
                         style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
                     ],
                   ),
@@ -64,7 +65,7 @@ class _DevoteeManagementViewState extends State<DevoteeManagementView> {
                       controller: _searchCtrl,
                       onChanged: (val) => setState(() => _searchQuery = val),
                       decoration: InputDecoration(
-                        hintText: 'Search devotees...',
+                        hintText: AppLocalizations.of(context)!.searchDevoteesHint,
                         prefixIcon: const Icon(Icons.search),
                         filled: true,
                         fillColor: Colors.white,
@@ -89,7 +90,7 @@ class _DevoteeManagementViewState extends State<DevoteeManagementView> {
                       children: [
                         Icon(Icons.people_outline, size: 64, color: Colors.grey.shade200),
                         const SizedBox(height: 16),
-                        Text('No devotees found.', style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.bold)),
+                        Text(AppLocalizations.of(context)!.noDevoteesFound, style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -167,7 +168,7 @@ class _DevoteeCard extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(user.name.isNotEmpty ? user.name : 'Sacred Devotee', 
+                          child: Text(user.name.isNotEmpty ? user.name : AppLocalizations.of(context)!.sacredDevotee, 
                             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                             maxLines: 1, overflow: TextOverflow.ellipsis),
                         ),
@@ -175,7 +176,7 @@ class _DevoteeCard extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(4)),
-                            child: const Text('NEW', style: TextStyle(color: Colors.green, fontSize: 8, fontWeight: FontWeight.bold)),
+                            child: Text(AppLocalizations.of(context)!.newBadge, style: const TextStyle(color: Colors.green, fontSize: 8, fontWeight: FontWeight.bold)),
                           ),
                       ],
                     ),
@@ -214,8 +215,8 @@ class _DevoteeCard extends StatelessWidget {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _statItem('Total Orders', totalOrders.toString()),
-                  _statItem('Lifetime Offerings', '₹${totalSpent.toStringAsFixed(2)}'),
+                  _statItem(AppLocalizations.of(context)!.totalOrders, totalOrders.toString()),
+                  _statItem(AppLocalizations.of(context)!.lifetimeOfferings, '₹${totalSpent.toStringAsFixed(2)}'),
                 ],
               );
             }
@@ -228,15 +229,15 @@ class _DevoteeCard extends StatelessWidget {
             children: [
               InkWell(
                 onTap: () => _launchWhatsApp(user.phone),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.chat_bubble_outline, size: 14, color: Colors.teal),
+                    const Icon(Icons.chat_bubble_outline, size: 14, color: Colors.teal),
                     const SizedBox(width: 8),
-                    Text('WhatsApp Seva', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.teal)),
+                    Text(AppLocalizations.of(context)!.whatsAppSeva, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.teal)),
                   ],
                 ),
               ),
-              Text('Joined ${user.createdAt != null ? DateFormat('yyyy-MM-dd').format(user.createdAt!) : 'Recent'}', 
+              Text(AppLocalizations.of(context)!.joinedDate(user.createdAt != null ? DateFormat('yyyy-MM-dd').format(user.createdAt!) : 'Recent'), 
                 style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
             ],
           ),

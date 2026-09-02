@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/product_controller.dart';
 import '../../models/product_model.dart';
 
@@ -21,12 +22,12 @@ class InventoryStockView extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Inventory & Stock Replenishment', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  Text(AppLocalizations.of(context)!.inventoryStockReplenishment, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text('Monitor real-time warehouse levels and trigger batch restocks.', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+                  Text(AppLocalizations.of(context)!.monitorWarehouseLevels, style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
                 ],
               ),
-              _buildSafetyIndicator(prodCtrl),
+              _buildSafetyIndicator(context, prodCtrl),
             ],
           ),
           const SizedBox(height: 32),
@@ -35,7 +36,7 @@ class InventoryStockView extends StatelessWidget {
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
             child: Column(
               children: [
-                _buildTableHeader(),
+                _buildTableHeader(context),
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -54,7 +55,7 @@ class InventoryStockView extends StatelessWidget {
     );
   }
 
-  Widget _buildSafetyIndicator(ProductController prodCtrl) {
+  Widget _buildSafetyIndicator(BuildContext context, ProductController prodCtrl) {
     final lowStockCount = prodCtrl.allProducts.where((p) => p.stock <= p.minStockAlert).length;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -63,23 +64,23 @@ class InventoryStockView extends StatelessWidget {
         children: [
           const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 18),
           const SizedBox(width: 8),
-          Text('$lowStockCount items below safety threshold', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.amber)),
+          Text(AppLocalizations.of(context)!.lowStockItemsBelow(lowStockCount), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.amber)),
         ],
       ),
     );
   }
 
-  Widget _buildTableHeader() {
+  Widget _buildTableHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       color: Colors.grey.shade50,
-      child: const Row(
+      child: Row(
         children: [
-          Expanded(flex: 4, child: Text('ITEM & SKU', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
-          Expanded(flex: 2, child: Text('CURRENT STOCK', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
-          Expanded(flex: 2, child: Text('SAFETY LIMIT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
-          Expanded(flex: 2, child: Text('STATUS INDICATOR', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
-          Expanded(flex: 2, child: Text('BATCH REPLENISH', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
+          Expanded(flex: 4, child: Text(AppLocalizations.of(context)!.itemSku, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
+          Expanded(flex: 2, child: Text(AppLocalizations.of(context)!.currentStock, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
+          Expanded(flex: 2, child: Text(AppLocalizations.of(context)!.safetyLimit, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
+          Expanded(flex: 2, child: Text(AppLocalizations.of(context)!.statusIndicator, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
+          Expanded(flex: 2, child: Text(AppLocalizations.of(context)!.batchReplenish, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
         ],
       ),
     );
@@ -115,7 +116,7 @@ class InventoryStockView extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(4)),
-                        child: const Text('OUT OF STOCK', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                        child: Text(AppLocalizations.of(context)!.outOfStockBadge, style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ],
@@ -127,7 +128,7 @@ class InventoryStockView extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(color: isLow ? Colors.red.shade50 : Colors.teal.shade50, borderRadius: BorderRadius.circular(4)),
-                    child: Text(isLow ? 'LOW' : 'OK', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: isLow ? Colors.red : Colors.teal), textAlign: TextAlign.center),
+                    child: Text(isLow ? AppLocalizations.of(context)!.lowBadge : AppLocalizations.of(context)!.okBadge, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: isLow ? Colors.red : Colors.teal), textAlign: TextAlign.center),
                   ),
                 ),
               Expanded(
@@ -158,21 +159,21 @@ class InventoryStockView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Manual Stock Update: ${p.name}'),
+        title: Text(AppLocalizations.of(context)!.manualStockUpdate(p.name)),
         content: TextField(
           controller: stockCtrl,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: 'Set Absolute Stock Quantity'),
+          decoration: InputDecoration(labelText: AppLocalizations.of(context)!.setAbsoluteStock),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.cancel)),
           ElevatedButton(
             onPressed: () {
               final newStock = int.tryParse(stockCtrl.text) ?? p.stock;
               prodCtrl.updateProduct(p.copyWith(stock: newStock));
               Navigator.pop(context);
             },
-            child: const Text('Update'),
+            child: Text(AppLocalizations.of(context)!.update),
           ),
         ],
       ),

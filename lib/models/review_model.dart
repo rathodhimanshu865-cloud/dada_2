@@ -9,6 +9,8 @@ class ReviewModel {
   final String userPhone;
   final double rating;
   final String comment;
+  final String commentHi;
+  final String commentGu;
   final DateTime createdAt;
 
   ReviewModel({
@@ -20,6 +22,8 @@ class ReviewModel {
     this.userPhone = '',
     required this.rating,
     required this.comment,
+    this.commentHi = '',
+    this.commentGu = '',
     required this.createdAt,
   });
 
@@ -34,6 +38,8 @@ class ReviewModel {
       userPhone: data['userPhone'] ?? '',
       rating: double.tryParse(data['rating']?.toString() ?? '0.0') ?? 0.0,
       comment: data['comment'] ?? '',
+      commentHi: data['commentHi'] ?? '',
+      commentGu: data['commentGu'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
@@ -47,7 +53,15 @@ class ReviewModel {
       'userPhone': userPhone,
       'rating': rating,
       'comment': comment,
+      'commentHi': commentHi,
+      'commentGu': commentGu,
       'createdAt': FieldValue.serverTimestamp(),
     };
+  }
+
+  String localizedComment(String langCode) {
+    if (langCode == 'hi' && commentHi.isNotEmpty) return commentHi;
+    if (langCode == 'gu' && commentGu.isNotEmpty) return commentGu;
+    return comment;
   }
 }

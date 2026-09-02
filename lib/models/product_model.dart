@@ -15,6 +15,8 @@ class ProductModel {
   final String categoryId;
   final String sku;
   final String consecrationBadge; // e.g., Sanctified, Bestseller
+  final String consecrationBadgeHi;
+  final String consecrationBadgeGu;
   final String shortSummary;
   final String shortSummaryHi;
   final String shortSummaryGu;
@@ -24,7 +26,11 @@ class ProductModel {
   final String imageUrl; 
   final List<String> imageUrls; 
   final List<String> finishes;
+  final List<String> finishesHi;
+  final List<String> finishesGu;
   final List<String> sizes;
+  final List<String> sizesHi;
+  final List<String> sizesGu;
   final int stock;
   final int minStockAlert;
   final bool isFeatured;
@@ -64,6 +70,8 @@ class ProductModel {
     required this.categoryId,
     this.sku = '',
     this.consecrationBadge = '',
+    this.consecrationBadgeHi = '',
+    this.consecrationBadgeGu = '',
     this.shortSummary = '',
     this.shortSummaryHi = '',
     this.shortSummaryGu = '',
@@ -73,7 +81,11 @@ class ProductModel {
     this.imageUrl = '',
     this.imageUrls = const [],
     this.finishes = const [],
+    this.finishesHi = const [],
+    this.finishesGu = const [],
     this.sizes = const [],
+    this.sizesHi = const [],
+    this.sizesGu = const [],
     this.stock = 0,
     this.minStockAlert = 5,
     this.isFeatured = false,
@@ -100,6 +112,8 @@ class ProductModel {
     String? categoryId,
     String? sku,
     String? consecrationBadge,
+    String? consecrationBadgeHi,
+    String? consecrationBadgeGu,
     String? shortSummary,
     String? shortSummaryHi,
     String? shortSummaryGu,
@@ -109,7 +123,11 @@ class ProductModel {
     String? imageUrl,
     List<String>? imageUrls,
     List<String>? finishes,
+    List<String>? finishesHi,
+    List<String>? finishesGu,
     List<String>? sizes,
+    List<String>? sizesHi,
+    List<String>? sizesGu,
     int? stock,
     int? minStockAlert,
     bool? isFeatured,
@@ -135,6 +153,8 @@ class ProductModel {
       categoryId: categoryId ?? this.categoryId,
       sku: sku ?? this.sku,
       consecrationBadge: consecrationBadge ?? this.consecrationBadge,
+      consecrationBadgeHi: consecrationBadgeHi ?? this.consecrationBadgeHi,
+      consecrationBadgeGu: consecrationBadgeGu ?? this.consecrationBadgeGu,
       shortSummary: shortSummary ?? this.shortSummary,
       shortSummaryHi: shortSummaryHi ?? this.shortSummaryHi,
       shortSummaryGu: shortSummaryGu ?? this.shortSummaryGu,
@@ -144,7 +164,11 @@ class ProductModel {
       imageUrl: imageUrl ?? this.imageUrl,
       imageUrls: imageUrls ?? this.imageUrls,
       finishes: finishes ?? this.finishes,
+      finishesHi: finishesHi ?? this.finishesHi,
+      finishesGu: finishesGu ?? this.finishesGu,
       sizes: sizes ?? this.sizes,
+      sizesHi: sizesHi ?? this.sizesHi,
+      sizesGu: sizesGu ?? this.sizesGu,
       stock: stock ?? this.stock,
       minStockAlert: minStockAlert ?? this.minStockAlert,
       isFeatured: isFeatured ?? this.isFeatured,
@@ -181,6 +205,8 @@ class ProductModel {
       categoryId: data['categoryId'] ?? '',
       sku: data['sku'] ?? '',
       consecrationBadge: data['consecrationBadge'] ?? '',
+      consecrationBadgeHi: data['consecrationBadgeHi'] ?? '',
+      consecrationBadgeGu: data['consecrationBadgeGu'] ?? '',
       shortSummary: data['shortSummary'] ?? '',
       shortSummaryHi: data['shortSummaryHi'] ?? '',
       shortSummaryGu: data['shortSummaryGu'] ?? '',
@@ -190,7 +216,11 @@ class ProductModel {
       imageUrl: data['imageUrl'] ?? '',
       imageUrls: parseList(data['imageUrls']),
       finishes: parseList(data['finishes']),
+      finishesHi: parseList(data['finishesHi']),
+      finishesGu: parseList(data['finishesGu']),
       sizes: parseList(data['sizes']),
+      sizesHi: parseList(data['sizesHi']),
+      sizesGu: parseList(data['sizesGu']),
       stock: data['stock'] ?? 0,
       minStockAlert: data['minStockAlert'] ?? 5,
       isFeatured: data['isFeatured'] ?? false,
@@ -219,6 +249,8 @@ class ProductModel {
       'categoryId': categoryId.toLowerCase().trim(), 
       'sku': sku,
       'consecrationBadge': consecrationBadge,
+      'consecrationBadgeHi': consecrationBadgeHi,
+      'consecrationBadgeGu': consecrationBadgeGu,
       'shortSummary': shortSummary,
       'shortSummaryHi': shortSummaryHi,
       'shortSummaryGu': shortSummaryGu,
@@ -228,7 +260,11 @@ class ProductModel {
       'imageUrl': imageUrl,
       'imageUrls': imageUrls,
       'finishes': finishes,
+      'finishesHi': finishesHi,
+      'finishesGu': finishesGu,
       'sizes': sizes,
+      'sizesHi': sizesHi,
+      'sizesGu': sizesGu,
       'stock': stock,
       'minStockAlert': minStockAlert,
       'isFeatured': isFeatured,
@@ -269,5 +305,23 @@ class ProductModel {
     if (langCode == 'hi' && highlightsHi.isNotEmpty) return highlightsHi;
     if (langCode == 'gu' && highlightsGu.isNotEmpty) return highlightsGu;
     return highlights;
+  }
+
+  String localizedConsecrationBadge(String langCode) {
+    if (langCode == 'hi' && consecrationBadgeHi.isNotEmpty) return consecrationBadgeHi;
+    if (langCode == 'gu' && consecrationBadgeGu.isNotEmpty) return consecrationBadgeGu;
+    return consecrationBadge;
+  }
+
+  List<String> localizedFinishes(String langCode) {
+    if (langCode == 'hi' && finishesHi.isNotEmpty) return finishesHi;
+    if (langCode == 'gu' && finishesGu.isNotEmpty) return finishesGu;
+    return finishes;
+  }
+
+  List<String> localizedSizes(String langCode) {
+    if (langCode == 'hi' && sizesHi.isNotEmpty) return sizesHi;
+    if (langCode == 'gu' && sizesGu.isNotEmpty) return sizesGu;
+    return sizes;
   }
 }

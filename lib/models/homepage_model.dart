@@ -455,22 +455,35 @@ class FeaturedQuote {
   String quoteHi; String quoteGu;
   String authorHi; String authorGu;
 
-  FeaturedQuote({this.quote = '', this.author = '', this.portrait = '', this.background = '',
-    this.quoteHi = '', this.quoteGu = '', this.authorHi = '', this.authorGu = ''});
+  FeaturedQuote({
+    this.quote = 'Spiritual wisdom elevates the soul, while education empowers society. Together, they create a compassionate and enlightened world.',
+    this.author = 'PU. JIGNESH DADA (RADHE RADHE)',
+    this.portrait = '',
+    this.background = '',
+    this.quoteHi = 'आध्यात्मिक ज्ञान आत्मा का उत्थान करता है, जबकि शिक्षा समाज को सशक्त बनाती है। साथ मिलकर, वे एक दयालु और प्रबुद्ध विश्व का निर्माण करते हैं।',
+    this.quoteGu = 'આધ્યાત્મિક જ્ઞાન આત્માનો ઉદ્ધાર કરે છે, જ્યારે શિક્ષણ સમાજને સશક્ત બનાવે છે. સાથે મળીને, તેઓ એક દયાળુ અને પ્રબુદ્ધ વિશ્વનું નિર્માણ કરે છે।',
+    this.authorHi = 'पू. जिग्नेश दादा (राधे राधे)',
+    this.authorGu = 'પૂ. જીગ્નેશ દાદા (રાધે રાધે)',
+  });
 
   String localizedQuote(String lang) => lang == 'hi' && quoteHi.isNotEmpty ? quoteHi : lang == 'gu' && quoteGu.isNotEmpty ? quoteGu : quote;
   String localizedAuthor(String lang) => lang == 'hi' && authorHi.isNotEmpty ? authorHi : lang == 'gu' && authorGu.isNotEmpty ? authorGu : author;
 
   Map<String, dynamic> toMap() => {'quote': quote, 'author': author, 'portrait': portrait, 'background': background,
     'quote_hi': quoteHi, 'quote_gu': quoteGu, 'author_hi': authorHi, 'author_gu': authorGu};
-  factory FeaturedQuote.fromMap(Map<String, dynamic> map) => FeaturedQuote(
-    quote: map['quote'] ?? '',
-    author: map['author'] ?? '',
-    portrait: map['portrait'] ?? '',
-    background: map['background'] ?? '',
-    quoteHi: map['quote_hi'] ?? '', quoteGu: map['quote_gu'] ?? '',
-    authorHi: map['author_hi'] ?? '', authorGu: map['author_gu'] ?? '',
-  );
+  factory FeaturedQuote.fromMap(Map<String, dynamic> map) {
+    final q = FeaturedQuote();
+    return FeaturedQuote(
+      quote: (map['quote'] as String?)?.isNotEmpty == true ? map['quote'] : q.quote,
+      author: (map['author'] as String?)?.isNotEmpty == true ? map['author'] : q.author,
+      portrait: map['portrait'] ?? '',
+      background: map['background'] ?? '',
+      quoteHi: (map['quote_hi'] as String?)?.isNotEmpty == true ? map['quote_hi'] : q.quoteHi,
+      quoteGu: (map['quote_gu'] as String?)?.isNotEmpty == true ? map['quote_gu'] : q.quoteGu,
+      authorHi: (map['author_hi'] as String?)?.isNotEmpty == true ? map['author_hi'] : q.authorHi,
+      authorGu: (map['author_gu'] as String?)?.isNotEmpty == true ? map['author_gu'] : q.authorGu,
+    );
+  }
 }
 
 class Testimonial {
@@ -776,19 +789,26 @@ class DailySuvichar {
   // Translations
   String dateHi; String dateGu;
 
-  DailySuvichar({this.imageUrl = '', this.date = '', this.dateHi = '', this.dateGu = ''});
+  DailySuvichar({
+    this.imageUrl = '', 
+    this.date = 'TATHASTU VIDYAPITH', 
+    this.dateHi = 'तथास्तु विद्यापीठ', 
+    this.dateGu = 'તથાસ્તુ વિદ્યાપીઠ'
+  });
 
   String localizedDate(String lang) => lang == 'hi' && dateHi.isNotEmpty ? dateHi : lang == 'gu' && dateGu.isNotEmpty ? dateGu : date;
 
   Map<String, dynamic> toMap() => {'imageUrl': imageUrl, 'date': date, 'date_hi': dateHi, 'date_gu': dateGu};
 
-  factory DailySuvichar.fromMap(Map<String, dynamic> map) =>
-      DailySuvichar(
-        imageUrl: map['imageUrl'] ?? '', 
-        date: map['date'] ?? '',
-        dateHi: map['date_hi'] ?? '',
-        dateGu: map['date_gu'] ?? '',
-      );
+  factory DailySuvichar.fromMap(Map<String, dynamic> map) {
+    final d = DailySuvichar();
+    return DailySuvichar(
+      imageUrl: map['imageUrl'] ?? '', 
+      date: (map['date'] as String?)?.isNotEmpty == true ? map['date'] : d.date,
+      dateHi: (map['date_hi'] as String?)?.isNotEmpty == true ? map['date_hi'] : d.dateHi,
+      dateGu: (map['date_gu'] as String?)?.isNotEmpty == true ? map['date_gu'] : d.dateGu,
+    );
+  }
 }
 
 class VideoItem {
@@ -837,9 +857,14 @@ class RamKathaSection {
   String description2Hi; String description2Gu;
 
   RamKathaSection({
-    this.title = 'Ram Katha', this.description1 = '', this.description2 = '', this.photoUrl = '',
-    this.description1Hi = '', this.description1Gu = '',
-    this.description2Hi = '', this.description2Gu = '',
+    this.title = 'Shrimad Bhagwat Katha', 
+    this.description1 = 'Every Shrimad Bhagwat Katha is a divine journey that awakens devotion, wisdom, and inner transformation. Through the soulful discourses of Pujya Shri Jigneshdada Radhe Radhe, devotees experience the eternal teachings of Lord Shri Krishna, strengthening their faith, values, and connection with Sanatan Dharma.', 
+    this.description2 = 'Filled with inspiring stories, sacred scriptures, devotional bhajans, and practical life lessons, each Katha brings peace to the heart and positivity to life. It guides every listener toward love, compassion, selfless service, and spiritual awakening while preserving the timeless traditions of our Vedic culture.', 
+    this.photoUrl = '',
+    this.description1Hi = 'प्रत्येक श्रीमद् भागवत कथा एक दिव्य यात्रा है जो भक्ति, ज्ञान और आंतरिक परिवर्तन को जागृत करती है। पूज्य श्री जिग्नेशदादा राधे राधे के आत्मिक प्रवचनों के माध्यम से, भक्त भगवान श्री कृष्ण की शाश्वत शिक्षाओं का अनुभव करते हैं, जिससे उनका विश्वास, मूल्य और सनातन धर्म के साथ जुड़ाव मजबूत होता है।', 
+    this.description1Gu = 'દરેક શ્રીમદ્ ભાગવત કથા એક દિવ્ય યાત્રા છે જે ભક્તિ, જ્ઞાન અને આંતરિક પરિવર્તનને જાગૃત કરે છે. પૂજ્ય શ્રી જીગ્નેશદાદા રાધે રાધેના આત્મીય પ્રવચનો દ્વારા, ભક્તો ભગવાન શ્રીકૃષ્ણના શાશ્વત ઉપદેશોનો અનુભવ કરે છે, જે તેમના વિશ્વાસ, મૂલ્યો અને સનાતન ધર્મ સાથેના જોડાણને મજબૂત બનાવે છે।',
+    this.description2Hi = 'प्रेरक कहानियों, पवित्र ग्रंथों, भक्ति भजनों और व्यावहारिक जीवन के पाठों से भरपूर, प्रत्येक कथा हृदय में शांति और जीवन में सकारात्मकता लाती है। यह प्रत्येक श्रोता को प्रेम, करुणा, निस्वार्थ सेवा और आध्यात्मिक जागृति की ओर ले जाती है और हमारी वैदिक संस्कृति की कालातीत परंपराओं को संरक्षित करती है।', 
+    this.description2Gu = 'પ્રેરક વાર્તાઓ, પવિત્ર ગ્રંથો, ભક્તિ ભજનો અને વ્યાવહારિક જીવનના પાઠોથી ભરેલી, દરેક કથા હૃદયમાં શાંતિ અને જીવનમાં સકારાત્મકતા લાવે છે. તે દરેક શ્રોતાને પ્રેમ, કરૂણા, નિઃસ્વાર્થ સેવા અને આધ્યાત્મિક જાગૃતિ તરફ દોરી જાય છે જ્યારે આપણી વૈદિક સંસ્કૃતિની કાલાતીત પરંપરાઓને જાળવી રાખે છે।',
   });
 
   String localizedDescription1(String lang) => lang == 'hi' && description1Hi.isNotEmpty ? description1Hi : lang == 'gu' && description1Gu.isNotEmpty ? description1Gu : description1;
@@ -850,14 +875,19 @@ class RamKathaSection {
     'description1_hi': description1Hi, 'description1_gu': description1Gu,
     'description2_hi': description2Hi, 'description2_gu': description2Gu,
   };
-  factory RamKathaSection.fromMap(Map<String, dynamic> map) => RamKathaSection(
-    title: map['title'] ?? 'Ram Katha',
-    description1: map['description1'] ?? '',
-    description2: map['description2'] ?? '',
-    photoUrl: map['photoUrl'] ?? '',
-    description1Hi: map['description1_hi'] ?? '', description1Gu: map['description1_gu'] ?? '',
-    description2Hi: map['description2_hi'] ?? '', description2Gu: map['description2_gu'] ?? '',
-  );
+  factory RamKathaSection.fromMap(Map<String, dynamic> map) {
+    final r = RamKathaSection();
+    return RamKathaSection(
+      title: map['title'] ?? 'Shrimad Bhagwat Katha',
+      description1: (map['description1'] as String?)?.isNotEmpty == true ? map['description1'] : r.description1,
+      description2: (map['description2'] as String?)?.isNotEmpty == true ? map['description2'] : r.description2,
+      photoUrl: map['photoUrl'] ?? '',
+      description1Hi: (map['description1_hi'] as String?)?.isNotEmpty == true ? map['description1_hi'] : r.description1Hi,
+      description1Gu: (map['description1_gu'] as String?)?.isNotEmpty == true ? map['description1_gu'] : r.description1Gu,
+      description2Hi: (map['description2_hi'] as String?)?.isNotEmpty == true ? map['description2_hi'] : r.description2Hi,
+      description2Gu: (map['description2_gu'] as String?)?.isNotEmpty == true ? map['description2_gu'] : r.description2Gu,
+    );
+  }
 }
 
 class FooterLink {

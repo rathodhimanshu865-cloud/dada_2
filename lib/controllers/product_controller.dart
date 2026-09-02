@@ -418,14 +418,20 @@ class ProductController extends ChangeNotifier {
 
   Future<void> addProduct(ProductModel product) async {
     try {
-      // Optimistic cache update for both Admin and User-side lists
-      _allProductsCache.insert(0, product);
-      if (_selectedCategoryId == 'all' || _selectedCategoryId == product.categoryId) {
-        _browsingProducts.insert(0, product);
+      // 1. Automatically translate if translations are missing
+      ProductModel finalProduct = product;
+      if (product.nameHi.isEmpty || product.nameGu.isEmpty) {
+        finalProduct = await TranslationService.translateProduct(product);
+      }
+
+      // 2. Optimistic cache update for both Admin and User-side lists
+      _allProductsCache.insert(0, finalProduct);
+      if (_selectedCategoryId == 'all' || _selectedCategoryId == finalProduct.categoryId) {
+        _browsingProducts.insert(0, finalProduct);
       }
       _safeNotifyListeners();
 
-      await _repository.addProduct(product);
+      await _repository.addProduct(finalProduct);
       
       // Background refreshes (don't await) to ensure server sync
       _loadInitialData(); 
@@ -443,14 +449,17 @@ class ProductController extends ChangeNotifier {
 
   Future<void> updateProduct(ProductModel product) async {
     try {
-      // Optimistic cache update for immediate UI feedback in non-streamed views
-      final idx = _allProductsCache.indexWhere((p) => p.id == product.id);
+      // 1. Automatically update translations
+      final ProductModel finalProduct = await TranslationService.translateProduct(product);
+
+      // 2. Optimistic cache update for immediate UI feedback
+      final idx = _allProductsCache.indexWhere((p) => p.id == finalProduct.id);
       if (idx != -1) {
-        _allProductsCache[idx] = product;
+        _allProductsCache[idx] = finalProduct;
         _safeNotifyListeners();
       }
 
-      await _repository.updateProduct(product);
+      await _repository.updateProduct(finalProduct);
       
       // Background refreshes (don't await) to ensure sync with server
       _loadInitialData(); 
@@ -497,11 +506,13 @@ class ProductController extends ChangeNotifier {
   }
 
   Future<void> addCategory(CategoryModel category) async {
-    await _repository.addCategory(category);
+    final finalCategory = await TranslationService.translateCategory(category);
+    await _repository.addCategory(finalCategory);
   }
 
   Future<void> updateCategory(CategoryModel category) async {
-    await _repository.updateCategory(category);
+    final finalCategory = await TranslationService.translateCategory(category);
+    await _repository.updateCategory(finalCategory);
   }
 
   Future<void> deleteCategory(String categoryId) async {
@@ -514,47 +525,34 @@ class ProductController extends ChangeNotifier {
 
   Future<void> translateAllStore() async {
     try {
+      _errorMessage = "Translating store content... Please wait.";
+      _safeNotifyListeners();
+
       // 1. Translate all categories
-      final categories = await _repository.getCategories().first;
-      for (var cat in categories) {
-        final results = await Future.wait([
-          TranslationService.translateToAll(cat.name),
-          TranslationService.translateToAll(cat.description),
-        ]);
-        final updated = cat.copyWith(
-          nameHi: results[0]['hi']!, nameGu: results[0]['gu']!,
-          descriptionHi: results[1]['hi']!, descriptionGu: results[1]['gu']!,
-        );
+      final categoriesList = await _repository.getCategories().first;
+      for (var cat in categoriesList) {
+        final updated = await TranslationService.translateCategory(cat);
         await updateCategory(updated);
       }
 
       // 2. Translate all products
-      final products = await _repository.getAllProducts(limit: 500);
-      for (var prod in products) {
-        final results = await Future.wait([
-          TranslationService.translateToAll(prod.name),
-          TranslationService.translateToAll(prod.description),
-          TranslationService.translateToAll(prod.shortSummary),
-          TranslationService.translateBatch(prod.highlights, 'hi'),
-          TranslationService.translateBatch(prod.highlights, 'gu'),
-        ]);
-        
-        final n = results[0] as Map<String, String>;
-        final d = results[1] as Map<String, String>;
-        final s = results[2] as Map<String, String>;
-        final hHi = results[3] as List<String>;
-        final hGu = results[4] as List<String>;
-
-        final updated = prod.copyWith(
-          nameHi: n['hi']!, nameGu: n['gu']!,
-          descriptionHi: d['hi']!, descriptionGu: d['gu']!,
-          shortSummaryHi: s['hi']!, shortSummaryGu: s['gu']!,
-          highlightsHi: hHi, highlightsGu: hGu,
-        );
+      final productsList = await _repository.getAllProducts(limit: 500);
+      for (var prod in productsList) {
+        final updated = await TranslationService.translateProduct(prod);
         await updateProduct(updated);
       }
+      
+      _errorMessage = "Translation complete!";
+      _safeNotifyListeners();
+      
+      Timer(const Duration(seconds: 3), () {
+        _errorMessage = null;
+        _safeNotifyListeners();
+      });
     } catch (e) {
       AppLogger.error("Store translation error", e);
+      _errorMessage = "Translation failed: $e";
+      _safeNotifyListeners();
     }
   }
 

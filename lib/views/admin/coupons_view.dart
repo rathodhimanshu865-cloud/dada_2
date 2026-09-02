@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/coupon_controller.dart';
 import '../../models/coupon_model.dart';
 
@@ -21,15 +22,15 @@ class CouponsView extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Coupons & Devotional Offers', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  Text(AppLocalizations.of(context)!.couponsDevotionalOffers, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text('Create promo codes and celebratory blessing discounts for devotees.', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+                  Text(AppLocalizations.of(context)!.createPromoDesc, style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
                 ],
               ),
               ElevatedButton.icon(
                 onPressed: () => _showCouponDialog(context, couponCtrl),
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('CREATE PROMO CODE', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                label: Text(AppLocalizations.of(context)!.createPromoCode, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF8B4513),
                   foregroundColor: Colors.white,
@@ -44,7 +45,7 @@ class CouponsView extends StatelessWidget {
           if (couponCtrl.isLoading)
             const Center(child: CircularProgressIndicator())
           else if (couponCtrl.coupons.isEmpty)
-            const Center(child: Text('No coupons created yet.'))
+            Center(child: Text(AppLocalizations.of(context)!.noCouponsCreated))
           else
             GridView.builder(
               shrinkWrap: true,
@@ -81,23 +82,23 @@ class CouponsView extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(color: Colors.teal.shade50, borderRadius: BorderRadius.circular(4)),
-                child: Text(coupon.isActive ? 'ACTIVE' : 'INACTIVE', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.teal)),
+                child: Text(coupon.isActive ? AppLocalizations.of(context)!.activeStatus : AppLocalizations.of(context)!.inactiveStatus, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.teal)),
               ),
             ],
           ),
           const SizedBox(height: 16),
           Text(
             coupon.discountType == 'percentage' 
-              ? '${coupon.discountValue}% instant discount on all Dada products'
-              : 'Flat ₹${coupon.discountValue} OFF on orders above ₹${coupon.minOrderValue}',
+              ? AppLocalizations.of(context)!.instantDiscountDesc(coupon.discountValue.toString())
+              : AppLocalizations.of(context)!.flatDiscountDesc(coupon.discountValue.toString(), coupon.minOrderValue.toString()),
             style: TextStyle(fontSize: 12, color: Colors.grey.shade600, height: 1.4),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 12),
-          Text('Discount: ${coupon.discountType == 'percentage' ? '${coupon.discountValue}%' : '₹${coupon.discountValue}'}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-          Text('Min Order: ₹${coupon.minOrderValue}', style: const TextStyle(fontSize: 11, color: Colors.grey)),
-          Text('Times Used: 412', style: const TextStyle(fontSize: 11, color: Colors.grey)),
+          Text(AppLocalizations.of(context)!.discountPrefix(coupon.discountType == 'percentage' ? '${coupon.discountValue}%' : '₹${coupon.discountValue}'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+          Text(AppLocalizations.of(context)!.minOrderPrefix(coupon.minOrderValue.toString()), style: const TextStyle(fontSize: 11, color: Colors.grey)),
+          Text(AppLocalizations.of(context)!.timesUsedPrefix(412), style: const TextStyle(fontSize: 11, color: Colors.grey)),
           const Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -115,42 +116,42 @@ class CouponsView extends StatelessWidget {
     final valueCtrl = TextEditingController();
     final minOrderCtrl = TextEditingController();
     final limitCtrl = TextEditingController(text: '2');
-    final termsCtrl = TextEditingController(text: 'Maximum 2 uses per devotee.');
+    final termsCtrl = TextEditingController(text: AppLocalizations.of(context)!.usageLimitHint);
     String type = 'flat';
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Create Promo Code'),
+          title: Text(AppLocalizations.of(context)!.createPromoCode),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(controller: codeCtrl, decoration: const InputDecoration(labelText: 'Coupon Code (e.g. DADA10)')),
+                TextField(controller: codeCtrl, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.couponCodeHint)),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: type,
-                  items: const [
-                    DropdownMenuItem(value: 'flat', child: Text('Flat Price Discount')),
-                    DropdownMenuItem(value: 'percentage', child: Text('Percentage Discount')),
+                  items: [
+                    DropdownMenuItem(value: 'flat', child: Text(AppLocalizations.of(context)!.flatPriceDiscount)),
+                    DropdownMenuItem(value: 'percentage', child: Text(AppLocalizations.of(context)!.percentageDiscount)),
                   ],
                   onChanged: (v) => setDialogState(() => type = v!),
-                  decoration: const InputDecoration(labelText: 'Discount Type'),
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context)!.discountType),
                 ),
                 const SizedBox(height: 16),
-                TextField(controller: valueCtrl, decoration: InputDecoration(labelText: type == 'flat' ? 'Discount Value (₹)' : 'Discount Percentage (%)')),
+                TextField(controller: valueCtrl, decoration: InputDecoration(labelText: type == 'flat' ? AppLocalizations.of(context)!.discountValueRs : AppLocalizations.of(context)!.discountValuePercent)),
                 const SizedBox(height: 16),
-                TextField(controller: minOrderCtrl, decoration: const InputDecoration(labelText: 'Minimum Order Value (₹)')),
+                TextField(controller: minOrderCtrl, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.minOrderValueRs)),
                 const SizedBox(height: 16),
-                TextField(controller: limitCtrl, decoration: const InputDecoration(labelText: 'Usage Limit Per User'), keyboardType: TextInputType.number),
+                TextField(controller: limitCtrl, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.usageLimitPerUser), keyboardType: TextInputType.number),
                 const SizedBox(height: 16),
-                TextField(controller: termsCtrl, decoration: const InputDecoration(labelText: 'Terms & Conditions'), maxLines: 2),
+                TextField(controller: termsCtrl, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.termsConditions), maxLines: 2),
               ],
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.cancel)),
             ElevatedButton(
               onPressed: () async {
                 await ctrl.addCoupon(CouponModel(
@@ -164,7 +165,7 @@ class CouponsView extends StatelessWidget {
                 ));
                 if (context.mounted) Navigator.pop(context);
               }, 
-              child: const Text('Save Coupon')
+              child: Text(AppLocalizations.of(context)!.saveCoupon)
             ),
           ],
         ),

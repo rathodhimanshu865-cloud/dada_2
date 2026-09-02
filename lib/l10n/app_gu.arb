@@ -35,7 +35,7 @@
   "gujarati": "ગુજરાતી",
   "hindi": "Hindi",
   "spiritualCalendar": "આધ્યાત્મિક કેલેન્ડર",
-  "listView": "લિસ્ટ વ્યૂ",
+  "listView": "લિસ્ટ વ્યુ",
   "calendar": "કેલેન્ડર",
   "detailsArrow": "વિગતો >",
   "watchAndReflect": "જુઓ અને વિચારો",
@@ -43,6 +43,13 @@
   "youtubeDiscourse": "YouTube પ્રવચન",
   "discoverTheJourney": "યાત્રા શોધો",
   "countCharacters": "500 માંથી {count} અક્ષરો.",
+  "@countCharacters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "verifyNotRobot": "કૃપા કરીને ચકાસો કે તમે રોબોટ નથી.",
   "messageSavedEmailOpened": "સંદેશ સાચવવામાં આવ્યો અને ઇમેઇલ ડ્રાફ્ટ ખોલવામાં આવ્યો.",
   "websiteContactFormMessage": "વેબસાઇટ સંપર્ક ફોર્મ સંદેશ",
@@ -73,6 +80,13 @@
   "allKathas": "બધી કથાઓ",
   "searchKathaPlaceholder": "કથા શીર્ષક, વર્ષ અથવા સ્થળ દાખલ કરો...",
   "kathasFound": "{count} કથાઓ મળી",
+  "@kathasFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "id": "આઈડી",
   "year": "વર્ષ",
   "dates": "તારીખો",
@@ -151,6 +165,13 @@
   "sacredCatalogue": "પવિત્ર કેટલોગ",
   "searchProductPlaceholder": "નામ, SKU અથવા કીવર્ડ દ્વારા શોધો...",
   "showingSacredItems": "{count} પવિત્ર વસ્તુઓ અહીં બતાવવામાં આવી રહી છે: ",
+  "@showingSacredItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "loadingSacredProducts": "પવિત્ર ઉત્પાદનો લોડ થઈ રહ્યા છે...",
   "noProductsFound": "આ શ્રેણીમાં કોઈ ઉત્પાદનો મળ્યા નથી.",
   "sortByAz": "અ થી જ્ઞ (A-Z)",
@@ -218,5 +239,1002 @@
   "professionalHighlights": "વ્યાવસાયિક હાઇલાઇટ્સ",
   "socialInitiative": "સામાજિક પહેલ",
   "philosophyOfLife": "જીવનનું તત્વજ્ઞાન",
-  "personalAttributes": "વ્યક્તિગત લાક્ષણિકતાઓ"
+  "personalAttributes": "વ્યક્તિગત લાક્ષણિકતાઓ",
+  "myShoppingBag": "મારી શોપિંગ બેગ",
+  "storeHomePortal": "સ્ટોર હોમ પોર્ટલ",
+  "paymentFailed": "ચુકવણી નિષ્ફળ: {error}",
+  "@paymentFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "razorpayGateway": "રેઝરપે પેમેન્ટ ગેટવે (ડમી)",
+  "processingPayment": "સુરક્ષિત ચુકવણી પર પ્રક્રિયા થઈ રહી છે...",
+  "emailMatchError": "ઇમેઇલ તમારી પ્રોફાઇલ ઇમેઇલ સાથે મેળ ખાતો હોવો જોઈએ.",
+  "validPincodeRequired": "કૃપા કરીને માન્ય 6-આંકડાનો પિનકોડ દાખલ કરો.",
+  "orderPlacedSuccessfully": "ઓર્ડર સફળતાપૂર્વક અપાઈ ગયો!",
+  "failedToPlaceOrder": "ઓર્ડર આપવામાં નિષ્ફળ.",
+  "yourBagIsEmpty": "તમારી બેગ ખાલી છે",
+  "backToProducts": "ઉત્પાાદનો પર પાછા જાઓ",
+  "secureSacredCheckout": "સુરક્ષિત પવિત્ર ચેકઆઉટ",
+  "address": "સરનામું",
+  "payment": "ચુકવણી",
+  "placed": "ઓર્ડર અપાયો",
+  "deliveryDetails": "ડિલિવરી વિગતો",
+  "fullNameLabel": "પૂરું નામ *",
+  "phoneLabel": "ફોન *",
+  "addressLabel": "સરનામું *",
+  "cityLabel": "શહેર *",
+  "stateLabel": "રાજ્ય *",
+  "pincodeLabel": "પિનકોડ *",
+  "noteOptional": "નોંધ (વૈકલ્પિક)",
+  "validPhoneRequired": "માન્ય ફોન જરૂરી છે",
+  "validEmailRequired": "માન્ય ઇમેઇલ જરૂરી છે",
+  "paymentMethod": "ચુકવણી પદ્ધતિ",
+  "cashOnDelivery": "કેશ ઓન ડિલિવરી",
+  "payWhenDelivered": "જ્યારે પહોંચાડવામાં આવે ત્યારે ચૂકવો.",
+  "upiOnlinePayment": "UPI / ઓનલાઇન ચુકવણી",
+  "secureOnlinePayment": "સુરક્ષિત ઓનલાઇન ચુકવણી.",
+  "summary": "સારાંશ",
+  "subtotal": "પેટા-કુલ",
+  "discount": "ડિસ્કાઉન્ટ",
+  "shipping": "શિપિંગ",
+  "taxes": "ટેક્સ",
+  "total": "કુલ",
+  "back": "પાછળ",
+  "nextStep": "આગળનું પગલું",
+  "completeOrder": "ઓર્ડર પૂર્ણ કરો",
+  "secureCheckoutProtected": "સુરક્ષિત ચેકઆઉટ • એન્ક્રિપ્ટેડ અને સુરક્ષિત",
+  "orderPlacedTitle": "ઓર્ડર અપાઈ ગયો!",
+  "orderIdLabel": "ઓર્ડર આઈડી: {id}",
+  "@orderIdLabel": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "orderIdCopied": "ઓર્ડર આઈડી ક્લિપબોર્ડ પર કોપી કરવામાં આવી!",
+  "downloadInvoice": "ઇનવોઇસ ડાઉનલોડ કરો",
+  "sendToWhatsApp": "WhatsApp પર મોકલો",
+  "continueShopping": "ખરીદી ચાલુ રાખો",
+  "trackOrderStatus": "ઓર્ડર સ્ટેટસ ટ્રેક કરો",
+  "goToMyOrders": "મારા ઓર્ડર્સ પર જાઓ",
+  "productNotFound": "અરેરે! ઉત્પાદન મળ્યું નથી અથવા લોડ કરવામાં નિષ્ફળ.",
+  "goBack": "પાછા જાઓ",
+  "notFound": "મળ્યું નથી",
+  "itemNotAvailable": "આ પવિત્ર વસ્તુ હવે સ્ટોરમાં ઉપલબ્ધ નથી.",
+  "returnToStore": "સ્ટોર પર પાછા ફરો",
+  "reviewsCount": "{count} સમીક્ષાઓ",
+  "@reviewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "off": "છૂટ",
+  "checkDeliveryAvailability": "કૃપા કરીને પહેલા ડિલિવરીની ઉપલબ્ધતા તપાસો",
+  "checkOutSacredItem": "આ પવિત્ર વસ્તુ જુઓ:",
+  "material": "સામગ્રી",
+  "premiumMaterial": "પ્રીમિયમ અભિમંત્રિત સામગ્રી / પવિત્ર લાકડું",
+  "sku": "SKU",
+  "category": "શ્રેણી",
+  "origin": "ઉદભવ",
+  "authenticAshramAtelier": "અધિકૃત આશ્રમ એટેલિયર",
+  "weight": "વજન",
+  "approxWeight": "આશરે 50 ગ્રામ - 150 ગ્રામ",
+  "unableToLoadReviews": "આ સમયે સમીક્ષાઓ લોડ કરવામાં અસમર્થ.",
+  "retry": "ફરી પ્રયાસ કરો",
+  "noReviewsYet": "હજુ સુધી કોઈ સમીક્ષા નથી. તમારો અનુભવ શેર કરનાર પ્રથમ ભક્ત બનો!",
+  "basedOnDevoteeReviews": "{count} ભક્ત સમીક્ષાઓ પર આધારિત",
+  "@basedOnDevoteeReviews": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "verifiedDevoteeReviews": "100% ચકાસાયેલ ભક્ત અને વેદી સમીક્ષાઓ",
+  "inspectedVedicAuthenticity": "વૈદિક અધિકૃતતા અને ભૌતિક અખંડિતતા માટે તપાસવામાં આવેલ",
+  "closeForm": "ફોર્મ બંધ કરો",
+  "writeReview": "સમીક્ષા લખો",
+  "ratingLabel": "રેટિંગ: ",
+  "devoteeNameLabel": "તમારું પૂરું નામ / ભક્તનું નામ *",
+  "reviewTitleLabel": "સમીક્ષા શીર્ષક *",
+  "detailedExperienceLabel": "તમારો વિગતવાર અનુભવ / પ્રતિસાદ *",
+  "reviewHint": "રચના, ફિનિશ, પૂજા અનુભવ, પેકેજિંગ પર તમારો પ્રતિસાદ શેર કરો...",
+  "testimonialPublished": "આશીર્વાદ સાથે પ્રશંસાપત્ર પ્રકાશિત!",
+  "faqEnergizedQ": "પ્ર: શું આ વસ્તુ પહેલેથી જ ઊર્જાવાન છે?",
+  "faqEnergizedA": "જ: હા, અમારી બધી ભેટો મોકલતા પહેલા વિશેષ પૂજા સેવા દ્વારા પવિત્ર કરવામાં આવે છે.",
+  "faqGiftQ": "પ્ર: શું હું આ કોઈને ભેટ આપી શકું?",
+  "faqGiftA": "જ: ચોક્કસ. પવિત્ર ભેટ આપવી એ મહાન પુણ્યનું કાર્ય માનવામાં આવે છે.",
+  "sacredCareInstructions": "• આ વસ્તુને આધ્યાત્મિક આદર સાથે સંભાળવી જોઈએ.\n• ફ્લોર પર અથવા અશુદ્ધ વિસ્તારોમાં રાખવાનું ટાળો.\n• તેની અભિમંત્રિત ઊર્જા જાળવી રાખવા માટે માત્ર સૂકા, શુદ્ધ સુતરાઉ કાપડથી સાફ કરો.",
+  "tryAgain": "ફરી પ્રયાસ કરો",
+  "exploreCatalogue": "કેટલોગ શોધો",
+  "availableSacredOffers": "ઉપલબ્ધ પવિત્ર ઓફર્સ",
+  "noCouponsAvailable": "હાલમાં કોઈ કૂપન્સ ઉપલબ્ધ નથી.",
+  "couldNotApplyCoupon": "કૂપન લાગુ કરી શકાયું નથી",
+  "applied": "લાગુ કર્યું",
+  "applyCoupon": "કૂપન લાગુ કરો",
+  "couponAppliedSuccess": "કૂપન {code} સફળતાપૂર્વક લાગુ કરવામાં આવ્યું!",
+  "@couponAppliedSuccess": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "remove": "દૂર કરો",
+  "orderSummary": "ઓર્ડર સારાંશ",
+  "promoDiscount": "પ્રોમો ડિસ્કાઉન્ટ ({code})",
+  "@promoDiscount": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "shippingSevaFee": "શિપિંગ સેવા ફી",
+  "sacredItemTax": "પવિત્ર વસ્તુ ટેક્સ (5%)",
+  "finalTotal": "અંતિમ કુલ",
+  "youSavedAmount": "તમે ₹{amount} બચાવ્યા!",
+  "@youSavedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "proceedToCheckout": "ચેકઆઉટ કરવા માટે આગળ વધો",
+  "yourSacredWishlist": "તમારી પવિત્ર વિશલિસ્ટ",
+  "sacredWishlistDesc": "પવિત્ર વસ્તુઓ જે તમે તમારા દિવ્ય સંગ્રહ માટે સાચવી રાખી છે.",
+  "yourWishlistIsEmpty": "તમારી વિશલિસ્ટ હાલમાં ખાલી છે.",
+  "yourSacredOrders": "તમારા પવિત્ર ઓર્ડર્સ",
+  "trackOrdersDesc": "તમારા દિવ્ય સંગ્રહો અને આશીર્વાદના ઇતિહાસને ટ્રેક કરો.",
+  "somethingWentWrong": "કંઈક ખોટું થયું",
+  "couldNotLoadOrders": "અમે તમારા ઓર્ડર લોડ કરી શક્યા નથી. કૃપા કરીને ફરી પ્રયાસ કરો.",
+  "noOrdersYet": "હજી સુધી કોઈ ઓર્ડર નથી",
+  "noOrdersPlacedDesc": "તમે હજુ સુધી કોઈ પવિત્ર ઓર્ડર આપ્યો નથી.",
+  "orderIdTitle": "ઓર્ડર આઈડી",
+  "datePlaced": "ઓર્ડરની તારીખ",
+  "recent": "તાજેતરનું",
+  "moreItems": "+ {count} વધુ વસ્તુઓ",
+  "@moreItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trackingInformation": "ટ્રેકિંગ માહિતી",
+  "totalAmount": "કુલ રકમ",
+  "track": "ટ્રેક",
+  "invoice": "ઇનવોઇસ",
+  "view": "જુઓ",
+  "orderDetails": "ઓર્ડર વિગતો",
+  "status": "સ્થિતિ",
+  "tracking": "ટ્રેકિંગ",
+  "tax": "ટેક્સ",
+  "printInvoice": "ઇનવોઇસ પ્રિન્ટ કરો",
+  "shareInvoice": "ઇનવોઇસ શેર કરો",
+  "officialOrderTracker": "સત્તાવાર ઓર્ડર ટ્રેકર",
+  "trackYourSacredOrder": "તમારો પવિત્ર ઓર્ડર ટ્રેક કરો",
+  "enterOrderIdHint": "ઓર્ડર આઈડી દાખલ કરો (દા.ત. DADA-123456)",
+  "trackNow": "હમણાં ટ્રેક કરો",
+  "findOrderIdDesc": "તમે તમારો ઓર્ડર આઈડી કન્ફર્મેશન ઇમેઇલ અથવા \"મારા ઓર્ડર્સ\" વિભાગમાં શોધી શકો છો.",
+  "enterOrderIdStatusDesc": "લાઈવ સ્ટેટસ જોવા માટે ઉપર તમારો ઓર્ડર આઈડી દાખલ કરો.",
+  "noOrderFound": "આ આઈડી સાથે કોઈ ઓર્ડર મળ્યો નથી.",
+  "trackingError": "ટ્રેકિંગ દરમિયાન ભૂલ આવી.",
+  "placedOnDate": "{date} ના રોજ અપાયેલ",
+  "@placedOnDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "totalPaid": "કુલ ચુકવણી",
+  "shippingPartnerTrackingId": "શિપિંગ પાર્ટનર અને ટ્રેકિંગ આઈડી",
+  "shareOnWhatsApp": "WhatsApp પર શેર કરો",
+  "shippingDestination": "શિપિંગ ગંતવ્ય:",
+  "sacredItems": "પવિત્ર વસ્તુઓ:",
+  "quickView": "ક્વિક વ્યૂ",
+  "add": "ઉમેરો",
+  "enterEmailPassword": "કૃપા કરીને તમારો ઇમેઇલ અને પાસવર્ડ દાખલ કરો",
+  "loginFailed": "લોગિન નિષ્ફળ",
+  "noAccountFound": "આ ઇમેઇલ સાથે કોઈ એકાઉન્ટ મળ્યું નથી.",
+  "incorrectCredentials": "ખોટો ઇમેઇલ અથવા પાસવર્ડ.",
+  "enterValidEmail": "કૃપા કરીને માન્ય ઇમેઇલ સરનામું દાખલ કરો.",
+  "accountDisabled": "આ એકાઉન્ટ અક્ષમ કરવામાં આવ્યું છે.",
+  "tooManyAttempts": "ઘણા બધા નિષ્ફળ પ્રયાસો. કૃપા કરીને પછીથી ફરી પ્રયાસ કરો.",
+  "enterEmailFirst": "કૃપા કરીને પહેલા ઉપર તમારું ઇમેઇલ સરનામું દાખલ કરો",
+  "passwordResetSent": "પાસવર્ડ રીસેટ ઇમેઇલ {email} પર મોકલવામાં આવ્યો છે",
+  "@passwordResetSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "failedSendResetEmail": "રીસેટ ઇમેઇલ મોકલવામાં નિષ્ફળ",
+  "allFieldsRequired": "બધી ફીલ્ડ્સ ફરજિયાત છે",
+  "enterValidPhone": "કૃપા કરીને માન્ય ફોન નંબર દાખલ કરો (10-12 આંકડા)",
+  "passwordTooShort": "પાસવર્ડ ઓછામાં ઓછો 8 અક્ષરોનો હોવો જોઈએ",
+  "passwordsDoNotMatch": "પાસવર્ડ મેળ ખાતા નથી",
+  "accountCreatedSuccess": "એકાઉન્ટ સફળતાપૂર્વક બનાવવામાં આવ્યું!",
+  "sacredAccessPortal": "પવિત્ર એક્સેસ પોર્ટલ",
+  "signIn": "સાઇન ઇન કરો",
+  "createAccount": "એકાઉન્ટ બનાવો",
+  "emailAddressLabel": "ઇમેઇલ સરનામું",
+  "forgotPassword": "ભૂલી ગયા?",
+  "loginToAccount": "તમારા એકાઉન્ટમાં લોગ ઇન કરો",
+  "mobileWhatsAppLabel": "મોબાઇલ / WhatsApp",
+  "securePasswordLabel": "સુરક્ષિત પાસવર્ડ",
+  "confirmPasswordLabel": "પાસવર્ડની પુષ્ટિ કરો",
+  "joinCommunity": "સમુદાયમાં જોડાઓ",
+  "secureAuthArea": "સુરક્ષિત ભક્ત અધિકૃતતા વિસ્તાર",
+  "profileUpdated": "પ્રોફાઇલ અપડેટ થઈ!",
+  "updateFailed": "અપડેટ નિષ્ફળ: {error}",
+  "@updateFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "changePassword": "પાસવર્ડ બદલો",
+  "enterNewPassword": "નવો સુરક્ષિત પાસવર્ડ દાખલ કરો",
+  "cancel": "રદ કરો",
+  "passwordChangedSuccess": "પાસવર્ડ સફળતાપૂર્વક બદલાયો!",
+  "errorWithDetails": "ભૂલ: {error}",
+  "@errorWithDetails": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "update": "અપડેટ કરો",
+  "saveChanges": "ફેરફારો સાચવો",
+  "logoutFromAccount": "એકાઉન્ટમાંથી લોગઆઉટ કરો",
+  "personalInformation": "વ્યક્તિગત માહિતી",
+  "streetAddress": "શેરીનું સરનામું",
+  "editProfile": "પ્રોફાઇલ સંપાદિત કરો",
+  "freeShippingRemaining": "ફ્રી એક્સપ્રેસ શિપિંગ માટે વધુ ₹{amount} ઉમેરો",
+  "@freeShippingRemaining": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "freeShippingQualified": "તમે ફ્રી એક્સપ્રેસ શિપિંગ માટે પાત્ર બન્યા છો!",
+  "emptyBagDesc": "હસ્તકલા ઘડિયાળો, બેસ્પોક સિરામિક્સ, ફાઇન મેરિનો નીટવેર અને ચામડાની વસ્તુઓ શોધો.",
+  "suggestedSacredOffers": "સૂચિત પવિત્ર ઓફર્સ",
+  "promoCodeHint": "પ્રોમો કોડ (દા.ત. DADA10)",
+  "invalidPromoCode": "અમાન્ય અથવા નિષ્ક્રિય પ્રોમો કોડ",
+  "couponApplied": "કૂપન {code} લાગુ થયું!",
+  "@couponApplied": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "promoDiscountLabel": "પ્રોમો ડિસ્કાઉન્ટ",
+  "expressShipping": "વીમાકૃત એક્સપ્રેસ શિપિંગ",
+  "estimatedTaxes": "અંદાજિત ટેક્સ (5%)",
+  "estimatedTotal": "અંદાજિત કુલ",
+  "proceedToSecureCheckout": "સુરક્ષિત ચેકઆઉટ કરવા માટે આગળ વધો",
+  "viewShoppingBag": "શોપિંગ બેગ જુઓ",
+  "sslGuarantee": "256-bit એન્ક્રિપ્ટેડ SSL ગેરંટી",
+  "loginToCheckout": "ચેકઆઉટ કરવા માટે કૃપા કરીને લોગિન કરો",
+  "skuLabel": "SKU: {sku}",
+  "@skuLabel": {
+    "placeholders": {
+      "sku": {
+        "type": "String"
+      }
+    }
+  },
+  "bestseller": "બેસ્ટસેલર",
+  "ratingReviews": "{rating} ({count} સમીક્ષાઓ)",
+  "@ratingReviews": {
+    "placeholders": {
+      "rating": {
+        "type": "double"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "offPercentage": "{percent}% છૂટ",
+  "@offPercentage": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "addWithPrice": "ઉમેરો • ₹{amount}",
+  "@addWithPrice": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "instantCheckout": "⚡ ત્વરિત ચેકઆઉટ",
+  "viewDetailedSpecs": "વિગતવાર વિશિષ્ટતાઓ જુઓ",
+  "notifications": "સૂચનાઓ",
+  "markAllAsRead": "બધા વાંચેલા તરીકે માર્ક કરો",
+  "noNotificationsYet": "હજી સુધી કોઈ સૂચના નથી",
+  "adminPortal": "એડમિન પોર્ટલ",
+  "translate": "ભાષાંતર કરો",
+  "publish": "પ્રકાશિત કરો",
+  "refreshData": "ડેટા રિફ્રેશ કરો",
+  "headerFooterSettings": "હેડર, ફૂટર અને સામાન્ય સેટિંગ્સ",
+  "homePage": "હોમ પેજ",
+  "aboutDadaPage": "દાદા વિશે પેજ",
+  "kathaPages": "કથા પેજ",
+  "contactEnquiries": "સંપર્ક અને પૂછપરછ",
+  "productManagement": "ઉત્પાદન સંચાલન",
+  "translationAudit": "ભાષાંતર ઓડિટ",
+  "logout": "લોગઆઉટ",
+  "backToWebsite": "વેબાસાઇટ પર પાછા ફરો",
+  "selectMenu": "મેનુ પસંદ કરો",
+  "deepTranslationSync": "ડીપ ટ્રાન્સલેશન સિંક",
+  "currentSection": "વર્તમાન વિભાગ: {section}",
+  "@currentSection": {
+    "placeholders": {
+      "section": {
+        "type": "String"
+      }
+    }
+  },
+  "processedCount": "પ્રોસેસ્ડ: {count}/{total}",
+  "@processedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "failedCount": "નિષ્ફળ: {count}",
+  "@failedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pleaseEnterUsernamePassword": "કૃપા કરીને તમારું વપરાશકર્તા નામ અને પાસવર્ડ દાખલ કરો",
+  "adminAccountNotFound": "આ વપરાશકર્તા નામ સાથે કોઈ એડમિન એકાઉન્ટ મળ્યું નથી.",
+  "incorrectUsernamePassword": "ખોટું વપરાશકર્તા નામ અથવા પાસવર્ડ.",
+  "enterValidCredential": "કૃપા કરીને માન્ય ઓળખપત્ર દાખલ કરો.",
+  "adminAccountDisabled": "આ એડમિન એકાઉન્ટ અક્ષમ કરવામાં આવ્યું છે.",
+  "loginFailedTryAgain": "લોગિન નિષ્ફળ થયું. કૃપા કરીને ફરી પ્રયાસ કરો.",
+  "loginFailedWithDetails": "લોગિન નિષ્ફળ: {error}",
+  "@loginFailedWithDetails": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "secureDashboardAccess": "સુરક્ષિત ડેશબોર્ડ એક્સેસ",
+  "adminEmailHint": "admin@example.com",
+  "broadcastToAllUsers": "બધા વપરાશકર્તાઓ માટે બ્રોડકાસ્ટ",
+  "enterTitleMessage": "કૃપા કરીને શીર્ષક અને સંદેશ બંને દાખલ કરો",
+  "notificationSentToUsers": "{count} વપરાશકર્તાઓને સૂચના મોકલવામાં આવી!",
+  "@notificationSentToUsers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sendBroadcastDesc": "બધા વપરાશકર્તાઓને બ્રોડકાસ્ટ સૂચનાઓ મોકલો.",
+  "notificationTitle": "સૂચના શીર્ષક",
+  "sendToAllUsers": "બધા વપરાશકર્તાઓને મોકલો",
+  "recentOrderNotifications": "તાજેતરના ઓર્ડરની સૂચનાઓ",
+  "noNotificationsSent": "હજી સુધી કોઈ સૂચના મોકલવામાં આવી નથી.",
+  "manageAppConfig": "એપ્લિકેશન કોન્ફિગરેશન, બ્રાન્ડિંગ અને સંપર્ક વિગતો મેનેજ કરો.",
+  "generalInfoBranding": "સામાન્ય માહિતી અને બ્રાન્ડિંગ",
+  "uploadNewLogo": "નવો લોગો અપલોડ કરો",
+  "storeName": "સ્ટોરનું નામ",
+  "storeDescription": "સ્ટોર વર્ણન",
+  "contactInformation": "સંપર્ક માહિતી",
+  "physicalAddress": "ભૌતિક સરનામું",
+  "socialLinks": "સોશિયલ લિંક્સ",
+  "facebookUrl": "ફેસબુક URL",
+  "instagramUrl": "ઇન્સ્ટાગ્રામ URL",
+  "twitterUrl": "ટ્વિટર URL",
+  "deliverySettings": "ડિલિવરી સેટિંગ્સ",
+  "standardDeliveryChargeRs": "સ્ટાન્ડર્ડ ડિલિવરી ચાર્જ (₹)",
+  "freeDeliveryThresholdRs": "ફ્રી ડિલિવરી મર્યાદા (₹)",
+  "enableCod": "કેશ ઓન ડિલિવરી (સીઓડી) સક્ષમ કરો",
+  "advancedTools": "અદ્યતન સાધનો",
+  "translateAllStoreData": "બધા સ્ટોર ડેટાનો અનુવાદ કરો",
+  "translateStoreDesc": "આ આપમેળે તમામ હયાત ઉત્પાદનો અને શ્રેણીઓનું હિન્દી અને ગુજરાતીમાં ભાષાંતર કરશે. ડેટાની માત્રાના આધારે આમાં થોડી મિનિટો લાગી શકે છે.",
+  "startTranslationNow": "અત્યારે ભાષાંતર શરૂ કરો",
+  "settingsSaved": "સેટિંગ્સ સફળતાપૂર્વક સાચવવામાં આવી!",
+  "viewRegisteredUsers": "તમામ રજિસ્ટર્ડ વપરાશકર્તાઓ, તેમની ભૂમિકાઓ અને એકાઉન્ટ સ્ટેટસ જુઓ.",
+  "searchUsersHint": "નામ, ઇમેઇલ અથવા ફોન દ્વારા શોધો...",
+  "noUsersFound": "કોઈ વપરાશકર્તા મળ્યા નથી.",
+  "totalUsers": "કુલ વપરાશકર્તાઓ",
+  "admins": "એડમિન",
+  "active": "સક્રિય",
+  "inactive": "નિષ્ક્રિય",
+  "joinedDate": "{date} ના રોજ જોડાયા",
+  "@joinedDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeOfferings": "પૂ. દાદાના પવિત્ર પ્રસાદને અલગ સ્ટોર શ્રેણીઓમાં ગોઠવો.",
+  "addNewCategory": "નવી શ્રેણી ઉમેરો",
+  "noCategoriesFound": "કોઈ શ્રેણી મળી નથી.",
+  "productsCount": "{count} ઉત્પાદનો",
+  "@productsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewProductsArrow": "ઉત્પાદનો જુઓ →",
+  "editCategory": "શ્રેણી સંપાદિત કરો",
+  "categoryName": "શ્રેણીનું નામ",
+  "deleteCategoryTitle": "શ્રેણી કાઢી નાખવી?",
+  "deleteCategoryConfirm": "શું તમે ખરેખર \"{name}\" ને કાઢી નાખવા માંગો છો? આનાથી આ શ્રેણીના ઉત્પાદનો કાઢી નાખવામાં આવશે નહીં પરંતુ તેઓ અનસાઇન્ડ થઈ જશે.",
+  "@deleteCategoryConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "couponsDevotionalOffers": "કૂપન્સ અને ભક્તિ ઓફર્સ",
+  "createPromoDesc": "ભક્તો માટે પ્રોમો કોડ્સ અને ઉજવણીના આશીર્વાદ ડિસ્કાઉન્ટ બનાવો.",
+  "createPromoCode": "પ્રોમો કોડ બનાવો",
+  "noCouponsCreated": "હજી સુધી કોઈ કૂપન બનાવવામાં આવ્યું નથી.",
+  "instantDiscountDesc": "તમામ દાદા ઉત્પાદનો પર {value}% તાત્કાલિક ડિસ્કાઉન્ટ",
+  "@instantDiscountDesc": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flatDiscountDesc": "₹{min} થી વધુના ઓર્ડર પર ફ્લેટ ₹{value} ની છૂટ",
+  "@flatDiscountDesc": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "discountPrefix": "ડિસ્કાઉન્ટ: {value}",
+  "@discountPrefix": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "minOrderPrefix": "લઘુત્તમ ઓર્ડર: ₹{value}",
+  "@minOrderPrefix": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "timesUsedPrefix": "વપરાશની સંખ્યા: {count}",
+  "@timesUsedPrefix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "couponCodeHint": "કૂપન કોડ (દા.ત. DADA10)",
+  "flatPriceDiscount": "ફ્લેટ પ્રાઇસ ડિસ્કાઉન્ટ",
+  "percentageDiscount": "ટકાવારી ડિસ્કાઉન્ટ",
+  "discountType": "ડિસ્કાઉન્ટ પ્રકાર",
+  "discountValueRs": "ડિસ્કાઉન્ટ મૂલ્ય (₹)",
+  "discountValuePercent": "ડિસ્કાઉન્ટ ટકાવારી (%)",
+  "minOrderValueRs": "લઘુત્તમ ઓર્ડર મૂલ્ય (₹)",
+  "usageLimitPerUser": "વપરાશકર્તા દીઠ વપરાશ મર્યાદા",
+  "saveCoupon": "કૂપન સાચવો",
+  "usageLimitHint": "ભક્ત દીઠ મહત્તમ 2 વપરાશ.",
+  "lowStock": "ઓછો સ્ટોક",
+  "restockInventory": "રીસ્ટોક / ઈન્વેન્ટરી",
+  "discountCoupons": "DISCOUNT COUPONS",
+  "viewAllOrders": "બધા ઓર્ડર જુઓ",
+  "orderDispatch": "ઓર્ડર અને ડિસ્પેચ",
+  "recentOrders": "તાજેતરના ઓર્ડર્સ",
+  "viewAll": "બધા જુઓ",
+  "devotionalOpsDashboard": "ભક્તિ ઓપરેશન્સ ડેશબોર્ડ",
+  "realTimeOverview": "પવિત્ર ઓર્ડર્સ, લાઈવ સ્ટોક અને ભક્ત જોડાણની રીઅલ-ટાઇમ ઝલક.",
+  "today": "આજે",
+  "thirtyDays": "30 દિવસ",
+  "threeMonths": "3 મહિના",
+  "oneYear": "1 વર્ષ",
+  "noRecentOrders": "કોઈ તાજેતરના ઓર્ડર મળ્યા નથી.",
+  "devoteeUserManagement": "ભક્ત વપરાશકર્તા સંચાલન",
+  "viewRegisteredDevotees": "નોંધાયેલા ભક્તો, તેમની સંપર્ક માહિતી અને પવિત્ર ખરીદી ઇતિહાસ જુઓ.",
+  "searchDevoteesHint": "ભક્તો શોધો...",
+  "noDevoteesFound": "કોઈ ભક્તો મળ્યા નથી.",
+  "sacredDevotee": "પવિત્ર ભક્ત",
+  "newBadge": "નવું",
+  "lifetimeOfferings": "આજીવન પ્રસાદ",
+  "whatsAppSeva": "WhatsApp સેવા",
+  "inventoryStockReplenishment": "ઈન્વેન્ટરી અને સ્ટોક પુનઃપ્રાપ્તિ",
+  "monitorWarehouseLevels": "રીઅલ-ટાઇમ વેરહાઉસ સ્તરોનું નિરીક્ષણ કરો અને બેચ રીસ્ટોક ટ્રિગર કરો.",
+  "lowStockItemsBelow": "સુરક્ષા મર્યાદાથી નીચે {count} વસ્તુઓ",
+  "@lowStockItemsBelow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "itemSku": "ITEM & SKU",
+  "currentStock": "વર્તમાન સ્ટોક",
+  "safetyLimit": "સુરક્ષા મર્યાદા",
+  "statusIndicator": "સ્ટેટસ ઈન્ડિકેટર",
+  "batchReplenish": "બેચ પુનઃપ્રાપ્તિ",
+  "lowBadge": "ઓછું",
+  "okBadge": "બરાબર",
+  "manualStockUpdate": "મેન્યુઅલ સ્ટોક અપડેટ: {name}",
+  "@manualStockUpdate": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setAbsoluteStock": "ચોક્કસ સ્ટોક જથ્થો સેટ કરો",
+  "ordersConsecrationDispatch": "ઓર્ડર અને અભિષેક ડિસ્પેચ",
+  "trackDevoteeOrders": "ભક્ત ઓર્ડર ટ્રેક કરો, શિપિંગ કેરિયર્સ મેનેજ કરો અને GST ઇનવોઇસ જનરેટ કરો.",
+  "allFilter": "બધા",
+  "pendingFilter": "બાકી",
+  "processingFilter": "પ્રક્રિયા હેઠળ",
+  "shippedFilter": "મોકલી દેવામાં આવ્યું",
+  "deliveredFilter": "પહોંચી ગયું",
+  "paymentStatusPrefix": "ચુકવણી: {method} ({status})",
+  "@paymentStatusPrefix": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "netReceived": "ચોખ્ખી રકમ: ₹{amount}",
+  "@netReceived": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "couponAppliedLabel": "કૂપન લાગુ: {code}",
+  "@couponAppliedLabel": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "qtyTimesPrice": "જથ્થો: {qty} × ₹{price}",
+  "@qtyTimesPrice": {
+    "placeholders": {
+      "qty": {
+        "type": "int"
+      },
+      "price": {
+        "type": "int"
+      }
+    }
+  },
+  "shareWhatsAppTooltip": "WhatsApp પર શેર કરો",
+  "trackingUpdated": "ટ્રેકિંગ અપડેટ થયું!",
+  "invalidTrackingFormat": "અમાન્ય ફોર્મેટ. \"કેરિયર: આઈડી\" નો ઉપયોગ કરો",
+  "trackingHint": "DTDC Express / Blue Dart: DADA-ID-123",
+  "updateTracking": "ટ્રેકિંગ અપડેટ કરો",
+  "ordersConsecrationManagement": "ઓર્ડર અને અભિષેક સંચાલન",
+  "manageDevoteeOrders": "ભક્ત ઓર્ડર મેનેજ કરો, ડિસ્પેચ સ્ટેટસ અપડેટ કરો અને પવિત્ર વસ્તુ અભિષેક પ્રવાહ હેન્ડલ કરો.",
+  "searchOrdersHint": "ઓર્ડર આઈડી, નામ, ફોન દ્વારા શોધો...",
+  "confirmedStatus": "પુષ્ટિ થયેલ",
+  "cancelledStatus": "રદ થયેલ",
+  "noOrdersFoundCriteria": "તમારા માપદંડ સાથે મેળ ખાતા કોઈ ઓર્ડર મળ્યા નથી.",
+  "placedByOn": "{name} દ્વારા {date} ના રોજ અપાયેલ",
+  "@placedByOn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "itemsHeader": "વસ્તુઓ",
+  "deliveryAddressHeader": "ડિલિવરી સરનામું",
+  "totalAmountHeader": "કુલ રકમ",
+  "phonePrefix": "ફોન: {phone}",
+  "@phonePrefix": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentsCodSettlement": "ચુકવણી અને COD સેટલમેન્ટ",
+  "reconcileUpiCardCod": "UPI ટ્રાન્સફર, કાર્ડ ગેટવે અને કેશ ઓન ડિલિવરી સંગ્રહનું સમાધાન કરો.",
+  "upiInstantTransfers": "UPI ઇન્સ્ટન્ટ ટ્રાન્સફર",
+  "upiIdSubtext": "ID: dada.bhagwan@okhdfcbank",
+  "codBoxTitle": "કેશ ઓન ડિલિવરી (COD)",
+  "codBoxSubtext": "ડોરસ્ટેપ કેરિયર કલેક્શન",
+  "onlineCardsBoxTitle": "ઓનલાઇન કાર્ડ્સ / નેટબેંકિંગ",
+  "onlineCardsBoxSubtext": "100% સુરક્ષિત 256-bit એન્ક્રિપ્ટેડ",
+  "recentSuccessfulTransactions": "તાજેતરના સફળ વ્યવહારો",
+  "successfulStatus": "સફળ",
+  "paymentBreakdown": "બ્રેકડાઉન: ₹{subtotal} (S) - ₹{discount} (D) + ₹{tax} (T)",
+  "@paymentBreakdown": {
+    "placeholders": {
+      "subtotal": {
+        "type": "int"
+      },
+      "discount": {
+        "type": "int"
+      },
+      "tax": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardTab": "ડેશબોર્ડ",
+  "productsTab": "ઉત્પાદનો",
+  "categoriesTab": "શ્રેણીઓ",
+  "inventoryTab": "ઈન્વેન્ટરી",
+  "ordersTab": "ઓર્ડર્સ",
+  "usersTab": "વપરાશકર્તાઓ",
+  "paymentsTab": "ચુકવણીઓ",
+  "couponsTab": "કૂપન્સ",
+  "reviewsTab": "સમીક્ષાઓ",
+  "storeSettingsTab": "સ્ટોર અને સેટિંગ્સ",
+  "searchProductsHint": "ઉત્પાદનો શોધો...",
+  "productTableHeader": "ઉત્પાદન",
+  "priceTableHeader": "કિંમત",
+  "stockTableHeader": "સ્ટોક",
+  "actionsTableHeader": "ક્રિયાઓ",
+  "devoteeReviewsBlessings": "ભક્ત સમીક્ષાઓ અને આશીર્વાદ",
+  "moderateTestimonials": "ગ્રાહક પ્રશંસાપત્રો મધ્યસ્થ કરો અને સત્તાવાર મંદિર સેવા જવાબો પ્રકાશિત કરો.",
+  "anonymousUser": "અનામી",
+  "onProduct": "{product} પર",
+  "@onProduct": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "replyToDevoteeArrow": "ભક્તને જવાબ આપો →",
+  "replyToDevotee": "ભક્તને જવાબ આપો",
+  "suggestedReply": "સૂચિત જવાબ (તમે સંપાદિત કરી શકો છો):",
+  "suggestedReplyText": "જય સચ્ચિદાનંદ! પ્રણામ! તમારી દયાળુ સમીક્ષા અને આશીર્વાદ માટે આભાર. અમને જાણીને આનંદ થયો કે પૂ. દાદાની પવિત્ર ઓફર તમારા ઘરમાં શાંતિ અને સકારાત્મક ઊર્જા લાવી. તમે હંમેશા દૈવી કૃપાથી આશીર્વાદિત રહો. - મંદિર સેવા ટીમ",
+  "invalidViewType": "અમાન્ય વ્યુ પ્રકાર",
+  "generalTab": "સામાન્ય",
+  "headerTab": "હેડર",
+  "footerTab": "ફૂટર",
+  "headerCustomization": "હેડર કસ્ટમાઇઝેશન",
+  "stickyHeader": "સ્ટિકી હેડર",
+  "announcementBarText": "જાહેરાત બાર ટેક્સ્ટ",
+  "backgroundColorHex": "બેકગ્રાઉન્ડ કલર (હેક્સ કોડ)",
+  "headerCta": "હેડર કોલ-ટુ-એક્શન (CTA)",
+  "enableDonationButton": "દાન બટન સક્ષમ કરો",
+  "buttonLabel": "બટન લેબલ",
+  "redirectionUrl": "રીડાયરેક્શન URL",
+  "saveHeaderSettings": "હેડર સેટિંગ્સ સાચવો",
+  "unifiedHomePageEditor": "યુનિફાઇડ હોમ પેજ એડિટર",
+  "saveAllChanges": "તમામ ફેરફારો સાચવો",
+  "homePageSectionsVisibility": "હોમ પેજ વિભાગો અને દૃશ્યતા",
+  "toggleSectionsDesc": "વિભાગો ચાલુ/બંધ કરો અને નીચે તેમની સામગ્રી સંપાદિત કરો.",
+  "sectionHiddenWarning": "આ વિભાગ હાલમાં વપરાશકર્તા બાજુ પર છુપાયેલ છે.",
+  "biographyTab": "જીવનચરિત્ર",
+  "kathasTab": "કથાઓ",
+  "galleryTab": "ગેલેરી",
+  "stotraTab": "સ્તોત્ર",
+  "newsTab": "સમાચાર",
+  "kathaPagesTab": "કથા પેજ",
+  "photosTab": "ફોટા",
+  "videosTab": "વિડિઓઝ",
+  "devoteeManagementTab": "ભક્ત સંચાલન",
+  "contactEnquiriesTab": "સંપર્ક પૂછપરછ",
+  "organizationName": "સંસ્થાનું નામ",
+  "websiteLogo": "વેબસાઇટ લોગો",
+  "announcementBar": "જાહેરાત બાર",
+  "heroSlides": "HERO SLIDES",
+  "slideNumber": "સ્લાઇડ #{number}",
+  "@slideNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "badgeLabel": "બેજ (ઉપરનો નાનો ટેક્સ્ટ)",
+  "headingLabel": "શીર્ષક",
+  "subtitleLabel": "ઉપશીર્ષક",
+  "descriptionLabel": "વર્ણન",
+  "primaryCtaText": "પ્રાથમિક CTA ટેક્સ્ટ",
+  "primaryCtaUrl": "પ્રાથમિક CTA URL",
+  "secondaryCtaText": "ગૌણ CTA ટેક્સ્ટ",
+  "secondaryCtaUrl": "ગૌણ CTA URL",
+  "slideImage": "સ્લાઇડ છબી",
+  "addSlide": "સ્લાઇડ ઉમેરો",
+  "homepageHeroSlider": "હોમપેજ હીરો સ્લાઇડર",
+  "addNewSlide": "નવી સ્લાઇડ ઉમેરો",
+  "shreemadBhagvatTab": "શ્રીમદ્ ભાગવત કથા",
+  "devibhagvatTab": "દેવી ભાગવત કથા",
+  "shivmahapuranTab": "શિવમહાપુરાણ કથા",
+  "heroSection": "HERO SECTION",
+  "heroBadge": "હીરો બેજ",
+  "heroTitle": "હીરો શીર્ષક",
+  "heroDesc1": "હીરો વર્ણન 1",
+  "heroDesc2": "હીરો વર્ણન 2",
+  "heroImageLabel": "હીરો છબી",
+  "biographyQuote": "જીવનચરિત્ર અને અવતરણ",
+  "biographyText": "જીવનચરિત્ર ટેક્સ્ટ",
+  "quoteLabel": "અવતરણ",
+  "quoteAuthor": "અવતરણ લેખક",
+  "quoteImage": "અવતરણ છબી",
+  "highlights": "હાઇલાઇટ્સ",
+  "highlightTitle": "હાઇલાઇટ {number} શીર્ષક",
+  "@highlightTitle": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "highlightDesc": "હાઇલાઇટ {number} વર્ણન",
+  "@highlightDesc": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "callToAction": "CALL TO ACTION",
+  "ctaTitle": "CTA શીર્ષક",
+  "ctaSubtitle": "CTA ઉપશીર્ષક",
+  "ctaButtonText": "CTA બટન ટેક્સ્ટ",
+  "saveKathaPage": "SAVE KATHA PAGE",
+  "upcomingKathasTitle": "આગામી કથાઓ",
+  "eventList": "ઇવેન્ટ સૂચિ",
+  "eventNumber": "ઇવેન્ટ #{number}",
+  "@eventNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "kathaNumberLabel": "કથા નંબર",
+  "kathaNameLabel": "કથાનું નામ",
+  "dateDisplayString": "તારીખ પ્રદર્શન સ્ટ્રિંગ",
+  "timingLabel": "સમય (દા.ત. બપોરે 3:00 થી સાંજે 7:00 સુધી)",
+  "locationLabel": "સ્થળ",
+  "hostingLabel": "આયોજન / આયોજક",
+  "addKathaButton": "કથા ઉમેરો",
+  "homePageManagement": "હોમ પેજ સંચાલન",
+  "publishAll": "બધું પ્રકાશિત કરો",
+  "sectionVisibilityAccess": "વિભાગ દૃશ્યતા અને એક્સેસ",
+  "aboutSection": "અબાઉટ વિભાગ",
+  "ramKathaPreview": "રામ કથા પૂર્વાવલોકન",
+  "biographySectionHome": "જીવનચરિત્ર વિભાગ (હોમ)",
+  "displayTitle": "ડિસ્પ્લે શીર્ષક",
+  "tagline": "ટેગલાઇન",
+  "mainIntroDesc": "મુખ્ય પરિચય વર્ણન",
+  "biographyPhoto": "જીવનચરિત્ર ફોટો",
+  "detailedParagraphs": "વિગતવાર ફકરાઓ",
+  "paragraphsLabel": "ફકરાઓ",
+  "galleryImages": "ગેલેરી છબીઓ",
+  "imageUrlsLabel": "છબી URL",
+  "saveAboutData": "SAVE ABOUT DATA",
+  "featuredQuoteSection": "વિશેષ અવતરણ વિભાગ",
+  "quoteTextLabel": "અવતરણ ટેક્સ્ટ",
+  "authorLabel": "લેખક",
+  "portraitImage": "પોર્ટ્રેટ છબી",
+  "backgroundImage": "બેકગ્રાઉન્ડ છબી",
+  "saveQuote": "અવતરણ સાચવો",
+  "dailySuvicharTitle": "DAILY SUVICHAR",
+  "dateLabel": "તારીખ લેબલ",
+  "suvicharImage": "સુવિચાર છબી",
+  "saveSuvichar": "સુવિચાર સાચવો",
+  "ramKathaPreviewSection": "RAM KATHA PREVIEW SECTION",
+  "descPara1": "વર્ણન પેરા 1",
+  "descPara2": "વર્ણન પેરા 2",
+  "sectionPhoto": "વિભાગ ફોટો",
+  "saveRamKathaSection": "રામ કથા વિભાગ સાચવો",
+  "latestNewsItems": "નવીનતમ સમાચાર વસ્તુઓ",
+  "newsItemNumber": "સમાચાર વસ્તુ #{number}",
+  "@newsItemNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "targetUrl": "લક્ષ્ય URL (વધુ વાંચો)",
+  "newsImage": "સમાચાર છબી",
+  "addNewsButton": "સમાચાર ઉમેરો",
+  "newsUpdatesTitle": "સમાચાર અને અપડેટ્સ",
+  "fullKathaListTitle": "સંપૂર્ણ કથા સૂચિ",
+  "addRecord": "રેકોર્ડ ઉમેરો",
+  "kathaListPageSettings": "KATHA LIST PAGE SETTINGS",
+  "mainListBannerImage": "Main List Banner Image",
+  "fullKathaArchive": "સંપૂર્ણ કથા આર્કાઇવ",
+  "kathaRecordNumber": "કથા રેકોર્ડ #{number}",
+  "@kathaRecordNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "yearLabel": "વર્ષ",
+  "datesLabel": "તારીખો (દા.ત. 1 જાન્યુઆરી - 9 જાન્યુઆરી)",
+  "topicSubject": "વિષય / સબ્જેક્ટ",
+  "youtubePlaylistUrl": "YouTube પ્લેલિસ્ટ URL",
+  "recordImage": "રેકોર્ડ છબી",
+  "featuredPhotoAlbums": "વિશેષ ફોટો આલ્બમ્સ",
+  "manageSectionsDesc": "To manage full sections, go to Media & Content > Gallery > Photos.",
+  "photoUrlsLabel": "ફોટો URL",
+  "addSection": "વિભાગ ઉમેરો",
+  "photoGalleryTitle": "PHOTO GALLERY",
+  "featuredVideos": "વિશેષ વિડિઓઝ",
+  "manageVideosDesc": "To manage full categories, go to Media & Content > Gallery > Videos.",
+  "videoTitleLabel": "વિડિઓ શીર્ષક",
+  "youtubeUrlLabel": "YouTube URL",
+  "addVideoButton": "વિડિઓ ઉમેરો",
+  "videoGalleryTitle": "VIDEO GALLERY",
+  "stotraBhajanTitle": "STOTRA / BHAJAN",
+  "addItem": "વસ્તુ ઉમેરો",
+  "stotraBhajanPageSettings": "STOTRA / BHAJAN PAGE SETTINGS",
+  "pageTitle": "Page Title",
+  "topHeaderImage": "Top Header Image",
+  "stotraItems": "સ્તોત્ર વસ્તુઓ",
+  "stotraItemNumber": "વસ્તુ #{number}",
+  "@stotraItemNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "itemTitle": "વસ્તુ શીર્ષક",
+  "englishPdfUrl": "અંગ્રેજી PDF URL",
+  "hindiPdfUrl": "હિન્દી PDF URL",
+  "gujaratiPdfUrl": "ગુજરાતી PDF URL",
+  "contactPageSettings": "સંપર્ક પેજ સેટિંગ્સ",
+  "pageBannerImage": "Page Banner Image",
+  "publishContactSettings": "સંપર્ક સેટિંગ્સ પ્રકાશિત કરો",
+  "userInquiries": "વપરાશકર્તા પૂછપરછ",
+  "noInquiriesYet": "હજી સુધી કોઈ પૂછપરછ નથી.",
+  "countryPrefix": "દેશ: {country}",
+  "@countryPrefix": {
+    "placeholders": {
+      "country": {
+        "type": "String"
+      }
+    }
+  },
+  "typePrefix": "પ્રકાર: {type}",
+  "@typePrefix": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "messageHeader": "સંદેશ:",
+  "replyOnWhatsApp": "WhatsApp પર જવાબ આપો",
+  "footerSettings": "FOOTER SETTINGS",
+  "footerContent": "ફૂટર સામગ્રી",
+  "copyrightText": "કોપીરાઈટ ટેક્સ્ટ",
+  "socialMediaLinks": "સોશિયલ મીડિયા લિંક્સ",
+  "whatsappUrlLabel": "WhatsApp ગ્રુપ/નંબર URL",
+  "bottomBarLinks": "BOTTOM BAR LINKS",
+  "privacyLabel": "ગોપનીયતા લેબલ",
+  "privacyUrl": "ગોપનીયતા URL",
+  "termsLabel": "શરતો લેબલ",
+  "termsUrl": "શરતો URL",
+  "cookieLabel": "કૂકી લેબલ",
+  "cookieUrl": "કૂકી URL",
+  "additionalLinkSections": "વધારાના લિંક વિભાગો (વૈકલ્પિક)",
+  "sectionTitleLabel": "વિભાગ શીર્ષક",
+  "addLinkToSection": "આ વિભાગમાં લિંક ઉમેરો",
+  "addNewLinkSection": "નવો લિંક વિભાગ ઉમેરો",
+  "heroSectionContent": "1. હીરો વિભાગ સામગ્રી",
+  "heroMainHeading": "હીરો મુખ્ય શીર્ષક",
+  "heroSubtitleIntro": "હીરો ઉપશીર્ષક / પરિચય",
+  "ctaButton1Text": "CTA બટન 1 ટેક્સ્ટ",
+  "ctaButton2Text": "CTA બટન 2 ટેક્સ્ટ",
+  "heroBackgroundImage": "હીરો બેકગ્રાઉન્ડ છબી",
+  "heroSideCard": "2. હીરો સાઇડ કાર્ડ (વિશેષ)",
+  "cardTitle": "કાર્ડ શીર્ષક",
+  "cardSubtitle": "કાર્ડ ઉપશીર્ષક",
+  "cardFeatureImage": "કાર્ડ ફીચર છબી",
+  "sectionHeadings": "3. વિભાગના શીર્ષકો",
+  "offeringsCategoriesHeading": "પ્રસાદ / શ્રેણીઓ શીર્ષક",
+  "featuredProductsHeading": "વિશેષ ઉત્પાદનો શીર્ષક",
+  "testimonialsHeading": "પ્રશંસાપત્રો શીર્ષક",
+  "wisdomSuvicharHeading": "જ્ઞાન / સુવિચાર શીર્ષક",
+  "whatsappGuidanceBox": "4. WhatsApp માર્ગદર્શન બોક્સ",
+  "guidanceTitle": "માર્ગદર્શન શીર્ષક",
+  "guidanceSubtitle": "માર્ગદર્શન ઉપશીર્ષક",
+  "whatsappBtnText": "WhatsApp બટન ટેક્સ્ટ",
+  "saveHomePortalChanges": "તમામ હોમ પોર્ટલ ફેરફારો સાચવો",
+  "productCatalogueHeadings": "ઉત્પાદન કેટલોગ શીર્ષકો",
+  "saveCatalogueSettings": "કેટલોગ સેટિંગ્સ સાચવો",
+  "teachingsPageHero": "પ્રવચન પેજ હીરો",
+  "heroBackground": "હીરો બેકગ્રાઉન્ડ",
+  "divinePurposeSection": "દિવ્ય હેતુ વિભાગ",
+  "sideImage": "સાઇડ છબી",
+  "saveTeachingsPage": "પ્રવચન પેજ સાચવો",
+  "statusPrefix": "સ્થિતિ: {status}",
+  "@statusPrefix": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "addItemTo": "{label} માં ઉમેરો",
+  "@addItemTo": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "upload": "અપલોડ કરો",
+  "deliveryAddress": "ડિલિવરીનું સરનામું",
+  "items": "વસ્તુઓ",
+  "shippingAddress": "શિપિંગનું સરનામું",
+  "userManagement": "વપરાશકર્તા સંચાલન",
+  "categoryManagement": "શ્રેણી સંચાલન",
+  "description": "વર્ણન",
+  "imageUrl": "છબી URL",
+  "searchVisibility": "શોધ દૃશ્યતા",
+  "title": "શીર્ષક",
+  "addCategory": "શ્રેણી ઉમેરો",
+  "heroSubtitle": "હીરો સબટાઈટલ",
+  "activeStatus": "સક્રિય",
+  "inactiveStatus": "નિષ્ક્રિય",
+  "termsConditions": "નિયમો અને શરતો",
+  "addProduct": "ઉત્પાદન ઉમેરો",
+  "totalOrders": "કુલ ઓર્ડર",
+  "outOfStockBadge": "સ્ટોક નથી",
+  "sendViaWhatsApp": "વોટ્સએપ દ્વારા મોકલો"
 }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../models/cart_model.dart';
 import '../../../controllers/cart_controller.dart';
 import '../../../controllers/auth_controller.dart';
 import '../../../controllers/coupon_controller.dart';
+import '../../../controllers/language_controller.dart';
 import '../../../utils/app_typography.dart';
 
 class CartDrawer extends StatefulWidget {
@@ -66,6 +68,7 @@ class _CartDrawerState extends State<CartDrawer> {
   }
 
   Widget _buildHeader(BuildContext context, CartController cart, Color teal) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Row(
@@ -73,7 +76,7 @@ class _CartDrawerState extends State<CartDrawer> {
           Icon(Icons.shopping_bag_outlined, size: 22, color: teal),
           const SizedBox(width: 12),
           Text(
-            'Your Shopping Bag',
+            l10n.myShoppingBag,
             style: AppTypography.headingStyle(
               context,
               fontSize: 20,
@@ -111,6 +114,7 @@ class _CartDrawerState extends State<CartDrawer> {
   }
 
   Widget _buildShippingProgress(BuildContext context, CartController cart, Color teal, Color gold) {
+    final l10n = AppLocalizations.of(context)!;
     double progress = (cart.subtotal / 499).clamp(0.0, 1.0);
     double remaining = 499 - cart.subtotal;
 
@@ -129,14 +133,9 @@ class _CartDrawerState extends State<CartDrawer> {
                     style: AppTypography.bodyStyle(context, fontSize: 13, color: Colors.black87),
                     children: [
                       if (cart.subtotal < 499) ...[
-                        const TextSpan(text: 'Add '),
-                        TextSpan(
-                          text: '₹${remaining.toStringAsFixed(2)}',
-                          style: TextStyle(fontWeight: FontWeight.w800, color: teal),
-                        ),
-                        const TextSpan(text: ' more for Free Express Shipping'),
+                        TextSpan(text: l10n.freeShippingRemaining(remaining.toStringAsFixed(2))),
                       ] else
-                        const TextSpan(text: 'You have qualified for Free Express Shipping!', style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: l10n.freeShippingQualified, style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -163,6 +162,7 @@ class _CartDrawerState extends State<CartDrawer> {
   }
 
   Widget _buildEmptyState(BuildContext context, Color teal) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
       child: Column(
@@ -175,12 +175,12 @@ class _CartDrawerState extends State<CartDrawer> {
           ),
           const SizedBox(height: 30),
           Text(
-            'Your bag is empty',
+            l10n.yourBagIsEmpty,
             style: AppTypography.headingStyle(context, fontSize: 22, fontWeight: FontWeight.w700, color: Colors.black),
           ),
           const SizedBox(height: 15),
           Text(
-            'Discover handcrafted timepieces, bespoke ceramics, fine merino knitwear, and leather goods.',
+            l10n.emptyBagDesc,
             textAlign: TextAlign.center,
             style: AppTypography.bodyStyle(context, fontSize: 14, color: Colors.grey.shade500, height: 1.6),
           ),
@@ -200,7 +200,7 @@ class _CartDrawerState extends State<CartDrawer> {
                 elevation: 0,
               ),
               child: Text(
-                'EXPLORE CATALOG',
+                l10n.exploreCatalogue,
                 style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 1.5, color: Colors.white),
               ),
             ),
@@ -211,6 +211,7 @@ class _CartDrawerState extends State<CartDrawer> {
   }
 
   Widget _buildCartItems(BuildContext context, CartController cart, Color teal) {
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
     return ListView.separated(
       padding: const EdgeInsets.all(24),
       shrinkWrap: true,
@@ -260,7 +261,7 @@ class _CartDrawerState extends State<CartDrawer> {
                       children: [
                         Expanded(
                           child: Text(
-                            item.productName,
+                            item.localizedProductName(lang),
                             style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 15),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -328,6 +329,7 @@ class _CartDrawerState extends State<CartDrawer> {
 
   Widget _buildCouponSuggestions(BuildContext context, CartController cart, CouponController couponCtrl, Color teal) {
     final activeCoupons = couponCtrl.coupons.where((c) => c.isActive).toList();
+    final l10n = AppLocalizations.of(context)!;
     if (activeCoupons.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -336,7 +338,7 @@ class _CartDrawerState extends State<CartDrawer> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Suggested Sacred Offers',
+            l10n.suggestedSacredOffers,
             style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 13, color: teal),
           ),
           const SizedBox(height: 12),
@@ -352,7 +354,7 @@ class _CartDrawerState extends State<CartDrawer> {
                       final success = await cart.applyCoupon(c);
                       if (!success && mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(cart.errorMessage ?? 'Could not apply coupon'), backgroundColor: Colors.redAccent),
+                          SnackBar(content: Text(cart.errorMessage ?? l10n.couldNotApplyCoupon), backgroundColor: Colors.redAccent),
                         );
                       } else {
                         _promoCtrl.text = c.code;
@@ -392,6 +394,7 @@ class _CartDrawerState extends State<CartDrawer> {
   }
 
   Widget _buildSummary(BuildContext context, CartController cart, Color teal) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -410,7 +413,7 @@ class _CartDrawerState extends State<CartDrawer> {
                   child: TextField(
                     controller: _promoCtrl,
                     decoration: InputDecoration(
-                      hintText: 'PROMO CODE (E.G. DADA10)',
+                      hintText: l10n.promoCodeHint,
                       hintStyle: AppTypography.bodyStyle(context, fontSize: 12, color: Colors.grey),
                       border: InputBorder.none,
                       isDense: true,
@@ -431,18 +434,18 @@ class _CartDrawerState extends State<CartDrawer> {
                       final success = await cart.applyCoupon(coupon);
                       if (!success && mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(cart.errorMessage ?? 'Could not apply coupon'), backgroundColor: Colors.redAccent),
+                          SnackBar(content: Text(cart.errorMessage ?? l10n.couldNotApplyCoupon), backgroundColor: Colors.redAccent),
                         );
                       }
                     } catch (e) {
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Invalid or inactive promo code'), backgroundColor: Colors.redAccent),
+                          SnackBar(content: Text(l10n.invalidPromoCode), backgroundColor: Colors.redAccent),
                         );
                       }
                     }
                   },
-                  child: Text(cart.appliedCoupon != null ? 'Applied' : 'Apply', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, color: cart.appliedCoupon != null ? Colors.green : Colors.black)),
+                  child: Text(cart.appliedCoupon != null ? l10n.applied : l10n.applyCoupon, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, color: cart.appliedCoupon != null ? Colors.green : Colors.black)),
                 ),
               ],
             ),
@@ -453,18 +456,18 @@ class _CartDrawerState extends State<CartDrawer> {
               children: [
                 const Icon(Icons.check_circle, color: Colors.green, size: 14),
                 const SizedBox(width: 8),
-                Text('Coupon ${cart.appliedCoupon!.code} applied!', style: const TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold)),
+                Text(l10n.couponApplied(cart.appliedCoupon!.code), style: const TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold)),
                 const Spacer(),
-                TextButton(onPressed: cart.removeCoupon, child: const Text('Remove', style: TextStyle(color: Colors.red, fontSize: 11))),
+                TextButton(onPressed: cart.removeCoupon, child: Text(l10n.remove, style: const TextStyle(color: Colors.red, fontSize: 11))),
               ],
             ),
           ],
           const SizedBox(height: 20),
-          _summaryRow(context, 'Subtotal', '₹${cart.subtotal.toStringAsFixed(2)}'),
+          _summaryRow(context, l10n.subtotal, '₹${cart.subtotal.toStringAsFixed(2)}'),
           if (cart.discountAmount > 0)
-             _summaryRow(context, 'Promo Discount', '- ₹${cart.discountAmount.toStringAsFixed(2)}', color: Colors.green),
-          _summaryRow(context, 'Insured Express Shipping', '₹${cart.shippingFee.toStringAsFixed(2)}'),
-          _summaryRow(context, 'Estimated Taxes (5%)', '₹${cart.tax.toStringAsFixed(2)}'),
+             _summaryRow(context, l10n.promoDiscountLabel, '- ₹${cart.discountAmount.toStringAsFixed(2)}', color: Colors.green),
+          _summaryRow(context, l10n.expressShipping, '₹${cart.shippingFee.toStringAsFixed(2)}'),
+          _summaryRow(context, l10n.estimatedTaxes, '₹${cart.tax.toStringAsFixed(2)}'),
           const Divider(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -472,9 +475,9 @@ class _CartDrawerState extends State<CartDrawer> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Estimated Total', style: AppTypography.headingStyle(context, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(l10n.estimatedTotal, style: AppTypography.headingStyle(context, fontSize: 18, fontWeight: FontWeight.bold)),
                   if (cart.discountAmount > 0)
-                    Text('You saved ₹${cart.discountAmount.toInt()}!', style: const TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text(l10n.youSavedAmount(cart.discountAmount.toInt()), style: const TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
                 ],
               ),
               Text('₹${cart.total.toStringAsFixed(2)}', style: AppTypography.headingStyle(context, fontSize: 18, fontWeight: FontWeight.bold)),
@@ -494,9 +497,9 @@ class _CartDrawerState extends State<CartDrawer> {
                   Navigator.pop(context);
                   Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please login to proceed to checkout'),
-                      backgroundColor: Color(0xFF0F4C5C),
+                    SnackBar(
+                      content: Text(l10n.loginToCheckout),
+                      backgroundColor: const Color(0xFF0F4C5C),
                     ),
                   );
                 }
@@ -509,7 +512,7 @@ class _CartDrawerState extends State<CartDrawer> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('PROCEED TO SECURE CHECKOUT', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
+                  Text(l10n.proceedToSecureCheckout, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
                   const SizedBox(width: 10),
                   const Icon(Icons.arrow_forward, size: 16),
                 ],
@@ -529,7 +532,7 @@ class _CartDrawerState extends State<CartDrawer> {
                 side: const BorderSide(color: Color(0xFF0F4C5C)),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: Text('VIEW SHOPPING BAG', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 13, color: teal)),
+              child: Text(l10n.viewShoppingBag, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 13, color: teal)),
             ),
           ),
           const SizedBox(height: 15),
@@ -538,7 +541,7 @@ class _CartDrawerState extends State<CartDrawer> {
             children: [
               const Icon(Icons.security, size: 14, color: Colors.green),
               const SizedBox(width: 8),
-              Text('256-bit Encrypted SSL Guarantee', style: AppTypography.bodyStyle(context, fontSize: 11, color: Colors.grey)),
+              Text(l10n.sslGuarantee, style: AppTypography.bodyStyle(context, fontSize: 11, color: Colors.grey)),
             ],
           ),
         ],

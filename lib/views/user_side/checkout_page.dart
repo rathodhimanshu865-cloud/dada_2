@@ -9,6 +9,7 @@ import '../../models/order_model.dart';
 import '../../utils/app_typography.dart';
 import '../../utils/invoice_helper.dart';
 import 'package:flutter/services.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -62,8 +63,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Payment Failed: ${response.message}'), backgroundColor: Colors.red),
+      SnackBar(content: Text(l10n.paymentFailed(response.message ?? 'Unknown')), backgroundColor: Colors.red),
     );
   }
 
@@ -89,6 +91,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Future<void> _startPayment() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
 
     if (_paymentMethod == 'COD') {
@@ -101,13 +104,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Razorpay Payment Gateway (Dummy)'),
-        content: const Column(
+        title: Text(l10n.razorpayGateway),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 20),
-            Text('Processing secure payment...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 20),
+            Text(l10n.processingPayment),
           ],
         ),
       ),
@@ -126,17 +129,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final cartController = Provider.of<CartController>(context, listen: false);
     final orderController = Provider.of<OrderController>(context, listen: false);
     final auth = Provider.of<AuthController>(context, listen: false);
+    final l10n = AppLocalizations.of(context)!;
 
     // Strict validation for Email and Pincode
     if (auth.userModel != null) {
       if (_emailCtrl.text.trim().toLowerCase() != auth.userModel!.email.toLowerCase()) {
-         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email must match your profile email.')));
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.emailMatchError)));
          return;
       }
     }
 
     if (_pinCtrl.text.trim().length != 6) {
-       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid 6-digit pincode.')));
+       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.validPincodeRequired)));
        return;
     }
 
@@ -182,11 +186,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
         setState(() => _currentStep = 3);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Order Placed Successfully!'), backgroundColor: Colors.green),
+          SnackBar(content: Text(l10n.orderPlacedSuccessfully), backgroundColor: Colors.green),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to place order.'), backgroundColor: Colors.redAccent),
+          SnackBar(content: Text(l10n.failedToPlaceOrder), backgroundColor: Colors.redAccent),
         );
       }
     }
@@ -197,6 +201,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final cartCtrl = Provider.of<CartController>(context);
     final orderCtrl = Provider.of<OrderController>(context);
     final bool isMobile = MediaQuery.of(context).size.width < 900;
+    final l10n = AppLocalizations.of(context)!;
 
     if (_currentStep < 3 && cartCtrl.items.isEmpty) {
       return Scaffold(
@@ -206,9 +211,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
             children: [
               const Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey),
               const SizedBox(height: 20),
-              Text('Your bag is empty', style: AppTypography.headingStyle(context, fontSize: 24)),
+              Text(l10n.yourBagIsEmpty, style: AppTypography.headingStyle(context, fontSize: 24)),
               const SizedBox(height: 20),
-              ElevatedButton(onPressed: () => Navigator.pushNamed(context, '/product'), child: const Text('Back to Products')),
+              ElevatedButton(onPressed: () => Navigator.pushNamed(context, '/product'), child: Text(l10n.backToProducts)),
             ],
           ),
         ),
@@ -259,6 +264,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildHeader(bool isMobile) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.all(isMobile ? 16 : 24),
       child: Row(
@@ -268,7 +274,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           if (!isMobile) Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(color: primaryTeal.withOpacity(0.05), borderRadius: BorderRadius.circular(20), border: Border.all(color: primaryTeal.withOpacity(0.2))),
-            child: Text('SECURE SACRED CHECKOUT', style: AppTypography.bodyStyle(context, color: primaryTeal, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1)),
+            child: Text(l10n.secureSacredCheckout, style: AppTypography.bodyStyle(context, color: primaryTeal, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1)),
           ),
           const Spacer(),
           IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.grey, size: 20)),
@@ -278,15 +284,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildStepper(bool isMobile) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24, vertical: 15),
       decoration: BoxDecoration(color: Colors.grey.shade50, border: Border.symmetric(horizontal: BorderSide(color: Colors.grey.shade100))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _stepItem(1, 'Address', isActive: _currentStep == 1, isMobile: isMobile),
-          _stepItem(2, 'Payment', isActive: _currentStep == 2, isMobile: isMobile),
-          _stepItem(3, 'Placed', isActive: _currentStep == 3, isMobile: isMobile),
+          _stepItem(1, l10n.address, isActive: _currentStep == 1, isMobile: isMobile),
+          _stepItem(2, l10n.payment, isActive: _currentStep == 2, isMobile: isMobile),
+          _stepItem(3, l10n.placed, isActive: _currentStep == 3, isMobile: isMobile),
         ],
       ),
     );
@@ -308,46 +315,48 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildDeliveryForm(bool isMobile) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.all(isMobile ? 20 : 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Delivery Details', style: AppTypography.headingStyle(context, fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(l10n.deliveryDetails, style: AppTypography.headingStyle(context, fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 30),
-          _formField('Full Name *', 'Himanshu Rathod', controller: _nameCtrl),
+          _formField(l10n.fullNameLabel, 'Himanshu Rathod', controller: _nameCtrl),
           const SizedBox(height: 20),
-          _formField('Phone *', '+91 98765 43210', controller: _phoneCtrl, validator: (v) => (v == null || v.length < 10) ? 'Valid Phone Required' : null),
+          _formField(l10n.phoneLabel, '+91 98765 43210', controller: _phoneCtrl, validator: (v) => (v == null || v.length < 10) ? l10n.validPhoneRequired : null),
           const SizedBox(height: 20),
-          _formField('Email *', 'devotee@example.com', controller: _emailCtrl, validator: (v) => (v == null || !v.contains('@')) ? 'Valid Email Required' : null),
+          _formField(l10n.emailLabel, 'devotee@example.com', controller: _emailCtrl, validator: (v) => (v == null || !v.contains('@')) ? l10n.validEmailRequired : null),
           const SizedBox(height: 20),
-          _formField('Address *', 'House No, Street...', controller: _addressCtrl, maxLines: 2),
+          _formField(l10n.addressLabel, 'House No, Street...', controller: _addressCtrl, maxLines: 2),
           const SizedBox(height: 20),
           Row(children: [
-            Expanded(child: _formField('City *', 'Ahmedabad', controller: _cityCtrl)),
+            Expanded(child: _formField(l10n.cityLabel, 'Ahmedabad', controller: _cityCtrl)),
             const SizedBox(width: 20),
-            Expanded(child: _formField('State *', 'Gujarat', controller: _stateCtrl)),
+            Expanded(child: _formField(l10n.stateLabel, 'Gujarat', controller: _stateCtrl)),
           ]),
           const SizedBox(height: 20),
-          _formField('Pincode *', '380015', controller: _pinCtrl, validator: (v) => (v == null || v.length < 6) ? 'Valid Pincode Required' : null),
+          _formField(l10n.pincodeLabel, '380015', controller: _pinCtrl, validator: (v) => (v == null || v.length < 6) ? l10n.validPincodeRequired : null),
           const SizedBox(height: 20),
-          _formField('Note (Optional)', 'Notes...', controller: _noteCtrl, maxLines: 2, isMandatory: false),
+          _formField(l10n.noteOptional, 'Notes...', controller: _noteCtrl, maxLines: 2, isMandatory: false),
         ],
       ),
     );
   }
 
   Widget _buildPaymentForm(bool isMobile) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.all(isMobile ? 20 : 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Payment Method', style: AppTypography.headingStyle(context, fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(l10n.paymentMethod, style: AppTypography.headingStyle(context, fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 30),
-          _paymentOption('COD', 'Cash on Delivery', 'Pay when delivered.', Icons.handshake_outlined),
+          _paymentOption('COD', l10n.cashOnDelivery, l10n.payWhenDelivered, Icons.handshake_outlined),
           const SizedBox(height: 20),
-          _paymentOption('UPI', 'UPI / Online Payment', 'Secure online payment.', Icons.qr_code_scanner_outlined),
+          _paymentOption('UPI', l10n.upiOnlinePayment, l10n.secureOnlinePayment, Icons.qr_code_scanner_outlined),
         ],
       ),
     );
@@ -366,21 +375,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildOrderSummary(BuildContext context, CartController cart) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Summary', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(l10n.summary, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const Divider(height: 30),
-          _summaryRow('Subtotal', '₹${cart.subtotal.toStringAsFixed(2)}'),
+          _summaryRow(l10n.subtotal, '₹${cart.subtotal.toStringAsFixed(2)}'),
           if (cart.discountAmount > 0)
-            _summaryRow('Discount', '- ₹${cart.discountAmount.toStringAsFixed(2)}'),
-          _summaryRow('Shipping', '₹${cart.shippingFee.toStringAsFixed(2)}'),
-          _summaryRow('Taxes', '₹${cart.tax.toStringAsFixed(2)}'),
+            _summaryRow(l10n.discount, '- ₹${cart.discountAmount.toStringAsFixed(2)}'),
+          _summaryRow(l10n.shipping, '₹${cart.shippingFee.toStringAsFixed(2)}'),
+          _summaryRow(l10n.taxes, '₹${cart.tax.toStringAsFixed(2)}'),
           const Divider(),
-          _summaryRow('Total', '₹${cart.total.toStringAsFixed(2)}', isBold: true),
+          _summaryRow(l10n.total, '₹${cart.total.toStringAsFixed(2)}', isBold: true),
         ],
       ),
     );
@@ -394,12 +404,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildCheckoutFooterActions(OrderController orderController, bool isMobile) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.all(isMobile ? 20 : 32),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (_currentStep == 2) TextButton.icon(onPressed: () => setState(() => _currentStep = 1), icon: const Icon(Icons.arrow_back), label: const Text('Back')),
+          if (_currentStep == 2) TextButton.icon(onPressed: () => setState(() => _currentStep = 1), icon: const Icon(Icons.arrow_back), label: Text(l10n.back)),
           if (_currentStep == 1) const Spacer(),
           ElevatedButton(
             onPressed: orderController.isLoading ? null : () { 
@@ -412,7 +423,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white, padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 32, vertical: 20)),
-            child: orderController.isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(_currentStep == 1 ? 'Next Step' : 'Complete Order'),
+            child: orderController.isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(_currentStep == 1 ? l10n.nextStep : l10n.completeOrder),
           ),
         ],
       ),
@@ -420,23 +431,25 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildBottomBar() {
-    return Container(padding: const EdgeInsets.all(16), child: const Center(child: Text('Secure Checkout • Encrypted & Protected', style: TextStyle(fontSize: 10, color: Colors.grey))));
+    final l10n = AppLocalizations.of(context)!;
+    return Container(padding: const EdgeInsets.all(16), child: Center(child: Text(l10n.secureCheckoutProtected, style: const TextStyle(fontSize: 10, color: Colors.grey))));
   }
 
   Widget _buildCheckoutSuccessView(bool isMobile) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.symmetric(vertical: 48, horizontal: isMobile ? 16 : 32),
       child: Column(
         children: [
           const Icon(Icons.check_circle, color: Colors.green, size: 80),
           const SizedBox(height: 24),
-          Text('Order Placed!', style: AppTypography.headingStyle(context, fontSize: 28, fontWeight: FontWeight.bold)),
+          Text(l10n.orderPlacedTitle, style: AppTypography.headingStyle(context, fontSize: 28, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           Wrap(
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Text('Order ID: $_placedOrderId', style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+              Text(l10n.orderIdLabel(_placedOrderId ?? ''), style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
               const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.copy, size: 16, color: Colors.grey),
@@ -446,7 +459,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   if (_placedOrderId != null) {
                     Clipboard.setData(ClipboardData(text: _placedOrderId!));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Order ID copied to clipboard!'), behavior: SnackBarBehavior.floating),
+                      SnackBar(content: Text(l10n.orderIdCopied), behavior: SnackBarBehavior.floating),
                     );
                   }
                 },
@@ -464,7 +477,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   child: ElevatedButton.icon(
                     onPressed: () => InvoiceHelper.printInvoice(_placedOrder!),
                     icon: const Icon(Icons.picture_as_pdf, size: 18),
-                    label: const Text('Download Invoice', style: TextStyle(fontSize: 12)),
+                    label: Text(l10n.downloadInvoice, style: const TextStyle(fontSize: 12)),
                     style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24)),
                   ),
                 ),
@@ -474,7 +487,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   child: ElevatedButton.icon(
                     onPressed: () => InvoiceHelper.shareToWhatsApp(_placedOrder!),
                     icon: const Icon(Icons.share, size: 18),
-                    label: const Text('Send to WhatsApp', style: TextStyle(fontSize: 12)),
+                    label: Text(l10n.sendToWhatsApp, style: const TextStyle(fontSize: 12)),
                     style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF25D366), padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24)),
                   ),
                 ),
@@ -487,18 +500,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
             child: ElevatedButton(
               onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/product', (route) => false), 
               style: ElevatedButton.styleFrom(backgroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 18)),
-              child: const Text('Continue Shopping'),
+              child: Text(l10n.continueShopping),
             ),
           ),
           const SizedBox(height: 24),
           TextButton.icon(
             onPressed: () => Navigator.pushNamed(context, '/track', arguments: _placedOrderId), 
             icon: const Icon(Icons.track_changes, size: 16),
-            label: const Text('Track Order Status'),
+            label: Text(l10n.trackOrderStatus),
           ),
           TextButton(
             onPressed: () => Navigator.pushNamed(context, '/my_orders'), 
-            child: const Text('Go to My Orders'),
+            child: Text(l10n.goToMyOrders),
           ),
         ],
       ),
@@ -506,6 +519,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _formField(String label, String hint, {required TextEditingController controller, int maxLines = 1, String? Function(String?)? validator, bool isMandatory = true}) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -513,7 +527,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         const SizedBox(height: 10),
         TextFormField(
           controller: controller, maxLines: maxLines,
-          validator: validator ?? (isMandatory ? (v) => v == null || v.isEmpty ? 'Required' : null : null),
+          validator: validator ?? (isMandatory ? (v) => v == null || v.isEmpty ? l10n.requiredField : null : null),
           decoration: InputDecoration(hintText: hint, filled: true, fillColor: Colors.grey.shade50, border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
         ),
       ],

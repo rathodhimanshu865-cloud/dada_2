@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../models/user_model.dart';
 import '../../utils/app_typography.dart';
 
@@ -39,20 +40,20 @@ class _AdminUsersViewState extends State<AdminUsersView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'User Management',
+          AppLocalizations.of(context)!.userManagement,
           style: AppTypography.headingStyle(context, fontSize: 28, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'View all registered users, their roles, and account status.',
-          style: TextStyle(color: Colors.grey),
+        Text(
+          AppLocalizations.of(context)!.viewRegisteredUsers,
+          style: const TextStyle(color: Colors.grey),
         ),
         const SizedBox(height: 20),
 
         // Search bar
         TextField(
           decoration: InputDecoration(
-            hintText: 'Search by name, email or phone...',
+            hintText: AppLocalizations.of(context)!.searchUsersHint,
             prefixIcon: const Icon(Icons.search),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
@@ -78,9 +79,9 @@ class _AdminUsersViewState extends State<AdminUsersView> {
             }
 
             if (users.isEmpty) {
-              return const Center(child: Padding(
-                padding: EdgeInsets.all(40),
-                child: Text('No users found.'),
+              return Center(child: Padding(
+                padding: const EdgeInsets.all(40),
+                child: Text(AppLocalizations.of(context)!.noUsersFound),
               ));
             }
 
@@ -97,9 +98,9 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                   spacing: 12,
                   runSpacing: 8,
                   children: [
-                    _statChip('Total Users', totalUsers.toString(), Colors.blueGrey),
-                    _statChip('Admins', adminCount.toString(), Colors.deepPurple),
-                    _statChip('Active', activeCount.toString(), Colors.green),
+                    _statChip(AppLocalizations.of(context)!.totalUsers, totalUsers.toString(), Colors.blueGrey),
+                    _statChip(AppLocalizations.of(context)!.admins, adminCount.toString(), Colors.deepPurple),
+                    _statChip(AppLocalizations.of(context)!.active, activeCount.toString(), Colors.green),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -206,7 +207,7 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  user.isActive ? 'Active' : 'Inactive',
+                  user.isActive ? AppLocalizations.of(context)!.active : AppLocalizations.of(context)!.inactive,
                   style: TextStyle(
                     color: user.isActive ? Colors.green : Colors.red,
                     fontSize: 11,
@@ -218,7 +219,7 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
-                    'Joined ${DateFormat('dd MMM yyyy').format(user.createdAt!)}',
+                    AppLocalizations.of(context)!.joinedDate(DateFormat('dd MMM yyyy').format(user.createdAt!)),
                     style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
                   ),
                 ),

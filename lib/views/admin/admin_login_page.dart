@@ -27,7 +27,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
 
     if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your username and password'), backgroundColor: Colors.redAccent),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterUsernamePassword), backgroundColor: Colors.redAccent),
       );
       return;
     }
@@ -47,23 +47,23 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
         String message;
         switch (e.code) {
           case 'user-not-found':
-            message = 'No admin account found with this username.';
+            message = AppLocalizations.of(context)!.adminAccountNotFound;
             break;
           case 'wrong-password':
           case 'invalid-credential':
-            message = 'Incorrect username or password.';
+            message = AppLocalizations.of(context)!.incorrectUsernamePassword;
             break;
           case 'invalid-email':
-            message = 'Please enter a valid credential.';
+            message = AppLocalizations.of(context)!.enterValidCredential;
             break;
           case 'user-disabled':
-            message = 'This admin account has been disabled.';
+            message = AppLocalizations.of(context)!.adminAccountDisabled;
             break;
           case 'too-many-requests':
-            message = 'Too many failed attempts. Please try again later.';
+            message = AppLocalizations.of(context)!.tooManyAttempts;
             break;
           default:
-            message = e.message ?? 'Login failed. Please try again.';
+            message = e.message ?? AppLocalizations.of(context)!.loginFailedTryAgain;
         }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message), backgroundColor: Colors.redAccent),
@@ -72,7 +72,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login Failed: ${e.toString()}'), backgroundColor: Colors.redAccent),
+          SnackBar(content: Text(AppLocalizations.of(context)!.loginFailedWithDetails(e.toString())), backgroundColor: Colors.redAccent),
         );
       }
     } finally {
@@ -120,7 +120,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Secure Dashboard Access',
+                        AppLocalizations.of(context)!.secureDashboardAccess,
                         style: AppTypography.bodyStyle(context, color: Colors.white.withOpacity(0.6), fontSize: 14),
                       ),
                     ],
@@ -132,7 +132,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildLabel(AppLocalizations.of(context)!.email),
-                      _buildTextField(_usernameController, Icons.email_outlined, 'admin@example.com'),
+                      _buildTextField(_usernameController, Icons.email_outlined, AppLocalizations.of(context)!.adminEmailHint),
                       const SizedBox(height: 24),
                       _buildLabel(AppLocalizations.of(context)!.password),
                       _buildTextField(_passController, Icons.lock_outline, '••••••••', isPassword: true),
@@ -160,7 +160,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                       Center(
                         child: TextButton(
                           onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false),
-                          child: Text('Back to Website', style: TextStyle(color: accentGold, fontWeight: FontWeight.bold)),
+                          child: Text(AppLocalizations.of(context)!.backToWebsite, style: TextStyle(color: accentGold, fontWeight: FontWeight.bold)),
                         ),
                       ),
                     ],

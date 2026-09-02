@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/product_controller.dart';
 import '../../models/category_model.dart';
 
@@ -29,15 +30,15 @@ class _CategoryManagementViewState extends State<CategoryManagementView> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Category Management', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  Text(AppLocalizations.of(context)!.categoryManagement, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text('Organize Pu. Dada sacred offerings into distinct store categories.', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+                  Text(AppLocalizations.of(context)!.organizeOfferings, style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
                 ],
               ),
               ElevatedButton.icon(
                 onPressed: () => _showCategoryDialog(context),
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('ADD NEW CATEGORY', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                label: Text(AppLocalizations.of(context)!.addNewCategory, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF8B4513),
                   foregroundColor: Colors.white,
@@ -50,7 +51,7 @@ class _CategoryManagementViewState extends State<CategoryManagementView> {
           const SizedBox(height: 32),
           
           categories.isEmpty 
-            ? const Center(child: Padding(padding: EdgeInsets.all(40), child: Text('No categories found.')))
+            ? Center(child: Padding(padding: const EdgeInsets.all(40), child: Text(AppLocalizations.of(context)!.noCategoriesFound)))
             : GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -100,7 +101,7 @@ class _CategoryManagementViewState extends State<CategoryManagementView> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(color: Colors.amber.shade50, borderRadius: BorderRadius.circular(12)),
-                child: Text('$productCount Products', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amber)),
+                child: Text(AppLocalizations.of(context)!.productsCount(productCount), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amber)),
               ),
             ],
           ),
@@ -124,7 +125,7 @@ class _CategoryManagementViewState extends State<CategoryManagementView> {
                   prodCtrl.selectCategory(cat.id);
                   widget.onMenuChange?.call(1);
                 }, 
-                child: const Text('View Products →', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.amber))
+                child: Text(AppLocalizations.of(context)!.viewProductsArrow, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.amber))
               ),
               Row(
                 children: [
@@ -151,19 +152,19 @@ class _CategoryManagementViewState extends State<CategoryManagementView> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isEdit ? 'Edit Category' : 'Add New Category'),
+        title: Text(isEdit ? AppLocalizations.of(context)!.editCategory : AppLocalizations.of(context)!.addNewCategory),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Category Name')),
+            TextField(controller: nameCtrl, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.categoryName)),
             const SizedBox(height: 12),
-            TextField(controller: descCtrl, decoration: const InputDecoration(labelText: 'Description')),
+            TextField(controller: descCtrl, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.description)),
             const SizedBox(height: 12),
-            TextField(controller: imgCtrl, decoration: const InputDecoration(labelText: 'Image URL')),
+            TextField(controller: imgCtrl, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.imageUrl)),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.cancel)),
           ElevatedButton(
             onPressed: () async {
               final prodCtrl = Provider.of<ProductController>(context, listen: false);
@@ -180,7 +181,7 @@ class _CategoryManagementViewState extends State<CategoryManagementView> {
               }
               if (context.mounted) Navigator.pop(context);
             },
-            child: const Text('Save'),
+            child: Text(AppLocalizations.of(context)!.saveChanges),
           ),
         ],
       ),
@@ -191,16 +192,16 @@ class _CategoryManagementViewState extends State<CategoryManagementView> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Category?'),
-        content: Text('Are you sure you want to delete "${cat.name}"? This will not delete products in this category but they will be unassigned.'),
+        title: Text(AppLocalizations.of(context)!.deleteCategoryTitle),
+        content: Text(AppLocalizations.of(context)!.deleteCategoryConfirm(cat.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.cancel)),
           TextButton(
             onPressed: () async {
               await prodCtrl.deleteCategory(cat.id);
               if (context.mounted) Navigator.pop(context);
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.remove, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),

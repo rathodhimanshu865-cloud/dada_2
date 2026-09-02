@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
+import '../../../controllers/language_controller.dart';
 import '../../../controllers/cart_controller.dart';
 import '../../../controllers/product_controller.dart';
 import '../../../controllers/notification_controller.dart';
@@ -87,6 +89,7 @@ class _ProductHeaderState extends State<ProductHeader> {
   }
 
   Widget _buildSearchResults(ProductController prod) {
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
     if (prod.isSearching) {
       return const Padding(
         padding: EdgeInsets.all(32),
@@ -164,7 +167,7 @@ class _ProductHeaderState extends State<ProductHeader> {
                       : const Icon(Icons.image_outlined, color: Colors.grey),
                   ),
                 ),
-                title: Text(product.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
+                title: Text(product.localizedName(lang), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
                 subtitle: Text(product.categoryId, style: const TextStyle(fontSize: 12, color: Colors.grey)),
                 trailing: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -437,6 +440,8 @@ class _ProductHeaderState extends State<ProductHeader> {
       'other': Icons.more_horiz_outlined,
     };
 
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
+
     return Consumer<ProductController>(
       builder: (context, prod, child) {
         return Theme(
@@ -452,7 +457,7 @@ class _ProductHeaderState extends State<ProductHeader> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Product Catalogue', style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: textColor)),
+                Text(AppLocalizations.of(context)!.sacredCatalogue, style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: textColor)),
                 const SizedBox(width: 4),
                 const Icon(Icons.keyboard_arrow_down, size: 16),
               ],
@@ -467,7 +472,7 @@ class _ProductHeaderState extends State<ProductHeader> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Sacred Categories', style: AppTypography.headingStyle(context, fontSize: 18, fontWeight: FontWeight.bold, color: primaryColor)),
+                      Text(AppLocalizations.of(context)!.categories, style: AppTypography.headingStyle(context, fontSize: 18, fontWeight: FontWeight.bold, color: primaryColor)),
                       const SizedBox(height: 20),
                       ...prod.categoryObjects.map((cat) => Padding(
                         padding: const EdgeInsets.only(bottom: 16),
@@ -486,7 +491,7 @@ class _ProductHeaderState extends State<ProductHeader> {
                               const SizedBox(width: 16),
                               Expanded(
                                 child: Text(
-                                  cat.name,
+                                  cat.localizedName(lang),
                                   style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFF2B2B2B)),
                                 ),
                               ),
@@ -503,7 +508,7 @@ class _ProductHeaderState extends State<ProductHeader> {
                             Navigator.pop(context);
                             Navigator.pushNamed(context, '/catalogue', arguments: 'all');
                           },
-                          child: Text('Explore All Products >', style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.bold, color: primaryColor)),
+                          child: Text('${AppLocalizations.of(context)!.exploreFullCollection} >', style: AppTypography.bodyStyle(context, fontSize: 14, fontWeight: FontWeight.bold, color: primaryColor)),
                         ),
                       ),
                     ],

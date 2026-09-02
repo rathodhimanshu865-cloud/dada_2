@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/cart_controller.dart';
 import '../../controllers/coupon_controller.dart';
+import '../../controllers/language_controller.dart';
 import '../../utils/responsive_utils.dart';
 import 'sections/product_cart_layout.dart';
 import '../../utils/app_typography.dart';
@@ -15,6 +17,7 @@ class CartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final homeController = Provider.of<HomePageController>(context, listen: false);
     final cartController = Provider.of<CartController>(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final bool isMobile = Responsive.isMobile(context);
     final bool isTablet = Responsive.isTablet(context);
@@ -30,7 +33,7 @@ class CartPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Your Shopping Bag',
+                  l10n.myShoppingBag,
                   style: AppTypography.headingStyle(
                     context,
                     fontSize: isMobile ? 28 : 42,
@@ -56,6 +59,7 @@ class CartPage extends StatelessWidget {
   }
 
   Widget _buildErrorState(BuildContext context, CartController cart) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       height: 400,
       width: double.infinity,
@@ -67,13 +71,14 @@ class CartPage extends StatelessWidget {
           const SizedBox(height: 24),
           Text(cart.errorMessage!, style: const TextStyle(fontSize: 18)),
           const SizedBox(height: 30),
-          ElevatedButton(onPressed: cart.clearError, child: const Text('Try Again')),
+          ElevatedButton(onPressed: cart.clearError, child: Text(l10n.tryAgain)),
         ],
       ),
     );
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       height: 400,
       width: double.infinity,
@@ -91,7 +96,7 @@ class CartPage extends StatelessWidget {
             Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey.shade300),
             const SizedBox(height: 24),
             Text(
-              'Your bag is currently empty.',
+              l10n.yourBagIsEmpty,
               textAlign: TextAlign.center,
               style: AppTypography.bodyStyle(context, fontSize: 18, color: Colors.grey.shade600),
             ),
@@ -102,7 +107,7 @@ class CartPage extends StatelessWidget {
                 backgroundColor: const Color(0xFF0F4C5C),
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
               ),
-              child: const Text('EXPLORE CATALOGUE'),
+              child: Text(l10n.exploreCatalogue),
             ),
           ],
         ),
@@ -131,6 +136,7 @@ class CartPage extends StatelessWidget {
   }
 
   Widget _buildCartItemsList(BuildContext context, CartController cart, bool isMobile) {
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -164,7 +170,7 @@ class CartPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(item.productName, maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: isMobile ? 14 : 18)),
+                    Text(item.localizedProductName(lang), maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: isMobile ? 14 : 18)),
                     const SizedBox(height: 8),
                     Text('₹ ${item.price.toStringAsFixed(2)}', style: TextStyle(color: Colors.grey.shade600, fontSize: isMobile ? 12 : 14)),
                   ],
@@ -208,6 +214,7 @@ class CartPage extends StatelessWidget {
   Widget _buildOrderSummary(BuildContext context, CartController cart, bool isMobile) {
     final Color teal = const Color(0xFF0F4C5C);
     final couponCtrl = Provider.of<CouponController>(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       children: [
@@ -228,14 +235,14 @@ class CartPage extends StatelessWidget {
                 children: [
                   Icon(Icons.local_offer_outlined, size: 18, color: teal),
                   const SizedBox(width: 12),
-                  const Text('Available Sacred Offers', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(l10n.availableSacredOffers, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 ],
               ),
               const SizedBox(height: 20),
               if (couponCtrl.isLoading) 
                 const Center(child: CircularProgressIndicator())
               else if (couponCtrl.coupons.isEmpty)
-                const Text('No coupons available at the moment.', style: TextStyle(fontSize: 12, color: Colors.grey))
+                Text(l10n.noCouponsAvailable, style: const TextStyle(fontSize: 12, color: Colors.grey))
               else
                 Wrap(
                   spacing: 12,
@@ -247,7 +254,7 @@ class CartPage extends StatelessWidget {
                         final success = await cart.applyCoupon(c);
                         if (!success && context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(cart.errorMessage ?? 'Could not apply coupon'), backgroundColor: Colors.redAccent),
+                            SnackBar(content: Text(cart.errorMessage ?? l10n.couldNotApplyCoupon), backgroundColor: Colors.redAccent),
                           );
                         }
                       },
@@ -287,7 +294,7 @@ class CartPage extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                isApplied ? 'APPLIED' : 'APPLY COUPON',
+                                isApplied ? l10n.applied : l10n.applyCoupon,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: isApplied ? Colors.green : teal, letterSpacing: 0.5),
                               ),
@@ -305,8 +312,8 @@ class CartPage extends StatelessWidget {
                   children: [
                     const Icon(Icons.check_circle, color: Colors.green, size: 16),
                     const SizedBox(width: 8),
-                    Expanded(child: Text('Coupon ${cart.appliedCoupon!.code} Applied Successfully!', style: const TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.bold))),
-                    TextButton(onPressed: cart.removeCoupon, child: const Text('REMOVE', style: TextStyle(color: Colors.red, fontSize: 11, fontWeight: FontWeight.bold))),
+                    Expanded(child: Text(l10n.couponAppliedSuccess(cart.appliedCoupon!.code), style: const TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.bold))),
+                    TextButton(onPressed: cart.removeCoupon, child: Text(l10n.remove, style: const TextStyle(color: Colors.red, fontSize: 11, fontWeight: FontWeight.bold))),
                   ],
                 ),
               ],
@@ -324,13 +331,13 @@ class CartPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Order Summary', style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.bold)),
+              Text(l10n.orderSummary, style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 30),
-              _summaryRow('Subtotal', '₹ ${cart.subtotal.toStringAsFixed(2)}'),
+              _summaryRow(l10n.subtotal, '₹ ${cart.subtotal.toStringAsFixed(2)}'),
               if (cart.discountAmount > 0)
-                _summaryRow('Promo Discount (${cart.appliedCoupon?.code})', '- ₹ ${cart.discountAmount.toStringAsFixed(2)}', color: Colors.green),
-              _summaryRow('Shipping Seva Fee', '₹ ${cart.shippingFee.toStringAsFixed(2)}'),
-              _summaryRow('Sacred Item Tax (5%)', '₹ ${cart.tax.toStringAsFixed(2)}'),
+                _summaryRow(l10n.promoDiscount(cart.appliedCoupon?.code ?? ''), '- ₹ ${cart.discountAmount.toStringAsFixed(2)}', color: Colors.green),
+              _summaryRow(l10n.shippingSevaFee, '₹ ${cart.shippingFee.toStringAsFixed(2)}'),
+              _summaryRow(l10n.sacredItemTax, '₹ ${cart.tax.toStringAsFixed(2)}'),
               const Divider(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -339,9 +346,9 @@ class CartPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Final Total', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18)),
+                        Text(l10n.finalTotal, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 18)),
                         if (cart.discountAmount > 0)
-                          Text('You saved ₹${cart.discountAmount.toInt()}!', style: const TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                          Text(l10n.youSavedAmount(cart.discountAmount.toInt()), style: const TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -355,7 +362,7 @@ class CartPage extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pushNamed(context, '/checkout'),
                   style: ElevatedButton.styleFrom(backgroundColor: teal, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                  child: const Text('PROCEED TO CHECKOUT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1, color: Colors.white)),
+                  child: Text(l10n.proceedToCheckout, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1, color: Colors.white)),
                 ),
               ),
             ],

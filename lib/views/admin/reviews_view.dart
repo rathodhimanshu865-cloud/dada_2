@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 
 class ReviewsView extends StatelessWidget {
   const ReviewsView({super.key});
@@ -20,9 +21,9 @@ class ReviewsView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Devotee Reviews & Blessings', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              Text(AppLocalizations.of(context)!.devoteeReviewsBlessings, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
-              Text('Moderate customer testimonials and publish official Temple Seva replies.', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+              Text(AppLocalizations.of(context)!.moderateTestimonials, style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
               const SizedBox(height: 32),
               
               if (reviews.isEmpty)
@@ -67,9 +68,9 @@ class ReviewsView extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(review['userName'] ?? 'Anonymous', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  Text(review['userName'] ?? AppLocalizations.of(context)!.anonymousUser, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                   const SizedBox(width: 8),
-                  Text('on ${review['productName']}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  Text(AppLocalizations.of(context)!.onProduct(review['productName'] ?? ''), style: const TextStyle(fontSize: 12, color: Colors.grey)),
                 ],
               ),
               Row(
@@ -91,7 +92,7 @@ class ReviewsView extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: () => _showReplyDialog(context, review['userPhone'] ?? ''), 
-              child: const Text('Reply to Devotee →', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.brown))
+              child: Text(AppLocalizations.of(context)!.replyToDevoteeArrow, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.brown))
             ),
           ),
         ],
@@ -101,18 +102,18 @@ class ReviewsView extends StatelessWidget {
 
   void _showReplyDialog(BuildContext context, String phone) {
     final TextEditingController replyCtrl = TextEditingController(
-      text: "Jai Sachchidanand! Pranam! Thank you for your kind review and blessings. We are delighted to know that Pu. Dada's sacred offering brought peace and positive energy to your home. May you always be blessed with divine grace. - Temple Seva Team"
+      text: AppLocalizations.of(context)!.suggestedReplyText
     );
     
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reply to Devotee'),
+        title: Text(AppLocalizations.of(context)!.replyToDevotee),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Suggested Reply (You can edit):', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            Text(AppLocalizations.of(context)!.suggestedReply, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             TextField(
               controller: replyCtrl,
@@ -123,14 +124,14 @@ class ReviewsView extends StatelessWidget {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.cancel)),
           ElevatedButton.icon(
             onPressed: () {
               _sendWhatsApp(phone, replyCtrl.text);
               Navigator.pop(context);
             }, 
             icon: const Icon(Icons.chat),
-            label: const Text('Send via WhatsApp'),
+            label: Text(AppLocalizations.of(context)!.sendViaWhatsApp),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white),
           ),
         ],

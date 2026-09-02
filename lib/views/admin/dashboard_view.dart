@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/dashboard_controller.dart';
 import 'product_dialog_helper.dart';
 
@@ -67,13 +68,13 @@ class _DashboardViewState extends State<DashboardView> {
                   if (isWide)
                     Row(
                       children: [
-                        _buildStatBox('REVENUE', '₹${stats.totalRevenue.toStringAsFixed(1)}', Icons.currency_rupee, Colors.teal),
+                        _buildStatBox(AppLocalizations.of(context)!.revenue, '₹${stats.totalRevenue.toStringAsFixed(1)}', Icons.currency_rupee, Colors.teal),
                         const SizedBox(width: 12),
-                        _buildStatBox('ORDERS', stats.totalOrders.toString(), Icons.shopping_bag, Colors.indigo),
+                        _buildStatBox(AppLocalizations.of(context)!.orders, stats.totalOrders.toString(), Icons.shopping_bag, Colors.indigo),
                         const SizedBox(width: 12),
-                        _buildStatBox('PRODUCTS', stats.totalProducts.toString(), Icons.description, Colors.orange),
+                        _buildStatBox(AppLocalizations.of(context)!.products, stats.totalProducts.toString(), Icons.description, Colors.orange),
                         const SizedBox(width: 12),
-                        _buildStatBox('LOW STOCK', controller.lowStockProducts.length.toString(), Icons.warning, Colors.red, isAlert: controller.lowStockProducts.isNotEmpty),
+                        _buildStatBox(AppLocalizations.of(context)!.lowStock, controller.lowStockProducts.length.toString(), Icons.warning, Colors.red, isAlert: controller.lowStockProducts.isNotEmpty),
                       ],
                     )
                   else
@@ -85,10 +86,10 @@ class _DashboardViewState extends State<DashboardView> {
                       crossAxisSpacing: 12,
                       childAspectRatio: 1.5,
                       children: [
-                        _buildStatBox('REVENUE', '₹${stats.totalRevenue.toStringAsFixed(0)}', Icons.currency_rupee, Colors.teal),
-                        _buildStatBox('ORDERS', stats.totalOrders.toString(), Icons.shopping_bag, Colors.indigo),
-                        _buildStatBox('PRODUCTS', stats.totalProducts.toString(), Icons.description, Colors.orange),
-                        _buildStatBox('LOW STOCK', controller.lowStockProducts.length.toString(), Icons.warning, Colors.red, isAlert: controller.lowStockProducts.isNotEmpty),
+                        _buildStatBox(AppLocalizations.of(context)!.revenue, '₹${stats.totalRevenue.toStringAsFixed(0)}', Icons.currency_rupee, Colors.teal),
+                        _buildStatBox(AppLocalizations.of(context)!.orders, stats.totalOrders.toString(), Icons.shopping_bag, Colors.indigo),
+                        _buildStatBox(AppLocalizations.of(context)!.products, stats.totalProducts.toString(), Icons.description, Colors.orange),
+                        _buildStatBox(AppLocalizations.of(context)!.lowStock, controller.lowStockProducts.length.toString(), Icons.warning, Colors.red, isAlert: controller.lowStockProducts.isNotEmpty),
                       ],
                     ),
                   
@@ -98,15 +99,15 @@ class _DashboardViewState extends State<DashboardView> {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        _smallActionBtn(context, 'ADD PRODUCT', Icons.add, () => ProductDialogHelper.showProductDialog(context)),
+                        _smallActionBtn(context, AppLocalizations.of(context)!.addProduct, Icons.add, () => ProductDialogHelper.showProductDialog(context)),
                         const SizedBox(width: 12),
-                        _smallActionBtn(context, 'RESTOCK / INVENTORY', Icons.inventory, () => widget.onMenuChange?.call(3)),
+                        _smallActionBtn(context, AppLocalizations.of(context)!.restockInventory, Icons.inventory, () => widget.onMenuChange?.call(3)),
                         const SizedBox(width: 12),
-                        _smallActionBtn(context, 'DISCOUNT COUPONS', Icons.confirmation_number, () => widget.onMenuChange?.call(7)),
+                        _smallActionBtn(context, AppLocalizations.of(context)!.discountCoupons, Icons.confirmation_number, () => widget.onMenuChange?.call(7)),
                         const SizedBox(width: 12),
-                        _smallActionBtn(context, 'VIEW ALL ORDERS', Icons.list_alt, () => widget.onMenuChange?.call(4)),
+                        _smallActionBtn(context, AppLocalizations.of(context)!.viewAllOrders, Icons.list_alt, () => widget.onMenuChange?.call(4)),
                         const SizedBox(width: 12),
-                        _smallActionBtn(context, 'ORDER & DISPATCH', Icons.local_shipping, () => widget.onMenuChange?.call(4), isNew: true),
+                        _smallActionBtn(context, AppLocalizations.of(context)!.orderDispatch, Icons.local_shipping, () => widget.onMenuChange?.call(4), isNew: true),
                       ],
                     ),
                   ),
@@ -116,8 +117,8 @@ class _DashboardViewState extends State<DashboardView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Recent Orders', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                      TextButton(onPressed: () => widget.onMenuChange?.call(4), child: const Text('View All', style: TextStyle(fontSize: 12))),
+                      Text(AppLocalizations.of(context)!.recentOrders, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      TextButton(onPressed: () => widget.onMenuChange?.call(4), child: Text(AppLocalizations.of(context)!.viewAll, style: const TextStyle(fontSize: 12))),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -140,9 +141,9 @@ class _DashboardViewState extends State<DashboardView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Devotional Operations Dashboard', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A))),
+              Text(AppLocalizations.of(context)!.devotionalOpsDashboard, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A))),
               const SizedBox(height: 4),
-              Text('Real-time overview of sacred orders, live stock, and devotee engagement.', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+              Text(AppLocalizations.of(context)!.realTimeOverview, style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
             ],
           ),
         ),
@@ -191,11 +192,11 @@ class _DashboardViewState extends State<DashboardView> {
             underline: const SizedBox(),
             isDense: true,
             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87),
-            items: const [
-              DropdownMenuItem(value: 1, child: Text('Today')),
-              DropdownMenuItem(value: 30, child: Text('30 Days')),
-              DropdownMenuItem(value: 90, child: Text('3 Months')),
-              DropdownMenuItem(value: 365, child: Text('1 Year')),
+            items: [
+              DropdownMenuItem(value: 1, child: Text(AppLocalizations.of(context)!.today)),
+              DropdownMenuItem(value: 30, child: Text(AppLocalizations.of(context)!.thirtyDays)),
+              DropdownMenuItem(value: 90, child: Text(AppLocalizations.of(context)!.threeMonths)),
+              DropdownMenuItem(value: 365, child: Text(AppLocalizations.of(context)!.oneYear)),
             ],
             onChanged: (val) {
               if (val != null) controller.setPeriod(val);
@@ -266,7 +267,7 @@ class _DashboardViewState extends State<DashboardView> {
         width: double.infinity,
         padding: const EdgeInsets.all(40),
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade200)),
-        child: const Center(child: Text('No recent orders found.', style: TextStyle(color: Colors.grey))),
+        child: Center(child: Text(AppLocalizations.of(context)!.noRecentOrders, style: const TextStyle(color: Colors.grey))),
       );
     }
     return Container(

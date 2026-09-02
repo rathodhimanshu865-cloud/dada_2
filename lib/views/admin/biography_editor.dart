@@ -43,14 +43,6 @@ class _BiographyEditorState extends State<BiographyEditor> {
     }
   }
 
-  Future<void> _translateField(String key, String original, Function(String, String) onResult) async {
-    if (original.trim().isEmpty) return;
-    setState(() => _fieldLoading[key] = true);
-    final results = await TranslationService.translateToAll(original);
-    onResult(results['hi'] ?? '', results['gu'] ?? '');
-    setState(() => _fieldLoading[key] = false);
-  }
-
   @override
   Widget build(BuildContext context) {
     final prof = Provider.of<ProfileController>(context);
@@ -208,33 +200,12 @@ class _BiographyEditorState extends State<BiographyEditor> {
   }
 
   Widget _buildField(String label, String value, Function(String) onChanged, String transKey, {int maxLines = 1}) {
-    final bool loading = _fieldLoading[transKey] ?? false;
-    final p = Provider.of<ProfileController>(context, listen: false).profileData!;
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-              TextButton.icon(
-                onPressed: loading ? null : () => _translateField(transKey, value, (hi, gu) {
-                  if (transKey == 'social_title') { p.socialInitiativeTitleHi = hi; p.socialInitiativeTitleGu = gu; }
-                  if (transKey == 'social_vision') { p.socialVisionHi = hi; p.socialVisionGu = gu; }
-                  if (transKey == 'social_mission') { p.socialMissionHi = hi; p.socialMissionGu = gu; }
-                  if (transKey == 'social_obj') { p.socialObjectiveHi = hi; p.socialObjectiveGu = gu; }
-                  if (transKey == 'phil') { p.philosophyOfLifeHi = hi; p.philosophyOfLifeGu = gu; }
-                  if (transKey == 'sig_title') { p.signatureIdentityTitleHi = hi; p.signatureIdentityTitleGu = gu; }
-                  if (transKey == 'sig_sub') { p.signatureIdentitySubtitleHi = hi; p.signatureIdentitySubtitleGu = gu; }
-                }),
-                icon: loading ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.amber)) : const Icon(Icons.translate, size: 14),
-                label: Text(loading ? 'Translating...' : 'Translate', style: const TextStyle(fontSize: 12)),
-              ),
-            ],
-          ),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
           const SizedBox(height: 8),
           TextField(
             controller: TextEditingController(text: value)..selection = TextSelection.collapsed(offset: value.length),
@@ -278,23 +249,6 @@ class _BiographyEditorState extends State<BiographyEditor> {
           Row(
             children: [
               OutlinedButton.icon(onPressed: onAdd, icon: const Icon(Icons.add), label: const Text('Add Item')),
-              const SizedBox(width: 12),
-              TextButton.icon(
-                onPressed: () async {
-                   setState(() => _fieldLoading[translateKey] = true);
-                   final hi = await TranslationService.translateBatch(items, 'hi');
-                   final gu = await TranslationService.translateBatch(items, 'gu');
-                   final p = Provider.of<ProfileController>(context, listen: false).profileData!;
-                   if (translateKey == 'comp') { p.coreCompetenciesHi = hi; p.coreCompetenciesGu = gu; }
-                   if (translateKey == 'highlights') { p.professionalHighlightsHi = hi; p.professionalHighlightsGu = gu; }
-                   if (translateKey == 'attr') { p.personalAttributesHi = hi; p.personalAttributesGu = gu; }
-                   setState(() => _fieldLoading[translateKey] = false);
-                },
-                icon: (_fieldLoading[translateKey] ?? false) 
-                  ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.amber))
-                  : const Icon(Icons.auto_awesome, size: 14),
-                label: Text((_fieldLoading[translateKey] ?? false) ? 'Translating List...' : 'Translate All Items'),
-              ),
             ],
           ),
         ],

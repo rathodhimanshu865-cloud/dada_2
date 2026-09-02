@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import 'package:dada_2/controllers/product_controller.dart';
 import 'package:dada_2/controllers/cart_controller.dart';
 import 'package:dada_2/controllers/auth_controller.dart';
+import 'package:dada_2/controllers/language_controller.dart';
 import 'package:dada_2/models/product_model.dart';
 import 'package:dada_2/utils/app_typography.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -28,6 +30,8 @@ class _ProductCardState extends State<ProductCard> {
   Widget build(BuildContext context) {
     final cart = Provider.of<CartController>(context, listen: false);
     final p = widget.product;
+    final l10n = AppLocalizations.of(context)!;
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
     // Logic: If stock is 0, 1, or 2, it is considered Out of Stock as per requirement.
     final isOutOfStock = p.stock <= 2;
@@ -89,7 +93,7 @@ class _ProductCardState extends State<ProductCard> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
-                              child: const Text('OUT OF STOCK', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1)),
+                              child: Text(l10n.outOfStock.toUpperCase(), style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1)),
                             ),
                           ),
                         ),
@@ -101,7 +105,7 @@ class _ProductCardState extends State<ProductCard> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(color: const Color(0xFF07404C), borderRadius: BorderRadius.circular(4)),
-                        child: Text(p.consecrationBadge.toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                        child: Text(p.localizedConsecrationBadge(lang).toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                       ),
                     ),
 
@@ -121,7 +125,7 @@ class _ProductCardState extends State<ProductCard> {
                               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                             ),
-                            child: const Text('Quick View', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                            child: Text(l10n.quickView, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                           ),
                         ),
                       ),
@@ -157,84 +161,81 @@ class _ProductCardState extends State<ProductCard> {
             // 2. Info Area
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: Builder(builder: (context) {
-                final lang = Localizations.localeOf(context).languageCode;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(color: const Color(0xFFC89A5B).withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-                          child: Text(p.categoryId.toUpperCase(), style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 7, fontWeight: FontWeight.w900, letterSpacing: 1)),
-                        ),
-                        Row(
-                          children: [
-                            const Icon(Icons.star, color: Color(0xFFC89A5B), size: 12),
-                            const SizedBox(width: 4),
-                            Text(p.rating.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
-                            Text(' (${p.reviewCount})', style: const TextStyle(color: Colors.grey, fontSize: 10)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(color: const Color(0xFFC89A5B).withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
+                        child: Text(p.categoryId.toUpperCase(), style: const TextStyle(color: Color(0xFFC89A5B), fontSize: 7, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                      ),
+                      Row(
+                        children: [
+                          const Icon(Icons.star, color: Color(0xFFC89A5B), size: 12),
+                          const SizedBox(width: 4),
+                          Text(p.rating.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                          Text(' (${p.reviewCount})', style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    p.localizedName(lang),
+                    style: AppTypography.headingStyle(context, fontWeight: FontWeight.w700, fontSize: 18, color: const Color(0xFF07404C)),
+                    maxLines: 1, overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    p.localizedShortSummary(lang),
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 11, height: 1.4),
+                    maxLines: 2, overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text('₹${p.price.toInt()}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: Color(0xFF07404C))),
+                          if (p.comparePrice != null && p.comparePrice! > p.price) ...[
+                            const SizedBox(width: 8),
+                            Text('₹${p.comparePrice!.toInt()}', style: const TextStyle(color: Colors.grey, fontSize: 12, decoration: TextDecoration.lineThrough)),
                           ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      p.localizedName(lang),
-                      style: AppTypography.headingStyle(context, fontWeight: FontWeight.w700, fontSize: 18, color: const Color(0xFF07404C)),
-                      maxLines: 1, overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      p.localizedShortSummary(lang),
-                      style: TextStyle(color: Colors.grey.shade500, fontSize: 11, height: 1.4),
-                      maxLines: 2, overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            Text('₹${p.price.toInt()}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: Color(0xFF07404C))),
-                            if (p.comparePrice != null && p.comparePrice! > p.price) ...[
+                        ],
+                      ),
+                      InkWell(
+                        onTap: !isOutOfStock ? () {
+                          if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
+                            cart.addToCart(p, 1);
+                            Scaffold.of(context).openEndDrawer();
+                          } else {
+                            Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
+                          }
+                        } : null,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: !isOutOfStock ? const Color(0xFF07404C) : Colors.grey.shade400,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(!isOutOfStock ? Icons.shopping_bag_outlined : Icons.do_not_disturb_on_outlined, size: 14, color: Colors.white),
                               const SizedBox(width: 8),
-                              Text('₹${p.comparePrice!.toInt()}', style: const TextStyle(color: Colors.grey, fontSize: 12, decoration: TextDecoration.lineThrough)),
+                              Text(!isOutOfStock ? l10n.add : l10n.outOfStock, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),
                             ],
-                          ],
-                        ),
-                        InkWell(
-                          onTap: !isOutOfStock ? () {
-                            if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
-                              cart.addToCart(p, 1);
-                              Scaffold.of(context).openEndDrawer();
-                            } else {
-                              Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
-                            }
-                          } : null,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: !isOutOfStock ? const Color(0xFF07404C) : Colors.grey.shade400,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(!isOutOfStock ? Icons.shopping_bag_outlined : Icons.do_not_disturb_on_outlined, size: 14, color: Colors.white),
-                                const SizedBox(width: 8),
-                                Text(!isOutOfStock ? 'Add' : 'Out of Stock', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),
-                              ],
-                            ),
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                );
-              }),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),

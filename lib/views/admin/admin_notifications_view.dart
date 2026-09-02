@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../utils/app_typography.dart';
 import '../../repositories/notification_repository.dart';
 
@@ -32,7 +33,7 @@ class _AdminNotificationsViewState extends State<AdminNotificationsView> {
     final message = _messageCtrl.text.trim();
     if (title.isEmpty || message.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter both title and message'), backgroundColor: Colors.redAccent),
+        SnackBar(content: Text(AppLocalizations.of(context)!.enterTitleMessage), backgroundColor: Colors.redAccent),
       );
       return;
     }
@@ -54,7 +55,7 @@ class _AdminNotificationsViewState extends State<AdminNotificationsView> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Notification sent to ${usersSnapshot.docs.length} users!'),
+            content: Text(AppLocalizations.of(context)!.notificationSentToUsers(usersSnapshot.docs.length)),
             backgroundColor: Colors.green,
           ),
         );
@@ -62,7 +63,7 @@ class _AdminNotificationsViewState extends State<AdminNotificationsView> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.redAccent),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorWithDetails(e.toString())), backgroundColor: Colors.redAccent),
         );
       }
     } finally {
@@ -76,11 +77,11 @@ class _AdminNotificationsViewState extends State<AdminNotificationsView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Notifications',
+          AppLocalizations.of(context)!.notifications,
           style: AppTypography.headingStyle(context, fontSize: 28, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        const Text('Send broadcast notifications to all users.', style: TextStyle(color: Colors.grey)),
+        Text(AppLocalizations.of(context)!.sendBroadcastDesc, style: const TextStyle(color: Colors.grey)),
         const SizedBox(height: 30),
 
         // Broadcast Form
@@ -98,14 +99,14 @@ class _AdminNotificationsViewState extends State<AdminNotificationsView> {
                 children: [
                   Icon(Icons.campaign_outlined, color: primaryTeal),
                   const SizedBox(width: 10),
-                  const Text('Broadcast to All Users', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(AppLocalizations.of(context)!.broadcastToAllUsers, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 ],
               ),
               const SizedBox(height: 20),
               TextFormField(
                 controller: _titleCtrl,
                 decoration: InputDecoration(
-                  labelText: 'Notification Title',
+                  labelText: AppLocalizations.of(context)!.notificationTitle,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 ),
               ),
@@ -114,7 +115,7 @@ class _AdminNotificationsViewState extends State<AdminNotificationsView> {
                 controller: _messageCtrl,
                 maxLines: 3,
                 decoration: InputDecoration(
-                  labelText: 'Message',
+                  labelText: AppLocalizations.of(context)!.messageLabel,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 ),
               ),
@@ -127,7 +128,7 @@ class _AdminNotificationsViewState extends State<AdminNotificationsView> {
                   icon: _isSending
                       ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : const Icon(Icons.send),
-                  label: Text(_isSending ? 'Sending...' : 'Send to All Users'),
+                  label: Text(_isSending ? AppLocalizations.of(context)!.sending : AppLocalizations.of(context)!.sendToAllUsers),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryTeal,
                     foregroundColor: Colors.white,
@@ -139,7 +140,7 @@ class _AdminNotificationsViewState extends State<AdminNotificationsView> {
         ),
 
         const SizedBox(height: 30),
-        const Text('Recent Order Notifications', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(AppLocalizations.of(context)!.recentOrderNotifications, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
 
         // Recent notifications (from orders collection)
@@ -155,9 +156,9 @@ class _AdminNotificationsViewState extends State<AdminNotificationsView> {
             }
             final docs = snapshot.data?.docs ?? [];
             if (docs.isEmpty) {
-              return const Center(child: Padding(
-                padding: EdgeInsets.all(20),
-                child: Text('No notifications sent yet.'),
+              return Center(child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(AppLocalizations.of(context)!.noNotificationsSent),
               ));
             }
             return ListView.separated(

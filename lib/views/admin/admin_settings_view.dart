@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/store_config_controller.dart';
+import '../../controllers/product_controller.dart';
 import '../../models/store_config_model.dart';
 import '../../utils/app_typography.dart';
 
@@ -105,11 +107,11 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Store Settings', 
+                AppLocalizations.of(context)!.storeSettings, 
                 style: AppTypography.headingStyle(context, fontSize: 28, fontWeight: FontWeight.bold)
               ),
               const SizedBox(height: 10),
-              const Text('Manage application configuration, branding, and contact details.', style: TextStyle(color: Colors.grey)),
+              Text(AppLocalizations.of(context)!.manageAppConfig, style: const TextStyle(color: Colors.grey)),
               const SizedBox(height: 30),
               
               Form(
@@ -117,7 +119,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionTitle('General Info & Branding'),
+                    _buildSectionTitle(AppLocalizations.of(context)!.generalInfoBranding),
                     _buildCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,55 +141,55 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
                               ElevatedButton.icon(
                                 onPressed: _pickImage,
                                 icon: const Icon(Icons.upload),
-                                label: const Text('Upload New Logo'),
+                                label: Text(AppLocalizations.of(context)!.uploadNewLogo),
                                 style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white),
                               ),
                             ],
                           ),
                           const SizedBox(height: 20),
-                          _buildTextField('Store Name', _storeNameController),
+                          _buildTextField(AppLocalizations.of(context)!.storeName, _storeNameController),
                           const SizedBox(height: 16),
-                          _buildTextField('Store Description', _storeDescController, maxLines: 3),
+                          _buildTextField(AppLocalizations.of(context)!.storeDescription, _storeDescController, maxLines: 3),
                         ],
                       ),
                     ),
 
-                    _buildSectionTitle('Contact Information'),
+                    _buildSectionTitle(AppLocalizations.of(context)!.contactInformation),
                     _buildCard(
                       child: Column(
                         children: [
-                          _buildTextField('Email Address', _emailController),
+                          _buildTextField(AppLocalizations.of(context)!.emailAddressLabel, _emailController),
                           const SizedBox(height: 16),
-                          _buildTextField('Phone Number', _phoneController),
+                          _buildTextField(AppLocalizations.of(context)!.phoneLabel, _phoneController),
                           const SizedBox(height: 16),
-                          _buildTextField('Physical Address', _addressController, maxLines: 2),
+                          _buildTextField(AppLocalizations.of(context)!.physicalAddress, _addressController, maxLines: 2),
                         ],
                       ),
                     ),
 
-                    _buildSectionTitle('Social Links'),
+                    _buildSectionTitle(AppLocalizations.of(context)!.socialLinks),
                     _buildCard(
                       child: Column(
                         children: [
-                          _buildTextField('Facebook URL', _facebookController),
+                          _buildTextField(AppLocalizations.of(context)!.facebookUrl, _facebookController),
                           const SizedBox(height: 16),
-                          _buildTextField('Instagram URL', _instagramController),
+                          _buildTextField(AppLocalizations.of(context)!.instagramUrl, _instagramController),
                           const SizedBox(height: 16),
-                          _buildTextField('Twitter URL', _twitterController),
+                          _buildTextField(AppLocalizations.of(context)!.twitterUrl, _twitterController),
                         ],
                       ),
                     ),
 
-                    _buildSectionTitle('Delivery Settings'),
+                    _buildSectionTitle(AppLocalizations.of(context)!.deliverySettings),
                     _buildCard(
                       child: Column(
                         children: [
-                          _buildTextField('Standard Delivery Charge (₹)', _deliveryChargeController, isNumber: true),
+                          _buildTextField(AppLocalizations.of(context)!.standardDeliveryChargeRs, _deliveryChargeController, isNumber: true),
                           const SizedBox(height: 16),
-                          _buildTextField('Free Delivery Threshold (₹)', _freeDeliveryController, isNumber: true),
+                          _buildTextField(AppLocalizations.of(context)!.freeDeliveryThresholdRs, _freeDeliveryController, isNumber: true),
                           const SizedBox(height: 16),
                           SwitchListTile(
-                            title: const Text('Enable Cash on Delivery (COD)'),
+                            title: Text(AppLocalizations.of(context)!.enableCod),
                             value: _enableCOD,
                             activeColor: primaryTeal,
                             onChanged: (val) {
@@ -223,14 +225,14 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
                               newLogoFile: _newLogoFile,
                             );
                             if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Settings saved successfully!')));
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.settingsSaved)));
                             }
                           }
                         },
                         style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white),
                         child: controller.isLoading 
                             ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text('Save Settings', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            : Text(AppLocalizations.of(context)!.saveChanges, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
                     ),
                     const SizedBox(height: 50),

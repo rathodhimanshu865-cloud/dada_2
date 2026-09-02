@@ -160,6 +160,8 @@ class CartController extends ChangeNotifier {
       } else {
         await cartDoc.set({
           'productName': product.name,
+          'productNameHi': product.nameHi,
+          'productNameGu': product.nameGu,
           'price': product.price,
           'imageUrl': product.imageUrls.isNotEmpty ? product.imageUrls[0] : '',
           'quantity': newQuantity,

@@ -118,49 +118,6 @@ class _AboutProfileEditorState extends State<AboutProfileEditor> {
     super.dispose();
   }
 
-  Future<void> _autoTranslate() async {
-    setState(() => _isSaving = true);
-    try {
-      final fEn = _forms['en']!;
-      final fHi = _forms['hi']!;
-      final fGu = _forms['gu']!;
-
-      fHi.competencies = await TranslationService.translateBatch(fEn.competencies, 'hi');
-      fGu.competencies = await TranslationService.translateBatch(fEn.competencies, 'gu');
-      
-      fHi.highlights = await TranslationService.translateBatch(fEn.highlights, 'hi');
-      fGu.highlights = await TranslationService.translateBatch(fEn.highlights, 'gu');
-      
-      fHi.attributes = await TranslationService.translateBatch(fEn.attributes, 'hi');
-      fGu.attributes = await TranslationService.translateBatch(fEn.attributes, 'gu');
-      
-      Future<void> tr(TextEditingController en, TextEditingController hi, TextEditingController gu) async {
-        final res = await TranslationService.translateToAll(en.text);
-        hi.text = res['hi'] ?? ''; gu.text = res['gu'] ?? '';
-      }
-      
-      await Future.wait([
-        tr(fEn.siTitleCtrl, fHi.siTitleCtrl, fGu.siTitleCtrl),
-        tr(fEn.siVisionCtrl, fHi.siVisionCtrl, fGu.siVisionCtrl),
-        tr(fEn.siMissionCtrl, fHi.siMissionCtrl, fGu.siMissionCtrl),
-        tr(fEn.siObjectiveCtrl, fHi.siObjectiveCtrl, fGu.siObjectiveCtrl),
-        tr(fEn.philosophyCtrl, fHi.philosophyCtrl, fGu.philosophyCtrl),
-        tr(fEn.sigTitleCtrl, fHi.sigTitleCtrl, fGu.sigTitleCtrl),
-        tr(fEn.sigSubtitleCtrl, fHi.sigSubtitleCtrl, fGu.sigSubtitleCtrl),
-      ]);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Auto-translate complete! (Rich text intro must be translated manually)'), backgroundColor: Colors.green),
-        );
-      }
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error translating: $e'), backgroundColor: Colors.red));
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
-    }
-  }
-
   Future<void> _saveAll() async {
     setState(() => _isSaving = true);
     try {
@@ -281,17 +238,6 @@ class _AboutProfileEditorState extends State<AboutProfileEditor> {
                       spacing: 16,
                       runSpacing: 16,
                       children: [
-                        OutlinedButton.icon(
-                          onPressed: _isSaving ? null : _autoTranslate,
-                          icon: _isSaving
-                              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                              : const Icon(Icons.translate, size: 18),
-                          label: const Text('Auto-Translate (EN to HI & GU)'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: _teal,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                          ),
-                        ),
                         ElevatedButton.icon(
                           onPressed: _isSaving ? null : _saveAll,
                           icon: _isSaving

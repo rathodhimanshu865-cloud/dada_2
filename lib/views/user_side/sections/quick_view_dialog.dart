@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dada_2/controllers/language_controller.dart';
 import 'package:dada_2/controllers/cart_controller.dart';
 import 'package:dada_2/controllers/auth_controller.dart';
 import 'package:dada_2/controllers/product_controller.dart';
@@ -189,14 +190,15 @@ class _QuickViewDialogState extends State<QuickViewDialog> {
 
   Widget _buildInfoSection(BuildContext context, Color teal, Color gold, CartController cart, AuthController auth) {
     final p = widget.product;
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: teal.withOpacity(0.05), borderRadius: BorderRadius.circular(4)), child: Text(p.categoryId.toUpperCase(), style: AppTypography.bodyStyle(context, color: teal, fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 1.5))),
         const SizedBox(height: 15),
-        Text(p.name, style: AppTypography.headingStyle(context, fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black)),
+        Text(p.localizedName(lang), style: AppTypography.headingStyle(context, fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black)),
         const SizedBox(height: 8),
-        Text(p.shortSummary, style: AppTypography.bodyStyle(context, color: Colors.grey.shade600, fontSize: 14, height: 1.5)),
+        Text(p.localizedShortSummary(lang), style: AppTypography.bodyStyle(context, color: Colors.grey.shade600, fontSize: 14, height: 1.5)),
         const SizedBox(height: 25),
         Text('₹${p.price.toInt()}', style: AppTypography.headingStyle(context, fontSize: 32, color: teal, fontWeight: FontWeight.w900)),
         const SizedBox(height: 32),

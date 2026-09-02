@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/notification_controller.dart';
 import '../../../models/notification_model.dart';
 import '../../../utils/app_typography.dart';
@@ -36,6 +37,7 @@ class NotificationDrawer extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, NotificationController controller, Color teal) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Row(
@@ -43,14 +45,14 @@ class NotificationDrawer extends StatelessWidget {
           Icon(Icons.notifications_none_outlined, size: 22, color: teal),
           const SizedBox(width: 12),
           Text(
-            'Notifications',
+            l10n.notifications,
             style: AppTypography.headingStyle(context, fontSize: 20, fontWeight: FontWeight.w700),
           ),
           const Spacer(),
           if (controller.unreadCount > 0)
             TextButton(
               onPressed: () => controller.markAllAsRead(),
-              child: const Text('Mark all as read', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              child: Text(l10n.markAllAsRead, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             ),
           IconButton(
             onPressed: () => Navigator.pop(context),
@@ -62,6 +64,7 @@ class NotificationDrawer extends StatelessWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, Color teal) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -69,7 +72,7 @@ class NotificationDrawer extends StatelessWidget {
           Icon(Icons.notifications_off_outlined, size: 64, color: Colors.grey.shade200),
           const SizedBox(height: 16),
           Text(
-            'No notifications yet',
+            l10n.noNotificationsYet,
             style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/order_controller.dart';
 import '../../models/order_model.dart';
 
@@ -39,22 +40,22 @@ class PaymentsView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Payments & COD Settlement', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              Text(AppLocalizations.of(context)!.paymentsCodSettlement, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
-              Text('Reconcile UPI transfers, card gateways, and Cash on Delivery collections.', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+              Text(AppLocalizations.of(context)!.reconcileUpiCardCod, style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
               const SizedBox(height: 32),
               
               Row(
                 children: [
-                  _buildPaymentBox('UPI INSTANT TRANSFERS', '₹${upiTotal.toStringAsFixed(2)}', 'ID: dada.bhagwan@okhdfcbank', Icons.account_balance_wallet_outlined),
+                  _buildPaymentBox(AppLocalizations.of(context)!.upiInstantTransfers, '₹${upiTotal.toStringAsFixed(2)}', AppLocalizations.of(context)!.upiIdSubtext, Icons.account_balance_wallet_outlined),
                   const SizedBox(width: 16),
-                  _buildPaymentBox('CASH ON DELIVERY (COD)', '₹${codTotal.toStringAsFixed(2)}', 'Doorstep carrier collections', Icons.payments_outlined),
+                  _buildPaymentBox(AppLocalizations.of(context)!.codBoxTitle, '₹${codTotal.toStringAsFixed(2)}', AppLocalizations.of(context)!.codBoxSubtext, Icons.payments_outlined),
                   const SizedBox(width: 16),
-                  _buildPaymentBox('ONLINE CARDS / NETBANKING', '₹${cardsTotal.toStringAsFixed(2)}', '100% Secure 256-bit Encrypted', Icons.credit_card_outlined),
+                  _buildPaymentBox(AppLocalizations.of(context)!.onlineCardsBoxTitle, '₹${cardsTotal.toStringAsFixed(2)}', AppLocalizations.of(context)!.onlineCardsBoxSubtext, Icons.credit_card_outlined),
                 ],
               ),
               const SizedBox(height: 48),
-              const Text('Recent Successful Transactions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(AppLocalizations.of(context)!.recentSuccessfulTransactions, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               Container(
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
@@ -74,7 +75,7 @@ class PaymentsView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('${o.customerName} via ${o.paymentMethod}'),
-                          Text('Breakdown: ₹${o.subtotal.toInt()} (S) - ₹${o.discount.toInt()} (D) + ₹${o.tax.toInt()} (T)', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                          Text(AppLocalizations.of(context)!.paymentBreakdown(o.subtotal.toInt(), o.discount.toInt(), o.tax.toInt()), style: const TextStyle(fontSize: 10, color: Colors.grey)),
                         ],
                       ),
                       trailing: Column(
@@ -82,7 +83,7 @@ class PaymentsView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text('₹${o.totalAmount}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.teal)),
-                          const Text('Successful', style: TextStyle(fontSize: 9, color: Colors.grey)),
+                          Text(AppLocalizations.of(context)!.successfulStatus, style: const TextStyle(fontSize: 9, color: Colors.grey)),
                         ],
                       ),
                     );

@@ -3,11 +3,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class StoreConfigModel {
   final String logoUrl;
   final String storeName;
+  final String storeNameHi;
+  final String storeNameGu;
   final String storeDescription;
+  final String storeDescriptionHi;
+  final String storeDescriptionGu;
   final String bannerUrl;
   final String contactEmail;
   final String contactPhone;
   final String address;
+  final String addressHi;
+  final String addressGu;
   final String facebookUrl;
   final String instagramUrl;
   final String twitterUrl;
@@ -18,11 +24,17 @@ class StoreConfigModel {
   StoreConfigModel({
     this.logoUrl = '',
     this.storeName = 'Dada Store',
+    this.storeNameHi = '',
+    this.storeNameGu = '',
     this.storeDescription = '',
+    this.storeDescriptionHi = '',
+    this.storeDescriptionGu = '',
     this.bannerUrl = '',
     this.contactEmail = '',
     this.contactPhone = '',
     this.address = '',
+    this.addressHi = '',
+    this.addressGu = '',
     this.facebookUrl = '',
     this.instagramUrl = '',
     this.twitterUrl = '',
@@ -37,11 +49,17 @@ class StoreConfigModel {
     return StoreConfigModel(
       logoUrl: data['logoUrl'] ?? '',
       storeName: data['storeName'] ?? 'Dada Store',
+      storeNameHi: data['storeNameHi'] ?? '',
+      storeNameGu: data['storeNameGu'] ?? '',
       storeDescription: data['storeDescription'] ?? '',
+      storeDescriptionHi: data['storeDescriptionHi'] ?? '',
+      storeDescriptionGu: data['storeDescriptionGu'] ?? '',
       bannerUrl: data['bannerUrl'] ?? '',
       contactEmail: data['contactEmail'] ?? '',
       contactPhone: data['contactPhone'] ?? '',
       address: data['address'] ?? '',
+      addressHi: data['addressHi'] ?? '',
+      addressGu: data['addressGu'] ?? '',
       facebookUrl: data['facebookUrl'] ?? '',
       instagramUrl: data['instagramUrl'] ?? '',
       twitterUrl: data['twitterUrl'] ?? '',
@@ -55,11 +73,17 @@ class StoreConfigModel {
     return {
       'logoUrl': logoUrl,
       'storeName': storeName,
+      'storeNameHi': storeNameHi,
+      'storeNameGu': storeNameGu,
       'storeDescription': storeDescription,
+      'storeDescriptionHi': storeDescriptionHi,
+      'storeDescriptionGu': storeDescriptionGu,
       'bannerUrl': bannerUrl,
       'contactEmail': contactEmail,
       'contactPhone': contactPhone,
       'address': address,
+      'addressHi': addressHi,
+      'addressGu': addressGu,
       'facebookUrl': facebookUrl,
       'instagramUrl': instagramUrl,
       'twitterUrl': twitterUrl,
@@ -67,5 +91,23 @@ class StoreConfigModel {
       'freeDeliveryThreshold': freeDeliveryThreshold,
       'enableCOD': enableCOD,
     };
+  }
+
+  String localizedStoreName(String langCode) {
+    if (langCode == 'hi' && storeNameHi.isNotEmpty) return storeNameHi;
+    if (langCode == 'gu' && storeNameGu.isNotEmpty) return storeNameGu;
+    return storeName;
+  }
+
+  String localizedStoreDescription(String langCode) {
+    if (langCode == 'hi' && storeDescriptionHi.isNotEmpty) return storeDescriptionHi;
+    if (langCode == 'gu' && storeDescriptionGu.isNotEmpty) return storeDescriptionGu;
+    return storeDescription;
+  }
+
+  String localizedAddress(String langCode) {
+    if (langCode == 'hi' && addressHi.isNotEmpty) return addressHi;
+    if (langCode == 'gu' && addressGu.isNotEmpty) return addressGu;
+    return address;
   }
 }

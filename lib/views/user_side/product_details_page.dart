@@ -82,17 +82,18 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       stream: _productStream,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
+          final l10n = AppLocalizations.of(context)!;
           return Scaffold(
-            appBar: AppBar(title: const Text('Error')),
+            appBar: AppBar(title: Text(l10n.notFound)),
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.error_outline, size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
-                  const Text('Oops! Product not found or failed to load.', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(l10n.productNotFound, style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
-                  ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Go Back')),
+                  ElevatedButton(onPressed: () => Navigator.pop(context), child: Text(l10n.goBack)),
                 ],
               ),
             ),
@@ -104,17 +105,18 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         }
 
         if (!snapshot.hasData || snapshot.data == null) {
+          final l10n = AppLocalizations.of(context)!;
           return Scaffold(
-            appBar: AppBar(title: const Text('Not Found')),
+            appBar: AppBar(title: Text(l10n.notFound)),
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.search_off, size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
-                  const Text('This sacred item is no longer available in the store.', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(l10n.itemNotAvailable, style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
-                  ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Return to Store')),
+                  ElevatedButton(onPressed: () => Navigator.pop(context), child: Text(l10n.returnToStore)),
                 ],
               ),
             ),
@@ -307,7 +309,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     final isOutOfStock = p.stock <= 2;
 
     return Column(
-      crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      crossAxisAlignment: isMobile ? CrossAxisAlignment.start : CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -315,11 +317,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           children: [
             Expanded(
               child: Column(
-                crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(p.categoryId.toUpperCase(), style: TextStyle(color: templeGold, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+                  Text(p.categoryId.toUpperCase(), style: TextStyle(color: templeGold, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 2)),
                   const SizedBox(height: 12),
-                  Text(p.localizedName(lang), textAlign: isMobile ? TextAlign.center : TextAlign.start, style: GoogleFonts.cormorantGaramond(fontSize: isMobile ? 28 : 36, fontWeight: FontWeight.w700, color: primaryTeal)),
+                  Text(p.localizedName(lang), textAlign: TextAlign.start, style: GoogleFonts.cormorantGaramond(fontSize: isMobile ? 32 : 42, fontWeight: FontWeight.w700, color: primaryTeal, height: 1.1)),
                 ],
               ),
             ),
@@ -334,85 +336,81 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   )),
                 ),
                 const SizedBox(height: 4),
-                Text('${p.rating} (${p.reviewCount} reviews)', style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
+                Text('${p.rating} (${AppLocalizations.of(context)!.reviewsCount(p.reviewCount)})', style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
               ],
             ),
           ],
         ),
-        if (isMobile) ...[
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(5, (i) => Icon(
-              i < p.rating ? Icons.star : Icons.star_border,
-              color: Colors.amber,
-              size: 16,
-            )),
-          ),
-          const SizedBox(height: 4),
-          Text('${p.rating} (${p.reviewCount} reviews)', style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
-        ],
-        const SizedBox(height: 12),
-        Text(p.localizedShortSummary(lang), textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(color: Colors.black54, fontSize: 14, height: 1.5)),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Row(
+              children: List.generate(5, (i) => Icon(
+                i < p.rating ? Icons.star : Icons.star_border,
+                color: Colors.amber,
+                size: 18,
+              )),
+            ),
+            const SizedBox(width: 12),
+            Text('${p.rating} • ${AppLocalizations.of(context)!.reviewsCount(p.reviewCount)}', style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.bold)),
+          ],
+        ),
         const SizedBox(height: 20),
+        Text(p.localizedShortSummary(lang), textAlign: TextAlign.start, style: TextStyle(color: Colors.black.withOpacity(0.6), fontSize: 15, height: 1.6)),
+        const SizedBox(height: 24),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(color: const Color(0xFFFDFBF7), borderRadius: BorderRadius.circular(6), border: Border.all(color: templeGold.withOpacity(0.1))),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(color: const Color(0xFFFDFBF7), borderRadius: BorderRadius.circular(8), border: Border.all(color: templeGold.withOpacity(0.2))),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.auto_awesome, color: templeGold, size: 14),
-              const SizedBox(width: 10),
-              Flexible(child: Text(AppLocalizations.of(context)!.sanctifiedConsecrated, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF2B2B2B)))),
+              Icon(Icons.auto_awesome, color: templeGold, size: 16),
+              const SizedBox(width: 12),
+              Flexible(child: Text(AppLocalizations.of(context)!.sanctifiedConsecrated, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF2B2B2B)))),
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
         Row(
-          mainAxisAlignment: isMobile ? MainAxisAlignment.center : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic,
           children: [
-            Text('₹${p.price.toInt()}', style: TextStyle(fontSize: isMobile ? 24 : 28, fontWeight: FontWeight.w900, color: primaryTeal)),
-            const SizedBox(width: 10),
+            Text('₹${p.price.toInt()}', style: TextStyle(fontSize: isMobile ? 32 : 40, fontWeight: FontWeight.w900, color: primaryTeal)),
+            const SizedBox(width: 12),
             if (p.comparePrice != null) ...[
-              Text('₹${p.comparePrice!.toInt()}', style: const TextStyle(fontSize: 14, color: Colors.grey, decoration: TextDecoration.lineThrough)),
-              const SizedBox(width: 10),
+              Text('₹${p.comparePrice!.toInt()}', style: const TextStyle(fontSize: 18, color: Colors.grey, decoration: TextDecoration.lineThrough)),
+              const SizedBox(width: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: const Color(0xFF8B4513).withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-                child: Text('Save ₹${(p.comparePrice! - p.price).toInt()} (${p.discountPercentage}% OFF)', style: const TextStyle(color: Color(0xFF8B4513), fontWeight: FontWeight.w900, fontSize: 10)),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(color: const Color(0xFF8B4513).withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                child: Text('${p.discountPercentage}% ${AppLocalizations.of(context)!.off}', style: const TextStyle(color: Color(0xFF8B4513), fontWeight: FontWeight.w900, fontSize: 11)),
               ),
             ],
           ],
         ),
-        const SizedBox(height: 12),
-        Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(color: isOutOfStock ? Colors.red.shade50 : const Color(0xFFE6F7F0), borderRadius: BorderRadius.circular(4)),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(width: 5, height: 5, decoration: BoxDecoration(color: isOutOfStock ? Colors.red : const Color(0xFF10B981), shape: BoxShape.circle)),
-                const SizedBox(width: 6),
-                Text(isOutOfStock ? AppLocalizations.of(context)!.outOfStockSacred : AppLocalizations.of(context)!.inSanctifiedStock, style: TextStyle(color: isOutOfStock ? Colors.red : const Color(0xFF065F46), fontSize: 11, fontWeight: FontWeight.bold)),
-              ],
-            ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(color: isOutOfStock ? Colors.red.shade50 : const Color(0xFFE6F7F0), borderRadius: BorderRadius.circular(6)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(width: 8, height: 8, decoration: BoxDecoration(color: isOutOfStock ? Colors.red : const Color(0xFF10B981), shape: BoxShape.circle)),
+              const SizedBox(width: 8),
+              Text(isOutOfStock ? AppLocalizations.of(context)!.outOfStockSacred : AppLocalizations.of(context)!.inSanctifiedStock, style: TextStyle(color: isOutOfStock ? Colors.red : const Color(0xFF065F46), fontSize: 12, fontWeight: FontWeight.bold)),
+            ],
           ),
         ),
-        const SizedBox(height: 24),
-        Text('Attach divine positivity directly to your smartphone. Durable braided sacred loop with lightweight acrylic charm featuring Dada and Radhe Radhe blessing.', textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(color: Colors.grey, fontSize: 12, height: 1.5)),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
         
         Row(
           children: [
-            if (!isMobile) _qtySelector(),
-            if (!isMobile) const SizedBox(width: 12),
+            _qtySelector(),
+            const SizedBox(width: 16),
             Expanded(
               child: ElevatedButton(
                 onPressed: !isOutOfStock ? () {
                   if (!_isPincodeValid) {
-                    setState(() => _pincodeError = 'Please enter a pincode');
+                    setState(() => _pincodeError = AppLocalizations.of(context)!.checkDeliveryAvailability);
                     return;
                   }
                   if (auth.isAuthenticated) {
@@ -422,56 +420,60 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     auth.toggleLoginPortal(true);
                   }
                 } : null,
-                style: ElevatedButton.styleFrom(backgroundColor: !isOutOfStock ? primaryTeal : Colors.grey.shade400, padding: const EdgeInsets.symmetric(vertical: 20), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
-                child: Text(!isOutOfStock ? '${AppLocalizations.of(context)!.addToBag} • ₹${(p.price * _quantity).toInt()}' : AppLocalizations.of(context)!.outOfStock, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: !isOutOfStock ? primaryTeal : Colors.grey.shade400, 
+                  padding: const EdgeInsets.symmetric(vertical: 20), 
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+                ),
+                child: Text(!isOutOfStock ? '${AppLocalizations.of(context)!.addToBag.toUpperCase()} • ₹${(p.price * _quantity).toInt()}' : AppLocalizations.of(context)!.outOfStock, style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 13, letterSpacing: 1)),
               ),
             ),
-            const SizedBox(width: 12),
-            _circleIcon(Icons.favorite_border, onTap: () {
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: !isOutOfStock ? () {
+                  if (!_isPincodeValid) {
+                    setState(() => _pincodeError = AppLocalizations.of(context)!.enterPincode);
+                    return;
+                  }
+                  if (auth.isAuthenticated) {
+                    cart.addToCart(p, _quantity);
+                    Navigator.pushNamed(context, '/checkout');
+                  } else {
+                    auth.toggleLoginPortal(true);
+                  }
+                } : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: !isOutOfStock ? templeGold : Colors.grey.shade300, 
+                  minimumSize: const Size(double.infinity, 60),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: Text(!isOutOfStock ? AppLocalizations.of(context)!.instantSacredCheckout.toUpperCase() : AppLocalizations.of(context)!.outOfStock, style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 13, letterSpacing: 1.5)),
+              ),
+            ),
+            const SizedBox(width: 16),
+            _circleIcon(Icons.favorite_border, size: 24, onTap: () {
                if (auth.isAuthenticated) {
                  Provider.of<ProductController>(context, listen: false).toggleLike(p.id);
                } else {
                  auth.toggleLoginPortal(true);
                }
             }),
-            if (!isMobile) ...[
-              const SizedBox(width: 8),
-              _circleIcon(Icons.share_outlined, onTap: () {
-                final lang = Provider.of<LanguageController>(context, listen: false).locale.languageCode;
-                final String url = 'https://dada-store.web.app/product_details?id=${p.id}';
-                Share.share('Check out this sacred item: ${p.localizedName(lang)}\n$url');
-              }),
-            ],
+            const SizedBox(width: 12),
+            _circleIcon(Icons.share_outlined, size: 24, onTap: () {
+              final lang = Provider.of<LanguageController>(context, listen: false).locale.languageCode;
+              final String url = 'https://dada-store.web.app/product_details?id=${p.id}';
+              Share.share('${AppLocalizations.of(context)!.checkOutSacredItem} ${p.localizedName(lang)}\n$url');
+            }),
           ],
         ),
-        if (isMobile) ...[
-          const SizedBox(height: 12),
-          _qtySelector(),
-        ],
-        const SizedBox(height: 12),
-        ElevatedButton(
-          onPressed: !isOutOfStock ? () {
-            if (!_isPincodeValid) {
-              setState(() => _pincodeError = AppLocalizations.of(context)!.enterPincode);
-              return;
-            }
-            if (auth.isAuthenticated) {
-              cart.addToCart(p, _quantity);
-              Navigator.pushNamed(context, '/checkout');
-            } else {
-              auth.toggleLoginPortal(true);
-            }
-          } : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: !isOutOfStock ? templeGold : Colors.grey.shade300, 
-            minimumSize: const Size(double.infinity, 55),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          ),
-          child: Text(!isOutOfStock ? AppLocalizations.of(context)!.instantSacredCheckout : AppLocalizations.of(context)!.outOfStock, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12, letterSpacing: 1)),
-        ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         _buildWhatsAppBtn(p, lang),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
         _buildDeliveryChecker(isMobile),
         const SizedBox(height: 32),
         _buildTrustFeatures(isMobile),
@@ -646,33 +648,44 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               if (isMobile) const SizedBox(height: 24),
               Expanded(
                 flex: isMobile ? 0 : 2,
-                child: Column(
-                  crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.end,
-                  children: [
-                    Text(AppLocalizations.of(context)!.bundleTotal, style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: isMobile ? MainAxisAlignment.center : MainAxisAlignment.end,
-                      children: [
-                        Text("₹${discounted.toStringAsFixed(1)}", style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.w900, color: primaryTeal)),
-                        const SizedBox(width: 10),
-                        Text("₹${total.toInt()}", style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey, fontSize: 14)),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                         final cart = Provider.of<CartController>(context, listen: false);
-                         cart.addToCart(p, 1);
-                         cart.addToCart(others[0], 1);
-                         cart.addToCart(others[1], 1);
-                         Scaffold.of(context).openEndDrawer();
-                      },
-                      icon: const Icon(Icons.shopping_bag_outlined, size: 14),
-                      label: Text(AppLocalizations.of(context)!.addCompleteSet, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                      style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18)),
-                    ),
-                  ],
+                child: Container(
+                  width: double.infinity,
+                  child: Column(
+                    crossAxisAlignment: isMobile ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                    children: [
+                      Text(AppLocalizations.of(context)!.bundleTotal, style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: isMobile ? MainAxisAlignment.start : MainAxisAlignment.end,
+                        children: [
+                          Text("₹${discounted.toStringAsFixed(1)}", style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.w900, color: primaryTeal)),
+                          const SizedBox(width: 10),
+                          Text("₹${total.toInt()}", style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey, fontSize: 14)),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: isMobile ? double.infinity : null,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                             final cart = Provider.of<CartController>(context, listen: false);
+                             cart.addToCart(p, 1);
+                             cart.addToCart(others[0], 1);
+                             cart.addToCart(others[1], 1);
+                             Scaffold.of(context).openEndDrawer();
+                          },
+                          icon: const Icon(Icons.shopping_bag_outlined, size: 16),
+                          label: Text(AppLocalizations.of(context)!.addCompleteSet, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryTeal, 
+                            foregroundColor: Colors.white, 
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -725,6 +738,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   Widget _buildDetailsTabs(ProductModel p) {
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
+    final bool isMobile = Responsive.isMobile(context);
     return DefaultTabController(
       length: 5,
       child: Column(
@@ -732,9 +746,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         children: [
           TabBar(
             isScrollable: true,
-            indicatorColor: primaryTeal, labelColor: primaryTeal, unselectedLabelColor: Colors.grey,
-            labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            indicatorSize: TabBarIndicatorSize.label,
+            indicatorColor: primaryTeal, 
+            labelColor: primaryTeal, 
+            unselectedLabelColor: Colors.grey,
+            labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: isMobile ? 13 : 14),
+            indicatorSize: isMobile ? TabBarIndicatorSize.tab : TabBarIndicatorSize.label,
+            indicatorWeight: 3,
+            dividerColor: Colors.transparent,
             tabs: [
               Tab(text: AppLocalizations.of(context)!.vedicSignificanceTab),
               Tab(text: AppLocalizations.of(context)!.specificationsTab),
@@ -771,11 +789,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _specRow("Material", "Premium Consecrated Material / Sacred Wood"),
-                        _specRow("SKU", "DADA-${p.id.substring(0, 5).toUpperCase()}"),
-                        _specRow("Category", p.categoryId),
-                        _specRow("Origin", "Authentic Ashram Atelier"),
-                        _specRow("Weight", "Approx 50g - 150g"),
+                        _specRow(AppLocalizations.of(context)!.material, AppLocalizations.of(context)!.premiumMaterial),
+                        _specRow(AppLocalizations.of(context)!.sku, "DADA-${p.id.substring(0, 5).toUpperCase()}"),
+                        _specRow(AppLocalizations.of(context)!.category, p.categoryId),
+                        _specRow(AppLocalizations.of(context)!.origin, AppLocalizations.of(context)!.authenticAshramAtelier),
+                        _specRow(AppLocalizations.of(context)!.weight, AppLocalizations.of(context)!.approxWeight),
                       ],
                     ),
                   ),
@@ -785,20 +803,20 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       children: [
                         Text(AppLocalizations.of(context)!.purityStandards, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.teal, fontSize: 14)),
                         const SizedBox(height: 12),
-                        const Text("• This item should be handled with spiritual reverence.\n• Avoid placing on the floor or in unclean areas.\n• Clean only with a dry, pure cotton cloth to maintain its consecrated energy.", style: TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
+                        Text(AppLocalizations.of(context)!.sacredCareInstructions, style: const TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
                       ],
                     ),
                   ),
                   _buildReviewsTab(p),
-                  const SingleChildScrollView(
+                  SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Q: Is this item already energized?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                        Text("A: Yes, all our offerings are sanctified through a special Puja Seva before dispatch.", style: TextStyle(color: Colors.black54, fontSize: 12)),
-                        SizedBox(height: 16),
-                        Text("Q: Can I gift this to someone?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                        Text("A: Absolutely. Giving a sacred offering is considered an act of great merit (Punya).", style: TextStyle(color: Colors.black54, fontSize: 12)),
+                        Text(AppLocalizations.of(context)!.faqEnergizedQ, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        Text(AppLocalizations.of(context)!.faqEnergizedA, style: const TextStyle(color: Colors.black54, fontSize: 12)),
+                        const SizedBox(height: 16),
+                        Text(AppLocalizations.of(context)!.faqGiftQ, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        Text(AppLocalizations.of(context)!.faqGiftA, style: const TextStyle(color: Colors.black54, fontSize: 12)),
                       ],
                     ),
                   ),
@@ -832,6 +850,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       stream: _reviewsStream,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
+          final l10n = AppLocalizations.of(context)!;
           return Center(child: Padding(
             padding: const EdgeInsets.all(40),
             child: Column(
@@ -839,8 +858,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               children: [
                 const Icon(Icons.error_outline, color: Colors.grey, size: 48),
                 const SizedBox(height: 16),
-                Text("Unable to load reviews at this time.", style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
-                TextButton(onPressed: () => setState(() {}), child: const Text("Retry")),
+                Text(l10n.unableToLoadReviews, style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
+                TextButton(onPressed: () => setState(() {}), child: Text(l10n.retry)),
               ],
             ),
           ));
@@ -866,9 +885,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                  const SizedBox(height: 24),
                ],
                if (reviews.isEmpty)
-                 const Center(child: Padding(
-                   padding: EdgeInsets.all(40),
-                   child: Text("No reviews yet. Be the first devotee to share your experience!"),
+                 Center(child: Padding(
+                   padding: const EdgeInsets.all(40),
+                   child: Text(AppLocalizations.of(context)!.noReviewsYet),
                  ))
                else
                  ListView.separated(
@@ -885,65 +904,84 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildReviewHeader(ProductModel p) => Container(
-    padding: const EdgeInsets.all(24),
-    decoration: BoxDecoration(
-      color: Colors.white, 
-      borderRadius: BorderRadius.circular(16), 
-      border: Border.all(color: Colors.grey.shade200)
-    ),
-    child: Row(
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+  Widget _buildReviewHeader(ProductModel p) {
+    final bool isMobile = Responsive.isMobile(context);
+    final l10n = AppLocalizations.of(context)!;
+    
+    final content = [
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            p.rating.toString(), 
+            style: GoogleFonts.cormorantGaramond(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.black87)
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(5, (i) => Icon(Icons.star, color: Colors.amber, size: 18))
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.basedOnDevoteeReviews(p.reviewCount), 
+            style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.w600)
+          ),
+        ],
+      ),
+      if (!isMobile) const SizedBox(width: 48) else const SizedBox(height: 24),
+      Expanded(
+        flex: isMobile ? 0 : 1,
+        child: Column(
+          crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
           children: [
-            Text(
-              p.rating.toString(), 
-              style: GoogleFonts.cormorantGaramond(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.black87)
-            ),
-            Row(children: List.generate(5, (i) => Icon(Icons.star, color: Colors.amber, size: 14))),
-            const SizedBox(height: 6),
-            Text(
-              'Based on ${p.reviewCount} devotee reviews', 
-              style: const TextStyle(fontSize: 9, color: Colors.grey, fontWeight: FontWeight.w600)
-            ),
+             _reviewSummaryRow(Icons.check_circle_outline, l10n.verifiedDevoteeReviews),
+             const SizedBox(height: 12),
+             _reviewSummaryRow(Icons.verified_outlined, l10n.inspectedVedicAuthenticity),
           ],
         ),
-        const SizedBox(width: 40),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-               _reviewSummaryRow(Icons.check_circle_outline, "100% Verified Devotee & Altar Reviews"),
-               const SizedBox(height: 8),
-               _reviewSummaryRow(Icons.verified_outlined, "Inspected for Vedic Authenticity & Material Integrity"),
-            ],
-          ),
-        ),
-        ElevatedButton(
+      ),
+      if (!isMobile) const SizedBox(width: 24) else const SizedBox(height: 32),
+      SizedBox(
+        width: isMobile ? double.infinity : null,
+        child: ElevatedButton(
           onPressed: () => setState(() => _isReviewFormOpen = !_isReviewFormOpen),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF071C21), 
             foregroundColor: Colors.white, 
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
           ),
           child: Text(
-            _isReviewFormOpen ? "CLOSE FORM" : "WRITE REVIEW", 
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)
+            _isReviewFormOpen ? l10n.closeForm : l10n.writeReview, 
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1)
           ),
         ),
-      ],
-    ),
-  );
+      ),
+    ];
+
+    return Container(
+      padding: EdgeInsets.all(isMobile ? 24 : 32),
+      decoration: BoxDecoration(
+        color: Colors.white, 
+        borderRadius: BorderRadius.circular(16), 
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 15, offset: const Offset(0, 5))]
+      ),
+      child: isMobile 
+        ? Column(children: content) 
+        : Row(children: content),
+    );
+  }
 
   Widget _reviewSummaryRow(IconData icon, String text) => Row(
+    mainAxisSize: MainAxisSize.min,
     children: [
-      Icon(icon, size: 14, color: Colors.green.shade600), 
-      const SizedBox(width: 10), 
-      Text(
-        text, 
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)
+      Icon(icon, size: 16, color: Colors.green.shade600), 
+      const SizedBox(width: 12), 
+      Flexible(
+        child: Text(
+          text, 
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black54)
+        ),
       )
     ]
   );
@@ -954,6 +992,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   double _userRating = 5.0;
 
   Widget _buildReviewForm(String productId, String productName, AuthController auth) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
@@ -965,13 +1004,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${AppLocalizations.of(context)!.submitReviewTitle} $productName', 
+            '${l10n.submitReviewTitle} $productName', 
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87)
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              const Text("Rating: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              Text(l10n.ratingLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
               const SizedBox(width: 8),
               Row(
                 children: List.generate(5, (i) => IconButton(
@@ -988,17 +1027,22 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ],
           ),
           const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(child: _reviewField("Your Full Name / Devotee Name *", "e.g. Radhika Sharma", _reviewNameCtrl)),
-              const SizedBox(width: 20),
-              Expanded(child: _reviewField("Review Title *", "e.g. Pure vibration and flawless finish", _reviewTitleCtrl)),
-            ],
-          ),
+          if (Responsive.isMobile(context)) ...[
+            _reviewField(l10n.devoteeNameLabel, "e.g. Radhika Sharma", _reviewNameCtrl),
+            const SizedBox(height: 20),
+            _reviewField(l10n.reviewTitleLabel, "e.g. Pure vibration and flawless finish", _reviewTitleCtrl),
+          ] else
+            Row(
+              children: [
+                Expanded(child: _reviewField(l10n.devoteeNameLabel, "e.g. Radhika Sharma", _reviewNameCtrl)),
+                const SizedBox(width: 20),
+                Expanded(child: _reviewField(l10n.reviewTitleLabel, "e.g. Pure vibration and flawless finish", _reviewTitleCtrl)),
+              ],
+            ),
           const SizedBox(height: 20),
           _reviewField(
-            "Your Detailed Experience / Feedback *", 
-            "Share your feedback on the texture, finish, pooja experience, packaging...", 
+            l10n.detailedExperienceLabel, 
+            l10n.reviewHint, 
             _reviewTextCtrl, 
             maxLines: 4
           ),
@@ -1030,13 +1074,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               });
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Testimonial published with blessings!'), backgroundColor: Colors.green)
+                  SnackBar(content: Text(l10n.testimonialPublished), backgroundColor: Colors.green)
                 );
               }
             },
             icon: const Icon(Icons.send_rounded, size: 14),
             label: Text(
-              AppLocalizations.of(context)!.publishReview, 
+              l10n.publishReview, 
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 11)
             ),
             style: ElevatedButton.styleFrom(
@@ -1114,23 +1158,27 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _circleIcon(IconData icon, {VoidCallback? onTap}) => InkWell(
+  Widget _circleIcon(IconData icon, {double size = 18, VoidCallback? onTap}) => InkWell(
     onTap: onTap,
     child: Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, border: Border.all(color: Colors.grey.shade200)),
-      child: Icon(icon, size: 18, color: primaryTeal),
+      child: Icon(icon, size: size, color: primaryTeal),
     ),
   );
 
   Widget _qtySelector() => Container(
-    height: 55,
-    decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade200), borderRadius: BorderRadius.circular(4)),
+    height: 60,
+    decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade200), borderRadius: BorderRadius.circular(8)),
     child: Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null, icon: const Icon(Icons.remove, size: 14)),
-        Text('$_quantity', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-        IconButton(onPressed: () => setState(() => _quantity++), icon: const Icon(Icons.add, size: 14)),
+        IconButton(onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null, icon: const Icon(Icons.remove, size: 16)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Text('$_quantity', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        ),
+        IconButton(onPressed: () => setState(() => _quantity++), icon: const Icon(Icons.add, size: 16)),
       ],
     ),
   );

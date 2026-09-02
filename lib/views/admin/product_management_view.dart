@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import 'package:dada_2/controllers/dashboard_controller.dart';
 import 'package:dada_2/controllers/product_controller.dart';
 import 'package:dada_2/models/product_model.dart';
@@ -54,7 +55,7 @@ class _ProductManagementViewState extends State<ProductManagementView> {
 
     return Column(
       children: [
-        _buildTopNavigationBar(dashCtrl, prodCtrl),
+        _buildTopNavigationBar(context, dashCtrl, prodCtrl),
         Expanded(
           child: Container(
             color: const Color(0xFFFDFBF7),
@@ -65,18 +66,18 @@ class _ProductManagementViewState extends State<ProductManagementView> {
     );
   }
 
-  Widget _buildTopNavigationBar(DashboardController dashCtrl, ProductController prodCtrl) {
+  Widget _buildTopNavigationBar(BuildContext context, DashboardController dashCtrl, ProductController prodCtrl) {
     final items = [
-      {'title': 'Dashboard', 'icon': Icons.dashboard_outlined},
-      {'title': 'Products', 'icon': Icons.shopping_bag_outlined},
-      {'title': 'Categories', 'icon': Icons.category_outlined},
-      {'title': 'Inventory', 'icon': Icons.inventory_2_outlined},
-      {'title': 'Orders', 'icon': Icons.local_shipping_outlined},
-      {'title': 'Users', 'icon': Icons.people_outline},
-      {'title': 'Payments', 'icon': Icons.payments_outlined},
-      {'title': 'Coupons', 'icon': Icons.local_offer_outlined},
-      {'title': 'Reviews', 'icon': Icons.star_outline},
-      {'title': 'Store & Settings', 'icon': Icons.settings_outlined},
+      {'title': AppLocalizations.of(context)!.dashboardTab, 'icon': Icons.dashboard_outlined},
+      {'title': AppLocalizations.of(context)!.productsTab, 'icon': Icons.shopping_bag_outlined},
+      {'title': AppLocalizations.of(context)!.categoriesTab, 'icon': Icons.category_outlined},
+      {'title': AppLocalizations.of(context)!.inventoryTab, 'icon': Icons.inventory_2_outlined},
+      {'title': AppLocalizations.of(context)!.ordersTab, 'icon': Icons.local_shipping_outlined},
+      {'title': AppLocalizations.of(context)!.usersTab, 'icon': Icons.people_outline},
+      {'title': AppLocalizations.of(context)!.paymentsTab, 'icon': Icons.payments_outlined},
+      {'title': AppLocalizations.of(context)!.couponsTab, 'icon': Icons.local_offer_outlined},
+      {'title': AppLocalizations.of(context)!.reviewsTab, 'icon': Icons.star_outline},
+      {'title': AppLocalizations.of(context)!.storeSettingsTab, 'icon': Icons.settings_outlined},
     ];
 
     return Container(
@@ -193,11 +194,11 @@ class _ProductListViewState extends State<ProductListView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Product Management', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text(AppLocalizations.of(context)!.productManagement, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   ElevatedButton.icon(
                     onPressed: () => ProductDialogHelper.showProductDialog(context),
                     icon: const Icon(Icons.add, size: 16),
-                    label: const Text('ADD PRODUCT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    label: Text(AppLocalizations.of(context)!.addProduct, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8B4513), foregroundColor: Colors.white),
                   ),
                 ],
@@ -211,7 +212,7 @@ class _ProductListViewState extends State<ProductListView> {
                       controller: _searchCtrl,
                       onChanged: (v) => setState(() {}),
                       decoration: InputDecoration(
-                        hintText: 'Search products...',
+                        hintText: AppLocalizations.of(context)!.searchProductsHint,
                         prefixIcon: const Icon(Icons.search, size: 18),
                         isDense: true,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -222,7 +223,7 @@ class _ProductListViewState extends State<ProductListView> {
                   Expanded(
                     flex: 1,
                     child: DropdownButtonFormField<String>(
-                      value: prodCtrl.categories.contains(prodCtrl.selectedCategory) ? prodCtrl.selectedCategory : 'All Sacred Products',
+                      value: prodCtrl.categories.contains(prodCtrl.selectedCategory) ? prodCtrl.selectedCategory : AppLocalizations.of(context)!.allSacredProducts,
                       decoration: InputDecoration(isDense: true, border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
                       items: prodCtrl.categories.map((v) => DropdownMenuItem(value: v, child: Text(v, style: const TextStyle(fontSize: 12)))).toList(),
                       onChanged: (v) { if (v != null) prodCtrl.selectCategory(v); },
@@ -233,7 +234,7 @@ class _ProductListViewState extends State<ProductListView> {
               const SizedBox(height: 24),
               Container(
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade200)),
-                child: _buildProductsTable(filtered, prodCtrl),
+                child: _buildProductsTable(context, filtered, prodCtrl),
               ),
             ],
           ),
@@ -242,18 +243,18 @@ class _ProductListViewState extends State<ProductListView> {
     );
   }
 
-  Widget _buildProductsTable(List<ProductModel> products, ProductController prodCtrl) {
+  Widget _buildProductsTable(BuildContext context, List<ProductModel> products, ProductController prodCtrl) {
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(16),
           color: Colors.grey.shade50,
-          child: const Row(
+          child: Row(
             children: [
-              Expanded(flex: 3, child: Text('PRODUCT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
-              Expanded(flex: 1, child: Text('PRICE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
-              Expanded(flex: 1, child: Text('STOCK', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
-              Expanded(flex: 1, child: Text('ACTIONS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
+              Expanded(flex: 3, child: Text(AppLocalizations.of(context)!.productTableHeader, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
+              Expanded(flex: 1, child: Text(AppLocalizations.of(context)!.priceTableHeader, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
+              Expanded(flex: 1, child: Text(AppLocalizations.of(context)!.stockTableHeader, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
+              Expanded(flex: 1, child: Text(AppLocalizations.of(context)!.actionsTableHeader, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey))),
             ],
           ),
         ),
@@ -289,7 +290,7 @@ class _ProductListViewState extends State<ProductListView> {
                            Container(
                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(4)),
-                             child: const Text('OUT OF STOCK', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                             child: Text(AppLocalizations.of(context)!.outOfStockBadge, style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
                            ),
                         ],
                       ],

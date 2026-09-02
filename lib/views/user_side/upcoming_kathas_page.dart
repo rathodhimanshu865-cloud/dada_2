@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/language_controller.dart';
 import '../../models/homepage_model.dart';
@@ -21,8 +22,9 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
   int currentPage = 1;
   final int pageSize = 10;
   final primaryTeal = const Color(0xFF0F4C5C);
-  final backgroundBeige = const Color(0xFFF9F3EA);
-  final accentBrown = const Color(0xFFC19A6B);
+  final backgroundBeige = const Color(0xFFFDFBF7);
+  final templeGold = const Color(0xFFC89A5B);
+  final accentBrown = const Color(0xFF8B4513);
 
   @override
   Widget build(BuildContext context) {
@@ -40,41 +42,12 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
       controller: controller,
       child: Column(
         children: [
-          const SizedBox(height: 120),
+          const SizedBox(height: 100),
 
           // ── Page hero banner ──────────────────────────────────────────────
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80),
-            color: backgroundBeige.withValues(alpha: 0.5),
-            child: Column(
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.upcomingKathas,
-                  textAlign: TextAlign.center,
-                  style: AppTypography.headingStyle(
-                    context,
-                    fontSize: isMobile ? 32 : 52,
-                    fontWeight: FontWeight.bold,
-                    color: primaryTeal,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  AppLocalizations.of(context)!.homeKathasUpcoming,
-                  textAlign: TextAlign.center,
-                  style: AppTypography.bodyStyle(
-                    context,
-                    color: primaryTeal.withValues(alpha: 0.6),
-                    fontSize: isMobile ? 14 : 16,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _buildHeroBanner(context, isMobile),
 
-          SizedBox(height: isMobile ? 30 : 60),
+          const SizedBox(height: 60),
 
           // ── Tab row ───────────────────────────────────────────────────────
           Wrap(
@@ -83,27 +56,26 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
             runSpacing: 15,
             children: [
               _tabButton(
-                AppLocalizations.of(context)!.allKathas,
+                AppLocalizations.of(context)!.listView,
                 activeTab == 0,
                 () => Navigator.pushNamed(context, '/katha_list'),
               ),
               _tabButton(
-                AppLocalizations.of(context)!.upcomingKathas2026,
+                AppLocalizations.of(context)!.calendar,
                 activeTab == 1,
                 () {},
               ),
             ],
           ),
 
-          SizedBox(height: isMobile ? 30 : 60),
+          const SizedBox(height: 60),
 
           // ── Katha list ────────────────────────────────────────────────────
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 40),
             child: Builder(
               builder: (context) {
                 final allKathas = controller.upcomingKathas.toList();
-                // Ensure list starts from number 1 visually/ordering-wise if possible
                 allKathas.sort((a, b) {
                   int aNum = int.tryParse(a.kathaNumber) ?? 0;
                   int bNum = int.tryParse(b.kathaNumber) ?? 0;
@@ -113,7 +85,6 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
                 final totalKathas = allKathas.length;
                 final totalPages = (totalKathas / pageSize).ceil();
                 
-                // Adjust currentPage if out of bounds
                 if (currentPage > totalPages && totalPages > 0) {
                   currentPage = totalPages;
                 }
@@ -121,17 +92,24 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
                 final startIndex = (currentPage - 1) * pageSize;
                 final paginatedKathas = allKathas.skip(startIndex).take(pageSize).toList();
 
+                if (paginatedKathas.isEmpty) {
+                  return _buildEmptyState(context);
+                }
+
                 return Column(
                   children: [
-                    const Divider(color: Color(0xFFEEEEEE), thickness: 1),
-                    if (paginatedKathas.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 40),
-                        child: Text("No upcoming kathas found.", style: AppTypography.bodyStyle(context, color: Colors.grey)),
-                      )
-                    else
-                      ...paginatedKathas.map((katha) => _buildUpcomingKathaRow(context, katha, lang, isMobile)),
-                    
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 700,
+                        mainAxisExtent: isMobile ? 320 : 340,
+                        crossAxisSpacing: 30,
+                        mainAxisSpacing: 30,
+                      ),
+                      itemCount: paginatedKathas.length,
+                      itemBuilder: (context, index) => _buildKathaCard(context, paginatedKathas[index], lang, isMobile),
+                    ),
                     _buildPaginationControls(totalPages),
                   ],
                 );
@@ -146,7 +124,194 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
     );
   }
 
-  // ── Shared tab button (matches katha_list_page.dart exactly) ──────────────
+  Widget _buildHeroBanner(BuildContext context, bool isMobile) {
+    return Stack(
+      children: [
+        Container(
+          height: isMobile ? 300 : 450,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: primaryTeal,
+            image: const DecorationImage(
+              image: NetworkImage('https://images.unsplash.com/photo-1542332213-9b5a5a3fab35?auto=format&fit=crop&q=80&w=2000'),
+              fit: BoxFit.cover,
+              opacity: 0.2,
+            ),
+          ),
+        ),
+        Container(
+          height: isMobile ? 300 : 450,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [primaryTeal.withOpacity(0.8), primaryTeal],
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  border: Border.all(color: templeGold.withOpacity(0.5)),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  AppLocalizations.of(context)!.spiritualCalendar.toUpperCase(),
+                  style: TextStyle(color: templeGold, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                AppLocalizations.of(context)!.upcomingKathas,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.cormorantGaramond(
+                  fontSize: isMobile ? 42 : 72,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  height: 1,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Text(
+                  "Join us in these divine assemblies of spiritual enlightenment and grace.",
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodyStyle(
+                    context,
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: isMobile ? 14 : 18,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 80),
+      child: Column(
+        children: [
+          Icon(Icons.event_busy_outlined, size: 64, color: Colors.grey.shade300),
+          const SizedBox(height: 24),
+          Text(
+            "No upcoming kathas found.", 
+            style: AppTypography.bodyStyle(context, color: Colors.grey.shade500, fontSize: 18),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildKathaCard(BuildContext context, UpcomingKatha katha, String lang, bool isMobile) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 20, offset: const Offset(0, 10))],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _kathaNumberBadge(katha.kathaNumber),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            katha.localizedName(lang).toUpperCase(),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.bodyStyle(
+                              context,
+                              fontSize: isMobile ? 18 : 20,
+                              fontWeight: FontWeight.w800,
+                              color: primaryTeal,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _infoItem(Icons.calendar_today_outlined, KathaHelper.formatDateRange(katha, lang)),
+                          const SizedBox(height: 8),
+                          _infoItem(Icons.location_on_outlined, katha.localizedLocation(lang)),
+                          const SizedBox(height: 8),
+                          _infoItem(Icons.person_outline, katha.localizedHosting(lang)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              color: const Color(0xFFF9F9F9),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      katha.localizedTiming(lang),
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => KathaHelper.showMoreDetails(context, katha, lang),
+                    child: Row(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.detailsArrow.toUpperCase(),
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: templeGold, letterSpacing: 1),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(Icons.arrow_forward_ios, size: 10, color: templeGold),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoItem(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: templeGold),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _tabButton(String title, bool isActive, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
@@ -175,186 +340,17 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
     );
   }
 
-  // ── Individual katha row ─────────────────────────────────────────────────
-  Widget _buildUpcomingKathaRow(
-    BuildContext context,
-    UpcomingKatha katha,
-    String lang,
-    bool isMobile,
-  ) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: isMobile ? 24 : 40,
-            horizontal: 20,
-          ),
-          child: isMobile
-              ? _buildMobileKathaRow(context, katha, lang)
-              : _buildDesktopKathaRow(context, katha, lang),
-        ),
-        const Divider(color: Color(0xFFEEEEEE)),
-      ],
-    );
-  }
-
-  Widget _buildDesktopKathaRow(
-    BuildContext context,
-    UpcomingKatha katha,
-    String lang,
-  ) {
-    return Row(
-      children: [
-        // Katha number badge
-        Flexible(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  AppLocalizations.of(context)!.kathaPrefix,
-                  style: AppTypography.bodyStyle(
-                    context,
-                    color: Colors.grey,
-                    fontSize: 16,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: 10),
-              _kathaNumberBadge(katha.kathaNumber),
-            ],
-          ),
-        ),
-        const SizedBox(width: 60),
-
-        // Name + date
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                katha.localizedName(lang).toUpperCase(),
-                style: AppTypography.bodyStyle(
-                  context,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF333333),
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                KathaHelper.formatDateRange(katha, lang).toUpperCase(),
-                style: AppTypography.bodyStyle(
-                  context,
-                  fontSize: 14,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // More Details button
-        OutlinedButton(
-          onPressed: () => KathaHelper.showMoreDetails(context, katha, lang),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: accentBrown,
-            side: BorderSide(color: accentBrown.withValues(alpha: 0.5), width: 1.5),
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          ),
-          child: Text(
-            AppLocalizations.of(context)!.moreDetails,
-            style: AppTypography.bodyStyle(
-              context,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMobileKathaRow(
-    BuildContext context,
-    UpcomingKatha katha,
-    String lang,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              AppLocalizations.of(context)!.kathaPrefix,
-              style: AppTypography.bodyStyle(context, color: Colors.grey, fontSize: 14),
-            ),
-            const SizedBox(width: 10),
-            _kathaNumberBadge(katha.kathaNumber),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Text(
-          katha.localizedName(lang).toUpperCase(),
-          style: AppTypography.bodyStyle(
-            context,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF333333),
-            letterSpacing: 1.0,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          KathaHelper.formatDateRange(katha, lang).toUpperCase(),
-          style: AppTypography.bodyStyle(
-            context,
-            fontSize: 13,
-            color: Colors.grey,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 16),
-        OutlinedButton(
-          onPressed: () => KathaHelper.showMoreDetails(context, katha, lang),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: accentBrown,
-            side: BorderSide(color: accentBrown.withValues(alpha: 0.5), width: 1.5),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          ),
-          child: Text(
-            AppLocalizations.of(context)!.moreDetails,
-            style: AppTypography.bodyStyle(
-              context,
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _kathaNumberBadge(String number) {
     return Container(
       width: 44,
       height: 44,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: accentBrown,
+        color: templeGold,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: accentBrown.withValues(alpha: 0.2),
+            color: templeGold.withOpacity(0.2),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -377,7 +373,6 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
     );
   }
 
-  // ── Pagination Controls ───────────────────────────────────────────────────
   Widget _buildPaginationControls(int totalPages) {
     if (totalPages <= 1) return const SizedBox.shrink();
     
@@ -386,7 +381,6 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Previous Button
           _pageNavButton(
             AppLocalizations.of(context)!.previous,
             currentPage > 1 ? () => setState(() => currentPage--) : null,
@@ -395,13 +389,10 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
           ),
           const SizedBox(width: 20),
           
-          // Page Numbers
           ...List.generate(totalPages, (index) {
             int pageNum = index + 1;
             bool isActive = pageNum == currentPage;
             
-            // For many pages, we might want to truncate, but for now 
-            // we show all as typical for this site's scale
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: InkWell(
@@ -430,7 +421,6 @@ class _UpcomingRamKathasPageState extends State<UpcomingRamKathasPage> {
           }),
           
           const SizedBox(width: 20),
-          // Next Button
           _pageNavButton(
             AppLocalizations.of(context)!.next,
             currentPage < totalPages ? () => setState(() => currentPage++) : null,

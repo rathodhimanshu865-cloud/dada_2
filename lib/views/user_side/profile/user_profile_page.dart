@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../models/user_model.dart';
 import '../../../controllers/auth_controller.dart';
 import '../../../controllers/homepage_controller.dart';
@@ -63,6 +64,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Future<void> _saveProfile() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     
     try {
@@ -76,28 +78,29 @@ class _UserProfilePageState extends State<UserProfilePage> {
       );
       setState(() => _isEditing = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile Updated!'), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.profileUpdated), backgroundColor: Colors.green));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Update failed: $e'), backgroundColor: Colors.redAccent));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.updateFailed(e.toString())), backgroundColor: Colors.redAccent));
       }
     }
   }
 
   void _showChangePasswordDialog() {
+    final l10n = AppLocalizations.of(context)!;
     final passCtrl = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Change Password'),
+        title: Text(l10n.changePassword),
         content: TextField(
           controller: passCtrl,
           obscureText: true,
-          decoration: const InputDecoration(hintText: 'Enter new secure password'),
+          decoration: InputDecoration(hintText: l10n.enterNewPassword),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
           ElevatedButton(
             onPressed: () async {
               if (passCtrl.text.length < 8) return;
@@ -105,13 +108,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 await Provider.of<AuthController>(context, listen: false).changePassword(passCtrl.text);
                 if (mounted) {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password Changed Successfully!'), backgroundColor: Colors.green));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.passwordChangedSuccess), backgroundColor: Colors.green));
                 }
               } catch (e) {
-                if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.redAccent));
+                if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.errorWithDetails(e.toString())), backgroundColor: Colors.redAccent));
               }
             },
-            child: const Text('UPDATE'),
+            child: Text(l10n.update),
           ),
         ],
       ),
@@ -123,6 +126,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     final auth = Provider.of<AuthController>(context);
     final homeController = Provider.of<HomePageController>(context, listen: false);
     final user = auth.userModel;
+    final l10n = AppLocalizations.of(context)!;
 
     if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -146,17 +150,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   if (_isEditing)
                     Row(
                       children: [
-                        Expanded(child: OutlinedButton(onPressed: () => setState(() => _isEditing = false), child: const Text('CANCEL'))),
+                        Expanded(child: OutlinedButton(onPressed: () => setState(() => _isEditing = false), child: Text(l10n.cancel))),
                         const SizedBox(width: 20),
-                        Expanded(child: ElevatedButton(onPressed: auth.isLoading ? null : _saveProfile, style: ElevatedButton.styleFrom(backgroundColor: primaryTeal), child: const Text('SAVE CHANGES'))),
+                        Expanded(child: ElevatedButton(onPressed: auth.isLoading ? null : _saveProfile, style: ElevatedButton.styleFrom(backgroundColor: primaryTeal), child: Text(l10n.saveChanges))),
                       ],
                     )
                   else
                     Column(
                       children: [
-                        _buildSettingsTile(Icons.lock_outline, 'Change Password', _showChangePasswordDialog),
+                        _buildSettingsTile(Icons.lock_outline, l10n.changePassword, _showChangePasswordDialog),
                         const SizedBox(height: 12),
-                        _buildSettingsTile(Icons.logout, 'Logout from Account', () async {
+                        _buildSettingsTile(Icons.logout, l10n.logoutFromAccount, () async {
                           await auth.logout();
                           if (mounted) Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                         }, isDestructive: true),
@@ -172,6 +176,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Widget _buildProfileHeader(UserModel user, bool loading) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         Stack(
@@ -214,7 +219,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           OutlinedButton.icon(
             onPressed: () => setState(() => _isEditing = true),
             icon: const Icon(Icons.edit_outlined, size: 16),
-            label: const Text('EDIT PROFILE'),
+            label: Text(l10n.editProfile),
           ),
       ],
     );
@@ -222,33 +227,34 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Widget _buildProfileFields() {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _infoLabel('PERSONAL INFORMATION'),
+        _infoLabel(l10n.personalInformation),
         const SizedBox(height: 16),
-        _buildTextField(_nameCtrl, 'Full Name', Icons.person_outline, enabled: _isEditing),
+        _buildTextField(_nameCtrl, l10n.fullNameLabel, Icons.person_outline, enabled: _isEditing),
         const SizedBox(height: 16),
-        _buildTextField(_phoneCtrl, 'Phone / WhatsApp', Icons.phone_outlined, enabled: _isEditing),
+        _buildTextField(_phoneCtrl, l10n.mobileWhatsAppLabel, Icons.phone_outlined, enabled: _isEditing),
         const SizedBox(height: 32),
-        _infoLabel('SHIPPING ADDRESS'),
+        _infoLabel(l10n.shippingAddress),
         const SizedBox(height: 16),
-        _buildTextField(_addressCtrl, 'Street Address', Icons.location_on_outlined, enabled: _isEditing, maxLines: 2),
+        _buildTextField(_addressCtrl, l10n.streetAddress, Icons.location_on_outlined, enabled: _isEditing, maxLines: 2),
         const SizedBox(height: 16),
         if (isMobile) ...[
-          _buildTextField(_cityCtrl, 'City', null, enabled: _isEditing),
+          _buildTextField(_cityCtrl, l10n.cityLabel, null, enabled: _isEditing),
           const SizedBox(height: 16),
-          _buildTextField(_stateCtrl, 'State', null, enabled: _isEditing),
+          _buildTextField(_stateCtrl, l10n.stateLabel, null, enabled: _isEditing),
         ] else
           Row(
             children: [
-              Expanded(child: _buildTextField(_cityCtrl, 'City', null, enabled: _isEditing)),
+              Expanded(child: _buildTextField(_cityCtrl, l10n.cityLabel, null, enabled: _isEditing)),
               const SizedBox(width: 16),
-              Expanded(child: _buildTextField(_stateCtrl, 'State', null, enabled: _isEditing)),
+              Expanded(child: _buildTextField(_stateCtrl, l10n.stateLabel, null, enabled: _isEditing)),
             ],
           ),
         const SizedBox(height: 16),
-        _buildTextField(_pinCtrl, 'Pincode', null, enabled: _isEditing),
+        _buildTextField(_pinCtrl, l10n.pincodeLabel, null, enabled: _isEditing),
       ],
     );
   }
@@ -258,6 +264,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Widget _buildTextField(TextEditingController ctrl, String label, IconData? icon, {bool enabled = true, int maxLines = 1}) {
+    final l10n = AppLocalizations.of(context)!;
     return TextFormField(
       controller: ctrl,
       enabled: enabled,
@@ -268,7 +275,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         filled: !enabled,
         fillColor: enabled ? Colors.transparent : Colors.grey.shade50,
       ),
-      validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+      validator: (v) => v == null || v.isEmpty ? l10n.requiredField : null,
     );
   }
 

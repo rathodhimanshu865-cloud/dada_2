@@ -82,9 +82,10 @@ class UserFooter extends StatelessWidget {
                 {'label': AppLocalizations.of(context)!.photoGallery, 'route': '/photo_gallery'},
                 {'label': AppLocalizations.of(context)!.videoGallery, 'route': '/video_gallery'},
                 {'label': AppLocalizations.of(context)!.stotraBhajan, 'route': '/stotra'},
+                {'label': AppLocalizations.of(context)!.trackShipment, 'route': '/track'},
                 {'label': AppLocalizations.of(context)!.contactUs, 'route': '/contact_us'},
                 {'label': AppLocalizations.of(context)!.sacredProducts, 'route': '/product'},
-                {'label': 'My Shopping Bag', 'route': '/cart'},
+                {'label': AppLocalizations.of(context)!.myShoppingBag, 'route': '/cart'},
               ]),
               // Dynamic Sections from Admin
               ...controller.footer.linkSections.map((sec) => _buildLinkSection(context, sec.localizedTitle(lang), 

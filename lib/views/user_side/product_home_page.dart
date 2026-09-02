@@ -109,7 +109,7 @@ class ProductHomePage extends StatelessWidget {
           ]
         ),
         const SizedBox(height: 30),
-        Text(h.localizedHeroHeading(lang), 
+        Text(h.localizedHeroHeading(lang).isNotEmpty ? h.localizedHeroHeading(lang) : 'Sacred Offerings for Your Spiritual Journey', 
           textAlign: isMobile ? TextAlign.center : TextAlign.start,
           style: GoogleFonts.cormorantGaramond(
             fontSize: isMobile ? 40 : 64,
@@ -118,7 +118,7 @@ class ProductHomePage extends StatelessWidget {
             height: 1.1,
           )),
         const SizedBox(height: 30),
-        Text(h.localizedHeroSubtitle(lang), 
+        Text(h.localizedHeroSubtitle(lang).isNotEmpty ? h.localizedHeroSubtitle(lang) : 'Experience the divine presence with our consecrated artifacts.', 
           textAlign: isMobile ? TextAlign.center : TextAlign.start,
           style: AppTypography.bodyStyle(context, color: Colors.white.withOpacity(0.7), fontSize: 16, height: 1.6)),
         const SizedBox(height: 50),
@@ -130,11 +130,11 @@ class ProductHomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () => Navigator.pushNamed(context, '/catalogue'), 
               style: ElevatedButton.styleFrom(backgroundColor: templeGold, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), 
-              child: Row(mainAxisSize: MainAxisSize.min, children: [Text(h.localizedHeroCta1Text(lang).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1)), const SizedBox(width: 12), const Icon(Icons.arrow_forward, size: 16)])),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [Text(h.localizedHeroCta1Text(lang).isNotEmpty ? h.localizedHeroCta1Text(lang).toUpperCase() : 'SHOP NOW', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1)), const SizedBox(width: 12), const Icon(Icons.arrow_forward, size: 16)])),
             OutlinedButton.icon(
               onPressed: () => Navigator.pushNamed(context, '/teachings'), 
               icon: const Icon(Icons.menu_book_outlined, size: 18), 
-              label: Text(h.localizedHeroCta2Text(lang), style: const TextStyle(fontWeight: FontWeight.bold)), 
+              label: Text(h.localizedHeroCta2Text(lang).isNotEmpty ? h.localizedHeroCta2Text(lang) : 'LEARN MORE', style: const TextStyle(fontWeight: FontWeight.bold)), 
               style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white38), padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)))),
           ],
         ),
@@ -178,9 +178,9 @@ class ProductHomePage extends StatelessWidget {
               children: [
                 Row(children: [const Icon(Icons.star, color: Colors.amber, size: 16), const SizedBox(width: 6), Text('4.9 (15,000+ Devotees)', style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.bold))]),
                 const SizedBox(height: 16),
-                Text(h.localizedHeroCardTitle(lang), style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.w900, color: primaryGreen)),
+                Text(h.localizedHeroCardTitle(lang).isNotEmpty ? h.localizedHeroCardTitle(lang) : 'Divine Consecration', style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.w900, color: primaryGreen)),
                 const SizedBox(height: 12),
-                Text(h.localizedHeroCardSubtitle(lang), style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+                Text(h.localizedHeroCardSubtitle(lang).isNotEmpty ? h.localizedHeroCardSubtitle(lang) : 'Handcrafted items blessed with ancient Vedic rituals.', style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
                 const SizedBox(height: 30),
                 Container(
                   padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: const Color(0xFFFDFBF7), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100)),
@@ -213,7 +213,7 @@ class ProductHomePage extends StatelessWidget {
                     children: [
                       Row(children: [Icon(Icons.auto_awesome, color: templeGold, size: 20), const SizedBox(width: 10), Text(AppLocalizations.of(context)!.organization, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFC89A5B)))]), 
                       const SizedBox(height: 16), 
-                      Text(h.localizedCollectionsHeading(lang), 
+                      Text(h.localizedCollectionsHeading(lang).isNotEmpty ? h.localizedCollectionsHeading(lang) : 'Sacred Collections', 
                         style: GoogleFonts.cormorantGaramond(
                           fontSize: isMobile ? 36 : 56,
                           fontWeight: FontWeight.w600,
@@ -297,7 +297,7 @@ class ProductHomePage extends StatelessWidget {
             children: [
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.auto_fix_normal_outlined, color: templeGold, size: 20), const SizedBox(width: 10), const Flexible(child: Text('HANDPICKED SACRED TREASURES', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Color(0xFFC89A5B))))]),
               const SizedBox(height: 16),
-              Text(h.localizedFeaturedHeading(lang), textAlign: TextAlign.center, style: AppTypography.headingStyle(context, fontSize: isMobile ? 32 : 44, fontWeight: FontWeight.w900, color: primaryGreen)),
+              Text(h.localizedFeaturedHeading(lang).isNotEmpty ? h.localizedFeaturedHeading(lang) : 'Featured Treasures', textAlign: TextAlign.center, style: AppTypography.headingStyle(context, fontSize: isMobile ? 32 : 44, fontWeight: FontWeight.w900, color: primaryGreen)),
               const SizedBox(height: 16),
               Text(AppLocalizations.of(context)!.featuredProductsDesc, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade500, fontSize: 15)),
               const SizedBox(height: 60),
@@ -410,7 +410,7 @@ class ProductHomePage extends StatelessWidget {
                 direction: isMobile ? Axis.vertical : Axis.horizontal,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween, 
                 children: [
-                  Column(crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.devoteeExperiences, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)), const SizedBox(height: 12), Text(h.localizedTestimonialsHeading(lang), textAlign: isMobile ? TextAlign.center : TextAlign.start, style: AppTypography.headingStyle(context, fontSize: isMobile ? 32 : 40, fontWeight: FontWeight.w900, color: primaryGreen))]), 
+                  Column(crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.devoteeExperiences, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)), const SizedBox(height: 12), Text(h.localizedTestimonialsHeading(lang).isNotEmpty ? h.localizedTestimonialsHeading(lang) : 'Words of Devotion', textAlign: isMobile ? TextAlign.center : TextAlign.start, style: AppTypography.headingStyle(context, fontSize: isMobile ? 32 : 40, fontWeight: FontWeight.w900, color: primaryGreen))]), 
                   if (isMobile) const SizedBox(height: 20),
                   Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.star, color: Colors.amber, size: 18), const SizedBox(width: 8), Text(AppLocalizations.of(context)!.averageRatingText, style: TextStyle(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.bold))])
                 ]
@@ -455,7 +455,7 @@ class ProductHomePage extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 1400),
           child: Column(
             children: [
-              Text(AppLocalizations.of(context)!.spiritualEssence, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)), const SizedBox(height: 12), Text(h.localizedWisdomHeading(lang), textAlign: TextAlign.center, style: AppTypography.headingStyle(context, fontSize: isMobile ? 32 : 44, fontWeight: FontWeight.w900, color: primaryGreen)), const SizedBox(height: 80),
+              Text(AppLocalizations.of(context)!.spiritualEssence, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)), const SizedBox(height: 12), Text(h.localizedWisdomHeading(lang).isNotEmpty ? h.localizedWisdomHeading(lang) : 'Spiritual Wisdom', textAlign: TextAlign.center, style: AppTypography.headingStyle(context, fontSize: isMobile ? 32 : 44, fontWeight: FontWeight.w900, color: primaryGreen)), const SizedBox(height: 80),
               isMobile 
                 ? Column(
                     children: [
@@ -500,9 +500,9 @@ class ProductHomePage extends StatelessWidget {
               children: [
                 Container(width: 56, height: 56, decoration: BoxDecoration(color: primaryGreen, shape: BoxShape.circle), child: const Icon(Icons.forum_outlined, color: Colors.white, size: 24)),
                 const SizedBox(width: 24, height: 24),
-                Expanded(flex: isMobile ? 0 : 1, child: Column(crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start, children: [Text(h.localizedWhatsappTitle(lang), textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF07404C))), const SizedBox(height: 8), Text(h.localizedWhatsappSubtitle(lang), textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(color: Colors.grey, fontSize: 14))])),
+                Expanded(flex: isMobile ? 0 : 1, child: Column(crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start, children: [Text(h.localizedWhatsappTitle(lang).isNotEmpty ? h.localizedWhatsappTitle(lang) : 'Connect via WhatsApp', textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF07404C))), const SizedBox(height: 8), Text(h.localizedWhatsappSubtitle(lang).isNotEmpty ? h.localizedWhatsappSubtitle(lang) : 'Our seva team is here to guide you.', textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(color: Colors.grey, fontSize: 14))])),
                 if (isMobile) const SizedBox(height: 24),
-                ElevatedButton.icon(onPressed: () {}, icon: const Icon(Icons.chat_bubble, size: 18), label: Text(h.localizedWhatsappBtnText(lang).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)), style: ElevatedButton.styleFrom(backgroundColor: primaryGreen, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)))),
+                ElevatedButton.icon(onPressed: () {}, icon: const Icon(Icons.chat_bubble, size: 18), label: Text(h.localizedWhatsappBtnText(lang).isNotEmpty ? h.localizedWhatsappBtnText(lang).toUpperCase() : 'CHAT NOW', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)), style: ElevatedButton.styleFrom(backgroundColor: primaryGreen, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)))),
               ],
             ),
           ),

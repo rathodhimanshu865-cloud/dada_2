@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/review_controller.dart';
 import '../../models/homepage_model.dart';
@@ -27,7 +28,7 @@ class CMSViewsHelper {
       case 'home_portal': return _homePortalEditView(controller, context, fieldLoading, setState);
       case 'catalogue': return _catalogueSettingsView(controller, context, fieldLoading, setState);
       case 'teachings': return _teachingsEditorView(controller, context, fieldLoading, setState);
-      default: return const Center(child: Text('Invalid View Type'));
+      default: return Center(child: Text(AppLocalizations.of(context)!.invalidViewType));
     }
   }
 
@@ -36,9 +37,9 @@ class CMSViewsHelper {
       length: 3,
       child: Column(
         children: [
-          const TabBar(
-            tabs: [Tab(text: 'General'), Tab(text: 'Header'), Tab(text: 'Footer')],
-            labelColor: Color(0xFF0F4C5C),
+          TabBar(
+            tabs: [Tab(text: AppLocalizations.of(context)!.generalTab), Tab(text: AppLocalizations.of(context)!.headerTab), Tab(text: AppLocalizations.of(context)!.footerTab)],
+            labelColor: const Color(0xFF0F4C5C),
             indicatorColor: Colors.amber,
           ),
           Expanded(
@@ -61,19 +62,19 @@ class CMSViewsHelper {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        _sectionHeader('HEADER CUSTOMIZATION'),
-        _buildToggle('Sticky Header', h.stickyHeaderEnabled, (v) => setState(() => h.stickyHeaderEnabled = v)),
-        _buildToggle('Search Visibility', h.searchVisibility, (v) => setState(() => h.searchVisibility = v)),
-        _buildField('Announcement Bar Text', h.announcementBarText, (v) => h.announcementBarText = v, context, fieldLoading, setState),
-        _buildField('Background Color (Hex Code)', h.headerBackgroundColor, (v) => h.headerBackgroundColor = v, context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.headerCustomization),
+        _buildToggle(AppLocalizations.of(context)!.stickyHeader, h.stickyHeaderEnabled, (v) => setState(() => h.stickyHeaderEnabled = v)),
+        _buildToggle(AppLocalizations.of(context)!.searchVisibility, h.searchVisibility, (v) => setState(() => h.searchVisibility = v)),
+        _buildField(AppLocalizations.of(context)!.announcementBarText, h.announcementBarText, (v) => h.announcementBarText = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.backgroundColorHex, h.headerBackgroundColor, (v) => h.headerBackgroundColor = v, context, fieldLoading, setState),
         
-        _sectionHeader('HEADER CALL-TO-ACTION (CTA)'),
-        _buildToggle('Enable Donation Button', h.donateButtonEnabled, (v) => setState(() => h.donateButtonEnabled = v)),
-        _buildField('Button Label', h.donateButtonText, (v) => h.donateButtonText = v, context, fieldLoading, setState),
-        _buildField('Redirection URL', h.donateButtonUrl, (v) => h.donateButtonUrl = v, context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.headerCta),
+        _buildToggle(AppLocalizations.of(context)!.enableDonationButton, h.donateButtonEnabled, (v) => setState(() => h.donateButtonEnabled = v)),
+        _buildField(AppLocalizations.of(context)!.buttonLabel, h.donateButtonText, (v) => h.donateButtonText = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.redirectionUrl, h.donateButtonUrl, (v) => h.donateButtonUrl = v, context, fieldLoading, setState),
         
         const SizedBox(height: 40),
-        ElevatedButton(onPressed: controller.publish, child: const Text('SAVE HEADER SETTINGS')),
+        ElevatedButton(onPressed: controller.publish, child: Text(AppLocalizations.of(context)!.saveHeaderSettings)),
       ],
     );
   }
@@ -82,11 +83,11 @@ class CMSViewsHelper {
     final h = controller.homepageData;
     return Column(
       children: [
-        _topActionBar('UNIFIED HOME PAGE EDITOR', [
+        _topActionBar(AppLocalizations.of(context)!.unifiedHomePageEditor, [
           ElevatedButton.icon(
             onPressed: controller.publish,
             icon: const Icon(Icons.publish),
-            label: const Text('SAVE ALL CHANGES'),
+            label: Text(AppLocalizations.of(context)!.saveAllChanges),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent, foregroundColor: Colors.white),
           ),
         ]),
@@ -94,60 +95,69 @@ class CMSViewsHelper {
           child: ListView(
             padding: const EdgeInsets.all(24),
             children: [
-              _sectionHeader('HOME PAGE SECTIONS & VISIBILITY'),
-              const Text('Toggle sections on/off and edit their content below.', style: TextStyle(color: Colors.grey, fontSize: 13)),
+              _sectionHeader(AppLocalizations.of(context)!.homePageSectionsVisibility),
+              Text(AppLocalizations.of(context)!.toggleSectionsDesc, style: const TextStyle(color: Colors.grey, fontSize: 13)),
               const SizedBox(height: 20),
               
               _homePageSectionWrapper(
-                title: 'Hero Slider',
+                context: context,
+                title: AppLocalizations.of(context)!.heroSection,
                 isVisible: h.showHeroSlider,
                 onToggle: (v) => controller.toggleHomeVisibility('hero'),
                 child: _heroSliderView(controller, context, fieldLoading, setState, embedded: true),
               ),
               _homePageSectionWrapper(
-                title: 'Featured Quote',
+                context: context,
+                title: AppLocalizations.of(context)!.featuredQuoteSection,
                 isVisible: h.showFeaturedQuote,
                 onToggle: (v) => controller.toggleHomeVisibility('quote'),
                 child: _featuredQuoteView(controller, context, fieldLoading, setState, embedded: true),
               ),
               _homePageSectionWrapper(
-                title: 'About Preview',
+                context: context,
+                title: AppLocalizations.of(context)!.aboutSection,
                 isVisible: h.showAboutPreview,
                 onToggle: (v) => controller.toggleHomeVisibility('about'),
                 child: _homepageAboutView(controller, context, fieldLoading, setState, embedded: true),
               ),
               _homePageSectionWrapper(
-                title: 'Upcoming Kathas',
+                context: context,
+                title: AppLocalizations.of(context)!.upcomingKathasTitle,
                 isVisible: h.showUpcomingKathas,
                 onToggle: (v) => controller.toggleHomeVisibility('katha'),
                 child: _upcomingKathasView(controller, context, fieldLoading, setState, embedded: true),
               ),
               _homePageSectionWrapper(
-                title: 'Latest Videos',
+                context: context,
+                title: AppLocalizations.of(context)!.latestVideos,
                 isVisible: h.showLatestVideos,
                 onToggle: (v) => controller.toggleHomeVisibility('videos'),
                 child: _videoGalleryView(controller, context, fieldLoading, setState, embedded: true, recentOnly: true),
               ),
               _homePageSectionWrapper(
-                title: 'Photo Gallery',
+                context: context,
+                title: AppLocalizations.of(context)!.photoGalleryTitle,
                 isVisible: h.showPhotoGallery,
                 onToggle: (v) => controller.toggleHomeVisibility('gallery'),
                 child: _photoGalleryView(controller, context, fieldLoading, setState, embedded: true, recentOnly: true),
               ),
               _homePageSectionWrapper(
-                title: 'Daily Suvichar',
+                context: context,
+                title: AppLocalizations.of(context)!.dailySuvicharTitle,
                 isVisible: h.showDailySuvichar,
                 onToggle: (v) => controller.toggleHomeVisibility('suvichar'),
                 child: _dailySuvicharView(controller, context, fieldLoading, setState, embedded: true),
               ),
               _homePageSectionWrapper(
-                title: 'Ram Katha Highlights',
+                context: context,
+                title: AppLocalizations.of(context)!.ramKathaPreviewSection,
                 isVisible: h.showRamKathaSection,
                 onToggle: (v) => controller.toggleHomeVisibility('ramkatha'),
                 child: _ramKathaView(controller, context, fieldLoading, setState, embedded: true),
               ),
               _homePageSectionWrapper(
-                title: 'News & Updates',
+                context: context,
+                title: AppLocalizations.of(context)!.newsUpdatesTitle,
                 isVisible: h.showNewsSection,
                 onToggle: (v) => controller.toggleHomeVisibility('news'),
                 child: _newsView(controller, context, fieldLoading, setState, embedded: true),
@@ -161,7 +171,7 @@ class CMSViewsHelper {
     );
   }
 
-  static Widget _homePageSectionWrapper({required String title, required bool isVisible, required Function(bool) onToggle, required Widget child}) {
+  static Widget _homePageSectionWrapper({required BuildContext context, required String title, required bool isVisible, required Function(bool) onToggle, required Widget child}) {
     return Card(
       margin: const EdgeInsets.only(bottom: 32),
       elevation: 0,
@@ -173,7 +183,7 @@ class CMSViewsHelper {
         trailing: Switch(value: isVisible, onChanged: onToggle, activeColor: Colors.amber),
         childrenPadding: const EdgeInsets.all(20),
         children: [
-          if (!isVisible) const Padding(padding: EdgeInsets.only(bottom: 20), child: Text('This section is currently hidden on the user side.', style: TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold))),
+          if (!isVisible) Padding(padding: const EdgeInsets.only(bottom: 20), child: Text(AppLocalizations.of(context)!.sectionHiddenWarning, style: const TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold))),
           child,
         ],
       ),
@@ -185,10 +195,10 @@ class CMSViewsHelper {
       length: 6,
       child: Column(
         children: [
-          const TabBar(
+          TabBar(
             isScrollable: true,
-            tabs: [Tab(text: 'Biography'), Tab(text: 'Kathas'), Tab(text: 'Gallery'), Tab(text: 'Stotra'), Tab(text: 'News'), Tab(text: 'Katha Pages')],
-            labelColor: Color(0xFF0F4C5C),
+            tabs: [Tab(text: AppLocalizations.of(context)!.biographyTab), Tab(text: AppLocalizations.of(context)!.kathasTab), Tab(text: AppLocalizations.of(context)!.galleryTab), Tab(text: AppLocalizations.of(context)!.stotraTab), Tab(text: AppLocalizations.of(context)!.newsTab), Tab(text: AppLocalizations.of(context)!.kathaPagesTab)],
+            labelColor: const Color(0xFF0F4C5C),
             indicatorColor: Colors.amber,
           ),
           Expanded(
@@ -213,7 +223,7 @@ class CMSViewsHelper {
       length: 2,
       child: Column(
         children: [
-          const TabBar(tabs: [Tab(text: 'Photos'), Tab(text: 'Videos')], labelColor: Colors.black, indicatorColor: Colors.amber),
+          TabBar(tabs: [Tab(text: AppLocalizations.of(context)!.photosTab), Tab(text: AppLocalizations.of(context)!.videosTab)], labelColor: Colors.black, indicatorColor: Colors.amber),
           Expanded(
             child: TabBarView(
               children: [
@@ -232,9 +242,9 @@ class CMSViewsHelper {
       length: 2,
       child: Column(
         children: [
-          const TabBar(
-            tabs: [Tab(text: 'Devotee Management'), Tab(text: 'Contact Enquiries')], 
-            labelColor: Color(0xFF0F4C5C), 
+          TabBar(
+            tabs: [Tab(text: AppLocalizations.of(context)!.devoteeManagementTab), Tab(text: AppLocalizations.of(context)!.contactEnquiriesTab)], 
+            labelColor: const Color(0xFF0F4C5C), 
             indicatorColor: Colors.amber,
           ),
           Expanded(
@@ -264,7 +274,7 @@ class CMSViewsHelper {
     );
   }
 
-  static Widget _sectionHeaderWithAction(String title, String buttonLabel, VoidCallback onPressed) {
+  static Widget _sectionHeaderWithAction(BuildContext context, String title, String buttonLabel, VoidCallback onPressed) {
     return Padding(
       padding: const EdgeInsets.only(top: 32, bottom: 16),
       child: Row(
@@ -343,7 +353,7 @@ class CMSViewsHelper {
     );
   }
 
-  static Widget _buildImageField(String label, String currentUrl, Function(String) onUploaded, BuildContext context, Map<String, bool> fieldLoading, Function(VoidCallback) setState) {
+  static Widget _buildImageField(BuildContext context, String label, String currentUrl, Function(String) onUploaded, BuildContext contextRef, Map<String, bool> fieldLoading, Function(VoidCallback) setState) {
     return Card(
       margin: const EdgeInsets.only(top: 12, bottom: 12),
       elevation: 0,
@@ -364,15 +374,15 @@ class CMSViewsHelper {
                     : Container(width: 60, height: 60, color: Colors.grey.shade100, child: const Icon(Icons.image_outlined)),
                 ),
                 const SizedBox(width: 16),
-                Expanded(child: _buildField('Image URL', currentUrl, onUploaded, context, fieldLoading, setState)),
+                Expanded(child: _buildField(AppLocalizations.of(context)!.imageUrl, currentUrl, onUploaded, contextRef, fieldLoading, setState)),
                 const SizedBox(width: 12),
                 ElevatedButton(
                   onPressed: () async {
-                    final controller = Provider.of<HomePageController>(context, listen: false);
+                    final controller = Provider.of<HomePageController>(contextRef, listen: false);
                     final url = await controller.uploadPhotoFromFile();
                     if (url != null) onUploaded(url);
                   },
-                  child: const Text('Upload'),
+                  child: Text(AppLocalizations.of(context)!.upload),
                 ),
               ],
             ),
@@ -382,7 +392,7 @@ class CMSViewsHelper {
     );
   }
 
-  static Widget _buildListField(String label, List<String> items, Function(List<String>) onUpdate, BuildContext context, Map<String, bool> fieldLoading, Function(VoidCallback) setState) {
+  static Widget _buildListField(BuildContext context, String label, List<String> items, Function(List<String>) onUpdate, BuildContext contextRef, Map<String, bool> fieldLoading, Function(VoidCallback) setState) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -393,7 +403,7 @@ class CMSViewsHelper {
             Expanded(child: _buildField('Item ${e.key + 1}', e.value, (v) {
               items[e.key] = v;
               onUpdate(items);
-            }, context, fieldLoading, setState)),
+            }, contextRef, fieldLoading, setState)),
             IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () {
               items.removeAt(e.key);
               onUpdate(items);
@@ -405,7 +415,7 @@ class CMSViewsHelper {
           items.add('');
           onUpdate(items);
           setState(() {});
-        }, icon: const Icon(Icons.add), label: Text('Add to $label')),
+        }, icon: const Icon(Icons.add), label: Text(AppLocalizations.of(context)!.addItemTo(label))),
         const SizedBox(height: 16),
       ],
     );
@@ -419,25 +429,25 @@ class CMSViewsHelper {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        _sectionHeader('GENERAL WEBSITE SETTINGS'),
-        _buildField('Organization Name', s.name, (v) => s.name = v, context, fieldLoading, setState),
-        _buildImageField('Website Logo', s.logoUrl, (v) => setState(() => s.logoUrl = v), context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.generalTab.toUpperCase() + ' ' + AppLocalizations.of(context)!.storeSettingsTab.toUpperCase()),
+        _buildField(AppLocalizations.of(context)!.organizationName, s.name, (v) => s.name = v, context, fieldLoading, setState),
+        _buildImageField(context, AppLocalizations.of(context)!.websiteLogo, s.logoUrl, (v) => setState(() => s.logoUrl = v), context, fieldLoading, setState),
         
-        _sectionHeader('HEADER SETTINGS'),
-        _buildToggle('Sticky Header', h.stickyHeaderEnabled, (v) => setState(() => h.stickyHeaderEnabled = v)),
-        _buildToggle('Search Visibility', h.searchVisibility, (v) => setState(() => h.searchVisibility = v)),
-        _buildField('Announcement Bar', h.announcementBarText, (v) => h.announcementBarText = v, context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.headerTab.toUpperCase() + ' ' + AppLocalizations.of(context)!.storeSettingsTab.toUpperCase()),
+        _buildToggle(AppLocalizations.of(context)!.stickyHeader, h.stickyHeaderEnabled, (v) => setState(() => h.stickyHeaderEnabled = v)),
+        _buildToggle(AppLocalizations.of(context)!.searchVisibility, h.searchVisibility, (v) => setState(() => h.searchVisibility = v)),
+        _buildField(AppLocalizations.of(context)!.announcementBar, h.announcementBarText, (v) => h.announcementBarText = v, context, fieldLoading, setState),
         
-        _sectionHeader('HEADER CTA'),
-        _buildToggle('Enable Donate Button', h.donateButtonEnabled, (v) => setState(() => h.donateButtonEnabled = v)),
-        _buildField('Donate Button Text', h.donateButtonText, (v) => h.donateButtonText = v, context, fieldLoading, setState),
-        _buildField('Donate Button URL', h.donateButtonUrl, (v) => h.donateButtonUrl = v, context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.headerCta),
+        _buildToggle(AppLocalizations.of(context)!.enableDonationButton, h.donateButtonEnabled, (v) => setState(() => h.donateButtonEnabled = v)),
+        _buildField(AppLocalizations.of(context)!.buttonLabel, h.donateButtonText, (v) => h.donateButtonText = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.redirectionUrl, h.donateButtonUrl, (v) => h.donateButtonUrl = v, context, fieldLoading, setState),
         
-        _sectionHeader('HEADER APPEARANCE'),
-        _buildField('Background Color (Hex)', h.headerBackgroundColor, (v) => h.headerBackgroundColor = v, context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.headerTab.toUpperCase() + ' ' + 'APPEARANCE'),
+        _buildField(AppLocalizations.of(context)!.backgroundColorHex, h.headerBackgroundColor, (v) => h.headerBackgroundColor = v, context, fieldLoading, setState),
         
         const SizedBox(height: 30),
-        ElevatedButton(onPressed: controller.publish, child: const Text('SAVE SETTINGS')),
+        ElevatedButton(onPressed: controller.publish, child: Text(AppLocalizations.of(context)!.saveChanges.toUpperCase())),
       ],
     );
   }
@@ -448,7 +458,7 @@ class CMSViewsHelper {
       physics: embedded ? const NeverScrollableScrollPhysics() : null,
       padding: embedded ? EdgeInsets.zero : const EdgeInsets.all(24),
       children: [
-        if (embedded) _sectionHeader('HERO SLIDES'),
+        if (embedded) _sectionHeader(AppLocalizations.of(context)!.heroSlides),
         ...controller.heroSection.slides.asMap().entries.map((entry) {
           final i = entry.key;
           final s = entry.value;
@@ -460,32 +470,32 @@ class CMSViewsHelper {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Slide #${i + 1}', style: const TextStyle(fontWeight: FontWeight.bold)), IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeHeroSlide(i))]),
-                  _buildField('Badge (Small text above)', s.badge, (v) => s.badge = v, context, fieldLoading, setState),
-                  _buildField('Heading', s.heading, (v) => s.heading = v, context, fieldLoading, setState, maxLines: 2),
-                  _buildField('Subtitle', s.subtitle, (v) => s.subtitle = v, context, fieldLoading, setState),
-                  _buildField('Description', s.description, (v) => s.description = v, context, fieldLoading, setState, maxLines: 3),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(AppLocalizations.of(context)!.slideNumber(i + 1), style: const TextStyle(fontWeight: FontWeight.bold)), IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeHeroSlide(i))]),
+                  _buildField(AppLocalizations.of(context)!.badgeLabel, s.badge, (v) => s.badge = v, context, fieldLoading, setState),
+                  _buildField(AppLocalizations.of(context)!.headingLabel, s.heading, (v) => s.heading = v, context, fieldLoading, setState, maxLines: 2),
+                  _buildField(AppLocalizations.of(context)!.subtitleLabel, s.subtitle, (v) => s.subtitle = v, context, fieldLoading, setState),
+                  _buildField(AppLocalizations.of(context)!.descriptionLabel, s.description, (v) => s.description = v, context, fieldLoading, setState, maxLines: 3),
                   Row(
                     children: [
-                      Expanded(child: _buildField('Primary CTA Text', s.primaryCtaText, (v) => s.primaryCtaText = v, context, fieldLoading, setState)),
+                      Expanded(child: _buildField(AppLocalizations.of(context)!.primaryCtaText, s.primaryCtaText, (v) => s.primaryCtaText = v, context, fieldLoading, setState)),
                       const SizedBox(width: 12),
-                      Expanded(child: _buildField('Primary CTA URL', s.primaryCtaUrl, (v) => s.primaryCtaUrl = v, context, fieldLoading, setState)),
+                      Expanded(child: _buildField(AppLocalizations.of(context)!.primaryCtaUrl, s.primaryCtaUrl, (v) => s.primaryCtaUrl = v, context, fieldLoading, setState)),
                     ],
                   ),
                   Row(
                     children: [
-                      Expanded(child: _buildField('Secondary CTA Text', s.secondaryCtaText, (v) => s.secondaryCtaText = v, context, fieldLoading, setState)),
+                      Expanded(child: _buildField(AppLocalizations.of(context)!.secondaryCtaText, s.secondaryCtaText, (v) => s.secondaryCtaText = v, context, fieldLoading, setState)),
                       const SizedBox(width: 12),
-                      Expanded(child: _buildField('Secondary CTA URL', s.secondaryCtaUrl, (v) => s.secondaryCtaUrl = v, context, fieldLoading, setState)),
+                      Expanded(child: _buildField(AppLocalizations.of(context)!.secondaryCtaUrl, s.secondaryCtaUrl, (v) => s.secondaryCtaUrl = v, context, fieldLoading, setState)),
                     ],
                   ),
-                  _buildImageField('Slide Image', s.image, (v) => setState(() => s.image = v), context, fieldLoading, setState),
+                  _buildImageField(context, AppLocalizations.of(context)!.slideImage, s.image, (v) => setState(() => s.image = v), context, fieldLoading, setState),
                 ],
               ),
             ),
           );
         }),
-        if (embedded) ElevatedButton.icon(onPressed: controller.addHeroSlide, icon: const Icon(Icons.add), label: const Text('ADD SLIDE')),
+        if (embedded) ElevatedButton.icon(onPressed: controller.addHeroSlide, icon: const Icon(Icons.add), label: Text(AppLocalizations.of(context)!.addSlide)),
       ],
     );
 
@@ -493,18 +503,18 @@ class CMSViewsHelper {
 
     return Column(
       children: [
-        _topActionBar('HOMEPAGE HERO SLIDER', [
+        _topActionBar(AppLocalizations.of(context)!.homepageHeroSlider, [
           ElevatedButton.icon(
             onPressed: controller.addHeroSlide,
             icon: const Icon(Icons.add),
-            label: const Text('ADD NEW SLIDE'),
+            label: Text(AppLocalizations.of(context)!.addNewSlide),
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F4C5C), foregroundColor: Colors.white),
           ),
           const SizedBox(width: 12),
           ElevatedButton.icon(
             onPressed: controller.publish,
             icon: const Icon(Icons.publish),
-            label: const Text('PUBLISH'),
+            label: Text(AppLocalizations.of(context)!.publish),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent, foregroundColor: Colors.white),
           ),
         ]),
@@ -518,9 +528,9 @@ class CMSViewsHelper {
       length: 3,
       child: Column(
         children: [
-          const TabBar(
+          TabBar(
             isScrollable: true,
-            tabs: [Tab(text: 'Shreemad Bhagvat Katha'), Tab(text: 'Devibhagvat Katha'), Tab(text: 'Shivmahapuran Katha')], 
+            tabs: [Tab(text: AppLocalizations.of(context)!.shreemadBhagvatTab), Tab(text: AppLocalizations.of(context)!.devibhagvatTab), Tab(text: AppLocalizations.of(context)!.shivmahapuranTab)], 
             labelColor: Colors.black,
             indicatorColor: Colors.amber,
           ),
@@ -540,34 +550,34 @@ class CMSViewsHelper {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        _sectionHeader('HERO SECTION'),
-        _buildField('Hero Badge', k.heroBadge, (v) => k.heroBadge = v, context, fieldLoading, setState),
-        _buildField('Hero Title', k.heroTitle, (v) => k.heroTitle = v, context, fieldLoading, setState),
-        _buildField('Hero Description 1', k.heroDesc1, (v) => k.heroDesc1 = v, context, fieldLoading, setState, maxLines: 3),
-        _buildField('Hero Description 2', k.heroDesc2, (v) => k.heroDesc2 = v, context, fieldLoading, setState, maxLines: 3),
-        _buildImageField('Hero Image', k.heroImage, (v) => setState(() => k.heroImage = v), context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.heroSection),
+        _buildField(AppLocalizations.of(context)!.heroBadge, k.heroBadge, (v) => k.heroBadge = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.heroTitle, k.heroTitle, (v) => k.heroTitle = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.heroDesc1, k.heroDesc1, (v) => k.heroDesc1 = v, context, fieldLoading, setState, maxLines: 3),
+        _buildField(AppLocalizations.of(context)!.heroDesc2, k.heroDesc2, (v) => k.heroDesc2 = v, context, fieldLoading, setState, maxLines: 3),
+        _buildImageField(context, AppLocalizations.of(context)!.heroImageLabel, k.heroImage, (v) => setState(() => k.heroImage = v), context, fieldLoading, setState),
         
-        _sectionHeader('BIOGRAPHY & QUOTE'),
-        _buildField('Biography Text', k.bioText, (v) => k.bioText = v, context, fieldLoading, setState, maxLines: 5),
-        _buildField('Quote', k.quoteText, (v) => k.quoteText = v, context, fieldLoading, setState, maxLines: 3),
-        _buildField('Quote Author', k.quoteAuthor, (v) => k.quoteAuthor = v, context, fieldLoading, setState),
-        _buildImageField('Quote Image', k.quoteImage, (v) => setState(() => k.quoteImage = v), context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.biographyQuote),
+        _buildField(AppLocalizations.of(context)!.biographyText, k.bioText, (v) => k.bioText = v, context, fieldLoading, setState, maxLines: 5),
+        _buildField(AppLocalizations.of(context)!.quoteLabel, k.quoteText, (v) => k.quoteText = v, context, fieldLoading, setState, maxLines: 3),
+        _buildField(AppLocalizations.of(context)!.quoteAuthor, k.quoteAuthor, (v) => k.quoteAuthor = v, context, fieldLoading, setState),
+        _buildImageField(context, AppLocalizations.of(context)!.quoteImage, k.quoteImage, (v) => setState(() => k.quoteImage = v), context, fieldLoading, setState),
         
-        _sectionHeader('HIGHLIGHTS'),
-        _buildField('Highlight 1 Title', k.highlight1Title, (v) => k.highlight1Title = v, context, fieldLoading, setState),
-        _buildField('Highlight 1 Description', k.highlight1Desc, (v) => k.highlight1Desc = v, context, fieldLoading, setState, maxLines: 3),
-        _buildField('Highlight 2 Title', k.highlight2Title, (v) => k.highlight2Title = v, context, fieldLoading, setState),
-        _buildField('Highlight 2 Description', k.highlight2Desc, (v) => k.highlight2Desc = v, context, fieldLoading, setState, maxLines: 3),
-        _buildField('Highlight 3 Title', k.highlight3Title, (v) => k.highlight3Title = v, context, fieldLoading, setState),
-        _buildField('Highlight 3 Description', k.highlight3Desc, (v) => k.highlight3Desc = v, context, fieldLoading, setState, maxLines: 3),
+        _sectionHeader(AppLocalizations.of(context)!.highlights),
+        _buildField(AppLocalizations.of(context)!.highlightTitle(1), k.highlight1Title, (v) => k.highlight1Title = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.highlightDesc(1), k.highlight1Desc, (v) => k.highlight1Desc = v, context, fieldLoading, setState, maxLines: 3),
+        _buildField(AppLocalizations.of(context)!.highlightTitle(2), k.highlight2Title, (v) => k.highlight2Title = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.highlightDesc(2), k.highlight2Desc, (v) => k.highlight2Desc = v, context, fieldLoading, setState, maxLines: 3),
+        _buildField(AppLocalizations.of(context)!.highlightTitle(3), k.highlight3Title, (v) => k.highlight3Title = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.highlightDesc(3), k.highlight3Desc, (v) => k.highlight3Desc = v, context, fieldLoading, setState, maxLines: 3),
         
-        _sectionHeader('CALL TO ACTION'),
-        _buildField('CTA Title', k.ctaTitle, (v) => k.ctaTitle = v, context, fieldLoading, setState),
-        _buildField('CTA Subtitle', k.ctaSubtitle, (v) => k.ctaSubtitle = v, context, fieldLoading, setState, maxLines: 2),
-        _buildField('CTA Button Text', k.ctaButtonText, (v) => k.ctaButtonText = v, context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.callToAction),
+        _buildField(AppLocalizations.of(context)!.ctaTitle, k.ctaTitle, (v) => k.ctaTitle = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.ctaSubtitle, k.ctaSubtitle, (v) => k.ctaSubtitle = v, context, fieldLoading, setState, maxLines: 2),
+        _buildField(AppLocalizations.of(context)!.ctaButtonText, k.ctaButtonText, (v) => k.ctaButtonText = v, context, fieldLoading, setState),
         
         const SizedBox(height: 40),
-        ElevatedButton(onPressed: () => controller.publish(), child: const Text('SAVE KATHA PAGE')),
+        ElevatedButton(onPressed: () => controller.publish(), child: Text(AppLocalizations.of(context)!.saveKathaPage)),
         const SizedBox(height: 60),
       ],
     );
@@ -579,7 +589,7 @@ class CMSViewsHelper {
       physics: embedded ? const NeverScrollableScrollPhysics() : null,
       padding: embedded ? EdgeInsets.zero : const EdgeInsets.all(24),
       children: [
-        if (embedded) _sectionHeader('EVENT LIST'),
+        if (embedded) _sectionHeader(AppLocalizations.of(context)!.eventList),
         ...controller.upcomingKathas.asMap().entries.map((entry) {
           final i = entry.key;
           final k = entry.value;
@@ -591,20 +601,20 @@ class CMSViewsHelper {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Event #${i+1}', style: const TextStyle(fontWeight: FontWeight.bold)), IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeKatha(i))]),
-                  _buildField('Katha Number', k.kathaNumber, (v) => k.kathaNumber = v, context, fieldLoading, setState),
-                  _buildField('Katha Name', k.name, (v) => k.name = v, context, fieldLoading, setState),
-                  _buildField('Date Display String', k.dateString, (v) => k.dateString = v, context, fieldLoading, setState),
-                  _buildField('Timing (e.g. 3:00 PM to 7:00 PM)', k.timing, (v) => k.timing = v, context, fieldLoading, setState),
-                  _buildField('Location', k.location, (v) => k.location = v, context, fieldLoading, setState),
-                  _buildField('Hosting / Organizer', k.hosting, (v) => k.hosting = v, context, fieldLoading, setState),
-                  _buildField('Description', k.description, (v) => k.description = v, context, fieldLoading, setState, maxLines: 3),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(AppLocalizations.of(context)!.eventNumber(i+1), style: const TextStyle(fontWeight: FontWeight.bold)), IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeKatha(i))]),
+                  _buildField(AppLocalizations.of(context)!.kathaNumberLabel, k.kathaNumber, (v) => k.kathaNumber = v, context, fieldLoading, setState),
+                  _buildField(AppLocalizations.of(context)!.kathaNameLabel, k.name, (v) => k.name = v, context, fieldLoading, setState),
+                  _buildField(AppLocalizations.of(context)!.dateDisplayString, k.dateString, (v) => k.dateString = v, context, fieldLoading, setState),
+                  _buildField(AppLocalizations.of(context)!.timingLabel, k.timing, (v) => k.timing = v, context, fieldLoading, setState),
+                  _buildField(AppLocalizations.of(context)!.locationLabel, k.location, (v) => k.location = v, context, fieldLoading, setState),
+                  _buildField(AppLocalizations.of(context)!.hostingLabel, k.hosting, (v) => k.hosting = v, context, fieldLoading, setState),
+                  _buildField(AppLocalizations.of(context)!.descriptionLabel, k.description, (v) => k.description = v, context, fieldLoading, setState, maxLines: 3),
                 ],
               ),
             ),
           );
         }),
-        if (embedded) ElevatedButton.icon(onPressed: controller.addKatha, icon: const Icon(Icons.add), label: const Text('ADD KATHA')),
+        if (embedded) ElevatedButton.icon(onPressed: controller.addKatha, icon: const Icon(Icons.add), label: Text(AppLocalizations.of(context)!.addKathaButton)),
       ],
     );
 
@@ -612,18 +622,18 @@ class CMSViewsHelper {
 
     return Column(
       children: [
-        _topActionBar('UPCOMING KATHAS', [
+        _topActionBar(AppLocalizations.of(context)!.upcomingKathasTitle, [
           ElevatedButton.icon(
             onPressed: controller.addKatha,
             icon: const Icon(Icons.add),
-            label: const Text('ADD KATHA'),
+            label: Text(AppLocalizations.of(context)!.addKathaButton),
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F4C5C), foregroundColor: Colors.white),
           ),
           const SizedBox(width: 12),
           ElevatedButton.icon(
             onPressed: controller.publish,
             icon: const Icon(Icons.publish),
-            label: const Text('PUBLISH'),
+            label: Text(AppLocalizations.of(context)!.publish),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent, foregroundColor: Colors.white),
           ),
         ]),
@@ -636,11 +646,11 @@ class CMSViewsHelper {
     final h = controller.homepageData;
     return Column(
       children: [
-        _topActionBar('HOME PAGE MANAGEMENT', [
+        _topActionBar(AppLocalizations.of(context)!.homePageManagement, [
           ElevatedButton.icon(
             onPressed: controller.publish,
             icon: const Icon(Icons.publish),
-            label: const Text('PUBLISH ALL'),
+            label: Text(AppLocalizations.of(context)!.publishAll),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent, foregroundColor: Colors.white),
           ),
         ]),
@@ -648,21 +658,21 @@ class CMSViewsHelper {
           child: ListView(
             padding: const EdgeInsets.all(24),
             children: [
-              _sectionHeader('SECTION VISIBILITY & ACCESS'),
+              _sectionHeader(AppLocalizations.of(context)!.sectionVisibilityAccess),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      _buildToggle('Hero Slider', h.showHeroSlider, (v) => controller.toggleHomeVisibility('hero')),
-                      _buildToggle('Featured Quote', h.showFeaturedQuote, (v) => controller.toggleHomeVisibility('quote')),
-                      _buildToggle('About Section', h.showAboutPreview, (v) => controller.toggleHomeVisibility('about')),
-                      _buildToggle('Upcoming Kathas', h.showUpcomingKathas, (v) => controller.toggleHomeVisibility('katha')),
-                      _buildToggle('Latest Videos', h.showLatestVideos, (v) => controller.toggleHomeVisibility('videos')),
-                      _buildToggle('Photo Gallery', h.showPhotoGallery, (v) => controller.toggleHomeVisibility('gallery')),
-                      _buildToggle('Daily Suvichar', h.showDailySuvichar, (v) => controller.toggleHomeVisibility('suvichar')),
-                      _buildToggle('Ram Katha Preview', h.showRamKathaSection, (v) => controller.toggleHomeVisibility('ramkatha')),
-                      _buildToggle('News & Updates', h.showNewsSection, (v) => controller.toggleHomeVisibility('news')),
+                      _buildToggle(AppLocalizations.of(context)!.heroSection, h.showHeroSlider, (v) => controller.toggleHomeVisibility('hero')),
+                      _buildToggle(AppLocalizations.of(context)!.featuredQuoteSection, h.showFeaturedQuote, (v) => controller.toggleHomeVisibility('quote')),
+                      _buildToggle(AppLocalizations.of(context)!.aboutSection, h.showAboutPreview, (v) => controller.toggleHomeVisibility('about')),
+                      _buildToggle(AppLocalizations.of(context)!.upcomingKathasTitle, h.showUpcomingKathas, (v) => controller.toggleHomeVisibility('katha')),
+                      _buildToggle(AppLocalizations.of(context)!.latestVideos, h.showLatestVideos, (v) => controller.toggleHomeVisibility('videos')),
+                      _buildToggle(AppLocalizations.of(context)!.photoGalleryTitle, h.showPhotoGallery, (v) => controller.toggleHomeVisibility('gallery')),
+                      _buildToggle(AppLocalizations.of(context)!.dailySuvicharTitle, h.showDailySuvichar, (v) => controller.toggleHomeVisibility('suvichar')),
+                      _buildToggle(AppLocalizations.of(context)!.ramKathaPreview, h.showRamKathaSection, (v) => controller.toggleHomeVisibility('ramkatha')),
+                      _buildToggle(AppLocalizations.of(context)!.newsUpdatesTitle, h.showNewsSection, (v) => controller.toggleHomeVisibility('news')),
                     ],
                   ),
                 ),
@@ -686,18 +696,18 @@ class CMSViewsHelper {
   static Widget _homepageAboutView(HomePageController controller, BuildContext context, Map<String, bool> fieldLoading, Function(VoidCallback) setState, {bool embedded = false}) {
     final a = controller.aboutSection;
     final content = [
-        _sectionHeader('BIOGRAPHY SECTION (HOME)'),
-        _buildField('Display Title', a.title, (v) => a.title = v, context, fieldLoading, setState),
-        _buildField('Tagline', a.tagline, (v) => a.tagline = v, context, fieldLoading, setState),
-        _buildField('Quote', a.quote, (v) => a.quote = v, context, fieldLoading, setState),
-        _buildField('Main Intro Description', a.description, (v) => a.description = v, context, fieldLoading, setState, maxLines: 4),
-        _buildImageField('Biography Photo', a.photoUrl, (v) => setState(() => a.photoUrl = v), context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.biographySectionHome),
+        _buildField(AppLocalizations.of(context)!.displayTitle, a.title, (v) => a.title = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.tagline, a.tagline, (v) => a.tagline = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.quoteLabel, a.quote, (v) => a.quote = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.mainIntroDesc, a.description, (v) => a.description = v, context, fieldLoading, setState, maxLines: 4),
+        _buildImageField(context, AppLocalizations.of(context)!.biographyPhoto, a.photoUrl, (v) => setState(() => a.photoUrl = v), context, fieldLoading, setState),
         
-        _sectionHeader('DETAILED PARAGRAPHS'),
-        _buildListField('Paragraphs', a.paragraphs, (v) => a.paragraphs = v, context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.detailedParagraphs),
+        _buildListField(context, AppLocalizations.of(context)!.paragraphsLabel, a.paragraphs, (v) => a.paragraphs = v, context, fieldLoading, setState),
         
-        _sectionHeader('GALLERY IMAGES'),
-        _buildListField('Image URLs', a.galleryImages, (v) => a.galleryImages = v, context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.galleryImages),
+        _buildListField(context, AppLocalizations.of(context)!.imageUrlsLabel, a.galleryImages, (v) => a.galleryImages = v, context, fieldLoading, setState),
     ];
 
     if (embedded) return Column(crossAxisAlignment: CrossAxisAlignment.start, children: content);
@@ -707,7 +717,7 @@ class CMSViewsHelper {
       children: [
         ...content,
         const SizedBox(height: 40),
-        ElevatedButton(onPressed: controller.publish, child: const Text('SAVE ABOUT DATA')),
+        ElevatedButton(onPressed: controller.publish, child: Text(AppLocalizations.of(context)!.saveAboutData)),
       ],
     );
   }
@@ -715,11 +725,11 @@ class CMSViewsHelper {
   static Widget _featuredQuoteView(HomePageController controller, BuildContext context, Map<String, bool> fieldLoading, Function(VoidCallback) setState, {bool embedded = false}) {
     final q = controller.homepageData.featuredQuote;
     final content = [
-        _sectionHeader('FEATURED QUOTE SECTION'),
-        _buildField('Quote Text', q.quote, (v) => q.quote = v, context, fieldLoading, setState, maxLines: 3),
-        _buildField('Author', q.author, (v) => q.author = v, context, fieldLoading, setState),
-        _buildImageField('Portrait Image', q.portrait, (v) => setState(() => q.portrait = v), context, fieldLoading, setState),
-        _buildImageField('Background Image', q.background, (v) => setState(() => q.background = v), context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.featuredQuoteSection),
+        _buildField(AppLocalizations.of(context)!.quoteTextLabel, q.quote, (v) => q.quote = v, context, fieldLoading, setState, maxLines: 3),
+        _buildField(AppLocalizations.of(context)!.authorLabel, q.author, (v) => q.author = v, context, fieldLoading, setState),
+        _buildImageField(context, AppLocalizations.of(context)!.portraitImage, q.portrait, (v) => setState(() => q.portrait = v), context, fieldLoading, setState),
+        _buildImageField(context, AppLocalizations.of(context)!.backgroundImage, q.background, (v) => setState(() => q.background = v), context, fieldLoading, setState),
     ];
 
     if (embedded) return Column(crossAxisAlignment: CrossAxisAlignment.start, children: content);
@@ -729,7 +739,7 @@ class CMSViewsHelper {
       children: [
         ...content,
         const SizedBox(height: 40),
-        ElevatedButton(onPressed: controller.publish, child: const Text('SAVE QUOTE')),
+        ElevatedButton(onPressed: controller.publish, child: Text(AppLocalizations.of(context)!.saveQuote)),
       ],
     );
   }
@@ -737,9 +747,9 @@ class CMSViewsHelper {
   static Widget _dailySuvicharView(HomePageController controller, BuildContext context, Map<String, bool> fieldLoading, Function(VoidCallback) setState, {bool embedded = false}) {
     final d = controller.dailySuvichar;
     final content = [
-        _sectionHeader('DAILY SUVICHAR'),
-        _buildField('Date Label', d.date, (v) => d.date = v, context, fieldLoading, setState),
-        _buildImageField('Suvichar Image', d.imageUrl, (v) => setState(() => d.imageUrl = v), context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.dailySuvicharTitle),
+        _buildField(AppLocalizations.of(context)!.dateLabel, d.date, (v) => d.date = v, context, fieldLoading, setState),
+        _buildImageField(context, AppLocalizations.of(context)!.suvicharImage, d.imageUrl, (v) => setState(() => d.imageUrl = v), context, fieldLoading, setState),
     ];
 
     if (embedded) return Column(crossAxisAlignment: CrossAxisAlignment.start, children: content);
@@ -749,7 +759,7 @@ class CMSViewsHelper {
       children: [
         ...content,
         const SizedBox(height: 40),
-        ElevatedButton(onPressed: controller.publish, child: const Text('SAVE SUVICHAR')),
+        ElevatedButton(onPressed: controller.publish, child: Text(AppLocalizations.of(context)!.saveSuvichar)),
       ],
     );
   }
@@ -757,11 +767,11 @@ class CMSViewsHelper {
   static Widget _ramKathaView(HomePageController controller, BuildContext context, Map<String, bool> fieldLoading, Function(VoidCallback) setState, {bool embedded = false}) {
     final r = controller.ramKatha;
     final content = [
-        _sectionHeader('RAM KATHA PREVIEW SECTION'),
-        _buildField('Title', r.title, (v) => r.title = v, context, fieldLoading, setState),
-        _buildField('Description Para 1', r.description1, (v) => r.description1 = v, context, fieldLoading, setState, maxLines: 4),
-        _buildField('Description Para 2', r.description2, (v) => r.description2 = v, context, fieldLoading, setState, maxLines: 4),
-        _buildImageField('Section Photo', r.photoUrl, (v) => setState(() => r.photoUrl = v), context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.ramKathaPreviewSection),
+        _buildField(AppLocalizations.of(context)!.title, r.title, (v) => r.title = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.descPara1, r.description1, (v) => r.description1 = v, context, fieldLoading, setState, maxLines: 4),
+        _buildField(AppLocalizations.of(context)!.descPara2, r.description2, (v) => r.description2 = v, context, fieldLoading, setState, maxLines: 4),
+        _buildImageField(context, AppLocalizations.of(context)!.sectionPhoto, r.photoUrl, (v) => setState(() => r.photoUrl = v), context, fieldLoading, setState),
     ];
 
     if (embedded) return Column(crossAxisAlignment: CrossAxisAlignment.start, children: content);
@@ -771,7 +781,7 @@ class CMSViewsHelper {
       children: [
         ...content,
         const SizedBox(height: 40),
-        ElevatedButton(onPressed: controller.publish, child: const Text('SAVE RAM KATHA SECTION')),
+        ElevatedButton(onPressed: controller.publish, child: Text(AppLocalizations.of(context)!.saveRamKathaSection)),
       ],
     );
   }
@@ -782,7 +792,7 @@ class CMSViewsHelper {
       physics: embedded ? const NeverScrollableScrollPhysics() : null,
       padding: embedded ? EdgeInsets.zero : const EdgeInsets.all(24),
       children: [
-        if (embedded) _sectionHeader('LATEST NEWS ITEMS'),
+        if (embedded) _sectionHeader(AppLocalizations.of(context)!.latestNewsItems),
         ...controller.homepageData.news.asMap().entries.map((e) => Card(
           margin: const EdgeInsets.only(bottom: 24),
           elevation: embedded ? 0 : 1,
@@ -790,16 +800,16 @@ class CMSViewsHelper {
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(children: [
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('News Item #${e.key + 1}', style: const TextStyle(fontWeight: FontWeight.bold)), IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => setState(() => controller.homepageData.news.removeAt(e.key)))]),
-              _buildField('Title', e.value.title, (v) => e.value.title = v, context, fieldLoading, setState),
-              _buildField('Category', e.value.category, (v) => e.value.category = v, context, fieldLoading, setState),
-              _buildField('Date String', e.value.date, (v) => e.value.date = v, context, fieldLoading, setState),
-              _buildField('Target URL (Read More)', e.value.url, (v) => e.value.url = v, context, fieldLoading, setState),
-              _buildImageField('News Image', e.value.image, (v) => setState(() => e.value.image = v), context, fieldLoading, setState),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(AppLocalizations.of(context)!.newsItemNumber(e.key + 1), style: const TextStyle(fontWeight: FontWeight.bold)), IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => setState(() => controller.homepageData.news.removeAt(e.key)))]),
+              _buildField(AppLocalizations.of(context)!.title, e.value.title, (v) => e.value.title = v, context, fieldLoading, setState),
+              _buildField(AppLocalizations.of(context)!.category, e.value.category, (v) => e.value.category = v, context, fieldLoading, setState),
+              _buildField(AppLocalizations.of(context)!.dateDisplayString, e.value.date, (v) => e.value.date = v, context, fieldLoading, setState),
+              _buildField(AppLocalizations.of(context)!.targetUrl, e.value.url, (v) => e.value.url = v, context, fieldLoading, setState),
+              _buildImageField(context, AppLocalizations.of(context)!.newsImage, e.value.image, (v) => setState(() => e.value.image = v), context, fieldLoading, setState),
             ]),
           ),
         )),
-        if (embedded) ElevatedButton.icon(onPressed: () => setState(() => controller.homepageData.news.add(NewsItem())), icon: const Icon(Icons.add), label: const Text('ADD NEWS')),
+        if (embedded) ElevatedButton.icon(onPressed: () => setState(() => controller.homepageData.news.add(NewsItem())), icon: const Icon(Icons.add), label: Text(AppLocalizations.of(context)!.addNewsButton)),
       ],
     );
 
@@ -807,18 +817,18 @@ class CMSViewsHelper {
 
     return Column(
       children: [
-        _topActionBar('NEWS & UPDATES', [
+        _topActionBar(AppLocalizations.of(context)!.newsUpdatesTitle, [
           ElevatedButton.icon(
             onPressed: () => setState(() => controller.homepageData.news.add(NewsItem())),
             icon: const Icon(Icons.add),
-            label: const Text('ADD NEWS'),
+            label: Text(AppLocalizations.of(context)!.addNewsButton),
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F4C5C), foregroundColor: Colors.white),
           ),
           const SizedBox(width: 12),
           ElevatedButton.icon(
             onPressed: controller.publish,
             icon: const Icon(Icons.publish),
-            label: const Text('PUBLISH'),
+            label: Text(AppLocalizations.of(context)!.publish),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent, foregroundColor: Colors.white),
           ),
         ]),
@@ -831,18 +841,18 @@ class CMSViewsHelper {
     final kld = controller.kathaListPageData;
     return Column(
       children: [
-        _topActionBar('FULL KATHA LIST', [
+        _topActionBar(AppLocalizations.of(context)!.fullKathaListTitle, [
           ElevatedButton.icon(
             onPressed: controller.addKathaRecord,
             icon: const Icon(Icons.add),
-            label: const Text('ADD RECORD'),
+            label: Text(AppLocalizations.of(context)!.addRecord),
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F4C5C), foregroundColor: Colors.white),
           ),
           const SizedBox(width: 12),
           ElevatedButton.icon(
             onPressed: controller.publish,
             icon: const Icon(Icons.publish),
-            label: const Text('PUBLISH'),
+            label: Text(AppLocalizations.of(context)!.publish),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent, foregroundColor: Colors.white),
           ),
         ]),
@@ -850,26 +860,26 @@ class CMSViewsHelper {
           child: ListView(
             padding: const EdgeInsets.all(24),
             children: [
-              _sectionHeader('KATHA LIST PAGE SETTINGS'),
-              _buildImageField('Main List Banner Image', kld.bannerImageUrl, (v) => setState(() => kld.bannerImageUrl = v), context, fieldLoading, setState),
+              _sectionHeader(AppLocalizations.of(context)!.kathaListPageSettings),
+              _buildImageField(context, AppLocalizations.of(context)!.mainListBannerImage, kld.bannerImageUrl, (v) => setState(() => kld.bannerImageUrl = v), context, fieldLoading, setState),
 
-              _sectionHeader('FULL KATHA ARCHIVE'),
+              _sectionHeader(AppLocalizations.of(context)!.fullKathaArchive),
               ...controller.allKathas.asMap().entries.map((e) => Card(
                 margin: const EdgeInsets.only(bottom: 24),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Katha Record #${e.key + 1}', style: const TextStyle(fontWeight: FontWeight.bold)), IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeKathaRecord(e.key))]),
-                    _buildField('Katha Number', e.value.kathaNumber, (v) => e.value.kathaNumber = v, context, fieldLoading, setState),
-                    _buildField('Year', e.value.year, (v) => e.value.year = v, context, fieldLoading, setState),
-                    _buildField('Dates (e.g. 1st Jan - 9th Jan)', e.value.dates, (v) => e.value.dates = v, context, fieldLoading, setState),
-                    _buildField('Topic / Subject', e.value.topic, (v) => e.value.topic = v, context, fieldLoading, setState),
-                    _buildField('Location', e.value.location, (v) => e.value.location = v, context, fieldLoading, setState),
-                    _buildField('Country', e.value.country, (v) => e.value.country = v, context, fieldLoading, setState),
-                    _buildField('Language', e.value.language, (v) => e.value.language = v, context, fieldLoading, setState),
-                    _buildField('YouTube Playlist URL', e.value.youtubePlaylistUrl, (v) => e.value.youtubePlaylistUrl = v, context, fieldLoading, setState),
-                    _buildField('Description', e.value.description, (v) => e.value.description = v, context, fieldLoading, setState, maxLines: 3),
-                    _buildImageField('Record Image', e.value.imageUrl, (v) => setState(() => e.value.imageUrl = v), context, fieldLoading, setState),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(AppLocalizations.of(context)!.kathaRecordNumber(e.key + 1), style: const TextStyle(fontWeight: FontWeight.bold)), IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeKathaRecord(e.key))]),
+                    _buildField(AppLocalizations.of(context)!.kathaNumberLabel, e.value.kathaNumber, (v) => e.value.kathaNumber = v, context, fieldLoading, setState),
+                    _buildField(AppLocalizations.of(context)!.yearLabel, e.value.year, (v) => e.value.year = v, context, fieldLoading, setState),
+                    _buildField(AppLocalizations.of(context)!.datesLabel, e.value.dates, (v) => e.value.dates = v, context, fieldLoading, setState),
+                    _buildField(AppLocalizations.of(context)!.topicSubject, e.value.topic, (v) => e.value.topic = v, context, fieldLoading, setState),
+                    _buildField(AppLocalizations.of(context)!.locationLabel, e.value.location, (v) => e.value.location = v, context, fieldLoading, setState),
+                    _buildField(AppLocalizations.of(context)!.countryLabel, e.value.country, (v) => e.value.country = v, context, fieldLoading, setState),
+                    _buildField(AppLocalizations.of(context)!.lang, e.value.language, (v) => e.value.language = v, context, fieldLoading, setState),
+                    _buildField(AppLocalizations.of(context)!.youtubePlaylistUrl, e.value.youtubePlaylistUrl, (v) => e.value.youtubePlaylistUrl = v, context, fieldLoading, setState),
+                    _buildField(AppLocalizations.of(context)!.descriptionLabel, e.value.description, (v) => e.value.description = v, context, fieldLoading, setState, maxLines: 3),
+                    _buildImageField(context, AppLocalizations.of(context)!.recordImage, e.value.imageUrl, (v) => setState(() => e.value.imageUrl = v), context, fieldLoading, setState),
                   ]),
                 ),
               )),
@@ -887,8 +897,8 @@ class CMSViewsHelper {
       physics: embedded ? const NeverScrollableScrollPhysics() : null,
       padding: embedded ? EdgeInsets.zero : const EdgeInsets.all(24),
       children: [
-        if (embedded) _sectionHeader('FEATURED PHOTO ALBUMS'),
-        if (embedded) const Text('To manage full sections, go to Media & Content > Gallery > Photos.', style: TextStyle(color: Colors.grey, fontSize: 11)),
+        if (embedded) _sectionHeader(AppLocalizations.of(context)!.featuredPhotoAlbums),
+        if (embedded) Text(AppLocalizations.of(context)!.manageSectionsDesc, style: const TextStyle(color: Colors.grey, fontSize: 11)),
         ...pgd.sections.toList().take(recentOnly ? 1 : 100).toList().asMap().entries.map((e) => Card(
           margin: const EdgeInsets.only(top: 16, bottom: 8),
           elevation: embedded ? 0 : 1,
@@ -897,8 +907,8 @@ class CMSViewsHelper {
             padding: const EdgeInsets.all(20),
             child: Column(children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(e.value.heading, style: const TextStyle(fontWeight: FontWeight.bold)), if(!embedded) IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removePhotoCategory(e.key))]),
-              _buildField('Heading', e.value.heading, (v) => e.value.heading = v, context, fieldLoading, setState),
-              _buildListField('Photo URLs', e.value.photoUrls, (v) => e.value.photoUrls = v, context, fieldLoading, setState),
+              _buildField(AppLocalizations.of(context)!.headingLabel, e.value.heading, (v) => e.value.heading = v, context, fieldLoading, setState),
+              _buildListField(context, AppLocalizations.of(context)!.photoUrlsLabel, e.value.photoUrls, (v) => e.value.photoUrls = v, context, fieldLoading, setState),
             ]),
           ),
         )),
@@ -909,18 +919,18 @@ class CMSViewsHelper {
 
     return Column(
       children: [
-        _topActionBar('PHOTO GALLERY', [
+        _topActionBar(AppLocalizations.of(context)!.photoGalleryTitle, [
           ElevatedButton.icon(
             onPressed: controller.addPhotoCategory,
             icon: const Icon(Icons.add),
-            label: const Text('ADD SECTION'),
+            label: Text(AppLocalizations.of(context)!.addSection),
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F4C5C), foregroundColor: Colors.white),
           ),
           const SizedBox(width: 12),
           ElevatedButton.icon(
             onPressed: controller.publish,
             icon: const Icon(Icons.publish),
-            label: const Text('PUBLISH'),
+            label: Text(AppLocalizations.of(context)!.publish),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent, foregroundColor: Colors.white),
           ),
         ]),
@@ -936,8 +946,8 @@ class CMSViewsHelper {
       physics: embedded ? const NeverScrollableScrollPhysics() : null,
       padding: embedded ? EdgeInsets.zero : const EdgeInsets.all(24),
       children: [
-        if (embedded) _sectionHeader('FEATURED VIDEOS'),
-        if (embedded) const Text('To manage full categories, go to Media & Content > Gallery > Videos.', style: TextStyle(color: Colors.grey, fontSize: 11)),
+        if (embedded) _sectionHeader(AppLocalizations.of(context)!.featuredVideos),
+        if (embedded) Text(AppLocalizations.of(context)!.manageVideosDesc, style: const TextStyle(color: Colors.grey, fontSize: 11)),
         ...vgd.categories.toList().take(recentOnly ? 1 : 100).toList().asMap().entries.map((e) {
           final catIndex = e.key;
           final cat = e.value;
@@ -957,8 +967,8 @@ class CMSViewsHelper {
                       Expanded(
                         child: Column(
                           children: [
-                            _buildField('Video Title', ve.value.title, (v) => ve.value.title = v, context, fieldLoading, setState),
-                            _buildField('YouTube URL', ve.value.youtubeUrl, (v) => ve.value.youtubeUrl = v, context, fieldLoading, setState),
+                            _buildField(AppLocalizations.of(context)!.videoTitleLabel, ve.value.title, (v) => ve.value.title = v, context, fieldLoading, setState),
+                            _buildField(AppLocalizations.of(context)!.youtubeUrlLabel, ve.value.youtubeUrl, (v) => ve.value.youtubeUrl = v, context, fieldLoading, setState),
                           ],
                         ),
                       ),
@@ -966,7 +976,7 @@ class CMSViewsHelper {
                     ],
                   ),
                 )),
-                TextButton.icon(onPressed: () => controller.addVideoToCategory(catIndex), icon: const Icon(Icons.add, size: 14), label: const Text('Add Video', style: TextStyle(fontSize: 12))),
+                TextButton.icon(onPressed: () => controller.addVideoToCategory(catIndex), icon: const Icon(Icons.add, size: 14), label: Text(AppLocalizations.of(context)!.addVideoButton, style: const TextStyle(fontSize: 12))),
               ]),
             ),
           );
@@ -978,18 +988,18 @@ class CMSViewsHelper {
 
     return Column(
       children: [
-        _topActionBar('VIDEO GALLERY', [
+        _topActionBar(AppLocalizations.of(context)!.videoGalleryTitle, [
           ElevatedButton.icon(
             onPressed: controller.addVideoCategory,
             icon: const Icon(Icons.add),
-            label: const Text('ADD CATEGORY'),
+            label: Text(AppLocalizations.of(context)!.addCategory),
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F4C5C), foregroundColor: Colors.white),
           ),
           const SizedBox(width: 12),
           ElevatedButton.icon(
             onPressed: controller.publish,
             icon: const Icon(Icons.publish),
-            label: const Text('PUBLISH'),
+            label: Text(AppLocalizations.of(context)!.publish),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent, foregroundColor: Colors.white),
           ),
         ]),
@@ -1001,18 +1011,18 @@ class CMSViewsHelper {
   static Widget _stotraView(HomePageController controller, BuildContext context, Map<String, bool> fieldLoading, Function(VoidCallback) setState) {
     return Column(
       children: [
-        _topActionBar('STOTRA / BHAJAN', [
+        _topActionBar(AppLocalizations.of(context)!.stotraBhajanTitle, [
           ElevatedButton.icon(
             onPressed: controller.addStotraItem,
             icon: const Icon(Icons.add),
-            label: const Text('ADD ITEM'),
+            label: Text(AppLocalizations.of(context)!.addItem),
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F4C5C), foregroundColor: Colors.white),
           ),
           const SizedBox(width: 12),
           ElevatedButton.icon(
             onPressed: controller.publish,
             icon: const Icon(Icons.publish),
-            label: const Text('PUBLISH'),
+            label: Text(AppLocalizations.of(context)!.publish),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent, foregroundColor: Colors.white),
           ),
         ]),
@@ -1020,21 +1030,21 @@ class CMSViewsHelper {
           child: ListView(
             padding: const EdgeInsets.all(24),
             children: [
-              _sectionHeader('STOTRA / BHAJAN PAGE SETTINGS'),
-              _buildField('Page Title', controller.stotraSection.pageTitle, (v) => controller.stotraSection.pageTitle = v, context, fieldLoading, setState),
-              _buildImageField('Top Header Image', controller.stotraSection.topHeaderImage, (v) => setState(() => controller.stotraSection.topHeaderImage = v), context, fieldLoading, setState),
+              _sectionHeader(AppLocalizations.of(context)!.stotraBhajanPageSettings),
+              _buildField(AppLocalizations.of(context)!.pageTitle, controller.stotraSection.pageTitle, (v) => controller.stotraSection.pageTitle = v, context, fieldLoading, setState),
+              _buildImageField(context, AppLocalizations.of(context)!.topHeaderImage, controller.stotraSection.topHeaderImage, (v) => setState(() => controller.stotraSection.topHeaderImage = v), context, fieldLoading, setState),
               
-              _sectionHeader('STOTRA ITEMS'),
+              _sectionHeader(AppLocalizations.of(context)!.stotraItems),
               ...controller.stotraSection.items.asMap().entries.map((e) => Card(
                 margin: const EdgeInsets.only(bottom: 24),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Item #${e.key + 1}', style: const TextStyle(fontWeight: FontWeight.bold)), IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeStotraItem(e.key))]),
-                    _buildField('Item Title', e.value.title, (v) => e.value.title = v, context, fieldLoading, setState),
-                    _buildField('English PDF URL', e.value.englishPdfUrl, (v) => e.value.englishPdfUrl = v, context, fieldLoading, setState),
-                    _buildField('Hindi PDF URL', e.value.hindiPdfUrl, (v) => e.value.hindiPdfUrl = v, context, fieldLoading, setState),
-                    _buildField('Gujarati PDF URL', e.value.gujaratiPdfUrl, (v) => e.value.gujaratiPdfUrl = v, context, fieldLoading, setState),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(AppLocalizations.of(context)!.stotraItemNumber(e.key + 1), style: const TextStyle(fontWeight: FontWeight.bold)), IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeStotraItem(e.key))]),
+                    _buildField(AppLocalizations.of(context)!.itemTitle, e.value.title, (v) => e.value.title = v, context, fieldLoading, setState),
+                    _buildField(AppLocalizations.of(context)!.englishPdfUrl, e.value.englishPdfUrl, (v) => e.value.englishPdfUrl = v, context, fieldLoading, setState),
+                    _buildField(AppLocalizations.of(context)!.hindiPdfUrl, e.value.hindiPdfUrl, (v) => e.value.hindiPdfUrl = v, context, fieldLoading, setState),
+                    _buildField(AppLocalizations.of(context)!.gujaratiPdfUrl, e.value.gujaratiPdfUrl, (v) => e.value.gujaratiPdfUrl = v, context, fieldLoading, setState),
                   ]),
                 ),
               )),
@@ -1050,19 +1060,19 @@ class CMSViewsHelper {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        _sectionHeader('CONTACT PAGE SETTINGS'),
-        _buildField('Email Address', c.email, (v) => c.email = v, context, fieldLoading, setState),
-        _buildField('Phone Number', c.phone, (v) => c.phone = v, context, fieldLoading, setState),
-        _buildField('Physical Address', c.address, (v) => c.address = v, context, fieldLoading, setState, maxLines: 3),
-        _buildImageField('Page Banner Image', c.bannerImageUrl, (v) => setState(() => c.bannerImageUrl = v), context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.contactPageSettings),
+        _buildField(AppLocalizations.of(context)!.emailAddressLabel, c.email, (v) => c.email = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.phoneLabel, c.phone, (v) => c.phone = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.physicalAddress, c.address, (v) => c.address = v, context, fieldLoading, setState, maxLines: 3),
+        _buildImageField(context, AppLocalizations.of(context)!.pageBannerImage, c.bannerImageUrl, (v) => setState(() => c.bannerImageUrl = v), context, fieldLoading, setState),
         
         const SizedBox(height: 12),
-        ElevatedButton(onPressed: controller.publish, child: const Text('PUBLISH CONTACT SETTINGS')),
+        ElevatedButton(onPressed: controller.publish, child: Text(AppLocalizations.of(context)!.publishContactSettings)),
         const SizedBox(height: 32),
 
-        _sectionHeader('USER INQUIRIES'),
+        _sectionHeader(AppLocalizations.of(context)!.userInquiries),
         if (controller.inquiries.isEmpty)
-          const Center(child: Padding(padding: EdgeInsets.all(40), child: Text('No inquiries yet.')))
+          Center(child: Padding(padding: const EdgeInsets.all(40), child: Text(AppLocalizations.of(context)!.noInquiriesYet)))
         else
           ...controller.inquiries.map((inq) => Card(
             margin: const EdgeInsets.only(bottom: 16),
@@ -1079,21 +1089,21 @@ class CMSViewsHelper {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Text('Email: ${inq.email}', style: const TextStyle(fontSize: 12)),
-                  Text('Phone: ${inq.mobile}', style: const TextStyle(fontSize: 12)),
-                  Text('Country: ${inq.country}', style: const TextStyle(fontSize: 12)),
-                  Text('Type: ${inq.type}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0F4C5C))),
+                  Text('${AppLocalizations.of(context)!.email}: ${inq.email}', style: const TextStyle(fontSize: 12)),
+                  Text('${AppLocalizations.of(context)!.phoneLabel}: ${inq.mobile}', style: const TextStyle(fontSize: 12)),
+                  Text(AppLocalizations.of(context)!.countryPrefix(inq.country), style: const TextStyle(fontSize: 12)),
+                  Text(AppLocalizations.of(context)!.typePrefix(inq.type), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0F4C5C))),
                   const Divider(height: 24),
-                  const Text('Message:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.grey)),
+                  Text(AppLocalizations.of(context)!.messageHeader, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.grey)),
                   const SizedBox(height: 4),
                   Text(inq.message, style: const TextStyle(fontSize: 13, height: 1.4)),
                   const SizedBox(height: 16),
                   Align(
                     alignment: Alignment.centerRight,
                     child: ElevatedButton.icon(
-                      onPressed: () => _replyOnWhatsApp(inq.mobile, inq.name),
+                      onPressed: () => _replyOnWhatsApp(context, inq.mobile, inq.name),
                       icon: const Icon(Icons.chat, size: 14),
-                      label: const Text('REPLY ON WHATSAPP', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                      label: Text(AppLocalizations.of(context)!.replyOnWhatsApp, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white),
                     ),
                   ),
@@ -1105,7 +1115,7 @@ class CMSViewsHelper {
     );
   }
 
-  static Future<void> _replyOnWhatsApp(String phone, String name) async {
+  static Future<void> _replyOnWhatsApp(BuildContext context, String phone, String name) async {
     final cleanPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
     final message = "Pranam $name! Regarding your inquiry on Jignesh Dada Official Website: ";
     final url = "https://wa.me/$cleanPhone?text=${Uri.encodeComponent(message)}";
@@ -1118,11 +1128,11 @@ class CMSViewsHelper {
     final f = controller.footer;
     return Column(
       children: [
-        _topActionBar('FOOTER SETTINGS', [
+        _topActionBar(AppLocalizations.of(context)!.footerSettings, [
           ElevatedButton.icon(
             onPressed: controller.publish,
             icon: const Icon(Icons.publish),
-            label: const Text('PUBLISH'),
+            label: Text(AppLocalizations.of(context)!.publish),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent, foregroundColor: Colors.white),
           ),
         ]),
@@ -1130,40 +1140,40 @@ class CMSViewsHelper {
           child: ListView(
             padding: const EdgeInsets.all(24),
             children: [
-              _sectionHeader('FOOTER CONTENT'),
-              _buildField('About Description', f.description, (v) => f.description = v, context, fieldLoading, setState, maxLines: 4),
-              _buildField('Copyright Text', f.copyright, (v) => f.copyright = v, context, fieldLoading, setState),
+              _sectionHeader(AppLocalizations.of(context)!.footerContent),
+              _buildField(AppLocalizations.of(context)!.descriptionLabel, f.description, (v) => f.description = v, context, fieldLoading, setState, maxLines: 4),
+              _buildField(AppLocalizations.of(context)!.copyrightText, f.copyright, (v) => f.copyright = v, context, fieldLoading, setState),
               
-              _sectionHeader('SOCIAL MEDIA LINKS'),
-              _buildField('YouTube URL', f.youtubeUrl, (v) => f.youtubeUrl = v, context, fieldLoading, setState),
-              _buildField('Instagram URL', f.instagramUrl, (v) => f.instagramUrl = v, context, fieldLoading, setState),
-              _buildField('Facebook URL', f.facebookUrl, (v) => f.facebookUrl = v, context, fieldLoading, setState),
-              _buildField('WhatsApp Group/Number URL', f.whatsappUrl, (v) => f.whatsappUrl = v, context, fieldLoading, setState),
+              _sectionHeader(AppLocalizations.of(context)!.socialMediaLinks),
+              _buildField(AppLocalizations.of(context)!.youtubeUrlLabel, f.youtubeUrl, (v) => f.youtubeUrl = v, context, fieldLoading, setState),
+              _buildField(AppLocalizations.of(context)!.instagramUrl, f.instagramUrl, (v) => f.instagramUrl = v, context, fieldLoading, setState),
+              _buildField(AppLocalizations.of(context)!.facebookUrl, f.facebookUrl, (v) => f.facebookUrl = v, context, fieldLoading, setState),
+              _buildField(AppLocalizations.of(context)!.whatsappUrlLabel, f.whatsappUrl, (v) => f.whatsappUrl = v, context, fieldLoading, setState),
 
-              _sectionHeader('BOTTOM BAR LINKS'),
+              _sectionHeader(AppLocalizations.of(context)!.bottomBarLinks),
               Row(
                 children: [
-                  Expanded(child: _buildField('Privacy Label', f.privacyLabel, (v) => f.privacyLabel = v, context, fieldLoading, setState)),
+                  Expanded(child: _buildField(AppLocalizations.of(context)!.privacyLabel, f.privacyLabel, (v) => f.privacyLabel = v, context, fieldLoading, setState)),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildField('Privacy URL', f.privacyUrl, (v) => f.privacyUrl = v, context, fieldLoading, setState)),
+                  Expanded(child: _buildField(AppLocalizations.of(context)!.privacyUrl, f.privacyUrl, (v) => f.privacyUrl = v, context, fieldLoading, setState)),
                 ],
               ),
               Row(
                 children: [
-                  Expanded(child: _buildField('Terms Label', f.termsLabel, (v) => f.termsLabel = v, context, fieldLoading, setState)),
+                  Expanded(child: _buildField(AppLocalizations.of(context)!.termsLabel, f.termsLabel, (v) => f.termsLabel = v, context, fieldLoading, setState)),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildField('Terms URL', f.termsUrl, (v) => f.termsUrl = v, context, fieldLoading, setState)),
+                  Expanded(child: _buildField(AppLocalizations.of(context)!.termsUrl, f.termsUrl, (v) => f.termsUrl = v, context, fieldLoading, setState)),
                 ],
               ),
               Row(
                 children: [
-                  Expanded(child: _buildField('Cookie Label', f.cookieLabel, (v) => f.cookieLabel = v, context, fieldLoading, setState)),
+                  Expanded(child: _buildField(AppLocalizations.of(context)!.cookieLabel, f.cookieLabel, (v) => f.cookieLabel = v, context, fieldLoading, setState)),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildField('Cookie URL', f.cookieUrl, (v) => f.cookieUrl = v, context, fieldLoading, setState)),
+                  Expanded(child: _buildField(AppLocalizations.of(context)!.cookieUrl, f.cookieUrl, (v) => f.cookieUrl = v, context, fieldLoading, setState)),
                 ],
               ),
 
-              _sectionHeader('ADDITIONAL LINK SECTIONS (OPTIONAL)'),
+              _sectionHeader(AppLocalizations.of(context)!.additionalLinkSections),
               ...f.linkSections.asMap().entries.map((se) {
                 final si = se.key;
                 final sec = se.value;
@@ -1176,7 +1186,7 @@ class CMSViewsHelper {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(child: _buildField('Section Title', sec.title, (v) => sec.title = v, context, fieldLoading, setState)),
+                            Expanded(child: _buildField(AppLocalizations.of(context)!.sectionTitleLabel, sec.title, (v) => sec.title = v, context, fieldLoading, setState)),
                             IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => controller.removeFooterLinkSection(si)),
                           ],
                         ),
@@ -1188,7 +1198,7 @@ class CMSViewsHelper {
                             padding: const EdgeInsets.only(bottom: 12),
                             child: Row(
                               children: [
-                                Expanded(child: _buildField('Label', link.label, (v) => link.label = v, context, fieldLoading, setState)),
+                                Expanded(child: _buildField(AppLocalizations.of(context)!.badgeLabel, link.label, (v) => link.label = v, context, fieldLoading, setState)),
                                 const SizedBox(width: 8),
                                 Expanded(child: _buildField('Route/URL', link.route, (v) => link.route = v, context, fieldLoading, setState)),
                                 IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () => controller.removeFooterLink(si, li)),
@@ -1199,7 +1209,7 @@ class CMSViewsHelper {
                         TextButton.icon(
                           onPressed: () => controller.addFooterLink(si),
                           icon: const Icon(Icons.add),
-                          label: const Text('Add Link to this section'),
+                          label: Text(AppLocalizations.of(context)!.addLinkToSection),
                         ),
                       ],
                     ),
@@ -1210,7 +1220,7 @@ class CMSViewsHelper {
               ElevatedButton.icon(
                 onPressed: controller.addFooterLinkSection,
                 icon: const Icon(Icons.add),
-                label: const Text('ADD NEW LINK SECTION'),
+                label: Text(AppLocalizations.of(context)!.addNewLinkSection),
                 style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F4C5C), foregroundColor: Colors.white),
               ),
               const SizedBox(height: 60),
@@ -1228,39 +1238,39 @@ class CMSViewsHelper {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        _sectionHeader('1. HERO SECTION CONTENT'),
-        _buildField('Hero Main Heading', h.heroHeading, (v) => h.heroHeading = v, context, fieldLoading, setState, maxLines: 2),
-        _buildField('Hero Subtitle / Intro', h.heroSubtitle, (v) => h.heroSubtitle = v, context, fieldLoading, setState, maxLines: 3),
+        _sectionHeader(AppLocalizations.of(context)!.heroSectionContent),
+        _buildField(AppLocalizations.of(context)!.heroMainHeading, h.heroHeading, (v) => h.heroHeading = v, context, fieldLoading, setState, maxLines: 2),
+        _buildField(AppLocalizations.of(context)!.heroSubtitleIntro, h.heroSubtitle, (v) => h.heroSubtitle = v, context, fieldLoading, setState, maxLines: 3),
         Row(
           children: [
-            Expanded(child: _buildField('CTA Button 1 Text', h.heroCta1Text, (v) => h.heroCta1Text = v, context, fieldLoading, setState)),
+            Expanded(child: _buildField(AppLocalizations.of(context)!.ctaButton1Text, h.heroCta1Text, (v) => h.heroCta1Text = v, context, fieldLoading, setState)),
             const SizedBox(width: 16),
-            Expanded(child: _buildField('CTA Button 2 Text', h.heroCta2Text, (v) => h.heroCta2Text = v, context, fieldLoading, setState)),
+            Expanded(child: _buildField(AppLocalizations.of(context)!.ctaButton2Text, h.heroCta2Text, (v) => h.heroCta2Text = v, context, fieldLoading, setState)),
           ],
         ),
-        _buildImageField('Hero Background Image', h.heroImage, (v) => setState(() => h.heroImage = v), context, fieldLoading, setState),
+        _buildImageField(context, AppLocalizations.of(context)!.heroBackgroundImage, h.heroImage, (v) => setState(() => h.heroImage = v), context, fieldLoading, setState),
         
-        _sectionHeader('2. HERO SIDE CARD (FEATURED)'),
-        _buildField('Card Title', h.heroCardTitle, (v) => h.heroCardTitle = v, context, fieldLoading, setState),
-        _buildField('Card Subtitle', h.heroCardSubtitle, (v) => h.heroCardSubtitle = v, context, fieldLoading, setState, maxLines: 2),
-        _buildImageField('Card Feature Image', h.heroSideImage, (v) => setState(() => h.heroSideImage = v), context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.heroSideCard),
+        _buildField(AppLocalizations.of(context)!.cardTitle, h.heroCardTitle, (v) => h.heroCardTitle = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.cardSubtitle, h.heroCardSubtitle, (v) => h.heroCardSubtitle = v, context, fieldLoading, setState, maxLines: 2),
+        _buildImageField(context, AppLocalizations.of(context)!.cardFeatureImage, h.heroSideImage, (v) => setState(() => h.heroSideImage = v), context, fieldLoading, setState),
 
-        _sectionHeader('3. SECTION HEADINGS'),
-        _buildField('Offerings / Categories Heading', h.collectionsHeading, (v) => h.collectionsHeading = v, context, fieldLoading, setState),
-        _buildField('Featured Products Heading', h.featuredHeading, (v) => h.featuredHeading = v, context, fieldLoading, setState),
-        _buildField('Testimonials Heading', h.testimonialsHeading, (v) => h.testimonialsHeading = v, context, fieldLoading, setState),
-        _buildField('Wisdom / Suvichar Heading', h.wisdomHeading, (v) => h.wisdomHeading = v, context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.sectionHeadings),
+        _buildField(AppLocalizations.of(context)!.offeringsCategoriesHeading, h.collectionsHeading, (v) => h.collectionsHeading = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.featuredProductsHeading, h.featuredHeading, (v) => h.featuredHeading = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.testimonialsHeading, h.testimonialsHeading, (v) => h.testimonialsHeading = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.wisdomSuvicharHeading, h.wisdomHeading, (v) => h.wisdomHeading = v, context, fieldLoading, setState),
 
-        _sectionHeader('4. WHATSAPP GUIDANCE BOX'),
-        _buildField('Guidance Title', h.whatsappTitle, (v) => h.whatsappTitle = v, context, fieldLoading, setState),
-        _buildField('Guidance Subtitle', h.whatsappSubtitle, (v) => h.whatsappSubtitle = v, context, fieldLoading, setState, maxLines: 2),
-        _buildField('WhatsApp Button Text', h.whatsappBtnText, (v) => h.whatsappBtnText = v, context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.whatsappGuidanceBox),
+        _buildField(AppLocalizations.of(context)!.guidanceTitle, h.whatsappTitle, (v) => h.whatsappTitle = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.guidanceSubtitle, h.whatsappSubtitle, (v) => h.whatsappSubtitle = v, context, fieldLoading, setState, maxLines: 2),
+        _buildField(AppLocalizations.of(context)!.whatsappBtnText, h.whatsappBtnText, (v) => h.whatsappBtnText = v, context, fieldLoading, setState),
 
         const SizedBox(height: 60),
         ElevatedButton(
           onPressed: () => controller.publish(),
           style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F4C5C), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20)),
-          child: const Text('SAVE ALL HOME PORTAL CHANGES', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
+          child: Text(AppLocalizations.of(context)!.saveHomePortalChanges, style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
         ),
         const SizedBox(height: 100),
       ],
@@ -1272,11 +1282,11 @@ class CMSViewsHelper {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        _sectionHeader('PRODUCT CATALOGUE HEADINGS'),
-        _buildField('Main Heading', s.catalogueHeading, (v) => s.catalogueHeading = v, context, fieldLoading, setState),
-        _buildField('Sub-heading', s.catalogueSubtitle, (v) => s.catalogueSubtitle = v, context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.productCatalogueHeadings),
+        _buildField(AppLocalizations.of(context)!.displayTitle, s.catalogueHeading, (v) => s.catalogueHeading = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.subtitleLabel, s.catalogueSubtitle, (v) => s.catalogueSubtitle = v, context, fieldLoading, setState),
         const SizedBox(height: 40),
-        ElevatedButton(onPressed: controller.publish, child: const Text('SAVE CATALOGUE SETTINGS')),
+        ElevatedButton(onPressed: controller.publish, child: Text(AppLocalizations.of(context)!.saveCatalogueSettings)),
       ],
     );
   }
@@ -1286,19 +1296,19 @@ class CMSViewsHelper {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        _sectionHeader('TEACHINGS PAGE HERO'),
-        _buildField('Hero Title', t.heroTitle, (v) => t.heroTitle = v, context, fieldLoading, setState),
-        _buildField('Hero Subtitle', t.heroSubtitle, (v) => t.heroSubtitle = v, context, fieldLoading, setState, maxLines: 2),
-        _buildImageField('Hero Background', t.heroImage, (v) => setState(() => t.heroImage = v), context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.teachingsPageHero),
+        _buildField(AppLocalizations.of(context)!.heroTitle, t.heroTitle, (v) => t.heroTitle = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.heroSubtitle, t.heroSubtitle, (v) => t.heroSubtitle = v, context, fieldLoading, setState, maxLines: 2),
+        _buildImageField(context, AppLocalizations.of(context)!.heroBackground, t.heroImage, (v) => setState(() => t.heroImage = v), context, fieldLoading, setState),
         
-        _sectionHeader('DIVINE PURPOSE SECTION'),
-        _buildField('Section Title', t.divinePurposeTitle, (v) => t.divinePurposeTitle = v, context, fieldLoading, setState),
-        _buildField('Description Para 1', t.divinePurposeDesc1, (v) => t.divinePurposeDesc1 = v, context, fieldLoading, setState, maxLines: 3),
-        _buildField('Description Para 2', t.divinePurposeDesc2, (v) => t.divinePurposeDesc2 = v, context, fieldLoading, setState, maxLines: 3),
-        _buildImageField('Side Image', t.divinePurposeImage, (v) => setState(() => t.divinePurposeImage = v), context, fieldLoading, setState),
+        _sectionHeader(AppLocalizations.of(context)!.divinePurposeSection),
+        _buildField(AppLocalizations.of(context)!.sectionTitleLabel, t.divinePurposeTitle, (v) => t.divinePurposeTitle = v, context, fieldLoading, setState),
+        _buildField(AppLocalizations.of(context)!.descPara1, t.divinePurposeDesc1, (v) => t.divinePurposeDesc1 = v, context, fieldLoading, setState, maxLines: 3),
+        _buildField(AppLocalizations.of(context)!.descPara2, t.divinePurposeDesc2, (v) => t.divinePurposeDesc2 = v, context, fieldLoading, setState, maxLines: 3),
+        _buildImageField(context, AppLocalizations.of(context)!.sideImage, t.divinePurposeImage, (v) => setState(() => t.divinePurposeImage = v), context, fieldLoading, setState),
         
         const SizedBox(height: 40),
-        ElevatedButton(onPressed: controller.publish, child: const Text('SAVE TEACHINGS PAGE')),
+        ElevatedButton(onPressed: controller.publish, child: Text(AppLocalizations.of(context)!.saveTeachingsPage)),
       ],
     );
   }

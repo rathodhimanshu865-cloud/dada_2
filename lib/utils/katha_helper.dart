@@ -7,8 +7,8 @@ import 'package:dada_2/l10n/app_localizations.dart';
 class KathaHelper {
   static String formatDateRange(UpcomingKatha katha, String lang) {
     if (katha.startDate != null && katha.endDate != null) {
-      final start = DateFormat('dd MMM yyyy').format(katha.startDate!);
-      final end = DateFormat('dd MMM yyyy').format(katha.endDate!);
+      final start = DateFormat('dd MMM yyyy', lang).format(katha.startDate!);
+      final end = DateFormat('dd MMM yyyy', lang).format(katha.endDate!);
       if (start == end) return start;
       return '$start - $end';
     }

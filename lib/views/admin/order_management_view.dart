@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/notification_controller.dart';
 import '../../repositories/order_repository.dart';
 import '../../models/order_model.dart';
@@ -27,11 +28,11 @@ class _OrderManagementViewState extends State<OrderManagementView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Orders & Consecration Management', 
+          AppLocalizations.of(context)!.ordersConsecrationManagement, 
           style: AppTypography.headingStyle(context, fontSize: 28, fontWeight: FontWeight.bold)
         ),
         const SizedBox(height: 10),
-        const Text('Manage devotee orders, update dispatch status, and handle sacred item consecration flow.', style: TextStyle(color: Colors.grey)),
+        Text(AppLocalizations.of(context)!.manageDevoteeOrders, style: const TextStyle(color: Colors.grey)),
         const SizedBox(height: 20),
         Row(
           children: [
@@ -39,7 +40,7 @@ class _OrderManagementViewState extends State<OrderManagementView> {
               flex: 2,
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: 'Search by Order ID, Name, Phone...',
+                  hintText: AppLocalizations.of(context)!.searchOrdersHint,
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
@@ -60,10 +61,15 @@ class _OrderManagementViewState extends State<OrderManagementView> {
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
                 ),
-                items: _filterOptions.map((status) => DropdownMenuItem(
-                  value: status,
-                  child: Text(status),
-                )).toList(),
+                items: [
+                  DropdownMenuItem(value: 'All', child: Text(AppLocalizations.of(context)!.allFilter)),
+                  DropdownMenuItem(value: 'Pending', child: Text(AppLocalizations.of(context)!.pendingFilter)),
+                  DropdownMenuItem(value: 'Confirmed', child: Text(AppLocalizations.of(context)!.confirmedStatus)),
+                  DropdownMenuItem(value: 'Processing', child: Text(AppLocalizations.of(context)!.processingFilter)),
+                  DropdownMenuItem(value: 'Shipped', child: Text(AppLocalizations.of(context)!.shippedFilter)),
+                  DropdownMenuItem(value: 'Delivered', child: Text(AppLocalizations.of(context)!.deliveredFilter)),
+                  DropdownMenuItem(value: 'Cancelled', child: Text(AppLocalizations.of(context)!.cancelledStatus)),
+                ],
                 onChanged: (value) {
                   if (value != null) {
                     setState(() {
@@ -99,7 +105,7 @@ class _OrderManagementViewState extends State<OrderManagementView> {
             }
 
             if (orders.isEmpty) {
-              return const Center(child: Text('No orders found matching your criteria.'));
+              return Center(child: Text(AppLocalizations.of(context)!.noOrdersFoundCriteria));
             }
 
             return ListView.separated(
@@ -134,11 +140,11 @@ class _OrderManagementViewState extends State<OrderManagementView> {
                   children: [
                     Text(order.orderId, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 4),
-                    Text('Placed by ${order.customerName} on ${order.createdAt != null ? DateFormat('dd MMM yyyy HH:mm').format(order.createdAt!) : 'Recent'}', style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                    Text(AppLocalizations.of(context)!.placedByOn(order.customerName, order.createdAt != null ? DateFormat('dd MMM yyyy HH:mm').format(order.createdAt!) : 'Recent'), style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
                   ],
                 ),
               ),
-              _buildStatusDropdown(order),
+              _buildStatusDropdown(context, order),
             ],
           ),
           const Divider(height: 40),
@@ -150,7 +156,7 @@ class _OrderManagementViewState extends State<OrderManagementView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('ITEMS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(AppLocalizations.of(context)!.itemsHeader, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
                     const SizedBox(height: 12),
                     ...order.items.map((item) => Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -164,11 +170,11 @@ class _OrderManagementViewState extends State<OrderManagementView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('DELIVERY ADDRESS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(AppLocalizations.of(context)!.deliveryAddressHeader, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
                     const SizedBox(height: 12),
                     Text(order.address, style: const TextStyle(fontSize: 13)),
                     Text('${order.city}, ${order.state} - ${order.pincode}', style: const TextStyle(fontSize: 13)),
-                    Text('Phone: ${order.phone}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                    Text(AppLocalizations.of(context)!.phonePrefix(order.phone), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -177,7 +183,7 @@ class _OrderManagementViewState extends State<OrderManagementView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text('TOTAL AMOUNT', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(AppLocalizations.of(context)!.totalAmountHeader, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
                     const SizedBox(height: 12),
                     Text('₹${order.totalAmount.toStringAsFixed(2)}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: primaryTeal)),
                     Text(order.paymentMethod, style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.bold)),
@@ -191,8 +197,15 @@ class _OrderManagementViewState extends State<OrderManagementView> {
     );
   }
 
-  Widget _buildStatusDropdown(OrderModel order) {
-    final statuses = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+  Widget _buildStatusDropdown(BuildContext context, OrderModel order) {
+    final statuses = [
+      {'label': AppLocalizations.of(context)!.pendingFilter, 'value': 'Pending'},
+      {'label': AppLocalizations.of(context)!.confirmedStatus, 'value': 'Confirmed'},
+      {'label': AppLocalizations.of(context)!.processingFilter, 'value': 'Processing'},
+      {'label': AppLocalizations.of(context)!.shippedFilter, 'value': 'Shipped'},
+      {'label': AppLocalizations.of(context)!.deliveredFilter, 'value': 'Delivered'},
+      {'label': AppLocalizations.of(context)!.cancelledStatus, 'value': 'Cancelled'},
+    ];
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -203,10 +216,10 @@ class _OrderManagementViewState extends State<OrderManagementView> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: statuses.contains(order.orderStatus) ? order.orderStatus : 'Pending',
+          value: statuses.any((s) => s['value'] == order.orderStatus) ? order.orderStatus : 'Pending',
           icon: Icon(Icons.keyboard_arrow_down, size: 18, color: _getStatusColor(order.orderStatus)),
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _getStatusColor(order.orderStatus)),
-          items: statuses.map((String s) => DropdownMenuItem(value: s, child: Text(s.toUpperCase()))).toList(),
+          items: statuses.map((s) => DropdownMenuItem(value: s['value'], child: Text(s['label']!.toUpperCase()))).toList(),
           onChanged: (newStatus) async {
             if (newStatus != null) {
               await _repository.updateOrderStatus(order.orderId, newStatus);

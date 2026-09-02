@@ -76,13 +76,13 @@ class PuDadaTeachingsPage extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               Text(
-                t.localizedHeroTitle(lang),
+                t.localizedHeroTitle(lang).isNotEmpty ? t.localizedHeroTitle(lang) : 'Divine Teachings of Pu. Dada',
                 textAlign: TextAlign.center,
                 style: AppTypography.headingStyle(context, fontSize: isMobile ? 32 : 56, fontWeight: FontWeight.bold, color: Colors.white).copyWith(height: 1.2),
               ),
               const SizedBox(height: 24),
               Text(
-                t.localizedHeroSubtitle(lang),
+                t.localizedHeroSubtitle(lang).isNotEmpty ? t.localizedHeroSubtitle(lang) : 'Illuminating the path of devotion and inner peace.',
                 textAlign: TextAlign.center,
                 style: AppTypography.bodyStyle(context, fontSize: isMobile ? 15 : 18, color: Colors.white.withOpacity(0.8)).copyWith(height: 1.5),
               ),
@@ -111,19 +111,19 @@ class PuDadaTeachingsPage extends StatelessWidget {
                     Text(AppLocalizations.of(context)!.mission.toUpperCase(), style: TextStyle(color: goldColor, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                     const SizedBox(height: 16),
                     Text(
-                      t.localizedDivinePurposeTitle(lang),
+                      t.localizedDivinePurposeTitle(lang).isNotEmpty ? t.localizedDivinePurposeTitle(lang) : 'Our Divine Mission',
                       textAlign: isMobile ? TextAlign.center : TextAlign.start,
                       style: AppTypography.headingStyle(context, fontSize: isMobile ? 28 : 36, fontWeight: FontWeight.bold, color: primaryColor).copyWith(height: 1.2),
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      t.localizedDivinePurposeDesc1(lang),
+                      t.localizedDivinePurposeDesc1(lang).isNotEmpty ? t.localizedDivinePurposeDesc1(lang) : 'Spreading the message of love and spiritual growth.',
                       textAlign: isMobile ? TextAlign.center : TextAlign.start,
                       style: AppTypography.bodyStyle(context, fontSize: isMobile ? 14 : 16, color: Colors.grey.shade700).copyWith(height: 1.6),
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      t.localizedDivinePurposeDesc2(lang),
+                      t.localizedDivinePurposeDesc2(lang).isNotEmpty ? t.localizedDivinePurposeDesc2(lang) : 'Empowering devotees through sacred wisdom.',
                       textAlign: isMobile ? TextAlign.center : TextAlign.start,
                       style: AppTypography.bodyStyle(context, fontSize: isMobile ? 14 : 16, color: Colors.grey.shade700).copyWith(height: 1.6),
                     ),
@@ -170,7 +170,9 @@ class PuDadaTeachingsPage extends StatelessWidget {
                 style: AppTypography.headingStyle(context, fontSize: isMobile ? 26 : 36, fontWeight: FontWeight.bold, color: primaryColor),
               ),
               const SizedBox(height: 40),
-              if (isMobile)
+              if (pillars.isEmpty)
+                _pillarCard(context, Icons.auto_awesome, 'Sacred Wisdom', 'Pure teachings for spiritual enlightenment.', goldColor, isMobile)
+              else if (isMobile)
                 Column(
                   children: pillars.map((p) => Padding(
                     padding: const EdgeInsets.only(bottom: 20),

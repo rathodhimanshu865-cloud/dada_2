@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/order_controller.dart';
 import '../../models/order_model.dart';
 import '../../utils/invoice_helper.dart';
@@ -41,12 +42,12 @@ class _OrderDispatchViewState extends State<OrderDispatchView> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Orders & Consecration Dispatch', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      Text(AppLocalizations.of(context)!.ordersConsecrationDispatch, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Text('Track devotee orders, manage shipping carriers, and generate GST invoices.', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+                      Text(AppLocalizations.of(context)!.trackDevoteeOrders, style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
                     ],
                   ),
-                  _buildFilterToggle(),
+                  _buildFilterToggle(context),
                 ],
               ),
               const SizedBox(height: 32),
@@ -67,21 +68,27 @@ class _OrderDispatchViewState extends State<OrderDispatchView> {
     );
   }
 
-  Widget _buildFilterToggle() {
-    final filters = ['ALL', 'PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED'];
+  Widget _buildFilterToggle(BuildContext context) {
+    final filters = [
+      {'label': AppLocalizations.of(context)!.allFilter, 'value': 'ALL'},
+      {'label': AppLocalizations.of(context)!.pendingFilter, 'value': 'PENDING'},
+      {'label': AppLocalizations.of(context)!.processingFilter, 'value': 'PROCESSING'},
+      {'label': AppLocalizations.of(context)!.shippedFilter, 'value': 'SHIPPED'},
+      {'label': AppLocalizations.of(context)!.deliveredFilter, 'value': 'DELIVERED'},
+    ];
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(8)),
       child: Row(
         children: filters.map((f) => InkWell(
-          onTap: () => setState(() => selectedFilter = f),
+          onTap: () => setState(() => selectedFilter = f['value']!),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: selectedFilter == f ? const Color(0xFF8B4513) : Colors.transparent,
+              color: selectedFilter == f['value'] ? const Color(0xFF8B4513) : Colors.transparent,
               borderRadius: BorderRadius.circular(6),
             ),
-            child: Text(f, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: selectedFilter == f ? Colors.white : Colors.grey.shade600)),
+            child: Text(f['label']!, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: selectedFilter == f['value'] ? Colors.white : Colors.grey.shade600)),
           ),
         )).toList(),
       ),
@@ -116,7 +123,7 @@ class _OrderDispatchViewState extends State<OrderDispatchView> {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text('Placed on ${order.createdAt != null ? DateFormat('dd MMM yyyy').format(order.createdAt!) : 'N/A'} • Payment: ${order.paymentMethod} (${order.paymentStatus})', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    Text('${AppLocalizations.of(context)!.placedOnDate(order.createdAt != null ? DateFormat('dd MMM yyyy').format(order.createdAt!) : 'N/A')} • ${AppLocalizations.of(context)!.paymentStatusPrefix(order.paymentMethod, order.paymentStatus)}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
                 ),
               ),
@@ -128,10 +135,10 @@ class _OrderDispatchViewState extends State<OrderDispatchView> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _priceBubble('Subtotal: ₹${order.subtotal.toInt()}', Colors.grey),
-                      if (order.discount > 0) _priceBubble('Discount: -₹${order.discount.toInt()}', Colors.green),
-                      _priceBubble('Tax: ₹${order.tax.toInt()}', Colors.blueGrey),
-                      _priceBubble('NET RECEIVED: ₹${order.totalAmount.toInt()}', const Color(0xFF0F4C5C)),
+                      _priceBubble('${AppLocalizations.of(context)!.subtotal}: ₹${order.subtotal.toInt()}', Colors.grey),
+                      if (order.discount > 0) _priceBubble('${AppLocalizations.of(context)!.discount}: -₹${order.discount.toInt()}', Colors.green),
+                      _priceBubble('${AppLocalizations.of(context)!.tax}: ₹${order.tax.toInt()}', Colors.blueGrey),
+                      _priceBubble(AppLocalizations.of(context)!.netReceived(order.totalAmount.toInt()), const Color(0xFF0F4C5C)),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -150,7 +157,7 @@ class _OrderDispatchViewState extends State<OrderDispatchView> {
           if (order.couponCode != null)
             Padding(
               padding: const EdgeInsets.only(left: 60, top: 8),
-              child: Text('Coupon Applied: ${order.couponCode}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green)),
+              child: Text(AppLocalizations.of(context)!.couponAppliedLabel(order.couponCode!), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green)),
             ),
           const Divider(height: 32),
           
@@ -171,7 +178,7 @@ class _OrderDispatchViewState extends State<OrderDispatchView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(item['productName'] ?? '', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                        Text('Qty: ${item['quantity']} × ₹${item['price']}', style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                        Text(AppLocalizations.of(context)!.qtyTimesPrice(item['quantity'], item['price']), style: const TextStyle(fontSize: 11, color: Colors.grey)),
                       ],
                     ),
                   ),
@@ -203,14 +210,14 @@ class _OrderDispatchViewState extends State<OrderDispatchView> {
               ElevatedButton.icon(
                 onPressed: () => InvoiceHelper.generateAndShowInvoice(order),
                 icon: const Icon(Icons.print, size: 16),
-                label: const Text('PRINT INVOICE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                label: Text(AppLocalizations.of(context)!.printInvoice, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8B4513), foregroundColor: Colors.white, elevation: 0),
               ),
               const SizedBox(width: 8),
               IconButton(
                 onPressed: () => InvoiceHelper.shareInvoiceOnWhatsApp(order),
                 icon: const Icon(Icons.share, color: Colors.teal),
-                tooltip: 'Share on WhatsApp',
+                tooltip: AppLocalizations.of(context)!.shareWhatsAppTooltip,
               ),
             ],
           ),
@@ -270,9 +277,9 @@ class _TrackingUpdateFieldState extends State<_TrackingUpdateField> {
         trackingCarrier: parts[0].trim(), 
         trackingId: parts[1].trim()
       ));
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tracking updated!'), behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.trackingUpdated), behavior: SnackBarBehavior.floating));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid format. Use "Carrier: ID"'), backgroundColor: Colors.redAccent));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.invalidTrackingFormat), backgroundColor: Colors.redAccent));
     }
   }
 
@@ -283,7 +290,7 @@ class _TrackingUpdateFieldState extends State<_TrackingUpdateField> {
         Expanded(
           child: TextField(
             decoration: InputDecoration(
-              hintText: 'DTDC Express / Blue Dart: DADA-ID-123',
+              hintText: AppLocalizations.of(context)!.trackingHint,
               hintStyle: const TextStyle(fontSize: 11),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               filled: true,
@@ -298,7 +305,7 @@ class _TrackingUpdateFieldState extends State<_TrackingUpdateField> {
         ElevatedButton(
           onPressed: _update, 
           style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade200, foregroundColor: Colors.black87, elevation: 0),
-          child: const Text('Update Tracking', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold))
+          child: Text(AppLocalizations.of(context)!.updateTracking, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold))
         ),
       ],
     );

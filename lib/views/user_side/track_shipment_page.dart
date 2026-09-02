@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/order_controller.dart';
+import '../../controllers/language_controller.dart';
 import '../../models/order_model.dart';
 import '../../utils/app_typography.dart';
+import '../../utils/invoice_helper.dart';
 import 'sections/product_cart_layout.dart';
 import 'package:intl/intl.dart';
 
@@ -41,6 +44,7 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
 
   Future<void> _handleTrack() async {
     final query = _trackingController.text.trim();
+    final l10n = AppLocalizations.of(context)!;
     if (query.isEmpty) return;
 
     setState(() {
@@ -58,11 +62,11 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
         if (order != null) {
           _trackedOrder = order;
         } else {
-          _error = "No order found with this ID.";
+          _error = l10n.noOrderFound;
         }
       });
     } catch (e) {
-      setState(() => _error = "An error occurred while tracking.");
+      setState(() => _error = l10n.trackingError);
     } finally {
       setState(() => _isSearching = false);
     }
@@ -119,13 +123,14 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
   }
 
   Widget _buildHeader(bool isMobile) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Row(
         children: [
           Icon(Icons.inventory_2_outlined, size: 24, color: primaryTeal),
           const SizedBox(width: 12),
-          Text('Official Order Tracker', style: AppTypography.headingStyle(context, fontSize: isMobile ? 16 : 20, fontWeight: FontWeight.w700)),
+          Text(l10n.officialOrderTracker, style: AppTypography.headingStyle(context, fontSize: isMobile ? 16 : 20, fontWeight: FontWeight.w700)),
           const Spacer(),
           IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, size: 24, color: Colors.grey)),
         ],
@@ -134,50 +139,72 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
   }
 
   Widget _buildSearchSection(bool isMobile) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('LOOKUP BY ORDER ID:', style: AppTypography.bodyStyle(context, fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey.shade600, letterSpacing: 0.5)),
-        const SizedBox(height: 12),
-        Flex(
-          direction: isMobile ? Axis.vertical : Axis.horizontal,
-          children: [
-            Expanded(
-              flex: isMobile ? 0 : 1,
-              child: Container(
-                height: 50,
-                width: double.infinity,
-                decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade200)),
-                child: TextField(
-                  controller: _trackingController,
-                  onSubmitted: (_) => _handleTrack(),
-                  decoration: const InputDecoration(
-                    hintText: 'e.g. DADA-1724773821',
-                    prefixIcon: Icon(Icons.search, size: 20, color: Colors.grey),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 14),
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      padding: EdgeInsets.all(isMobile ? 20 : 30),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9F7F2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFC89A5B).withOpacity(0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.search, color: primaryTeal, size: 20),
+              const SizedBox(width: 10),
+              Text(l10n.trackYourSacredOrder, style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.w900, color: primaryTeal, letterSpacing: 1.5)),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Flex(
+            direction: isMobile ? Axis.vertical : Axis.horizontal,
+            children: [
+              Expanded(
+                flex: isMobile ? 0 : 1,
+                child: Container(
+                  height: 55,
+                  width: double.infinity,
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade200)),
+                  child: TextField(
+                    controller: _trackingController,
+                    onSubmitted: (_) => _handleTrack(),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    decoration: InputDecoration(
+                      hintText: l10n.enterOrderIdHint,
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    ),
                   ),
                 ),
               ),
-            ),
-            if (isMobile) const SizedBox(height: 12) else const SizedBox(width: 12),
-            SizedBox(
-              width: isMobile ? double.infinity : null,
-              child: ElevatedButton(
-                onPressed: _handleTrack,
-                style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20)),
-                child: const Text('TRACK', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1, color: Colors.white)),
+              if (isMobile) const SizedBox(height: 12) else const SizedBox(width: 12),
+              SizedBox(
+                width: isMobile ? double.infinity : 160,
+                child: ElevatedButton(
+                  onPressed: _handleTrack,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryTeal, 
+                    padding: const EdgeInsets.symmetric(vertical: 22),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: Text(l10n.trackNow, style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1, color: Colors.white)),
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(l10n.findOrderIdDesc, style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
+        ],
+      ),
     );
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 60),
       child: Center(
@@ -185,7 +212,7 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
           children: [
             Icon(Icons.track_changes, size: 64, color: Colors.grey.shade200),
             const SizedBox(height: 20),
-            Text('Enter your Order ID above to see live status.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade400, fontSize: 14)),
+            Text(l10n.enterOrderIdStatusDesc, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade400, fontSize: 14)),
           ],
         ),
       ),
@@ -208,6 +235,8 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
   }
 
   Widget _buildOrderDetailsCard(OrderModel order, bool isMobile) {
+    final l10n = AppLocalizations.of(context)!;
+    final lang = Provider.of<LanguageController>(context).locale.languageCode;
     return Column(
       children: [
         const SizedBox(height: 30),
@@ -229,18 +258,18 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
                         children: [
                           Text(order.orderId, style: AppTypography.headingStyle(context, fontSize: 18, fontWeight: FontWeight.w800)),
                           const SizedBox(width: 12),
-                          _statusBadge(order.orderStatus),
+                          _statusBadge(context, order.orderStatus),
                         ],
                       ),
                       const SizedBox(height: 6),
-                      Text('Placed on ${order.createdAt != null ? DateFormat('dd MMM yyyy').format(order.createdAt!) : 'Recent'}', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                      Text(l10n.placedOnDate(order.createdAt != null ? DateFormat('dd MMM yyyy').format(order.createdAt!) : l10n.recent), style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
                     ],
                   ),
                   if (isMobile) const SizedBox(height: 20),
                   Column(
                     crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.end,
                     children: [
-                      Text('TOTAL PAID', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.grey.shade400)),
+                      Text(l10n.totalPaid, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.grey.shade400)),
                       Text('₹${order.totalAmount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -259,7 +288,7 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('SHIPPING PARTNER & TRACKING ID', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.blue)),
+                            Text(l10n.shippingPartnerTrackingId, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.blue)),
                             Text('${order.trackingCarrier}: ${order.trackingId}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                           ],
                         ),
@@ -269,7 +298,30 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
                 ),
               ],
               const SizedBox(height: 40),
-              _buildTrackingStepper(order.orderStatus, isMobile),
+              _buildTrackingStepper(context, order.orderStatus, isMobile),
+              const SizedBox(height: 40),
+              Flex(
+                direction: isMobile ? Axis.vertical : Axis.horizontal,
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => InvoiceHelper.generateAndShowInvoice(order),
+                      icon: const Icon(Icons.print, size: 16),
+                      label: Text(l10n.printInvoice, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 20)),
+                    ),
+                  ),
+                  if (isMobile) const SizedBox(height: 12) else const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => InvoiceHelper.shareToWhatsApp(order),
+                      icon: const Icon(Icons.share, size: 16),
+                      label: Text(l10n.shareOnWhatsApp, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      style: OutlinedButton.styleFrom(side: BorderSide(color: primaryTeal), foregroundColor: primaryTeal, padding: const EdgeInsets.symmetric(vertical: 20)),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 40),
               Flex(
                 direction: isMobile ? Axis.vertical : Axis.horizontal,
@@ -277,7 +329,7 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
                 children: [
                   Expanded(
                     flex: isMobile ? 0 : 1,
-                    child: _infoBox('Shipping Destination:', Icons.location_on_outlined, Column(
+                    child: _infoBox(l10n.shippingDestination, Icons.location_on_outlined, Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(order.customerName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
@@ -289,7 +341,7 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
                   if (isMobile) const SizedBox(height: 20) else const SizedBox(width: 20),
                   Expanded(
                     flex: isMobile ? 0 : 1,
-                    child: _infoBox('Sacred Items:', Icons.layers_outlined, Column(
+                    child: _infoBox(l10n.sacredItems, Icons.layers_outlined, Column(
                       children: order.items.map((item) => Padding(
                         padding: const EdgeInsets.only(bottom: 6),
                         child: Row(
@@ -311,18 +363,33 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
     );
   }
 
-  Widget _statusBadge(String status) {
+  Widget _statusBadge(BuildContext context, String status) {
+    final l10n = AppLocalizations.of(context)!;
     Color color = Colors.orange;
-    if (status == 'Delivered') color = Colors.green;
-    if (status == 'Cancelled') color = Colors.red;
+    String statusText = status;
+    if (status == 'Delivered') {
+      color = Colors.green;
+      statusText = l10n.delivered;
+    } else if (status == 'Cancelled') {
+      color = Colors.red;
+      statusText = l10n.cancelled;
+    } else if (status == 'Shipped') {
+      color = Colors.blue;
+      statusText = l10n.shipped;
+    } else if (status == 'Placed') {
+      statusText = l10n.orderPlaced;
+    } else if (status == 'Processing') {
+      statusText = l10n.processing;
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
-      child: Text(status.toUpperCase(), style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900)),
+      child: Text(statusText.toUpperCase(), style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900)),
     );
   }
 
-  Widget _buildTrackingStepper(String status, bool isMobile) {
+  Widget _buildTrackingStepper(BuildContext context, String status, bool isMobile) {
+    final l10n = AppLocalizations.of(context)!;
     int currentIdx = 0;
     if (status == 'Pending') currentIdx = 0;
     else if (status == 'Confirmed') currentIdx = 1;
@@ -334,26 +401,26 @@ class _TrackShipmentPageState extends State<TrackShipmentPage> {
     if (isMobile) {
       return Column(
         children: [
-          _stepperNodeMobile(1, 'Order Placed', isCompleted: currentIdx >= 0),
+          _stepperNodeMobile(1, l10n.orderPlaced, isCompleted: currentIdx >= 0),
           _stepperConnectorMobile(isCompleted: currentIdx >= 1),
-          _stepperNodeMobile(2, 'Processing', isCompleted: currentIdx >= 2),
+          _stepperNodeMobile(2, l10n.processing, isCompleted: currentIdx >= 2),
           _stepperConnectorMobile(isCompleted: currentIdx >= 3),
-          _stepperNodeMobile(3, 'Shipped', isCompleted: currentIdx >= 3),
+          _stepperNodeMobile(3, l10n.shipped, isCompleted: currentIdx >= 3),
           _stepperConnectorMobile(isCompleted: currentIdx >= 4),
-          _stepperNodeMobile(4, 'Delivered', isCompleted: currentIdx >= 4),
+          _stepperNodeMobile(4, l10n.delivered, isCompleted: currentIdx >= 4),
         ],
       );
     }
 
     return Row(
       children: [
-        _stepperNode(1, 'Order Placed', isCompleted: currentIdx >= 0),
+        _stepperNode(1, l10n.orderPlaced, isCompleted: currentIdx >= 0),
         _stepperConnector(isCompleted: currentIdx >= 1),
-        _stepperNode(2, 'Processing', isCompleted: currentIdx >= 2),
+        _stepperNode(2, l10n.processing, isCompleted: currentIdx >= 2),
         _stepperConnector(isCompleted: currentIdx >= 3),
-        _stepperNode(3, 'Shipped', isCompleted: currentIdx >= 3),
+        _stepperNode(3, l10n.shipped, isCompleted: currentIdx >= 3),
         _stepperConnector(isCompleted: currentIdx >= 4),
-        _stepperNode(4, 'Delivered', isCompleted: currentIdx >= 4),
+        _stepperNode(4, l10n.delivered, isCompleted: currentIdx >= 4),
       ],
     );
   }

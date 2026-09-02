@@ -239,5 +239,1002 @@
   "professionalHighlights": "PROFESSIONAL HIGHLIGHTS",
   "socialInitiative": "SOCIAL INITIATIVE",
   "philosophyOfLife": "PHILOSOPHY OF LIFE",
-  "personalAttributes": "PERSONAL ATTRIBUTES"
+  "personalAttributes": "PERSONAL ATTRIBUTES",
+  "myShoppingBag": "My Shopping Bag",
+  "storeHomePortal": "Store Home Portal",
+  "paymentFailed": "Payment Failed: {error}",
+  "@paymentFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "razorpayGateway": "Razorpay Payment Gateway (Dummy)",
+  "processingPayment": "Processing secure payment...",
+  "emailMatchError": "Email must match your profile email.",
+  "validPincodeRequired": "Please enter a valid 6-digit pincode.",
+  "orderPlacedSuccessfully": "Order Placed Successfully!",
+  "failedToPlaceOrder": "Failed to place order.",
+  "yourBagIsEmpty": "Your bag is empty",
+  "backToProducts": "Back to Products",
+  "secureSacredCheckout": "SECURE SACRED CHECKOUT",
+  "address": "Address",
+  "payment": "Payment",
+  "placed": "Placed",
+  "deliveryDetails": "Delivery Details",
+  "fullNameLabel": "Full Name *",
+  "phoneLabel": "Phone *",
+  "addressLabel": "Address *",
+  "cityLabel": "City *",
+  "stateLabel": "State *",
+  "pincodeLabel": "Pincode *",
+  "noteOptional": "Note (Optional)",
+  "validPhoneRequired": "Valid Phone Required",
+  "validEmailRequired": "Valid Email Required",
+  "paymentMethod": "Payment Method",
+  "cashOnDelivery": "Cash on Delivery",
+  "payWhenDelivered": "Pay when delivered.",
+  "upiOnlinePayment": "UPI / Online Payment",
+  "secureOnlinePayment": "Secure online payment.",
+  "summary": "Summary",
+  "subtotal": "Subtotal",
+  "discount": "Discount",
+  "shipping": "Shipping",
+  "taxes": "Taxes",
+  "total": "Total",
+  "back": "Back",
+  "nextStep": "Next Step",
+  "completeOrder": "Complete Order",
+  "secureCheckoutProtected": "Secure Checkout • Encrypted & Protected",
+  "orderPlacedTitle": "Order Placed!",
+  "orderIdLabel": "Order ID: {id}",
+  "@orderIdLabel": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "orderIdCopied": "Order ID copied to clipboard!",
+  "downloadInvoice": "Download Invoice",
+  "sendToWhatsApp": "Send to WhatsApp",
+  "continueShopping": "Continue Shopping",
+  "trackOrderStatus": "Track Order Status",
+  "goToMyOrders": "Go to My Orders",
+  "productNotFound": "Oops! Product not found or failed to load.",
+  "goBack": "Go Back",
+  "notFound": "Not Found",
+  "itemNotAvailable": "This sacred item is no longer available in the store.",
+  "returnToStore": "Return to Store",
+  "reviewsCount": "{count} Reviews",
+  "@reviewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "off": "OFF",
+  "checkDeliveryAvailability": "Please check delivery availability first",
+  "checkOutSacredItem": "Check out this sacred item:",
+  "material": "Material",
+  "premiumMaterial": "Premium Consecrated Material / Sacred Wood",
+  "sku": "SKU",
+  "category": "Category",
+  "origin": "Origin",
+  "authenticAshramAtelier": "Authentic Ashram Atelier",
+  "weight": "Weight",
+  "approxWeight": "Approx 50g - 150g",
+  "unableToLoadReviews": "Unable to load reviews at this time.",
+  "retry": "Retry",
+  "noReviewsYet": "No reviews yet. Be the first devotee to share your experience!",
+  "basedOnDevoteeReviews": "Based on {count} devotee reviews",
+  "@basedOnDevoteeReviews": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "verifiedDevoteeReviews": "100% Verified Devotee & Altar Reviews",
+  "inspectedVedicAuthenticity": "Inspected for Vedic Authenticity & Material Integrity",
+  "closeForm": "CLOSE FORM",
+  "writeReview": "WRITE REVIEW",
+  "ratingLabel": "Rating: ",
+  "devoteeNameLabel": "Your Full Name / Devotee Name *",
+  "reviewTitleLabel": "Review Title *",
+  "detailedExperienceLabel": "Your Detailed Experience / Feedback *",
+  "reviewHint": "Share your feedback on the texture, finish, pooja experience, packaging...",
+  "testimonialPublished": "Testimonial published with blessings!",
+  "faqEnergizedQ": "Q: Is this item already energized?",
+  "faqEnergizedA": "A: Yes, all our offerings are sanctified through a special Puja Seva before dispatch.",
+  "faqGiftQ": "Q: Can I gift this to someone?",
+  "faqGiftA": "A: Absolutely. Giving a sacred offering is considered an act of great merit (Punya).",
+  "sacredCareInstructions": "• This item should be handled with spiritual reverence.\n• Avoid placing on the floor or in unclean areas.\n• Clean only with a dry, pure cotton cloth to maintain its consecrated energy.",
+  "tryAgain": "Try Again",
+  "exploreCatalogue": "EXPLORE CATALOGUE",
+  "availableSacredOffers": "Available Sacred Offers",
+  "noCouponsAvailable": "No coupons available at the moment.",
+  "couldNotApplyCoupon": "Could not apply coupon",
+  "applied": "APPLIED",
+  "applyCoupon": "APPLY COUPON",
+  "couponAppliedSuccess": "Coupon {code} Applied Successfully!",
+  "@couponAppliedSuccess": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "remove": "REMOVE",
+  "orderSummary": "Order Summary",
+  "promoDiscount": "Promo Discount ({code})",
+  "@promoDiscount": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "shippingSevaFee": "Shipping Seva Fee",
+  "sacredItemTax": "Sacred Item Tax (5%)",
+  "finalTotal": "Final Total",
+  "youSavedAmount": "You saved ₹{amount}!",
+  "@youSavedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "proceedToCheckout": "PROCEED TO CHECKOUT",
+  "yourSacredWishlist": "Your Sacred Wishlist",
+  "sacredWishlistDesc": "Sacred items you have cherished and saved for your divine collection.",
+  "yourWishlistIsEmpty": "Your wishlist is currently empty.",
+  "yourSacredOrders": "Your Sacred Orders",
+  "trackOrdersDesc": "Track your divine collections and blessings history.",
+  "somethingWentWrong": "Something went wrong",
+  "couldNotLoadOrders": "We could not load your orders. Please try again.",
+  "noOrdersYet": "No orders yet",
+  "noOrdersPlacedDesc": "You haven't placed any sacred orders yet.",
+  "orderIdTitle": "ORDER ID",
+  "datePlaced": "DATE PLACED",
+  "recent": "Recent",
+  "moreItems": "+ {count} more items",
+  "@moreItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trackingInformation": "TRACKING INFORMATION",
+  "totalAmount": "TOTAL AMOUNT",
+  "track": "TRACK",
+  "invoice": "INVOICE",
+  "view": "VIEW",
+  "orderDetails": "Order Details",
+  "status": "Status",
+  "tracking": "Tracking",
+  "tax": "Tax",
+  "printInvoice": "PRINT INVOICE",
+  "shareInvoice": "SHARE INVOICE",
+  "officialOrderTracker": "Official Order Tracker",
+  "trackYourSacredOrder": "TRACK YOUR SACRED ORDER",
+  "enterOrderIdHint": "Enter Order ID (e.g. DADA-123456)",
+  "trackNow": "TRACK NOW",
+  "findOrderIdDesc": "You can find your Order ID in the confirmation email or \"My Orders\" section.",
+  "enterOrderIdStatusDesc": "Enter your Order ID above to see live status.",
+  "noOrderFound": "No order found with this ID.",
+  "trackingError": "An error occurred while tracking.",
+  "placedOnDate": "Placed on {date}",
+  "@placedOnDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "totalPaid": "TOTAL PAID",
+  "shippingPartnerTrackingId": "SHIPPING PARTNER & TRACKING ID",
+  "shareOnWhatsApp": "SHARE ON WHATSAPP",
+  "shippingDestination": "Shipping Destination:",
+  "sacredItems": "Sacred Items:",
+  "quickView": "Quick View",
+  "add": "Add",
+  "enterEmailPassword": "Please enter your email and password",
+  "loginFailed": "Login Failed",
+  "noAccountFound": "No account found with this email.",
+  "incorrectCredentials": "Incorrect email or password.",
+  "enterValidEmail": "Please enter a valid email address.",
+  "accountDisabled": "This account has been disabled.",
+  "tooManyAttempts": "Too many failed attempts. Please try again later.",
+  "enterEmailFirst": "Please enter your email address above first",
+  "passwordResetSent": "Password reset email sent to {email}",
+  "@passwordResetSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "failedSendResetEmail": "Failed to send reset email",
+  "allFieldsRequired": "All fields are required",
+  "enterValidPhone": "Please enter a valid phone number (10-12 digits)",
+  "passwordTooShort": "Password must be at least 8 characters long",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "accountCreatedSuccess": "Account Created Successfully!",
+  "sacredAccessPortal": "Sacred Access Portal",
+  "signIn": "SIGN IN",
+  "createAccount": "CREATE ACCOUNT",
+  "emailAddressLabel": "Email Address",
+  "forgotPassword": "Forgot?",
+  "loginToAccount": "Log In to Your Account",
+  "mobileWhatsAppLabel": "Mobile / WhatsApp",
+  "securePasswordLabel": "Secure Password",
+  "confirmPasswordLabel": "Confirm Password",
+  "joinCommunity": "Join the Community",
+  "secureAuthArea": "Secure Devotee Authorization Area",
+  "profileUpdated": "Profile Updated!",
+  "updateFailed": "Update failed: {error}",
+  "@updateFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "changePassword": "Change Password",
+  "enterNewPassword": "Enter new secure password",
+  "cancel": "CANCEL",
+  "passwordChangedSuccess": "Password Changed Successfully!",
+  "errorWithDetails": "Error: {error}",
+  "@errorWithDetails": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "update": "UPDATE",
+  "saveChanges": "SAVE CHANGES",
+  "logoutFromAccount": "Logout from Account",
+  "personalInformation": "PERSONAL INFORMATION",
+  "streetAddress": "Street Address",
+  "editProfile": "EDIT PROFILE",
+  "freeShippingRemaining": "Add ₹{amount} more for Free Express Shipping",
+  "@freeShippingRemaining": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "freeShippingQualified": "You have qualified for Free Express Shipping!",
+  "emptyBagDesc": "Discover handcrafted timepieces, bespoke ceramics, fine merino knitwear, and leather goods.",
+  "suggestedSacredOffers": "Suggested Sacred Offers",
+  "promoCodeHint": "PROMO CODE (E.G. DADA10)",
+  "invalidPromoCode": "Invalid or inactive promo code",
+  "couponApplied": "Coupon {code} applied!",
+  "@couponApplied": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "promoDiscountLabel": "Promo Discount",
+  "expressShipping": "Insured Express Shipping",
+  "estimatedTaxes": "Estimated Taxes (5%)",
+  "estimatedTotal": "Estimated Total",
+  "proceedToSecureCheckout": "PROCEED TO SECURE CHECKOUT",
+  "viewShoppingBag": "VIEW SHOPPING BAG",
+  "sslGuarantee": "256-bit Encrypted SSL Guarantee",
+  "loginToCheckout": "Please login to proceed to checkout",
+  "skuLabel": "SKU: {sku}",
+  "@skuLabel": {
+    "placeholders": {
+      "sku": {
+        "type": "String"
+      }
+    }
+  },
+  "bestseller": "BESTSELLER",
+  "ratingReviews": "{rating} ({count} Reviews)",
+  "@ratingReviews": {
+    "placeholders": {
+      "rating": {
+        "type": "double"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "offPercentage": "{percent}% OFF",
+  "@offPercentage": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "addWithPrice": "ADD • ₹{amount}",
+  "@addWithPrice": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "instantCheckout": "⚡ INSTANT CHECKOUT",
+  "viewDetailedSpecs": "View Detailed Specs",
+  "notifications": "Notifications",
+  "markAllAsRead": "Mark all as read",
+  "noNotificationsYet": "No notifications yet",
+  "adminPortal": "ADMIN PORTAL",
+  "translate": "TRANSLATE",
+  "publish": "PUBLISH",
+  "refreshData": "Refresh Data",
+  "headerFooterSettings": "Header, Footer, & General Settings",
+  "homePage": "Home Page",
+  "aboutDadaPage": "About Dada Page",
+  "kathaPages": "Katha Pages",
+  "contactEnquiries": "Contact & Enquiries",
+  "productManagement": "Product Management",
+  "translationAudit": "Translation Audit",
+  "logout": "Logout",
+  "backToWebsite": "BACK TO WEBSITE",
+  "selectMenu": "Select a menu",
+  "deepTranslationSync": "Deep Translation Sync",
+  "currentSection": "Current Section: {section}",
+  "@currentSection": {
+    "placeholders": {
+      "section": {
+        "type": "String"
+      }
+    }
+  },
+  "processedCount": "Processed: {count}/{total}",
+  "@processedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "failedCount": "Failed: {count}",
+  "@failedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pleaseEnterUsernamePassword": "Please enter your username and password",
+  "adminAccountNotFound": "No admin account found with this username.",
+  "incorrectUsernamePassword": "Incorrect username or password.",
+  "enterValidCredential": "Please enter a valid credential.",
+  "adminAccountDisabled": "This admin account has been disabled.",
+  "loginFailedTryAgain": "Login failed. Please try again.",
+  "loginFailedWithDetails": "Login Failed: {error}",
+  "@loginFailedWithDetails": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "secureDashboardAccess": "Secure Dashboard Access",
+  "adminEmailHint": "admin@example.com",
+  "broadcastToAllUsers": "Broadcast to All Users",
+  "enterTitleMessage": "Please enter both title and message",
+  "notificationSentToUsers": "Notification sent to {count} users!",
+  "@notificationSentToUsers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sendBroadcastDesc": "Send broadcast notifications to all users.",
+  "notificationTitle": "Notification Title",
+  "sendToAllUsers": "Send to All Users",
+  "recentOrderNotifications": "Recent Order Notifications",
+  "noNotificationsSent": "No notifications sent yet.",
+  "manageAppConfig": "Manage application configuration, branding, and contact details.",
+  "generalInfoBranding": "General Info & Branding",
+  "uploadNewLogo": "Upload New Logo",
+  "storeName": "Store Name",
+  "storeDescription": "Store Description",
+  "contactInformation": "Contact Information",
+  "physicalAddress": "Physical Address",
+  "socialLinks": "Social Links",
+  "facebookUrl": "Facebook URL",
+  "instagramUrl": "Instagram URL",
+  "twitterUrl": "Twitter URL",
+  "deliverySettings": "Delivery Settings",
+  "standardDeliveryChargeRs": "Standard Delivery Charge (₹)",
+  "freeDeliveryThresholdRs": "Free Delivery Threshold (₹)",
+  "enableCod": "Enable Cash on Delivery (COD)",
+  "advancedTools": "Advanced Tools",
+  "translateAllStoreData": "Translate All Store Data",
+  "translateStoreDesc": "This will automatically translate all existing products and categories into Hindi and Gujarati. This may take a few minutes depending on the amount of data.",
+  "startTranslationNow": "Start Translation Now",
+  "settingsSaved": "Settings saved successfully!",
+  "viewRegisteredUsers": "View all registered users, their roles, and account status.",
+  "searchUsersHint": "Search by name, email or phone...",
+  "noUsersFound": "No users found.",
+  "totalUsers": "Total Users",
+  "admins": "Admins",
+  "active": "Active",
+  "inactive": "Inactive",
+  "joinedDate": "Joined {date}",
+  "@joinedDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "organizeOfferings": "Organize Pu. Dada sacred offerings into distinct store categories.",
+  "addNewCategory": "ADD NEW CATEGORY",
+  "noCategoriesFound": "No categories found.",
+  "productsCount": "{count} Products",
+  "@productsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewProductsArrow": "View Products →",
+  "editCategory": "Edit Category",
+  "categoryName": "Category Name",
+  "deleteCategoryTitle": "Delete Category?",
+  "deleteCategoryConfirm": "Are you sure you want to delete \"{name}\"? This will not delete products in this category but they will be unassigned.",
+  "@deleteCategoryConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "couponsDevotionalOffers": "Coupons & Devotional Offers",
+  "createPromoDesc": "Create promo codes and celebratory blessing discounts for devotees.",
+  "createPromoCode": "CREATE PROMO CODE",
+  "noCouponsCreated": "No coupons created yet.",
+  "instantDiscountDesc": "{value}% instant discount on all Dada products",
+  "@instantDiscountDesc": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "flatDiscountDesc": "Flat ₹{value} OFF on orders above ₹{min}",
+  "@flatDiscountDesc": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "discountPrefix": "Discount: {value}",
+  "@discountPrefix": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "minOrderPrefix": "Min Order: ₹{value}",
+  "@minOrderPrefix": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "timesUsedPrefix": "Times Used: {count}",
+  "@timesUsedPrefix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "couponCodeHint": "Coupon Code (e.g. DADA10)",
+  "flatPriceDiscount": "Flat Price Discount",
+  "percentageDiscount": "Percentage Discount",
+  "discountType": "Discount Type",
+  "discountValueRs": "Discount Value (₹)",
+  "discountValuePercent": "Discount Percentage (%)",
+  "minOrderValueRs": "Minimum Order Value (₹)",
+  "usageLimitPerUser": "Usage Limit Per User",
+  "saveCoupon": "Save Coupon",
+  "usageLimitHint": "Maximum 2 uses per devotee.",
+  "lowStock": "LOW STOCK",
+  "restockInventory": "RESTOCK / INVENTORY",
+  "discountCoupons": "DISCOUNT COUPONS",
+  "viewAllOrders": "VIEW ALL ORDERS",
+  "orderDispatch": "ORDER & DISPATCH",
+  "recentOrders": "Recent Orders",
+  "viewAll": "View All",
+  "devotionalOpsDashboard": "Devotional Operations Dashboard",
+  "realTimeOverview": "Real-time overview of sacred orders, live stock, and devotee engagement.",
+  "today": "Today",
+  "thirtyDays": "30 Days",
+  "threeMonths": "3 Months",
+  "oneYear": "1 Year",
+  "noRecentOrders": "No recent orders found.",
+  "devoteeUserManagement": "Devotee User Management",
+  "viewRegisteredDevotees": "View registered devotees, their contact information, and sacred purchase history.",
+  "searchDevoteesHint": "Search devotees...",
+  "noDevoteesFound": "No devotees found.",
+  "sacredDevotee": "Sacred Devotee",
+  "newBadge": "NEW",
+  "lifetimeOfferings": "Lifetime Offerings",
+  "whatsAppSeva": "WhatsApp Seva",
+  "inventoryStockReplenishment": "Inventory & Stock Replenishment",
+  "monitorWarehouseLevels": "Monitor real-time warehouse levels and trigger batch restocks.",
+  "lowStockItemsBelow": "{count} items below safety threshold",
+  "@lowStockItemsBelow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "itemSku": "ITEM & SKU",
+  "currentStock": "CURRENT STOCK",
+  "safetyLimit": "SAFETY LIMIT",
+  "statusIndicator": "STATUS INDICATOR",
+  "batchReplenish": "BATCH REPLENISH",
+  "lowBadge": "LOW",
+  "okBadge": "OK",
+  "manualStockUpdate": "Manual Stock Update: {name}",
+  "@manualStockUpdate": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setAbsoluteStock": "Set Absolute Stock Quantity",
+  "ordersConsecrationDispatch": "Orders & Consecration Dispatch",
+  "trackDevoteeOrders": "Track devotee orders, manage shipping carriers, and generate GST invoices.",
+  "allFilter": "ALL",
+  "pendingFilter": "PENDING",
+  "processingFilter": "PROCESSING",
+  "shippedFilter": "SHIPPED",
+  "deliveredFilter": "DELIVERED",
+  "paymentStatusPrefix": "Payment: {method} ({status})",
+  "@paymentStatusPrefix": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "netReceived": "NET RECEIVED: ₹{amount}",
+  "@netReceived": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "couponAppliedLabel": "Coupon Applied: {code}",
+  "@couponAppliedLabel": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "qtyTimesPrice": "Qty: {qty} × ₹{price}",
+  "@qtyTimesPrice": {
+    "placeholders": {
+      "qty": {
+        "type": "int"
+      },
+      "price": {
+        "type": "int"
+      }
+    }
+  },
+  "shareWhatsAppTooltip": "Share on WhatsApp",
+  "trackingUpdated": "Tracking updated!",
+  "invalidTrackingFormat": "Invalid format. Use \"Carrier: ID\"",
+  "trackingHint": "DTDC Express / Blue Dart: DADA-ID-123",
+  "updateTracking": "Update Tracking",
+  "ordersConsecrationManagement": "Orders & Consecration Management",
+  "manageDevoteeOrders": "Manage devotee orders, update dispatch status, and handle sacred item consecration flow.",
+  "searchOrdersHint": "Search by Order ID, Name, Phone...",
+  "confirmedStatus": "Confirmed",
+  "cancelledStatus": "Cancelled",
+  "noOrdersFoundCriteria": "No orders found matching your criteria.",
+  "placedByOn": "Placed by {name} on {date}",
+  "@placedByOn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "itemsHeader": "ITEMS",
+  "deliveryAddressHeader": "DELIVERY ADDRESS",
+  "totalAmountHeader": "TOTAL AMOUNT",
+  "phonePrefix": "Phone: {phone}",
+  "@phonePrefix": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentsCodSettlement": "Payments & COD Settlement",
+  "reconcileUpiCardCod": "Reconcile UPI transfers, card gateways, and Cash on Delivery collections.",
+  "upiInstantTransfers": "UPI INSTANT TRANSFERS",
+  "upiIdSubtext": "ID: dada.bhagwan@okhdfcbank",
+  "codBoxTitle": "CASH ON DELIVERY (COD)",
+  "codBoxSubtext": "Doorstep carrier collections",
+  "onlineCardsBoxTitle": "ONLINE CARDS / NETBANKING",
+  "onlineCardsBoxSubtext": "100% Secure 256-bit Encrypted",
+  "recentSuccessfulTransactions": "Recent Successful Transactions",
+  "successfulStatus": "Successful",
+  "paymentBreakdown": "Breakdown: ₹{subtotal} (S) - ₹{discount} (D) + ₹{tax} (T)",
+  "@paymentBreakdown": {
+    "placeholders": {
+      "subtotal": {
+        "type": "int"
+      },
+      "discount": {
+        "type": "int"
+      },
+      "tax": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardTab": "Dashboard",
+  "productsTab": "Products",
+  "categoriesTab": "Categories",
+  "inventoryTab": "Inventory",
+  "ordersTab": "Orders",
+  "usersTab": "Users",
+  "paymentsTab": "Payments",
+  "couponsTab": "Coupons",
+  "reviewsTab": "Reviews",
+  "storeSettingsTab": "Store & Settings",
+  "searchProductsHint": "Search products...",
+  "productTableHeader": "PRODUCT",
+  "priceTableHeader": "PRICE",
+  "stockTableHeader": "STOCK",
+  "actionsTableHeader": "ACTIONS",
+  "devoteeReviewsBlessings": "Devotee Reviews & Blessings",
+  "moderateTestimonials": "Moderate customer testimonials and publish official Temple Seva replies.",
+  "anonymousUser": "Anonymous",
+  "onProduct": "on {product}",
+  "@onProduct": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "replyToDevoteeArrow": "Reply to Devotee →",
+  "replyToDevotee": "Reply to Devotee",
+  "suggestedReply": "Suggested Reply (You can edit):",
+  "suggestedReplyText": "Jai Sachchidanand! Pranam! Thank you for your kind review and blessings. We are delighted to know that Pu. Dada's sacred offering brought peace and positive energy to your home. May you always be blessed with divine grace. - Temple Seva Team",
+  "invalidViewType": "Invalid View Type",
+  "generalTab": "General",
+  "headerTab": "Header",
+  "footerTab": "Footer",
+  "headerCustomization": "HEADER CUSTOMIZATION",
+  "stickyHeader": "Sticky Header",
+  "announcementBarText": "Announcement Bar Text",
+  "backgroundColorHex": "Background Color (Hex Code)",
+  "headerCta": "HEADER CALL-TO-ACTION (CTA)",
+  "enableDonationButton": "Enable Donation Button",
+  "buttonLabel": "Button Label",
+  "redirectionUrl": "Redirection URL",
+  "saveHeaderSettings": "SAVE HEADER SETTINGS",
+  "unifiedHomePageEditor": "UNIFIED HOME PAGE EDITOR",
+  "saveAllChanges": "SAVE ALL CHANGES",
+  "homePageSectionsVisibility": "HOME PAGE SECTIONS & VISIBILITY",
+  "toggleSectionsDesc": "Toggle sections on/off and edit their content below.",
+  "sectionHiddenWarning": "This section is currently hidden on the user side.",
+  "biographyTab": "Biography",
+  "kathasTab": "Kathas",
+  "galleryTab": "Gallery",
+  "stotraTab": "Stotra",
+  "newsTab": "News",
+  "kathaPagesTab": "Katha Pages",
+  "photosTab": "Photos",
+  "videosTab": "Videos",
+  "devoteeManagementTab": "Devotee Management",
+  "contactEnquiriesTab": "Contact Enquiries",
+  "organizationName": "Organization Name",
+  "websiteLogo": "Website Logo",
+  "announcementBar": "Announcement Bar",
+  "heroSlides": "HERO SLIDES",
+  "slideNumber": "Slide #{number}",
+  "@slideNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "badgeLabel": "Badge (Small text above)",
+  "headingLabel": "Heading",
+  "subtitleLabel": "Subtitle",
+  "descriptionLabel": "Description",
+  "primaryCtaText": "Primary CTA Text",
+  "primaryCtaUrl": "Primary CTA URL",
+  "secondaryCtaText": "Secondary CTA Text",
+  "secondaryCtaUrl": "Secondary CTA URL",
+  "slideImage": "Slide Image",
+  "addSlide": "ADD SLIDE",
+  "homepageHeroSlider": "HOMEPAGE HERO SLIDER",
+  "addNewSlide": "ADD NEW SLIDE",
+  "shreemadBhagvatTab": "Shreemad Bhagvat Katha",
+  "devibhagvatTab": "Devibhagvat Katha",
+  "shivmahapuranTab": "Shivmahapuran Katha",
+  "heroSection": "HERO SECTION",
+  "heroBadge": "Hero Badge",
+  "heroTitle": "Hero Title",
+  "heroDesc1": "Hero Description 1",
+  "heroDesc2": "Hero Description 2",
+  "heroImageLabel": "Hero Image",
+  "biographyQuote": "BIOGRAPHY & QUOTE",
+  "biographyText": "Biography Text",
+  "quoteLabel": "Quote",
+  "quoteAuthor": "Quote Author",
+  "quoteImage": "Quote Image",
+  "highlights": "HIGHLIGHTS",
+  "highlightTitle": "Highlight {number} Title",
+  "@highlightTitle": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "highlightDesc": "Highlight {number} Description",
+  "@highlightDesc": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "callToAction": "CALL TO ACTION",
+  "ctaTitle": "CTA Title",
+  "ctaSubtitle": "CTA Subtitle",
+  "ctaButtonText": "CTA Button Text",
+  "saveKathaPage": "SAVE KATHA PAGE",
+  "upcomingKathasTitle": "UPCOMING KATHAS",
+  "eventList": "EVENT LIST",
+  "eventNumber": "Event #{number}",
+  "@eventNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "kathaNumberLabel": "Katha Number",
+  "kathaNameLabel": "Katha Name",
+  "dateDisplayString": "Date Display String",
+  "timingLabel": "Timing (e.g. 3:00 PM to 7:00 PM)",
+  "locationLabel": "Location",
+  "hostingLabel": "Hosting / Organizer",
+  "addKathaButton": "ADD KATHA",
+  "homePageManagement": "HOME PAGE MANAGEMENT",
+  "publishAll": "PUBLISH ALL",
+  "sectionVisibilityAccess": "SECTION VISIBILITY & ACCESS",
+  "aboutSection": "About Section",
+  "ramKathaPreview": "Ram Katha Preview",
+  "biographySectionHome": "BIOGRAPHY SECTION (HOME)",
+  "displayTitle": "Display Title",
+  "tagline": "Tagline",
+  "mainIntroDesc": "Main Intro Description",
+  "biographyPhoto": "Biography Photo",
+  "detailedParagraphs": "DETAILED PARAGRAPHS",
+  "paragraphsLabel": "Paragraphs",
+  "galleryImages": "GALLERY IMAGES",
+  "imageUrlsLabel": "Image URLs",
+  "saveAboutData": "SAVE ABOUT DATA",
+  "featuredQuoteSection": "FEATURED QUOTE SECTION",
+  "quoteTextLabel": "Quote Text",
+  "authorLabel": "Author",
+  "portraitImage": "Portrait Image",
+  "backgroundImage": "Background Image",
+  "saveQuote": "SAVE QUOTE",
+  "dailySuvicharTitle": "DAILY SUVICHAR",
+  "dateLabel": "Date Label",
+  "suvicharImage": "Suvichar Image",
+  "saveSuvichar": "SAVE SUVICHAR",
+  "ramKathaPreviewSection": "RAM KATHA PREVIEW SECTION",
+  "descPara1": "Description Para 1",
+  "descPara2": "Description Para 2",
+  "sectionPhoto": "Section Photo",
+  "saveRamKathaSection": "SAVE RAM KATHA SECTION",
+  "latestNewsItems": "LATEST NEWS ITEMS",
+  "newsItemNumber": "News Item #{number}",
+  "@newsItemNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "targetUrl": "Target URL (Read More)",
+  "newsImage": "News Image",
+  "addNewsButton": "ADD NEWS",
+  "newsUpdatesTitle": "NEWS & UPDATES",
+  "fullKathaListTitle": "FULL KATHA LIST",
+  "addRecord": "ADD RECORD",
+  "kathaListPageSettings": "KATHA LIST PAGE SETTINGS",
+  "mainListBannerImage": "Main List Banner Image",
+  "fullKathaArchive": "FULL KATHA ARCHIVE",
+  "kathaRecordNumber": "Katha Record #{number}",
+  "@kathaRecordNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "yearLabel": "Year",
+  "datesLabel": "Dates (e.g. 1st Jan - 9th Jan)",
+  "topicSubject": "Topic / Subject",
+  "youtubePlaylistUrl": "YouTube Playlist URL",
+  "recordImage": "Record Image",
+  "featuredPhotoAlbums": "FEATURED PHOTO ALBUMS",
+  "manageSectionsDesc": "To manage full sections, go to Media & Content > Gallery > Photos.",
+  "photoUrlsLabel": "Photo URLs",
+  "addSection": "ADD SECTION",
+  "photoGalleryTitle": "PHOTO GALLERY",
+  "featuredVideos": "FEATURED VIDEOS",
+  "manageVideosDesc": "To manage full categories, go to Media & Content > Gallery > Videos.",
+  "videoTitleLabel": "Video Title",
+  "youtubeUrlLabel": "YouTube URL",
+  "addVideoButton": "Add Video",
+  "videoGalleryTitle": "VIDEO GALLERY",
+  "stotraBhajanTitle": "STOTRA / BHAJAN",
+  "addItem": "ADD ITEM",
+  "stotraBhajanPageSettings": "STOTRA / BHAJAN PAGE SETTINGS",
+  "pageTitle": "Page Title",
+  "topHeaderImage": "Top Header Image",
+  "stotraItems": "STOTRA ITEMS",
+  "stotraItemNumber": "Item #{number}",
+  "@stotraItemNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "itemTitle": "Item Title",
+  "englishPdfUrl": "English PDF URL",
+  "hindiPdfUrl": "Hindi PDF URL",
+  "gujaratiPdfUrl": "Gujarati PDF URL",
+  "contactPageSettings": "CONTACT PAGE SETTINGS",
+  "pageBannerImage": "Page Banner Image",
+  "publishContactSettings": "PUBLISH CONTACT SETTINGS",
+  "userInquiries": "USER INQUIRIES",
+  "noInquiriesYet": "No inquiries yet.",
+  "countryPrefix": "Country: {country}",
+  "@countryPrefix": {
+    "placeholders": {
+      "country": {
+        "type": "String"
+      }
+    }
+  },
+  "typePrefix": "Type: {type}",
+  "@typePrefix": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "messageHeader": "Message:",
+  "replyOnWhatsApp": "REPLY ON WHATSAPP",
+  "footerSettings": "FOOTER SETTINGS",
+  "footerContent": "FOOTER CONTENT",
+  "copyrightText": "Copyright Text",
+  "socialMediaLinks": "SOCIAL MEDIA LINKS",
+  "whatsappUrlLabel": "WhatsApp Group/Number URL",
+  "bottomBarLinks": "BOTTOM BAR LINKS",
+  "privacyLabel": "Privacy Label",
+  "privacyUrl": "Privacy URL",
+  "termsLabel": "Terms Label",
+  "termsUrl": "Terms URL",
+  "cookieLabel": "Cookie Label",
+  "cookieUrl": "Cookie URL",
+  "additionalLinkSections": "ADDITIONAL LINK SECTIONS (OPTIONAL)",
+  "sectionTitleLabel": "Section Title",
+  "addLinkToSection": "Add Link to this section",
+  "addNewLinkSection": "ADD NEW LINK SECTION",
+  "heroSectionContent": "1. HERO SECTION CONTENT",
+  "heroMainHeading": "Hero Main Heading",
+  "heroSubtitleIntro": "Hero Subtitle / Intro",
+  "ctaButton1Text": "CTA Button 1 Text",
+  "ctaButton2Text": "CTA Button 2 Text",
+  "heroBackgroundImage": "Hero Background Image",
+  "heroSideCard": "2. HERO SIDE CARD (FEATURED)",
+  "cardTitle": "Card Title",
+  "cardSubtitle": "Card Subtitle",
+  "cardFeatureImage": "Card Feature Image",
+  "sectionHeadings": "3. SECTION HEADINGS",
+  "offeringsCategoriesHeading": "Offerings / Categories Heading",
+  "featuredProductsHeading": "Featured Products Heading",
+  "testimonialsHeading": "Testimonials Heading",
+  "wisdomSuvicharHeading": "Wisdom / Suvichar Heading",
+  "whatsappGuidanceBox": "4. WHATSAPP GUIDANCE BOX",
+  "guidanceTitle": "Guidance Title",
+  "guidanceSubtitle": "Guidance Subtitle",
+  "whatsappBtnText": "WhatsApp Button Text",
+  "saveHomePortalChanges": "SAVE ALL HOME PORTAL CHANGES",
+  "productCatalogueHeadings": "PRODUCT CATALOGUE HEADINGS",
+  "saveCatalogueSettings": "SAVE CATALOGUE SETTINGS",
+  "teachingsPageHero": "TEACHINGS PAGE HERO",
+  "heroBackground": "Hero Background",
+  "divinePurposeSection": "DIVINE PURPOSE SECTION",
+  "sideImage": "Side Image",
+  "saveTeachingsPage": "SAVE TEACHINGS PAGE",
+  "statusPrefix": "Status: {status}",
+  "@statusPrefix": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "addItemTo": "Add to {label}",
+  "@addItemTo": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "upload": "Upload",
+  "deliveryAddress": "Delivery Address",
+  "items": "Items",
+  "shippingAddress": "Shipping Address",
+  "userManagement": "User Management",
+  "categoryManagement": "Category Management",
+  "description": "Description",
+  "imageUrl": "Image URL",
+  "searchVisibility": "Search Visibility",
+  "title": "Title",
+  "addCategory": "Add Category",
+  "heroSubtitle": "Hero Subtitle",
+  "activeStatus": "Active",
+  "inactiveStatus": "Inactive",
+  "termsConditions": "Terms & Conditions",
+  "addProduct": "Add Product",
+  "totalOrders": "Total Orders",
+  "outOfStockBadge": "Out of Stock",
+  "sendViaWhatsApp": "Send via WhatsApp"
 }

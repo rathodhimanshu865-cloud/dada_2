@@ -243,16 +243,26 @@ class AuthController extends ChangeNotifier {
       }
     } catch (e) {
       AppLogger.error("Login error", e);
-      if (e is FirebaseAuthException) {
-        _errorMessage = e.message;
-      } else {
-        _errorMessage = "Login failed. Please try again.";
-      }
+      _errorMessage = _mapFirebaseError(e);
       rethrow;
     } finally {
       _isLoading = false;
       _safeNotifyListeners();
     }
+  }
+
+  String _mapFirebaseError(dynamic e) {
+    if (e is FirebaseAuthException) {
+      switch (e.code) {
+        case 'user-not-found': return 'noAccountFound';
+        case 'wrong-password': return 'incorrectCredentials';
+        case 'invalid-email': return 'enterValidEmail';
+        case 'user-disabled': return 'accountDisabled';
+        case 'too-many-requests': return 'tooManyAttempts';
+        default: return e.code;
+      }
+    }
+    return 'loginFailed';
   }
 
   Future<void> adminLogin(String email, String password) async {

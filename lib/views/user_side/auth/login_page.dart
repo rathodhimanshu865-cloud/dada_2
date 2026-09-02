@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/auth_controller.dart';
 import '../../../utils/app_typography.dart';
 
@@ -50,8 +51,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   Future<void> _handleLogin() async {
     final email = _loginEmailCtrl.text.trim();
     final password = _loginPassCtrl.text.trim();
+    final l10n = AppLocalizations.of(context)!;
     if (email.isEmpty || password.isEmpty) {
-      _showError('Please enter your email and password');
+      _showError(l10n.enterEmailPassword);
       return;
     }
     setState(() => _isLoading = true);
@@ -63,24 +65,24 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       }
     } catch (e) {
       if (mounted) {
-        String errorMessage = 'Login Failed';
+        String errorMessage = l10n.loginFailed;
         if (e is FirebaseAuthException) {
           switch (e.code) {
             case 'user-not-found':
-              errorMessage = 'No account found with this email.';
+              errorMessage = l10n.noAccountFound;
               break;
             case 'wrong-password':
             case 'invalid-credential':
-              errorMessage = 'Incorrect email or password.';
+              errorMessage = l10n.incorrectCredentials;
               break;
             case 'invalid-email':
-              errorMessage = 'Please enter a valid email address.';
+              errorMessage = l10n.enterValidEmail;
               break;
             case 'user-disabled':
-              errorMessage = 'This account has been disabled.';
+              errorMessage = l10n.accountDisabled;
               break;
             case 'too-many-requests':
-              errorMessage = 'Too many failed attempts. Please try again later.';
+              errorMessage = l10n.tooManyAttempts;
               break;
             default:
               errorMessage = e.message ?? errorMessage;
@@ -95,8 +97,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   Future<void> _handleForgotPassword() async {
     final email = _loginEmailCtrl.text.trim();
+    final l10n = AppLocalizations.of(context)!;
     if (email.isEmpty) {
-      _showError('Please enter your email address above first');
+      _showError(l10n.enterEmailFirst);
       return;
     }
     try {
@@ -104,13 +107,13 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Password reset email sent to $email'),
+            content: Text(l10n.passwordResetSent(email)),
             backgroundColor: Colors.green,
           ),
         );
       }
     } on FirebaseAuthException catch (e) {
-      _showError(e.message ?? 'Failed to send reset email');
+      _showError(e.message ?? l10n.failedSendResetEmail);
     }
   }
 
@@ -120,32 +123,33 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     final email = _signupEmailCtrl.text.trim();
     final password = _signupPassCtrl.text.trim();
     final confirmPassword = _signupConfirmPassCtrl.text.trim();
+    final l10n = AppLocalizations.of(context)!;
 
     // Validations
     if (name.isEmpty || phone.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      _showError('All fields are required');
+      _showError(l10n.allFieldsRequired);
       return;
     }
 
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(email)) {
-      _showError('Please enter a valid email address');
+      _showError(l10n.enterValidEmail);
       return;
     }
 
     final phoneRegex = RegExp(r'^\+?[0-9]{10,12}$');
     if (!phoneRegex.hasMatch(phone)) {
-      _showError('Please enter a valid phone number (10-12 digits)');
+      _showError(l10n.enterValidPhone);
       return;
     }
 
     if (password.length < 8) {
-      _showError('Password must be at least 8 characters long');
+      _showError(l10n.passwordTooShort);
       return;
     }
 
     if (password != confirmPassword) {
-      _showError('Passwords do not match');
+      _showError(l10n.passwordsDoNotMatch);
       return;
     }
 
@@ -159,8 +163,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Account Created Successfully!'),
+          SnackBar(
+            content: Text(l10n.accountCreatedSuccess),
             backgroundColor: Colors.green,
           ),
         );
@@ -169,14 +173,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       }
     } catch (e) {
       if (mounted) {
-        String errorMessage = 'Registration Failed';
+        String errorMessage = l10n.loginFailed; // Using loginFailed as fallback for registration too
         if (e is FirebaseAuthException) {
           switch (e.code) {
             case 'email-already-in-use':
               errorMessage = 'The email address is already in use by another account.';
               break;
             case 'invalid-email':
-              errorMessage = 'The email address is not valid.';
+              errorMessage = l10n.enterValidEmail;
               break;
             case 'weak-password':
               errorMessage = 'The password is too weak.';
@@ -230,7 +234,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 40, offset: const Offset(0, 10)),
+                        BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 10)),
                       ],
                     ),
                     child: Column(
@@ -268,6 +272,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   Widget _buildHeader(AuthController auth) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(32),
@@ -287,7 +292,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
-                  'Sacred Access Portal',
+                  l10n.sacredAccessPortal,
                   style: AppTypography.headingStyle(context, color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -303,6 +308,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   Widget _buildOverlappingSwitcher() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
@@ -343,7 +349,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                           color: Colors.transparent,
                           alignment: Alignment.center,
                           child: Text(
-                            'SIGN IN',
+                            l10n.signIn,
                             style: AppTypography.bodyStyle(context, 
                               fontWeight: FontWeight.bold, 
                               fontSize: 12, 
@@ -361,7 +367,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                           color: Colors.transparent,
                           alignment: Alignment.center,
                           child: Text(
-                            'CREATE ACCOUNT',
+                            l10n.createAccount,
                             style: AppTypography.bodyStyle(context, 
                               fontWeight: FontWeight.bold, 
                               fontSize: 12, 
@@ -383,56 +389,58 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   Widget _buildLoginForm() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       key: const ValueKey('login_form'),
       padding: const EdgeInsets.all(32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildFieldLabel('Email Address'),
+          _buildFieldLabel(l10n.emailAddressLabel),
           _buildTextField(_loginEmailCtrl, Icons.email_outlined, 'email@example.com'),
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildFieldLabel('Password'),
+              _buildFieldLabel(l10n.password),
               TextButton(
                 onPressed: _handleForgotPassword,
-                child: Text('Forgot?', style: TextStyle(color: accentGold, fontSize: 12, fontWeight: FontWeight.bold)),
+                child: Text(l10n.forgotPassword, style: TextStyle(color: accentGold, fontSize: 12, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
           _buildTextField(_loginPassCtrl, Icons.lock_outline, '••••••••', isPassword: true),
           const SizedBox(height: 32),
-          _buildActionButton('Log In to Your Account', _handleLogin),
+          _buildActionButton(l10n.loginToAccount, _handleLogin),
         ],
       ),
     );
   }
 
   Widget _buildSignupForm() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       key: const ValueKey('signup_form'),
       padding: const EdgeInsets.all(32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildFieldLabel('Full Name'),
+          _buildFieldLabel(l10n.fullNameLabel),
           _buildTextField(_signupNameCtrl, Icons.person_outline, 'Your Name'),
           const SizedBox(height: 16),
-          _buildFieldLabel('Mobile / WhatsApp'),
+          _buildFieldLabel(l10n.mobileWhatsAppLabel),
           _buildTextField(_signupPhoneCtrl, Icons.phone_outlined, '+91 00000 00000'),
           const SizedBox(height: 16),
-          _buildFieldLabel('Email Address'),
+          _buildFieldLabel(l10n.emailAddressLabel),
           _buildTextField(_signupEmailCtrl, Icons.email_outlined, 'email@example.com'),
           const SizedBox(height: 16),
-          _buildFieldLabel('Secure Password'),
+          _buildFieldLabel(l10n.securePasswordLabel),
           _buildTextField(_signupPassCtrl, Icons.lock_outline, '••••••••', isPassword: true),
           const SizedBox(height: 16),
-          _buildFieldLabel('Confirm Password'),
+          _buildFieldLabel(l10n.confirmPasswordLabel),
           _buildTextField(_signupConfirmPassCtrl, Icons.lock_outline, '••••••••', isPassword: true, isConfirm: true),
           const SizedBox(height: 32),
-          _buildActionButton('Join the Community', _handleSignup),
+          _buildActionButton(l10n.joinCommunity, _handleSignup),
         ],
       ),
     );
@@ -502,6 +510,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   Widget _buildFooter() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
       decoration: BoxDecoration(
@@ -514,7 +523,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           Icon(Icons.shield_outlined, size: 14, color: Colors.grey.shade400),
           const SizedBox(width: 8),
           Text(
-            'Secure Devotee Authorization Area',
+            l10n.secureAuthArea,
             style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.bold, letterSpacing: 0.5),
           ),
         ],

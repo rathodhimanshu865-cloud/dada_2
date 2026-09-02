@@ -14,6 +14,7 @@ import 'notification_drawer.dart';
 import '../../../models/homepage_model.dart';
 import '../../../utils/app_typography.dart';
 import '../../../utils/responsive_utils.dart';
+import 'product_search_delegate.dart';
 
 class UserHeader extends StatefulWidget {
   final HomePageController controller;
@@ -210,6 +211,8 @@ class _UserHeaderState extends State<UserHeader>
                               ),
                             ] else ...[
                               const Spacer(),
+                              _buildSearchButton(isSticky, navTextColor),
+                              const SizedBox(width: 8),
                               IconButton(
                                 icon: Icon(
                                   Icons.menu,
@@ -349,20 +352,13 @@ class _UserHeaderState extends State<UserHeader>
                           Navigator.pushNamed(context, '/upcoming_ram_kathas');
                         },
                       ),
-                      ListTile(
-                        title: Text(l10n.trackShipment),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/track');
-                        },
-                      ),
                     ],
                   ),
                   ExpansionTile(
                     title: Text(
                       l10n.products,
                       style: TextStyle(
-                        color: currentRoute.contains('catalogue') || currentRoute == '/product'
+                        color: currentRoute.contains('catalogue') || currentRoute == '/product' || currentRoute == '/teachings' || currentRoute == '/my_orders' || currentRoute == '/cart'
                             ? activeColor
                             : darkCharcoal,
                         fontWeight: FontWeight.bold,
@@ -370,7 +366,14 @@ class _UserHeaderState extends State<UserHeader>
                     ),
                     children: [
                       ListTile(
-                        title: const Text('All Sacred Products'),
+                        title: Text(l10n.storeHomePortal),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/product');
+                        },
+                      ),
+                      ListTile(
+                        title: Text(l10n.allSacredProducts),
                         onTap: () {
                           Navigator.pop(context);
                           Navigator.pushNamed(context, '/catalogue', arguments: 'all');
@@ -383,6 +386,42 @@ class _UserHeaderState extends State<UserHeader>
                           Navigator.pushNamed(context, '/catalogue', arguments: cat.id);
                         },
                       )).toList(),
+                      ListTile(
+                        title: Text(l10n.pujyaDadaTeachings),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/teachings');
+                        },
+                      ),
+                      ListTile(
+                        title: Text(l10n.trackShipment),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/track');
+                        },
+                      ),
+                      ListTile(
+                        title: Text(
+                          Provider.of<AuthController>(context, listen: false).isAuthenticated
+                            ? l10n.myOrders
+                            : l10n.loginSignUp
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                          if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
+                            Navigator.pushNamed(context, '/my_orders');
+                          } else {
+                            Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
+                          }
+                        },
+                      ),
+                      ListTile(
+                        title: Text(l10n.myShoppingBag),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/cart');
+                        },
+                      ),
                     ],
                   ),
                   ListTile(
@@ -438,21 +477,6 @@ class _UserHeaderState extends State<UserHeader>
                   ),
                   ListTile(
                     title: Text(
-                      'Shopping Bag',
-                      style: TextStyle(
-                        color: currentRoute == '/cart'
-                            ? activeColor
-                            : darkCharcoal,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/cart');
-                    },
-                  ),
-                  ListTile(
-                    title: Text(
                       l10n.contact,
                       style: TextStyle(
                         color: currentRoute == '/contact_us'
@@ -464,34 +488,6 @@ class _UserHeaderState extends State<UserHeader>
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, '/contact_us');
-                    },
-                  ),
-                  ListTile(
-                    title: Text(
-                      Provider.of<AuthController>(
-                            context,
-                            listen: false,
-                          ).isAuthenticated
-                          ? l10n.myOrders
-                          : l10n.loginSignUp,
-                      style: TextStyle(
-                        color:
-                            currentRoute == '/my_orders'
-                            ? activeColor
-                            : darkCharcoal,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      if (Provider.of<AuthController>(
-                        context,
-                        listen: false,
-                      ).isAuthenticated) {
-                        Navigator.pushNamed(context, '/my_orders');
-                      } else {
-                        Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
-                      }
                     },
                   ),
                   const Divider(height: 40),
@@ -1039,7 +1035,10 @@ class _UserHeaderState extends State<UserHeader>
   Widget _buildSearchButton(bool isSticky, Color textColor) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, '/product');
+        showSearch(
+          context: context,
+          delegate: ProductSearchDelegate(),
+        );
       },
       child: Container(
         width: 36,

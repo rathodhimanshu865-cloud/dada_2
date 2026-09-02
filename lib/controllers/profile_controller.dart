@@ -22,6 +22,10 @@ class ProfileController extends ChangeNotifier {
     _listenToProfile();
   }
 
+  void loadInitialData() {
+    _listenToProfile();
+  }
+
   void _listenToProfile() async {
     _isLoading = true;
     _safeNotifyListeners();

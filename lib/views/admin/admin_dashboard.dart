@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../controllers/product_controller.dart';
+import '../../services/translation_service.dart';
 import 'product_management_view.dart';
 import 'devotee_management_view.dart';
 import 'cms_views_helper.dart';
+import 'translation_audit_view.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -43,7 +47,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           preferredSize: Size.fromHeight(2),
           child: LinearProgressIndicator(backgroundColor: Colors.transparent, valueColor: AlwaysStoppedAnimation<Color>(Colors.amber)),
         ) : null,
-        title: const Text('ADMIN PORTAL', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
+        title: Text(AppLocalizations.of(context)!.adminPortal, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
         centerTitle: false,
         leading: IconButton(
           icon: Icon(_isSidebarVisible ? Icons.menu_open : Icons.menu),
@@ -58,30 +62,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
         actions: [
           TextButton.icon(
             onPressed: () async {
-              final home = Provider.of<HomePageController>(context, listen: false);
-              final profile = Provider.of<ProfileController>(context, listen: false);
-              final products = Provider.of<ProductController>(context, listen: false);
-              
-              await home.translateAndPublish();
-              await profile.translateAll();
-              await products.translateAllStore();
-              
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All content translated and published!'), backgroundColor: Colors.green));
-              }
+              _showPublishProgressDialog(context);
             },
-            icon: const Icon(Icons.translate, size: 16, color: Colors.amber),
-            label: const Text('TRANSLATE', style: TextStyle(color: Colors.amber, fontSize: 11, fontWeight: FontWeight.bold)),
-          ),
-          const SizedBox(width: 8),
-          TextButton.icon(
-            onPressed: () => controller.publish(),
             icon: const Icon(Icons.publish, size: 16, color: Colors.blueAccent),
-            label: const Text('PUBLISH', style: TextStyle(color: Colors.blueAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+            label: Text(AppLocalizations.of(context)!.publish, style: const TextStyle(color: Colors.blueAccent, fontSize: 11, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(width: 16),
           IconButton(
-            tooltip: 'Refresh Data',
+            tooltip: AppLocalizations.of(context)!.refreshData,
             onPressed: () {
               controller.loadData();
               Provider.of<ProductController>(context, listen: false).fetchBrowsingProducts(refresh: true);
@@ -108,18 +96,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _buildSidebar(bool isMobile) {
     final contentMenus = [
-      {'title': 'Header, Footer, & General Settings', 'icon': Icons.settings},
-      {'title': 'Home Page', 'icon': Icons.home},
-      {'title': 'About Dada Page', 'icon': Icons.person},
-      {'title': 'Katha Pages', 'icon': Icons.menu_book},
-      {'title': 'Full Katha List', 'icon': Icons.list_alt},
-      {'title': 'Upcoming Kathas', 'icon': Icons.event},
-      {'title': 'Stotra Bhajan', 'icon': Icons.music_note},
-      {'title': 'Photo Gallery', 'icon': Icons.photo_library},
-      {'title': 'Video Gallery', 'icon': Icons.video_library},
-      {'title': 'News Gallery', 'icon': Icons.newspaper},
-      {'title': 'Contact & Enquiries', 'icon': Icons.contact_mail},
-      {'title': 'Product Management', 'icon': Icons.shopping_bag},
+      {'title': AppLocalizations.of(context)!.headerFooterSettings, 'icon': Icons.settings},
+      {'title': AppLocalizations.of(context)!.homePage, 'icon': Icons.home},
+      {'title': AppLocalizations.of(context)!.aboutDadaPage, 'icon': Icons.person},
+      {'title': AppLocalizations.of(context)!.kathaPages, 'icon': Icons.menu_book},
+      {'title': AppLocalizations.of(context)!.fullKathaList, 'icon': Icons.list_alt},
+      {'title': AppLocalizations.of(context)!.upcomingKathas, 'icon': Icons.event},
+      {'title': AppLocalizations.of(context)!.stotraBhajan, 'icon': Icons.music_note},
+      {'title': AppLocalizations.of(context)!.photoGallery, 'icon': Icons.photo_library},
+      {'title': AppLocalizations.of(context)!.videoGallery, 'icon': Icons.video_library},
+      {'title': AppLocalizations.of(context)!.newsGallery, 'icon': Icons.newspaper},
+      {'title': AppLocalizations.of(context)!.contactEnquiries, 'icon': Icons.contact_mail},
+      {'title': AppLocalizations.of(context)!.productManagement, 'icon': Icons.shopping_bag},
     ];
 
     return Container(
@@ -148,7 +136,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           const Divider(color: Colors.white12, height: 1),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.redAccent),
-            title: const Text('Logout', style: TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold)),
+            title: Text(AppLocalizations.of(context)!.logout, style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold)),
             onTap: () async {
               if (isMobile) Navigator.pop(context);
               final auth = Provider.of<AuthController>(context, listen: false);
@@ -160,8 +148,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
           ListTile(
             leading: const Icon(Icons.public, color: Colors.blueAccent),
-            title: const Text('BACK TO WEBSITE',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1)),
+            title: Text(AppLocalizations.of(context)!.backToWebsite,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1)),
             onTap: () => Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false),
           ),
           const SizedBox(height: 10),
@@ -184,7 +172,49 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 9: return CMSViewsHelper.buildCMSView('news', controller, context, _fieldLoading, setState);
       case 10: return CMSViewsHelper.buildCMSView('contact', controller, context, _fieldLoading, setState);
       case 11: return const ProductManagementView(initialSubMenu: 0);
-      default: return const Center(child: Text('Select a menu'));
+      default: return Center(child: Text(AppLocalizations.of(context)!.selectMenu));
     }
+  }
+
+  void _showPublishProgressDialog(BuildContext context) {
+    final home = Provider.of<HomePageController>(context, listen: false);
+    final prof = Provider.of<ProfileController>(context, listen: false);
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.publish, color: Colors.blueAccent),
+            const SizedBox(width: 12),
+            const Text('Publishing Content'),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 20),
+            Text('Updating live website data...'),
+          ],
+        ),
+      ),
+    );
+
+    Future.wait([
+      home.publish(),
+      if (prof.profileData != null) prof.saveProfileData(prof.profileData!),
+    ]).then((_) {
+      if (mounted) {
+        Navigator.pop(context); // Close progress
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All content published successfully!'), backgroundColor: Colors.green));
+      }
+    }).catchError((e) {
+      if (mounted) {
+        Navigator.pop(context); // Close progress
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error publishing: $e'), backgroundColor: Colors.red));
+      }
+    });
   }
 }
