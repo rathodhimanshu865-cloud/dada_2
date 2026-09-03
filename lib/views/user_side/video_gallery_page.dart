@@ -62,10 +62,6 @@ class _VideoGalleryPageState extends State<VideoGalleryPage> {
             padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 100),
             decoration: BoxDecoration(
               color: backgroundBeige.withOpacity(0.4),
-              image: const DecorationImage(
-                image: NetworkImage('https://www.transparenttextures.com/patterns/natural-paper.png'),
-                opacity: 0.05,
-              ),
             ),
             child: Column(
               children: [

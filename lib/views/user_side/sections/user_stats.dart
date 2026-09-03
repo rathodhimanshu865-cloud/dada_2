@@ -28,13 +28,8 @@ class _UserStatsSectionState extends State<UserStatsSection> {
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: isMobile ? 80 : 120, horizontal: isMobile ? 20 : 40),
-        decoration: BoxDecoration(
-          color: const Color(0xFF0F4C5C),
-          image: DecorationImage(
-            image: const NetworkImage('https://www.transparenttextures.com/patterns/carbon-fibre.png'),
-            opacity: 0.05,
-            repeat: ImageRepeat.repeat,
-          ),
+        decoration: const BoxDecoration(
+          color: Color(0xFF0F4C5C),
         ),
         child: Center(
           child: Container(

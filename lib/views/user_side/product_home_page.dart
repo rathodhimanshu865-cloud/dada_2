@@ -50,8 +50,7 @@ class _ProductHomePageState extends State<ProductHomePage> {
           SliverToBoxAdapter(
             child: FadeIn(
               duration: const Duration(milliseconds: 1000),
-              child: ZoomOut(
-                from: 1.05,
+              child: ZoomIn(
                 duration: const Duration(milliseconds: 1500),
                 child: _buildHeroSection(context, h, lang, isMobile),
               ),

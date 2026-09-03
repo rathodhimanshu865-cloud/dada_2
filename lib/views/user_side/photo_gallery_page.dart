@@ -71,21 +71,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> with TickerProvider
       ...data.sections,
     ];
 
-    List<String> currentPhotos = categories[activeSectionIndex].photoUrls.where((url) {
-      if (url.contains('addedAt=')) {
-        final uri = Uri.tryParse(url);
-        if (uri != null && uri.queryParameters.containsKey('addedAt')) {
-          final timestamp = int.tryParse(uri.queryParameters['addedAt']!);
-          if (timestamp != null) {
-            final addedTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
-            if (DateTime.now().difference(addedTime).inHours >= 48) {
-              return false;
-            }
-          }
-        }
-      }
-      return true;
-    }).toList();
+    List<String> currentPhotos = categories[activeSectionIndex].photoUrls.toList();
     
     final List<String> visiblePhotos = currentPhotos.take(_visibleCount).toList();
     final bool hasMore = visiblePhotos.length < currentPhotos.length;
@@ -102,10 +88,6 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> with TickerProvider
             padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 100),
             decoration: BoxDecoration(
               color: backgroundBeige.withOpacity(0.4),
-              image: const DecorationImage(
-                image: NetworkImage('https://www.transparenttextures.com/patterns/natural-paper.png'),
-                opacity: 0.05,
-              ),
             ),
             child: Column(
               children: [
@@ -524,10 +506,10 @@ class _PhotoCardState extends State<_PhotoCard> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: AnimatedContainer(
+            child: AnimatedScale(
+              scale: _isHovered ? 1.04 : 1.0,
               duration: const Duration(milliseconds: 400),
-              transform: Matrix4.identity()..scale(_isHovered ? 1.02 : 1.0),
-              transformAlignment: Alignment.center,
+              alignment: Alignment.center,
               child: Hero(
                 tag: 'gallery-img-${widget.index}',
                 child: AspectRatio(
@@ -535,7 +517,6 @@ class _PhotoCardState extends State<_PhotoCard> {
                   child: CachedNetworkImage(
                     imageUrl: widget.url,
                     fit: BoxFit.cover,
-                    // Blur-up: low quality first, then fade to full
                     placeholder: (context, url) => Container(
                       color: Colors.grey.shade200,
                       child: const Center(child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFC19A6B))),

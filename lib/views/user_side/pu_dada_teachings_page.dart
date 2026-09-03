@@ -563,23 +563,6 @@ class _ThoughtOfTheDaySectionState extends State<_ThoughtOfTheDaySection> with S
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Ambient Drift
-            if (!widget.isReducedMotion && !widget.isMobile)
-              Positioned.fill(
-                child: AnimatedBuilder(
-                  animation: _driftController,
-                  builder: (context, child) {
-                    return Transform.translate(
-                      offset: Offset(20 * _driftController.value, 15 * (1 - _driftController.value)),
-                      child: Opacity(
-                        opacity: 0.1,
-                        child: Image.network('https://www.transparenttextures.com/patterns/stardust.png', repeat: ImageRepeat.repeat),
-                      ),
-                    );
-                  }
-                ),
-              ),
-              
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 900),
               child: Column(

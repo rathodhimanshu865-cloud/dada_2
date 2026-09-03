@@ -1590,12 +1590,25 @@ class PhotoGallerySection {
     'heading_hi': headingHi, 'heading_gu': headingGu,
   };
 
-  factory PhotoGallerySection.fromMap(Map<String, dynamic> map) => PhotoGallerySection(
-    heading: map['heading'] ?? '', 
-    photoUrls: List<String>.from(map['photoUrls'] ?? []),
-    headingHi: map['heading_hi'] ?? '',
-    headingGu: map['heading_gu'] ?? '',
-  );
+  factory PhotoGallerySection.fromMap(Map<String, dynamic> map) {
+    // Strip any ?addedAt= or &addedAt= that was previously injected into URLs
+    List<String> rawUrls = List<String>.from(map['photoUrls'] ?? []);
+    List<String> cleanedUrls = rawUrls.map((url) {
+      try {
+        final uri = Uri.parse(url);
+        final params = Map<String, String>.from(uri.queryParameters)..remove('addedAt');
+        return uri.replace(queryParameters: params.isEmpty ? null : params).toString();
+      } catch (_) {
+        return url;
+      }
+    }).toList();
+    return PhotoGallerySection(
+      heading: map['heading'] ?? '',
+      photoUrls: cleanedUrls,
+      headingHi: map['heading_hi'] ?? '',
+      headingGu: map['heading_gu'] ?? '',
+    );
+  }
 }
 
 class PhotoGalleryPageData {

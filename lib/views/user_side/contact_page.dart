@@ -128,9 +128,8 @@ class _ContactPageState extends State<ContactPage> {
             if (controller.contactPageData.bannerImageUrl.isNotEmpty)
               FadeIn(
                 duration: const Duration(milliseconds: 1000),
-                child: ZoomOut(
+                child: ZoomIn(
                   duration: const Duration(milliseconds: 1500),
-                  from: 1.1,
                   child: Container(
                     width: double.infinity,
                     height: 450,

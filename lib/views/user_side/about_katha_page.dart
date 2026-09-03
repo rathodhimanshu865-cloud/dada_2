@@ -20,7 +20,6 @@ class AboutKathaPage extends StatefulWidget {
 class _AboutKathaPageState extends State<AboutKathaPage> with TickerProviderStateMixin {
   bool _isVisible = false;
 
-
   @override
   void dispose() {
     super.dispose();
@@ -43,7 +42,6 @@ class _AboutKathaPageState extends State<AboutKathaPage> with TickerProviderStat
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isMobile = screenWidth < 1100;
     final horizontalPad = isMobile ? 20.0 : (screenWidth > 1400 ? (screenWidth - 1200) / 2 : 100.0);
-    final bool isReducedMotion = !AnimationUtils.shouldAnimate(context);
 
     return UserPageLayout(
       controller: controller,
@@ -62,111 +60,80 @@ class _AboutKathaPageState extends State<AboutKathaPage> with TickerProviderStat
             Container(
               width: double.infinity,
               color: backgroundBeige,
-              child: Stack(
-                children: [
-
-
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: horizontalPad, vertical: isMobile ? 60 : 100),
-                    child: Builder(builder: (context) {
-                      Widget heroText = Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          FadeInLeft(
-                            animate: _isVisible,
-                            duration: const Duration(milliseconds: 800),
-                            child: Row(
-                              children: [
-                                Container(width: 40, height: 1.5, color: accentBrown),
-                                const SizedBox(width: 15),
-                                Expanded(
-                                  child: Text(
-                                    data.localizedHeroBadge(lang).toUpperCase(),
-                                    style: const TextStyle(color: accentBrown, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 3),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 30),
-                          FadeInUp(
-                            animate: _isVisible,
-                            delay: const Duration(milliseconds: 200),
-                            duration: const Duration(milliseconds: 800),
-                            child: Text(
-                              data.localizedHeroTitle(lang),
-                              style: AppTypography.headingStyle(
-                                context,
-                                fontSize: isMobile ? 36 : 64,
-                                fontWeight: FontWeight.w900,
-                                color: primaryTeal,
-                                height: 1.1,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPad, vertical: isMobile ? 60 : 100),
+                child: Builder(builder: (context) {
+                  Widget heroText = Column(
+                    crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+                    children: [
+                      FadeInLeft(
+                        animate: _isVisible,
+                        duration: const Duration(milliseconds: 800),
+                        child: Row(
+                          mainAxisAlignment: isMobile ? MainAxisAlignment.center : MainAxisAlignment.start,
+                          children: [
+                            Container(width: 40, height: 1.5, color: accentBrown),
+                            const SizedBox(width: 15),
+                            Flexible(
+                              child: Text(
+                                data.localizedHeroBadge(lang).toUpperCase(),
+                                style: const TextStyle(color: accentBrown, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 3),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 40),
-                          FadeInUp(
-                            animate: _isVisible,
-                            delay: const Duration(milliseconds: 400),
-                            child: Text(
-                              data.localizedHeroDesc1(lang),
-                              style: TextStyle(fontSize: isMobile ? 16 : 20, color: Colors.black87, height: 1.7, fontStyle: FontStyle.italic, fontWeight: FontWeight.w300),
-                            ),
-                          ),
-                          const SizedBox(height: 25),
-                          FadeInUp(
-                            animate: _isVisible,
-                            delay: const Duration(milliseconds: 600),
-                            child: Text(
-                              data.localizedHeroDesc2(lang),
-                              style: TextStyle(fontSize: isMobile ? 15 : 17, color: Colors.black54, height: 1.7, letterSpacing: 0.2),
-                            ),
-                          ),
-                        ],
-                      );
-        
-                      Widget heroImg = FadeInRight(
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      FadeInUp(
                         animate: _isVisible,
-                        delay: const Duration(milliseconds: 400),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 40, offset: const Offset(0, 20))
-                            ]
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              data.heroImage.isNotEmpty ? data.heroImage : 'https://via.placeholder.com/700x450', 
-                              fit: BoxFit.cover, 
-                              errorBuilder: (c,e,s) => Container(height: 250, color: Colors.white24)
-                            ),
+                        delay: const Duration(milliseconds: 200),
+                        duration: const Duration(milliseconds: 800),
+                        child: Text(
+                          data.localizedHeroTitle(lang),
+                          textAlign: isMobile ? TextAlign.center : TextAlign.start,
+                          style: AppTypography.headingStyle(
+                            context,
+                            fontSize: isMobile ? 36 : 64,
+                            fontWeight: FontWeight.w900,
+                            color: primaryTeal,
+                            height: 1.1,
                           ),
                         ),
-                      );
-        
-                      if (isMobile) {
-                        return Column(
-                          children: [
-                            heroText,
-                            const SizedBox(height: 60),
-                            heroImg,
-                          ],
-                        );
-                      }
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(flex: 5, child: heroText),
-                          const SizedBox(width: 80),
-                          Expanded(flex: 4, child: heroImg),
-                        ],
-                      );
-                    }),
-                  ),
-                ],
+                      ),
+                      const SizedBox(height: 40),
+                      FadeInUp(
+                        animate: _isVisible,
+                        delay: const Duration(milliseconds: 400),
+                        child: Text(
+                          data.localizedHeroDesc1(lang),
+                          textAlign: isMobile ? TextAlign.center : TextAlign.start,
+                          style: TextStyle(fontSize: isMobile ? 16 : 20, color: Colors.black87, height: 1.7, fontStyle: FontStyle.italic, fontWeight: FontWeight.w300),
+                        ),
+                      ),
+                      const SizedBox(height: 25),
+                      FadeInUp(
+                        animate: _isVisible,
+                        delay: const Duration(milliseconds: 600),
+                        child: Text(
+                          data.localizedHeroDesc2(lang),
+                          textAlign: isMobile ? TextAlign.center : TextAlign.start,
+                          style: TextStyle(fontSize: isMobile ? 15 : 17, color: Colors.black54, height: 1.7, letterSpacing: 0.2),
+                        ),
+                      ),
+                    ],
+                  );
+
+                  if (isMobile) {
+                    return heroText;
+                  }
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(child: heroText),
+                    ],
+                  );
+                }),
               ),
             ),
 
@@ -271,8 +238,6 @@ class _AboutKathaPageState extends State<AboutKathaPage> with TickerProviderStat
                 ),
               ),
             ),
-            
-
 
             const SizedBox(height: 120),
             UserFooter(controller: controller),
@@ -446,12 +411,12 @@ class _AnimatedQuoteState extends State<_AnimatedQuote> with SingleTickerProvide
           ),
         );
 
-        Widget quoteImg = Image.network(
-          widget.image.isNotEmpty ? widget.image : 'https://via.placeholder.com/600x600', 
+        Widget quoteImg = widget.image.isNotEmpty ? Image.network(
+          widget.image, 
           height: widget.isMobile ? 350 : 600, 
           fit: BoxFit.cover, 
-          errorBuilder: (c,e,s) => Container(color: Colors.black26)
-        );
+          errorBuilder: (c, e, s) => Container(color: Colors.black26)
+        ) : Container(height: widget.isMobile ? 350 : 600, color: Colors.black26);
 
         if (widget.isMobile) {
           return Column(
@@ -540,4 +505,3 @@ class _PulsingCTAButtonState extends State<_PulsingCTAButton> with SingleTickerP
     );
   }
 }
-

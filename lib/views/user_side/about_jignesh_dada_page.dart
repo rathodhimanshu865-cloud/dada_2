@@ -88,7 +88,7 @@ class _AboutJigneshDadaPageState extends State<AboutJigneshDadaPage> {
 
             // ── 2. INTRODUCTION ──────────────────────────────────────────
             if (p.localizedContentHTML(lang).isNotEmpty)
-              _IntroBlock(html: p.localizedContentHTML(lang), portrait: home.aboutDadaPage.heroImage, isMob: isMob, isDsk: isDsk, lang: lang, l10n: l10n),
+              _IntroBlock(html: p.localizedContentHTML(lang), isMob: isMob, isDsk: isDsk, lang: lang, l10n: l10n),
 
             // ── 3. CORE COMPETENCIES ─────────────────────────────────────
             if (p.localizedCoreCompetencies(lang).isNotEmpty)
@@ -181,128 +181,75 @@ class _HeroState extends State<_Hero> with TickerProviderStateMixin {
     return Container(
       width: double.infinity,
       color: const Color(0xFFFAF8F4), // Ultra clean warm white
-      child: Stack(
-        children: [
-          
-          Positioned(
-            top: -100, right: -50,
-            child: Icon(Icons.wb_sunny_rounded, size: 400, color: _gold.withOpacity(0.02)),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          widget.isMob ? 24 : (widget.isDsk ? 100 : 60), 
+          widget.isMob ? 140 : 180, // Extra space for header
+          widget.isMob ? 24 : (widget.isDsk ? 100 : 60), 
+          widget.isMob ? 60 : 100
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1000),
+            child: FadeTransition(opacity: _fade, child: SlideTransition(position: _slideText, child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Label
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: _teal.withOpacity(0.06),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: _teal.withOpacity(0.1)),
+                      ),
+                      child: Text(widget.l10n.aboutUs, style: const TextStyle(color: _teal, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 2)),
+                    ),
+                    const SizedBox(width: 16),
+                    Container(width: 40, height: 1, color: _gold),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                
+                // Name
+                Text(title,
+                  textAlign: TextAlign.center,
+                  style: AppTypography.headingStyle(context, fontSize: widget.isMob ? 40 : 56, fontWeight: FontWeight.w800, color: _teal, height: 1.1, letterSpacing: -1)),
+                const SizedBox(height: 24),
+                
+                // Subtitle
+                Text(subtitle, 
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodyStyle(context, fontSize: widget.isMob ? 15 : 17, color: _slate, height: 1.6, fontWeight: FontWeight.w500)),
+                const SizedBox(height: 48),
+                
+                // Signature / Mantra
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.spa_rounded, color: _gold.withOpacity(0.8), size: 24),
+                    const SizedBox(width: 12),
+                    Text(widget.lang == 'hi' ? '"राधे राधे"' : widget.lang == 'gu' ? '"રાધે રાધે"' : '"Radhe Radhe"',
+                      style: const TextStyle(color: _gold, fontSize: 22, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, fontFamily: 'Georgia')),
+                  ],
+                ),
+              ],
+            ))),
           ),
-          
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              widget.isMob ? 24 : (widget.isDsk ? 100 : 60), 
-              widget.isMob ? 140 : 180, // Extra space for header
-              widget.isMob ? 24 : (widget.isDsk ? 100 : 60), 
-              widget.isMob ? 60 : 100
-            ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1200),
-                child: widget.isMob
-                    ? _mobileLayout(title, subtitle, hasImg)
-                    : _desktopLayout(title, subtitle, hasImg),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
+  // Mobile layout removed as desktop and mobile now share a centered structure
   Widget _desktopLayout(String title, String subtitle, bool hasImg) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        // Text column
-        Expanded(
-          flex: 55,
-          child: FadeTransition(opacity: _fade, child: SlideTransition(position: _slideText, child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Label
-              Row(children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _teal.withOpacity(0.06),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: _teal.withOpacity(0.1)),
-                  ),
-                  child: Text(widget.l10n.aboutUs, style: const TextStyle(color: _teal, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 2)),
-                ),
-                const SizedBox(width: 16),
-                Container(width: 40, height: 1, color: _gold),
-              ]),
-              const SizedBox(height: 32),
-              
-              // Name
-              Text(title,
-                style: AppTypography.headingStyle(context, fontSize: 56, fontWeight: FontWeight.w800, color: _teal, height: 1.1, letterSpacing: -1)),
-              const SizedBox(height: 24),
-              
-              // Subtitle
-              Container(
-                padding: const EdgeInsets.only(left: 20),
-                decoration: const BoxDecoration(border: Border(left: BorderSide(color: _gold, width: 3))),
-                child: Text(subtitle, style: AppTypography.bodyStyle(context, fontSize: 17, color: _slate, height: 1.6, fontWeight: FontWeight.w500)),
-              ),
-              const SizedBox(height: 48),
-              
-              // Signature / Mantra
-              Row(children: [
-                Icon(Icons.spa_rounded, color: _gold.withOpacity(0.8), size: 24),
-                const SizedBox(width: 12),
-                Text(widget.lang == 'hi' ? '"राधे राधे"' : widget.lang == 'gu' ? '"રાધે રાધે"' : '"Radhe Radhe"',
-                  style: const TextStyle(color: _gold, fontSize: 22, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, fontFamily: 'Georgia')),
-              ]),
-            ],
-          ))),
-        ),
-        
-        // Portrait column
-        if (hasImg) ...[
-          const SizedBox(width: 60),
-          Expanded(
-            flex: 45,
-            child: FadeTransition(
-              opacity: _fade,
-              child: SlideTransition(
-                position: _slideImg,
-                child: _PortraitFrame(url: widget.data.heroImage, height: 550),
-              ),
-            ),
-          ),
-        ],
-      ],
-    );
+    return const SizedBox.shrink();
   }
-
   Widget _mobileLayout(String title, String subtitle, bool hasImg) {
-    return FadeTransition(
-      opacity: _fade,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        if (hasImg) ...[_PortraitFrame(url: widget.data.heroImage, height: 380), const SizedBox(height: 40)],
-        
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(color: _teal.withOpacity(0.06), borderRadius: BorderRadius.circular(4)),
-          child: Text(widget.l10n.aboutUs, style: const TextStyle(color: _teal, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 2)),
-        ),
-        const SizedBox(height: 20),
-        
-        Text(title, textAlign: TextAlign.center,
-          style: AppTypography.headingStyle(context, fontSize: 40, fontWeight: FontWeight.w800, color: _teal, height: 1.15)),
-        const SizedBox(height: 20),
-        
-        Text(subtitle, textAlign: TextAlign.center, style: AppTypography.bodyStyle(context, fontSize: 15, color: _slate, height: 1.6)),
-        const SizedBox(height: 32),
-        
-        Text(widget.lang == 'hi' ? '"राधे राधे"' : widget.lang == 'gu' ? '"રાધે રાધે"' : '"Radhe Radhe"', 
-          style: const TextStyle(color: _gold, fontSize: 20, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, fontFamily: 'Georgia')),
-      ]),
-    );
+    return const SizedBox.shrink();
   }
 }
 
@@ -370,7 +317,7 @@ class _IntroBlock extends StatefulWidget {
   final String html, portrait, lang;
   final bool isMob, isDsk;
   final AppLocalizations l10n;
-  const _IntroBlock({required this.html, required this.portrait, required this.isMob, required this.isDsk, required this.lang, required this.l10n});
+  const _IntroBlock({required this.html, this.portrait = '', required this.isMob, required this.isDsk, required this.lang, required this.l10n});
 
   @override
   State<_IntroBlock> createState() => _IntroBlockState();
@@ -1282,18 +1229,4 @@ class _Label extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // DOT GRID PAINTER — subtle hero texture
 // ─────────────────────────────────────────────────────────────────────────────
-class _DotGridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.white.withOpacity(0.025)..strokeWidth = 1;
-    const spacing = 28.0;
-    for (double x = 0; x < size.width; x += spacing) {
-      for (double y = 0; y < size.height; y += spacing) {
-        canvas.drawCircle(Offset(x, y), 1.2, paint);
-      }
-    }
-  }
 
-  @override
-  bool shouldRepaint(_) => false;
-}
