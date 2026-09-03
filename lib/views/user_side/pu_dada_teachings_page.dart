@@ -50,11 +50,17 @@ class PuDadaTeachingsPage extends StatelessWidget {
   Widget _buildHeroBanner(BuildContext context, TeachingsPageData t, Color primaryColor, Color goldColor, String lang, bool isMobile) {
     return Container(
       width: double.infinity,
-      color: primaryColor,
       padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 120, horizontal: 20),
-      decoration: t.heroImage.isNotEmpty ? BoxDecoration(
-        image: DecorationImage(image: NetworkImage(t.heroImage), fit: BoxFit.cover, colorFilter: ColorFilter.mode(primaryColor.withOpacity(0.8), BlendMode.multiply))
-      ) : null,
+      decoration: BoxDecoration(
+        color: primaryColor,
+        image: t.heroImage.isNotEmpty 
+          ? DecorationImage(
+              image: NetworkImage(t.heroImage), 
+              fit: BoxFit.cover, 
+              colorFilter: ColorFilter.mode(primaryColor.withOpacity(0.8), BlendMode.multiply)
+            ) 
+          : null,
+      ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1000),

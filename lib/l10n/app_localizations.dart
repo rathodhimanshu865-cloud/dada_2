@@ -232,6 +232,12 @@ abstract class AppLocalizations {
   /// **'No photos added to this section yet.'**
   String get noPhotosAdded;
 
+  /// No description provided for @noVideosAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'No videos added to this section yet.'**
+  String get noVideosAdded;
+
   /// No description provided for @moreDetails.
   ///
   /// In en, this message translates to:

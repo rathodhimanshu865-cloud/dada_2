@@ -76,6 +76,9 @@ class AppLocalizationsGu extends AppLocalizations {
   String get noPhotosAdded => 'હજુ સુધી આ વિભાગમાં કોઈ ફોટા ઉમેર્યા નથી.';
 
   @override
+  String get noVideosAdded => 'હજુ સુધી આ વિભાગમાં કોઈ વિડિયો ઉમેર્યા નથી.';
+
+  @override
   String get moreDetails => 'વધુ વિગતો';
 
   @override

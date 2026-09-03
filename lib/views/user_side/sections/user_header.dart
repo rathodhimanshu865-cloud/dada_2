@@ -35,16 +35,20 @@ class UserHeader extends StatefulWidget {
 }
 
 class _UserHeaderState extends State<UserHeader>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   String selectedLanguage = 'English';
   
-  // Performance optimization: use ValueNotifier for scroll-driven UI
   final ValueNotifier<double> _scrollOffset = ValueNotifier<double>(0.0);
 
   final Color primaryTeal = const Color(0xFF0F4C5C);
   final Color templeGold = const Color(0xFFC89A5B);
   final Color warmWhite = const Color(0xFFFAF8F4);
   final Color darkCharcoal = const Color(0xFF2B2B2B);
+
+  late AnimationController _entranceController;
+  late AnimationController _pulseController;
+  late Animation<double> _logoAnimation;
+  late Animation<double> _ctaPulseAnimation;
 
   int _logoTapCount = 0;
   Timer? _logoTapResetTimer;
@@ -53,6 +57,27 @@ class _UserHeaderState extends State<UserHeader>
   void initState() {
     super.initState();
     widget.scrollController?.addListener(_scrollListener);
+
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    _logoAnimation = CurvedAnimation(
+      parent: _entranceController,
+      curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+    );
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
+
+    _ctaPulseAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
+    _entranceController.forward();
   }
 
   @override
@@ -80,13 +105,16 @@ class _UserHeaderState extends State<UserHeader>
   @override
   void dispose() {
     widget.scrollController?.removeListener(_scrollListener);
+    _entranceController.dispose();
+    _pulseController.dispose();
     _logoTapResetTimer?.cancel();
     _scrollOffset.dispose();
     super.dispose();
   }
 
   void _scrollListener() {
-    _scrollOffset.value = widget.scrollController?.offset ?? 0;
+    final double currentScroll = widget.scrollController?.offset ?? 0;
+    _scrollOffset.value = currentScroll;
   }
 
   void _handleLogoTap() {
@@ -127,117 +155,106 @@ class _UserHeaderState extends State<UserHeader>
     return ValueListenableBuilder<double>(
       valueListenable: _scrollOffset,
       builder: (context, offset, child) {
-        final bool isSticky = !widget.productPage && offset > 50 && settings.stickyHeaderEnabled;
-        final double headerHeight = isSticky ? 75 : (isMobile ? 70 : 95);
-        final double marginHorizontal = isSticky ? (screenWidth > 1400 ? (screenWidth - 1300) / 2 : (isMobile ? 15 : 40)) : 0;
-        final double marginTop = isSticky ? (isMobile ? 10 : 15) : 0;
-        final double borderRadius = isSticky ? (isMobile ? 16.0 : 24.0) : 0.0;
-        final double logoSize = isSticky ? (isMobile ? 45 : 55) : (isMobile ? 60 : 75);
-        final double glassOpacity = (isSticky || !isHomePage) ? 0.96 : 0.0;
-        final double blurAmount = (isSticky || !isHomePage) ? 20.0 : 0.0;
+        final bool isSticky = !widget.productPage && offset > 80 && settings.stickyHeaderEnabled;
+        final double headerHeight = isSticky ? 70 : (isMobile ? 70 : 95);
+            final double marginHorizontal = isSticky ? (screenWidth > 1400 ? (screenWidth - 1300) / 2 : (isMobile ? 15 : 40)) : 0;
+            final double marginTop = isSticky ? (isMobile ? 10 : 15) : 0;
+            final double borderRadius = isSticky ? (isMobile ? 16.0 : 24.0) : 0.0;
+            final double logoSize = isSticky ? (isMobile ? 40 : 50) : (isMobile ? 60 : 75);
+            final double glassOpacity = (isSticky || !isHomePage) ? 0.96 : 0.0;
+            final double blurAmount = (isSticky || !isHomePage) ? 12.0 : 0.0;
 
-        final Color navTextColor = (isSticky || !isHomePage)
-            ? const Color(0xFF07404C)
-            : const Color(0xFFFFF8F0);
-        final Color activeNavColor = isSticky ? primaryTeal : templeGold;
+            final Color navTextColor = (isSticky || !isHomePage)
+                ? const Color(0xFF07404C)
+                : const Color(0xFFFFF8F0);
+            final Color activeNavColor = isSticky ? primaryTeal : templeGold;
 
-        return Positioned(
-          top: widget.productPage ? -offset.clamp(0.0, 95.0) : marginTop,
-          left: marginHorizontal,
-          right: marginHorizontal,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (settings.announcementBarText.isNotEmpty && !isSticky && !widget.productPage)
-                _buildAnnouncementBar(settings.localizedAnnouncementBarText(lang)),
+            return AnimatedPositioned(
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeOutCubic,
+              top: marginTop,
+              left: marginHorizontal,
+              right: marginHorizontal,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (settings.announcementBarText.isNotEmpty && !isSticky && !widget.productPage)
+                    _buildAnnouncementBar(settings.localizedAnnouncementBarText(lang)),
 
-              Material(
-                color: Colors.transparent,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOutQuad,
-                  height: headerHeight,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(borderRadius),
-                    boxShadow: isSticky
-                        ? [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
-                          ]
-                        : [],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(borderRadius),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                        sigmaX: blurAmount,
-                        sigmaY: blurAmount,
+                  Material(
+                    color: Colors.transparent,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeInOut,
+                      height: headerHeight,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(borderRadius),
+                        boxShadow: isSticky
+                            ? [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 25,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ]
+                            : [],
                       ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 25),
-                        decoration: BoxDecoration(
-                          color: bgColor.withOpacity(glassOpacity),
-                          borderRadius: BorderRadius.circular(borderRadius),
-                        ),
-                        child: Row(
-                          children: [
-                            _buildBranding(logoSize, isSticky, navTextColor, lang),
-                            if (!isMobile) ...[
-                              Expanded(
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    physics: const BouncingScrollPhysics(),
-                                    child: _buildNavigation(
-                                      l10n,
-                                      currentRoute,
-                                      isSticky,
-                                      navTextColor,
-                                      activeNavColor,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(borderRadius),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(
+                            sigmaX: blurAmount,
+                            sigmaY: blurAmount,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 25),
+                            decoration: BoxDecoration(
+                              color: bgColor.withOpacity(glassOpacity),
+                              borderRadius: BorderRadius.circular(borderRadius),
+                            ),
+                            child: Row(
+                              children: [
+                                _buildBranding(logoSize, isSticky, navTextColor, lang),
+                                if (!isMobile) ...[
+                                  Expanded(
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        physics: const BouncingScrollPhysics(),
+                                        child: _buildNavigation(
+                                          l10n,
+                                          currentRoute,
+                                          isSticky,
+                                          navTextColor,
+                                          activeNavColor,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                              _buildActionControls(
-                                l10n,
-                                isSticky,
-                                settings,
-                                navTextColor,
-                                lang,
-                              ),
-                            ] else ...[
-                              const Spacer(),
-                              _buildSearchButton(isSticky, navTextColor),
-                              const SizedBox(width: 8),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.menu,
-                                  color: navTextColor,
-                                  size: 30,
-                                ),
-                                onPressed: () => _showMobileMenu(
-                                  context,
-                                  l10n,
-                                  currentRoute,
-                                  activeNavColor,
-                                  lang,
-                                ),
-                              ),
-                            ],
-                          ],
+                                  _buildActionControls(
+                                    l10n,
+                                    isSticky,
+                                    settings,
+                                    navTextColor,
+                                    lang,
+                                  ),
+                                ] else ...[
+                                  const Spacer(),
+                                  _buildSearchButton(isSticky, navTextColor),
+                                  const SizedBox(width: 8),
+                                  _buildMobileHamburger(true, navTextColor, () => _showMobileMenu(context, l10n, currentRoute, activeNavColor, lang)),
+                                ],
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        );
+            );
       }
     );
   }
@@ -249,341 +266,87 @@ class _UserHeaderState extends State<UserHeader>
     Color activeColor,
     String lang,
   ) {
-    final prodController = Provider.of<ProductController>(context, listen: false);
-    showModalBottomSheet(
+    showGeneralDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: warmWhite,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (context, scrollController) => SafeArea(
-          child: SingleChildScrollView(
-            controller: scrollController,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      icon: const Icon(Icons.close, size: 30),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                  ListTile(
-                    title: Text(
-                      l10n.home,
-                      style: TextStyle(
-                        color: currentRoute == '/' ? activeColor : darkCharcoal,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/');
-                    },
-                  ),
-
-                  ListTile(
-                    title: Text(
-                      l10n.aboutDada,
-                      style: TextStyle(
-                        color: currentRoute == '/about_dada'
-                            ? activeColor
-                            : darkCharcoal,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/about_dada');
-                    },
-                  ),
-                  ExpansionTile(
-                    title: Text(
-                      l10n.katha,
-                      style: TextStyle(
-                        color: currentRoute.contains('katha')
-                            ? activeColor
-                            : darkCharcoal,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    children: [
-                      ListTile(
-                        title: Text(l10n.shrimadBhagvatKatha),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/about_katha');
-                        },
-                      ),
-                      ListTile(
-                        title: Text(l10n.deviBhagvatKatha),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/about_devi_katha');
-                        },
-                      ),
-                      ListTile(
-                        title: Text(l10n.shivmahapuranKatha),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/about_shiv_katha');
-                        },
-                      ),
-                      ListTile(
-                        title: Text(l10n.fullKathaList),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/katha_list');
-                        },
-                      ),
-                      ListTile(
-                        title: Text(l10n.upcomingKathas),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/upcoming_ram_kathas');
-                        },
-                      ),
-                    ],
-                  ),
-                  ExpansionTile(
-                    title: Text(
-                      l10n.products,
-                      style: TextStyle(
-                        color: currentRoute.contains('catalogue') || currentRoute == '/product' || currentRoute == '/teachings' || currentRoute == '/my_orders' || currentRoute == '/cart'
-                            ? activeColor
-                            : darkCharcoal,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    children: [
-                      ListTile(
-                        title: Text(l10n.storeHomePortal),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/product');
-                        },
-                      ),
-                      ListTile(
-                        title: Text(l10n.allSacredProducts),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/catalogue', arguments: 'all');
-                        },
-                      ),
-                      ...prodController.categoryObjects.map((cat) => ListTile(
-                        title: Text(cat.localizedName(lang)),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/catalogue', arguments: cat.id);
-                        },
-                      )).toList(),
-                      ListTile(
-                        title: Text(l10n.pujyaDadaTeachings),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/teachings');
-                        },
-                      ),
-                      ListTile(
-                        title: Text(l10n.trackShipment),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/track');
-                        },
-                      ),
-                      ListTile(
-                        title: Text(
-                          Provider.of<AuthController>(context, listen: false).isAuthenticated
-                            ? l10n.myOrders
-                            : l10n.loginSignUp
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                          if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
-                            Navigator.pushNamed(context, '/my_orders');
-                          } else {
-                            Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
-                          }
-                        },
-                      ),
-                      ListTile(
-                        title: Text(l10n.myShoppingBag),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/cart');
-                        },
-                      ),
-                    ],
-                  ),
-                  ListTile(
-                    title: Text(
-                      l10n.stotraBhajan,
-                      style: TextStyle(
-                        color: currentRoute == '/stotra'
-                            ? activeColor
-                            : darkCharcoal,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/stotra');
-                    },
-                  ),
-                  ExpansionTile(
-                    title: Text(
-                      l10n.gallery,
-                      style: TextStyle(
-                        color:
-                            currentRoute.contains('gallery') ||
-                                currentRoute == '/news'
-                            ? activeColor
-                            : darkCharcoal,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    children: [
-                      ListTile(
-                        title: Text(l10n.photoGallery),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/photo_gallery');
-                        },
-                      ),
-                      ListTile(
-                        title: Text(l10n.videoGallery),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/video_gallery');
-                        },
-                      ),
-                      ListTile(
-                        title: Text(l10n.newsGallery),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, '/news');
-                        },
-                      ),
-                    ],
-                  ),
-                  ListTile(
-                    title: Text(
-                      l10n.contact,
-                      style: TextStyle(
-                        color: currentRoute == '/contact_us'
-                            ? activeColor
-                            : darkCharcoal,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/contact_us');
-                    },
-                  ),
-                  const Divider(height: 40),
-                  Text(
-                    l10n.selectedLanguage,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _mobileLangButton('EN', 'English'),
-                      _mobileLangButton('HI', 'Hindi'),
-                      _mobileLangButton('GU', 'Gujarati'),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
+      barrierDismissible: true,
+      barrierLabel: 'MobileMenu',
+      barrierColor: Colors.black.withOpacity(0.4),
+      transitionDuration: const Duration(milliseconds: 350),
+      pageBuilder: (context, anim1, anim2) {
+        return Align(
+          alignment: Alignment.centerRight,
+          child: _MobileMenuPanel(
+            l10n: l10n,
+            currentRoute: currentRoute,
+            activeColor: activeColor,
+            lang: lang,
+            prodController: Provider.of<ProductController>(context, listen: false),
+            authController: Provider.of<AuthController>(context, listen: false),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _mobileLangButton(String shortCode, String fullLanguage) {
-    bool isSelected = selectedLanguage == fullLanguage;
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? templeGold : Colors.grey[200],
-        foregroundColor: isSelected ? Colors.white : Colors.black,
-      ),
-      onPressed: () {
-        setState(() => selectedLanguage = fullLanguage);
-        final langCode = fullLanguage == 'English'
-            ? 'en'
-            : fullLanguage == 'Hindi'
-            ? 'hi'
-            : 'gu';
-        Provider.of<LanguageController>(
-          context,
-          listen: false,
-        ).changeLanguage(Locale(langCode));
-        Navigator.pop(context);
+        );
       },
-      child: Text(shortCode),
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(1, 0),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: anim1, curve: Curves.easeOutCubic)),
+          child: child,
+        );
+      },
     );
   }
 
   Widget _buildBranding(double logoSize, bool isSticky, Color textColor, String lang) {
-    return _buildLogo(logoSize, isSticky, lang);
+    return FadeTransition(
+      opacity: _logoAnimation,
+      child: ScaleTransition(
+        scale: Tween<double>(begin: 0.9, end: 1.0).animate(_logoAnimation),
+        child: _buildLogo(logoSize, isSticky, lang),
+      ),
+    );
   }
 
   Widget _buildLogo(double size, bool isSticky, String lang) {
     return GestureDetector(
       onTap: _handleLogoTap,
-      child: Hero(
-        tag: 'website_logo',
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          width: size,
-          height: size,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: isSticky
+              ? [
+                  BoxShadow(
+                    color: templeGold.withOpacity(0.3),
+                    blurRadius: 15,
+                  ),
+                ]
+              : [],
+        ),
+        child: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            boxShadow: isSticky
-                ? [
-                    BoxShadow(
-                      color: templeGold.withOpacity(0.3),
-                      blurRadius: 15,
+            image: widget.controller.websiteSettings.logoUrl.isNotEmpty
+                ? DecorationImage(
+                    image: NetworkImage(
+                      widget.controller.websiteSettings.logoUrl,
                     ),
-                  ]
-                : [],
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: widget.controller.websiteSettings.logoUrl.isNotEmpty
-                  ? DecorationImage(
-                      image: NetworkImage(
-                        widget.controller.websiteSettings.logoUrl,
-                      ),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
-            ),
-            child: widget.controller.websiteSettings.logoUrl.isEmpty
-                ? Center(
-                    child: Text(
-                      widget.controller.websiteSettings.localizedName(lang).isNotEmpty 
-                        ? widget.controller.websiteSettings.localizedName(lang)[0].toUpperCase()
-                        : "D",
-                      style: TextStyle(color: templeGold, fontWeight: FontWeight.bold, fontSize: size * 0.4),
-                    ),
+                    fit: BoxFit.cover,
                   )
                 : null,
           ),
+          child: widget.controller.websiteSettings.logoUrl.isEmpty
+              ? Center(
+                  child: Text(
+                    widget.controller.websiteSettings.localizedName(lang).isNotEmpty 
+                      ? widget.controller.websiteSettings.localizedName(lang)[0].toUpperCase()
+                      : "D",
+                    style: TextStyle(color: templeGold, fontWeight: FontWeight.bold, fontSize: size * 0.4),
+                  ),
+                )
+              : null,
         ),
       ),
     );
@@ -596,83 +359,72 @@ class _UserHeaderState extends State<UserHeader>
     Color textColor,
     Color activeColor,
   ) {
+    final navItems = [
+      {'title': l10n.home, 'route': '/'},
+      {'title': l10n.aboutDada, 'route': '/about_dada'},
+      {'title': l10n.katha, 'type': 'dropdown', 'items': [
+        _dropdownItem(l10n.shrimadBhagvatKatha, '/about_katha'),
+        _dropdownItem(l10n.deviBhagvatKatha, '/about_devi_katha'),
+        _dropdownItem(l10n.shivmahapuranKatha, '/about_shiv_katha'),
+        const PopupMenuDivider(),
+        _dropdownItem(l10n.fullKathaList, '/katha_list'),
+        _dropdownItem(l10n.upcomingKathas, '/upcoming_ram_kathas'),
+      ]},
+      {'title': l10n.products, 'type': 'dropdown', 'items': [
+        _dropdownItem(l10n.storeHomePortal, '/product'),
+        _dropdownItem(l10n.allSacredProducts, '/catalogue'),
+        const PopupMenuDivider(),
+        _dropdownItem(l10n.pujyaDadaTeachings, '/teachings'),
+        _dropdownItem(l10n.trackShipment, '/track'),
+      ]},
+      {'title': l10n.stotraBhajan, 'route': '/stotra'},
+      {'title': l10n.gallery, 'type': 'dropdown', 'items': [
+        _dropdownItem(l10n.photoGallery, '/photo_gallery'),
+        _dropdownItem(l10n.videoGallery, '/video_gallery'),
+        _dropdownItem(l10n.newsGallery, '/news'),
+      ]},
+      {'title': l10n.contact, 'route': '/contact_us'},
+    ];
+
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [
-        _navItem(
-          l10n.home,
-          '/',
-          currentRoute == '/',
-          isSticky,
-          textColor,
-          activeColor,
-        ),
-        _navItem(
-          l10n.aboutDada,
-          '/about_dada',
-          currentRoute == '/about_dada',
-          isSticky,
-          textColor,
-          activeColor,
-        ),
-        _buildDropdownNavItem(
-          l10n.katha,
-          [
-            _dropdownItem(l10n.shrimadBhagvatKatha, '/about_katha'),
-            _dropdownItem(l10n.deviBhagvatKatha, '/about_devi_katha'),
-            _dropdownItem(l10n.shivmahapuranKatha, '/about_shiv_katha'),
-            const PopupMenuDivider(),
-            _dropdownItem(l10n.fullKathaList, '/katha_list'),
-            _dropdownItem(l10n.upcomingKathas, '/upcoming_ram_kathas'),
-          ],
-          currentRoute.contains('katha'),
-          isSticky,
-          textColor,
-          activeColor,
-        ),
-        _buildDropdownNavItem(
-          l10n.products,
-          [
-            _dropdownItem(l10n.storeHomePortal, '/product'),
-            _dropdownItem(l10n.allSacredProducts, '/catalogue'),
-            const PopupMenuDivider(),
-            _dropdownItem(l10n.pujyaDadaTeachings, '/teachings'),
-            _dropdownItem(l10n.trackShipment, '/track'),
-          ],
-          currentRoute.contains('catalogue') || currentRoute == '/product' || currentRoute == '/teachings',
-          isSticky,
-          textColor,
-          activeColor,
-        ),
-        _navItem(
-          l10n.stotraBhajan,
-          '/stotra',
-          currentRoute == '/stotra',
-          isSticky,
-          textColor,
-          activeColor,
-        ),
-        _buildDropdownNavItem(
-          l10n.gallery,
-          [
-            _dropdownItem(l10n.photoGallery, '/photo_gallery'),
-            _dropdownItem(l10n.videoGallery, '/video_gallery'),
-            _dropdownItem(l10n.newsGallery, '/news'),
-          ],
-          currentRoute.contains('gallery') || currentRoute == '/news',
-          isSticky,
-          textColor,
-          activeColor,
-        ),
-        _navItem(
-          l10n.contact,
-          '/contact_us',
-          currentRoute == '/contact_us',
-          isSticky,
-          textColor,
-          activeColor,
-        ),
-      ],
+      children: navItems.asMap().entries.map((entry) {
+        final int index = entry.key;
+        final item = entry.value;
+        final bool isDropdown = item['type'] == 'dropdown';
+        
+        return FadeTransition(
+          opacity: CurvedAnimation(
+            parent: _entranceController,
+            curve: Interval(0.2 + (index * 0.05), 0.6 + (index * 0.05), curve: Curves.easeIn),
+          ),
+          child: SlideTransition(
+            position: Tween<Offset>(begin: const Offset(0, -0.2), end: Offset.zero).animate(
+              CurvedAnimation(
+                parent: _entranceController,
+                curve: Interval(0.2 + (index * 0.05), 0.6 + (index * 0.05), curve: Curves.easeOutCubic),
+              ),
+            ),
+            child: isDropdown 
+              ? _buildDropdownNavItem(
+                  item['title'] as String,
+                  item['items'] as List<Widget>,
+                  currentRoute.contains(item['route'] as String? ?? 'NOT_FOUND'), 
+                  isSticky,
+                  textColor,
+                  activeColor,
+                )
+              : _navItem(
+                  item['title'] as String,
+                  item['route'] as String,
+                  currentRoute == item['route'],
+                  isSticky,
+                  textColor,
+                  activeColor,
+                ),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -684,37 +436,12 @@ class _UserHeaderState extends State<UserHeader>
     Color textColor,
     Color activeColor,
   ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 11),
-      child: InkWell(
-        onTap: () => Navigator.pushNamed(context, route),
-        hoverColor: Colors.transparent,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              title.toUpperCase(),
-              style: AppTypography.bodyStyle(
-                context,
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: isActive ? activeColor : textColor.withOpacity(0.85),
-                letterSpacing: 0.1,
-              ),
-            ),
-            const SizedBox(height: 6),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              height: 2.5,
-              width: isActive ? 20 : 0,
-              decoration: BoxDecoration(
-                color: activeColor,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return _AnimatedNavLink(
+      title: title,
+      isActive: isActive,
+      textColor: textColor,
+      activeColor: activeColor,
+      onTap: () => Navigator.pushNamed(context, route),
     );
   }
 
@@ -733,40 +460,12 @@ class _UserHeaderState extends State<UserHeader>
         elevation: 20,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         color: warmWhite,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title.toUpperCase(),
-                  style: AppTypography.bodyStyle(
-                    context,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: isActive ? activeColor : textColor.withOpacity(0.85),
-                    letterSpacing: 0.1,
-                  ),
-                ),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 16,
-                  color: isActive ? activeColor : textColor.withOpacity(0.6),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              height: 2.5,
-              width: isActive ? 20 : 0,
-              decoration: BoxDecoration(
-                color: activeColor,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ],
+        child: _AnimatedNavLink(
+          title: title,
+          isActive: isActive,
+          textColor: textColor,
+          activeColor: activeColor,
+          isDropdown: true,
         ),
         itemBuilder: (context) =>
             items.map((item) => item as PopupMenuEntry<String>).toList(),
@@ -819,44 +518,6 @@ class _UserHeaderState extends State<UserHeader>
     );
   }
 
-  Widget _buildNotificationButton(Color textColor) {
-    return Consumer<NotificationController>(
-      builder: (context, controller, child) {
-        return InkWell(
-          onTap: () => _showNotificationDrawer(context),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Icon(Icons.notifications_none_outlined, color: textColor, size: 24),
-              if (controller.unreadCount > 0)
-                Positioned(
-                  right: -2,
-                  top: -2,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Colors.redAccent,
-                      shape: BoxShape.circle,
-                    ),
-                    constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
-                    child: Text(
-                      '${controller.unreadCount}',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   void _showNotificationDrawer(BuildContext context) {
     showGeneralDialog(
       context: context,
@@ -880,19 +541,6 @@ class _UserHeaderState extends State<UserHeader>
         );
       },
     );
-  }
-
-  String _getTranslatedLanguageName(AppLocalizations l10n, String lang) {
-    switch (lang) {
-      case 'English':
-        return l10n.english;
-      case 'Gujarati':
-        return l10n.gujarati;
-      case 'Hindi':
-        return l10n.hindi;
-      default:
-        return lang;
-    }
   }
 
   Widget _buildAuthButton(Color textColor) {
@@ -928,7 +576,6 @@ class _UserHeaderState extends State<UserHeader>
             ],
     );
   }
-
 
   Widget _buildLanguageSwitcher(
     AppLocalizations l10n,
@@ -1076,31 +723,50 @@ class _UserHeaderState extends State<UserHeader>
   }
 
   Widget _buildDonateButton(HeaderSettings settings, String lang) {
-    return ElevatedButton(
-      onPressed: () {
-        if (settings.donateButtonUrl.isNotEmpty) {
-          launchUrl(Uri.parse(settings.donateButtonUrl), mode: LaunchMode.externalApplication);
-        }
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: templeGold,
-        foregroundColor: Colors.white,
-        elevation: 5,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        minimumSize: const Size(80, 36),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-      ),
-      child: Text(
-        settings.localizedDonateButtonText(lang).toUpperCase(),
-        style: AppTypography.bodyStyle(
-          context,
-          fontWeight: FontWeight.w900,
-          fontSize: 9,
-          letterSpacing: 1.2,
-          color: Colors.white,
+    return FadeTransition(
+      opacity: _ctaPulseAnimation,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: templeGold.withOpacity(0.3 * (1.0 - _ctaPulseAnimation.value)),
+              blurRadius: 15 * _ctaPulseAnimation.value,
+              spreadRadius: 2 * _ctaPulseAnimation.value,
+            )
+          ],
+        ),
+        child: ElevatedButton(
+          onPressed: () {
+            if (settings.donateButtonUrl.isNotEmpty) {
+              launchUrl(Uri.parse(settings.donateButtonUrl), mode: LaunchMode.externalApplication);
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: templeGold,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            minimumSize: const Size(80, 36),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          ),
+          child: Text(
+            settings.localizedDonateButtonText(lang).toUpperCase(),
+            style: AppTypography.bodyStyle(
+              context,
+              fontWeight: FontWeight.w900,
+              fontSize: 9,
+              letterSpacing: 1.2,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  Widget _buildMobileHamburger(bool isVisible, Color color, VoidCallback onTap) {
+    return _AnimatedHamburger(color: color, onTap: onTap);
   }
 
   Widget _buildAnnouncementBar(String text) {
@@ -1124,6 +790,392 @@ class _UserHeaderState extends State<UserHeader>
           ),
         ),
       ),
+    );
+  }
+
+  String _getTranslatedLanguageName(AppLocalizations l10n, String lang) {
+    switch (lang) {
+      case 'English':
+        return l10n.english;
+      case 'Gujarati':
+        return l10n.gujarati;
+      case 'Hindi':
+        return l10n.hindi;
+      default:
+        return lang;
+    }
+  }
+}
+
+class _AnimatedHamburger extends StatefulWidget {
+  final Color color;
+  final VoidCallback onTap;
+
+  const _AnimatedHamburger({required this.color, required this.onTap});
+
+  @override
+  State<_AnimatedHamburger> createState() => _AnimatedHamburgerState();
+}
+
+class _AnimatedHamburgerState extends State<_AnimatedHamburger> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        if (_controller.isCompleted) {
+          _controller.reverse();
+        } else {
+          _controller.forward();
+        }
+        widget.onTap();
+      },
+      child: SizedBox(
+        width: 44,
+        height: 44,
+        child: Center(
+          child: AnimatedIcon(
+            icon: AnimatedIcons.menu_close,
+            progress: _controller,
+            color: widget.color,
+            size: 28,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedNavLink extends StatefulWidget {
+  final String title;
+  final bool isActive;
+  final Color textColor;
+  final Color activeColor;
+  final VoidCallback? onTap;
+  final bool isDropdown;
+
+  const _AnimatedNavLink({
+    required this.title,
+    required this.isActive,
+    required this.textColor,
+    required this.activeColor,
+    this.onTap,
+    this.isDropdown = false,
+  });
+
+  @override
+  State<_AnimatedNavLink> createState() => _AnimatedNavLinkState();
+}
+
+class _AnimatedNavLinkState extends State<_AnimatedNavLink> with SingleTickerProviderStateMixin {
+  bool _isHovered = false;
+  late AnimationController _controller;
+  late Animation<double> _underlineAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
+    _underlineAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Color currentColor = widget.isActive 
+      ? widget.activeColor 
+      : (_isHovered ? const Color(0xFFC89A5B) : widget.textColor.withOpacity(0.85));
+
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() => _isHovered = true);
+        _controller.forward();
+      },
+      onExit: (_) {
+        setState(() => _isHovered = false);
+        _controller.reverse();
+      },
+      child: InkWell(
+        onTap: widget.onTap,
+        hoverColor: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 200),
+                    style: AppTypography.bodyStyle(
+                      context,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: currentColor,
+                      letterSpacing: 0.1,
+                    ),
+                    child: Text(widget.title.toUpperCase()),
+                  ),
+                  if (widget.isDropdown) ...[
+                    const SizedBox(width: 4),
+                    Icon(Icons.keyboard_arrow_down, size: 16, color: currentColor.withOpacity(0.6)),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 6),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (widget.isActive)
+                    Container(
+                      height: 2.5,
+                      width: 20,
+                      decoration: BoxDecoration(
+                        color: widget.activeColor,
+                        borderRadius: BorderRadius.circular(2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: widget.activeColor.withOpacity(0.4),
+                            blurRadius: 4,
+                            spreadRadius: 1,
+                          )
+                        ],
+                      ),
+                    ),
+                  if (!widget.isActive)
+                    ScaleTransition(
+                      scale: _underlineAnimation,
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        height: 2.5,
+                        width: 20,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFC89A5B),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MobileMenuPanel extends StatefulWidget {
+  final AppLocalizations l10n;
+  final String currentRoute;
+  final Color activeColor;
+  final String lang;
+  final ProductController prodController;
+  final AuthController authController;
+
+  const _MobileMenuPanel({
+    required this.l10n,
+    required this.currentRoute,
+    required this.activeColor,
+    required this.lang,
+    required this.prodController,
+    required this.authController,
+  });
+
+  @override
+  State<_MobileMenuPanel> createState() => _MobileMenuPanelState();
+}
+
+class _MobileMenuPanelState extends State<_MobileMenuPanel> with SingleTickerProviderStateMixin {
+  late AnimationController _entranceController;
+
+  @override
+  void initState() {
+    super.initState();
+    _entranceController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    _entranceController.forward();
+  }
+
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final menuItems = [
+      {'title': widget.l10n.home, 'route': '/'},
+      {'title': widget.l10n.aboutDada, 'route': '/about_dada'},
+      {'title': widget.l10n.katha, 'type': 'expansion', 'children': [
+        {'title': widget.l10n.shrimadBhagvatKatha, 'route': '/about_katha'},
+        {'title': widget.l10n.deviBhagvatKatha, 'route': '/about_devi_katha'},
+        {'title': widget.l10n.shivmahapuranKatha, 'route': '/about_shiv_katha'},
+        {'title': widget.l10n.fullKathaList, 'route': '/katha_list'},
+        {'title': widget.l10n.upcomingKathas, 'route': '/upcoming_ram_kathas'},
+      ]},
+      {'title': widget.l10n.products, 'type': 'expansion', 'children': [
+        {'title': widget.l10n.storeHomePortal, 'route': '/product'},
+        {'title': widget.l10n.allSacredProducts, 'route': '/catalogue'},
+        {'title': widget.l10n.pujyaDadaTeachings, 'route': '/teachings'},
+        {'title': widget.l10n.trackShipment, 'route': '/track'},
+        {'title': widget.authController.isAuthenticated ? widget.l10n.myOrders : widget.l10n.loginSignUp, 'route': '/my_orders'},
+      ]},
+      {'title': widget.l10n.stotraBhajan, 'route': '/stotra'},
+      {'title': widget.l10n.gallery, 'type': 'expansion', 'children': [
+        {'title': widget.l10n.photoGallery, 'route': '/photo_gallery'},
+        {'title': widget.l10n.videoGallery, 'route': '/video_gallery'},
+        {'title': widget.l10n.newsGallery, 'route': '/news'},
+      ]},
+      {'title': widget.l10n.contact, 'route': '/contact_us'},
+    ];
+
+    return Material(
+      color: Colors.white,
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.85,
+        height: double.infinity,
+        padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: const Icon(Icons.close, size: 32),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: ListView.builder(
+                itemCount: menuItems.length + 2, // +2 for Divider and Language Buttons
+                itemBuilder: (context, index) {
+                  if (index < menuItems.length) {
+                    final item = menuItems[index];
+                    return FadeTransition(
+                      opacity: CurvedAnimation(
+                        parent: _entranceController,
+                        curve: Interval(index * 0.05, 0.6 + (index * 0.05), curve: Curves.easeIn),
+                      ),
+                      child: SlideTransition(
+                        position: Tween<Offset>(begin: const Offset(0.2, 0), end: Offset.zero).animate(
+                          CurvedAnimation(
+                            parent: _entranceController,
+                            curve: Interval(index * 0.05, 0.6 + (index * 0.05), curve: Curves.easeOutCubic),
+                          ),
+                        ),
+                        child: _buildMenuItem(item),
+                      ),
+                    );
+                  } else if (index == menuItems.length) {
+                    return const Divider(height: 40);
+                  } else {
+                    return _buildLanguageSection();
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem(Map<String, dynamic> item) {
+    final bool isExpansion = item['type'] == 'expansion';
+    final String? route = item['route'] as String?;
+    final bool isActive = route != null && widget.currentRoute == route;
+
+    if (isExpansion) {
+      return ExpansionTile(
+        title: Text(item['title'] as String, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F4C5C))),
+        children: (item['children'] as List<Map<String, dynamic>>).map((child) => ListTile(
+          title: Text(child['title']!),
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.pushNamed(context, child['route']!);
+          },
+        )).toList(),
+      );
+    }
+
+    return ListTile(
+      title: Text(
+        item['title'] as String,
+        style: TextStyle(
+          color: isActive ? widget.activeColor : const Color(0xFF2B2B2B),
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.pushNamed(context, route!);
+      },
+    );
+  }
+
+  Widget _buildLanguageSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            widget.l10n.selectedLanguage,
+            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _langButton('EN', 'English'),
+            _langButton('HI', 'Hindi'),
+            _langButton('GU', 'Gujarati'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _langButton(String code, String label) {
+    final bool isSelected = Provider.of<LanguageController>(context, listen: false).locale.languageCode == 
+        (label == 'English' ? 'en' : label == 'Hindi' ? 'hi' : 'gu');
+        
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected ? const Color(0xFFC89A5B) : Colors.grey[100],
+        foregroundColor: isSelected ? Colors.white : Colors.black87,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      onPressed: () {
+        final langCode = label == 'English' ? 'en' : label == 'Hindi' ? 'hi' : 'gu';
+        Provider.of<LanguageController>(context, listen: false).changeLanguage(Locale(langCode));
+        Navigator.pop(context);
+      },
+      child: Text(code),
     );
   }
 }

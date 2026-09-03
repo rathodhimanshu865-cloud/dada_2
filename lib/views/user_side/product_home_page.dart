@@ -12,12 +12,35 @@ import 'sections/product_card.dart';
 import '../../utils/app_typography.dart';
 import '../../utils/responsive_utils.dart';
 
-class ProductHomePage extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:visibility_detector/visibility_detector.dart';
+import '../../controllers/homepage_controller.dart';
+import '../../controllers/product_controller.dart';
+import '../../controllers/language_controller.dart';
+import '../../l10n/app_localizations.dart';
+import '../../models/homepage_model.dart';
+import '../../models/category_model.dart';
+import 'sections/product_cart_layout.dart';
+import 'sections/product_card.dart';
+import '../../utils/app_typography.dart';
+import '../../utils/responsive_utils.dart';
+import '../../utils/animation_utils.dart';
+
+class ProductHomePage extends StatefulWidget {
   const ProductHomePage({super.key});
 
+  @override
+  State<ProductHomePage> createState() => _ProductHomePageState();
+}
+
+class _ProductHomePageState extends State<ProductHomePage> {
   final Color primaryGreen = const Color(0xFF07404C);
   final Color templeGold = const Color(0xFFC89A5B);
   final Color bgCream = const Color(0xFFFDFBF7);
+  bool _isVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -26,34 +49,49 @@ class ProductHomePage extends StatelessWidget {
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
     final h = homeController.homepageData.homePortal;
     final bool isMobile = Responsive.isMobile(context);
-    final bool isTablet = Responsive.isTablet(context);
-    final bool isDesktop = Responsive.isDesktop(context);
 
-    return ProductCartLayout(
-      controller: homeController,
-      slivers: [
-        // 1. Hero Section
-        SliverToBoxAdapter(child: _buildHeroSection(context, h, lang, isMobile)),
-        
-        // 2. Categories (Devotional Collections)
-        SliverToBoxAdapter(child: _buildSacredOfferingsSection(context, h, productController, lang, isMobile)),
-        
-        // 3. Featured Products Grid
-        SliverToBoxAdapter(child: _buildFeaturedProductsSection(context, h, productController, lang, isMobile)),
-        
-        // 4. Consecration Process
-        SliverToBoxAdapter(child: _buildProcessSection(context, isMobile)),
-        
-        // 5. Testimonials
-        SliverToBoxAdapter(child: _buildTestimonialsSection(context, h, lang, isMobile)),
-        
-        // 6. Wisdom Aphorisms
-        SliverToBoxAdapter(child: _buildWisdomSection(context, h, lang, isMobile)),
-        
-        // 7. Help/Guidance Bar
-        SliverToBoxAdapter(child: _buildHelpBar(context, h, lang, isMobile)),
-      ],
-      child: const SizedBox.shrink(),
+    return VisibilityDetector(
+      key: const Key('product-home-visibility'),
+      onVisibilityChanged: (info) {
+        if (info.visibleFraction > 0.05 && !_isVisible) {
+          if (mounted) setState(() => _isVisible = true);
+        }
+      },
+      child: ProductCartLayout(
+        controller: homeController,
+        slivers: [
+          // 1. Hero Section
+          SliverToBoxAdapter(
+            child: FadeIn(
+              duration: const Duration(milliseconds: 1000),
+              child: ZoomOut(
+                from: 1.05,
+                duration: const Duration(milliseconds: 1500),
+                child: _buildHeroSection(context, h, lang, isMobile),
+              ),
+            ),
+          ),
+          
+          // 2. Categories
+          SliverToBoxAdapter(child: _buildSacredOfferingsSection(context, h, productController, lang, isMobile)),
+          
+          // 3. Featured Products
+          SliverToBoxAdapter(child: _buildFeaturedProductsSection(context, h, productController, lang, isMobile)),
+          
+          // 4. Consecration Process
+          SliverToBoxAdapter(child: _buildProcessSection(context, isMobile)),
+          
+          // 5. Testimonials
+          SliverToBoxAdapter(child: _buildTestimonialsSection(context, h, lang, isMobile)),
+          
+          // 6. Wisdom Aphorisms
+          SliverToBoxAdapter(child: _buildWisdomSection(context, h, lang, isMobile)),
+          
+          // 7. Help Bar
+          SliverToBoxAdapter(child: _buildHelpBar(context, h, lang, isMobile)),
+        ],
+        child: const SizedBox.shrink(),
+      ),
     );
   }
 
@@ -64,15 +102,15 @@ class ProductHomePage extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      color: primaryGreen,
       padding: EdgeInsets.symmetric(vertical: paddingV, horizontal: paddingH),
-      decoration: h.heroImage.isNotEmpty ? BoxDecoration(
-        image: DecorationImage(
+      decoration: BoxDecoration(
+        color: primaryGreen,
+        image: h.heroImage.isNotEmpty ? DecorationImage(
           image: NetworkImage(h.heroImage),
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(primaryGreen.withOpacity(0.8), BlendMode.multiply),
-        ),
-      ) : null,
+        ) : null,
+      ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1400),
@@ -100,56 +138,80 @@ class ProductHomePage extends StatelessWidget {
     return Column(
       crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: isMobile ? MainAxisAlignment.center : MainAxisAlignment.start,
-          children: [
-            const Icon(Icons.stars, color: Color(0xFFC89A5B), size: 20), 
-            const SizedBox(width: 10), 
-            Text(AppLocalizations.of(context)!.officialStoreLabel, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 0.5))
-          ]
-        ),
-        const SizedBox(height: 30),
-        Text(h.localizedHeroHeading(lang).isNotEmpty ? h.localizedHeroHeading(lang) : 'Sacred Offerings for Your Spiritual Journey', 
-          textAlign: isMobile ? TextAlign.center : TextAlign.start,
-          style: GoogleFonts.cormorantGaramond(
-            fontSize: isMobile ? 40 : 64,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-            height: 1.1,
-          )),
-        const SizedBox(height: 30),
-        Text(h.localizedHeroSubtitle(lang).isNotEmpty ? h.localizedHeroSubtitle(lang) : 'Experience the divine presence with our consecrated artifacts.', 
-          textAlign: isMobile ? TextAlign.center : TextAlign.start,
-          style: AppTypography.bodyStyle(context, color: Colors.white.withOpacity(0.7), fontSize: 16, height: 1.6)),
-        const SizedBox(height: 50),
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 20,
-          runSpacing: 20,
-          children: [
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/catalogue'), 
-              style: ElevatedButton.styleFrom(backgroundColor: templeGold, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), 
-              child: Row(mainAxisSize: MainAxisSize.min, children: [Text(h.localizedHeroCta1Text(lang).isNotEmpty ? h.localizedHeroCta1Text(lang).toUpperCase() : 'SHOP NOW', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1)), const SizedBox(width: 12), const Icon(Icons.arrow_forward, size: 16)])),
-            OutlinedButton.icon(
-              onPressed: () => Navigator.pushNamed(context, '/teachings'), 
-              icon: const Icon(Icons.menu_book_outlined, size: 18), 
-              label: Text(h.localizedHeroCta2Text(lang).isNotEmpty ? h.localizedHeroCta2Text(lang) : 'LEARN MORE', style: const TextStyle(fontWeight: FontWeight.bold)), 
-              style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white38), padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)))),
-          ],
-        ),
-        const SizedBox(height: 50),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+        FadeInDown(
+          animate: true,
+          duration: const Duration(milliseconds: 600),
           child: Row(
             mainAxisAlignment: isMobile ? MainAxisAlignment.center : MainAxisAlignment.start,
             children: [
-              _heroFeature(Icons.verified_user_outlined, '100% Consecrated Pure'), 
-              const SizedBox(width: 30), 
-              _heroFeature(Icons.local_shipping_outlined, 'Cash on Delivery'), 
-              const SizedBox(width: 30), 
-              _heroFeature(Icons.chat_bubble_outline, 'WhatsApp Support')
+              const Icon(Icons.stars, color: Color(0xFFC89A5B), size: 20), 
+              const SizedBox(width: 10), 
+              Text(AppLocalizations.of(context)!.officialStoreLabel, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 0.5))
             ]
+          ),
+        ),
+        const SizedBox(height: 30),
+        FadeInLeft(
+          animate: true,
+          duration: const Duration(milliseconds: 800),
+          delay: const Duration(milliseconds: 200),
+          child: Text(h.localizedHeroHeading(lang).isNotEmpty ? h.localizedHeroHeading(lang) : 'Sacred Offerings for Your Spiritual Journey', 
+            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+            style: GoogleFonts.cormorantGaramond(
+              fontSize: isMobile ? 40 : 64,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+              height: 1.1,
+            )),
+        ),
+        const SizedBox(height: 30),
+        FadeInUp(
+          animate: true,
+          duration: const Duration(milliseconds: 800),
+          delay: const Duration(milliseconds: 400),
+          child: Text(h.localizedHeroSubtitle(lang).isNotEmpty ? h.localizedHeroSubtitle(lang) : 'Experience the divine presence with our consecrated artifacts.', 
+            textAlign: isMobile ? TextAlign.center : TextAlign.start,
+            style: AppTypography.bodyStyle(context, color: Colors.white.withOpacity(0.7), fontSize: 16, height: 1.6)),
+        ),
+        const SizedBox(height: 50),
+        FadeInUp(
+          animate: true,
+          duration: const Duration(milliseconds: 600),
+          delay: const Duration(milliseconds: 600),
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 20,
+            runSpacing: 20,
+            children: [
+              ElevatedButton(
+                onPressed: () => Navigator.pushNamed(context, '/catalogue'), 
+                style: ElevatedButton.styleFrom(backgroundColor: templeGold, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), 
+                child: Row(mainAxisSize: MainAxisSize.min, children: [Text(h.localizedHeroCta1Text(lang).isNotEmpty ? h.localizedHeroCta1Text(lang).toUpperCase() : 'SHOP NOW', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1)), const SizedBox(width: 12), const Icon(Icons.arrow_forward, size: 16)])),
+              OutlinedButton.icon(
+                onPressed: () => Navigator.pushNamed(context, '/teachings'), 
+                icon: const Icon(Icons.menu_book_outlined, size: 18), 
+                label: Text(h.localizedHeroCta2Text(lang).isNotEmpty ? h.localizedHeroCta2Text(lang) : 'LEARN MORE', style: const TextStyle(fontWeight: FontWeight.bold)), 
+                style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white38), padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)))),
+            ],
+          ),
+        ),
+        const SizedBox(height: 50),
+        FadeIn(
+          animate: true,
+          duration: const Duration(milliseconds: 800),
+          delay: const Duration(milliseconds: 800),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _heroFeature(Icons.verified_user_outlined, '100% Consecrated Pure'), 
+                const SizedBox(width: 30), 
+                _heroFeature(Icons.local_shipping_outlined, 'Cash on Delivery'), 
+                const SizedBox(width: 30), 
+                _heroFeature(Icons.chat_bubble_outline, 'WhatsApp Support')
+              ]
+            ),
           ),
         ),
       ],
@@ -159,37 +221,42 @@ class ProductHomePage extends StatelessWidget {
   Widget _heroFeature(IconData icon, String text) => Row(children: [Icon(icon, color: Colors.amber.shade200, size: 18), const SizedBox(width: 10), Text(text, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12, fontWeight: FontWeight.w500))]);
 
   Widget _buildHeroFeaturedCard(BuildContext context, HomePortalData h, String lang, bool isMobile) {
-    return Container(
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 40, offset: const Offset(0, 20))]),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)), 
-              child: h.heroSideImage.isNotEmpty 
-                ? Image.network(h.heroSideImage, height: isMobile ? 300 : 400, width: double.infinity, fit: BoxFit.cover)
-                : Image.network('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=800', height: isMobile ? 300 : 400, width: double.infinity, fit: BoxFit.cover)), 
-            Positioned(bottom: 20, left: 20, child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: templeGold, borderRadius: BorderRadius.circular(4)), child: const Text('SANCTUM DARSHAN', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1))))]),
-          Padding(
-            padding: EdgeInsets.all(isMobile ? 20 : 30),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(children: [const Icon(Icons.star, color: Colors.amber, size: 16), const SizedBox(width: 6), Text('4.9 (15,000+ Devotees)', style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.bold))]),
-                const SizedBox(height: 16),
-                Text(h.localizedHeroCardTitle(lang).isNotEmpty ? h.localizedHeroCardTitle(lang) : 'Divine Consecration', style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.w900, color: primaryGreen)),
-                const SizedBox(height: 12),
-                Text(h.localizedHeroCardSubtitle(lang).isNotEmpty ? h.localizedHeroCardSubtitle(lang) : 'Handcrafted items blessed with ancient Vedic rituals.', style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
-                const SizedBox(height: 30),
-                Container(
-                  padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: const Color(0xFFFDFBF7), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100)),
-                  child: Row(children: [const Icon(Icons.card_giftcard, color: Color(0xFFC89A5B), size: 20), const SizedBox(width: 16), const Expanded(child: Text('Free Consecration Kit with orders ₹499+', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))), Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6), border: Border.all(color: Colors.grey.shade200)), child: const Text('Code: DADA10', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)))]),
-                ),
-              ],
+    return FadeInRight(
+      animate: true,
+      duration: const Duration(milliseconds: 1000),
+      delay: const Duration(milliseconds: 400),
+      child: Container(
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 40, offset: const Offset(0, 20))]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)), 
+                child: h.heroSideImage.isNotEmpty 
+                  ? Image.network(h.heroSideImage, height: isMobile ? 300 : 400, width: double.infinity, fit: BoxFit.cover)
+                  : Image.network('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=800', height: isMobile ? 300 : 400, width: double.infinity, fit: BoxFit.cover)), 
+              Positioned(bottom: 20, left: 20, child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: templeGold, borderRadius: BorderRadius.circular(4)), child: const Text('SANCTUM DARSHAN', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1))))]),
+            Padding(
+              padding: EdgeInsets.all(isMobile ? 20 : 30),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [const Icon(Icons.star, color: Colors.amber, size: 16), const SizedBox(width: 6), Text('4.9 (15,000+ Devotees)', style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.bold))]),
+                  const SizedBox(height: 16),
+                  Text(h.localizedHeroCardTitle(lang).isNotEmpty ? h.localizedHeroCardTitle(lang) : 'Divine Consecration', style: AppTypography.headingStyle(context, fontSize: 24, fontWeight: FontWeight.w900, color: primaryGreen)),
+                  const SizedBox(height: 12),
+                  Text(h.localizedHeroCardSubtitle(lang).isNotEmpty ? h.localizedHeroCardSubtitle(lang) : 'Handcrafted items blessed with ancient Vedic rituals.', style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+                  const SizedBox(height: 30),
+                  Container(
+                    padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: const Color(0xFFFDFBF7), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100)),
+                    child: Row(children: [const Icon(Icons.card_giftcard, color: Color(0xFFC89A5B), size: 20), const SizedBox(width: 16), const Expanded(child: Text('Free Consecration Kit with orders ₹499+', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))), Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6), border: Border.all(color: Colors.grey.shade200)), child: const Text('Code: DADA10', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5)))]),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -243,39 +310,11 @@ class ProductHomePage extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final cat = prod.categoryObjects[index];
                   final count = prod.getProductCountInCategory(cat.id);
-                  return InkWell(
-                    onTap: () {
-                      Navigator.pushNamed(context, '/catalogue', arguments: cat.id);
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))]),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Container(width: 48, height: 48, decoration: BoxDecoration(color: const Color(0xFFFDFBF7), borderRadius: BorderRadius.circular(12)), child: Center(child: cat.imageUrl.isNotEmpty ? Image.network(cat.imageUrl, width: 28, height: 28, fit: BoxFit.contain) : Icon(Icons.category_outlined, color: primaryGreen, size: 24))), if (!isMobile) Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(6)), child: Text('$count items', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade400)))]),
-                          const SizedBox(height: 20),
-                          Text(cat.localizedName(lang), style: AppTypography.headingStyle(context, fontWeight: FontWeight.w900, fontSize: 16, color: const Color(0xFF2B2B2B))),
-                          const SizedBox(height: 8),
-                          Text(
-                            cat.localizedDescription(lang).isNotEmpty 
-                              ? cat.localizedDescription(lang) 
-                              : 'Authentic sacred items consecrated with love.', 
-                            style: AppTypography.bodyStyle(context, color: Colors.grey.shade500, fontSize: 11, height: 1.4), 
-                            maxLines: 2, 
-                            overflow: TextOverflow.ellipsis
-                          ),
-                          const Spacer(),
-                          Row(
-                            children: [
-                              Text('Explore', style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.w900, color: primaryGreen)),
-                              const SizedBox(width: 8),
-                              Icon(Icons.arrow_forward_ios, size: 10, color: primaryGreen),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                  return FadeInUp(
+                    animate: _isVisible,
+                    duration: const Duration(milliseconds: 600),
+                    delay: Duration(milliseconds: index * 60),
+                    child: _CategoryTile(cat: cat, count: count, lang: lang, isMobile: isMobile, primaryGreen: primaryGreen),
                   );
                 },
               ),
@@ -317,7 +356,12 @@ class ProductHomePage extends StatelessWidget {
                     childAspectRatio: Responsive.isDesktop(context) ? 0.72 : 0.65
                   ),
                   itemCount: products.length.clamp(0, 8), // Show exactly 2 rows (8 items)
-                  itemBuilder: (context, index) => ProductCard(product: products[index]),
+                  itemBuilder: (context, index) => FadeInUp(
+                    animate: _isVisible,
+                    duration: const Duration(milliseconds: 600),
+                    delay: Duration(milliseconds: 100 * index),
+                    child: ProductCard(product: products[index]),
+                  ),
                 ),
               const SizedBox(height: 60),
               ElevatedButton(onPressed: () => Navigator.pushNamed(context, '/catalogue'), style: ElevatedButton.styleFrom(backgroundColor: primaryGreen, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), child: Text('${AppLocalizations.of(context)!.browseCompleteCatalog} (${products.length} ITEMS)', textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1))),
@@ -357,24 +401,24 @@ class ProductHomePage extends StatelessWidget {
               isMobile 
                 ? Column(
                     children: [
-                      _processItem(Icons.water_drop_outlined, AppLocalizations.of(context)!.gangaJalTitle, AppLocalizations.of(context)!.gangaJalDesc, true),
+                      _processItem(Icons.water_drop_outlined, AppLocalizations.of(context)!.gangaJalTitle, AppLocalizations.of(context)!.gangaJalDesc, true, 0),
                       const SizedBox(height: 40),
-                      _processItem(Icons.auto_fix_high_outlined, AppLocalizations.of(context)!.vedicMantraTitle, AppLocalizations.of(context)!.vedicMantraDesc, true),
+                      _processItem(Icons.auto_fix_high_outlined, AppLocalizations.of(context)!.vedicMantraTitle, AppLocalizations.of(context)!.vedicMantraDesc, true, 1),
                       const SizedBox(height: 40),
-                      _processItem(Icons.inventory_2_outlined, AppLocalizations.of(context)!.zeroBreakageTitle, AppLocalizations.of(context)!.zeroBreakageDesc, true),
+                      _processItem(Icons.inventory_2_outlined, AppLocalizations.of(context)!.zeroBreakageTitle, AppLocalizations.of(context)!.zeroBreakageDesc, true, 2),
                       const SizedBox(height: 40),
-                      _processItem(Icons.payments_outlined, AppLocalizations.of(context)!.codAvailableTitle, AppLocalizations.of(context)!.codAvailableDesc, true),
+                      _processItem(Icons.payments_outlined, AppLocalizations.of(context)!.codAvailableTitle, AppLocalizations.of(context)!.codAvailableDesc, true, 3),
                     ],
                   )
                 : Row(
                     children: [
-                      _processItem(Icons.water_drop_outlined, AppLocalizations.of(context)!.gangaJalTitle, AppLocalizations.of(context)!.gangaJalDesc, false),
+                      _processItem(Icons.water_drop_outlined, AppLocalizations.of(context)!.gangaJalTitle, AppLocalizations.of(context)!.gangaJalDesc, false, 0),
                       const SizedBox(width: 40),
-                      _processItem(Icons.auto_fix_high_outlined, AppLocalizations.of(context)!.vedicMantraTitle, AppLocalizations.of(context)!.vedicMantraDesc, false),
+                      _processItem(Icons.auto_fix_high_outlined, AppLocalizations.of(context)!.vedicMantraTitle, AppLocalizations.of(context)!.vedicMantraDesc, false, 1),
                       const SizedBox(width: 40),
-                      _processItem(Icons.inventory_2_outlined, AppLocalizations.of(context)!.zeroBreakageTitle, AppLocalizations.of(context)!.zeroBreakageDesc, false),
+                      _processItem(Icons.inventory_2_outlined, AppLocalizations.of(context)!.zeroBreakageTitle, AppLocalizations.of(context)!.zeroBreakageDesc, false, 2),
                       const SizedBox(width: 40),
-                      _processItem(Icons.payments_outlined, AppLocalizations.of(context)!.codAvailableTitle, AppLocalizations.of(context)!.codAvailableDesc, false),
+                      _processItem(Icons.payments_outlined, AppLocalizations.of(context)!.codAvailableTitle, AppLocalizations.of(context)!.codAvailableDesc, false, 3),
                     ],
                   ),
             ],
@@ -384,19 +428,167 @@ class ProductHomePage extends StatelessWidget {
     );
   }
 
-  Widget _processItem(IconData icon, String title, String desc, bool isMobile) {
+  Widget _processItem(IconData icon, String title, String desc, bool isMobile, int index) {
     final Widget content = Column(
       crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start, 
       children: [
-        Container(width: 48, height: 48, decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: Colors.amber.shade200, size: 24)), 
+        _ProcessIcon(icon: icon, index: index, animate: _isVisible), 
         const SizedBox(height: 24), 
-        Text(title, textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)), 
+        FadeInUp(
+          animate: _isVisible,
+          delay: Duration(milliseconds: 200 + (index * 100)),
+          child: Text(title, textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold))
+        ), 
         const SizedBox(height: 16), 
-        Text(desc, textAlign: isMobile ? TextAlign.center : TextAlign.start, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13, height: 1.6))
+        FadeInUp(
+          animate: _isVisible,
+          delay: Duration(milliseconds: 300 + (index * 100)),
+          child: Text(desc, textAlign: isMobile ? TextAlign.center : TextAlign.start, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13, height: 1.6))
+        )
       ]
     );
     return isMobile ? content : Expanded(child: content);
   }
+}
+
+class _CategoryTile extends StatefulWidget {
+  final dynamic cat;
+  final int count;
+  final String lang;
+  final bool isMobile;
+  final Color primaryGreen;
+
+  const _CategoryTile({
+    required this.cat, 
+    required this.count, 
+    required this.lang, 
+    required this.isMobile,
+    required this.primaryGreen
+  });
+
+  @override
+  State<_CategoryTile> createState() => _CategoryTileState();
+}
+
+class _CategoryTileState extends State<_CategoryTile> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Navigator.pushNamed(context, '/catalogue', arguments: widget.cat.id);
+      },
+      onHover: (v) => setState(() => _isHovered = v),
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 400),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white, 
+          borderRadius: BorderRadius.circular(16), 
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(_isHovered ? 0.08 : 0.03), 
+              blurRadius: _isHovered ? 30 : 10, 
+              offset: Offset(0, _isHovered ? 15 : 4)
+            )
+          ]
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 400),
+                  width: 48, height: 48, 
+                  decoration: BoxDecoration(
+                    color: _isHovered ? const Color(0xFFC89A5B).withOpacity(0.1) : const Color(0xFFFDFBF7), 
+                    borderRadius: BorderRadius.circular(12)
+                  ), 
+                  child: Center(
+                    child: widget.cat.imageUrl.isNotEmpty 
+                      ? AnimatedScale(
+                          duration: const Duration(milliseconds: 400),
+                          scale: _isHovered ? 1.15 : 1.0,
+                          child: Image.network(widget.cat.imageUrl, width: 28, height: 28, fit: BoxFit.contain)
+                        ) 
+                      : Icon(Icons.category_outlined, color: widget.primaryGreen, size: 24)
+                  )
+                ), 
+                if (!widget.isMobile) 
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), 
+                    decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(6)), 
+                    child: Text('${widget.count} items', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade400))
+                  )
+              ]
+            ),
+            const SizedBox(height: 20),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 300),
+              style: AppTypography.headingStyle(
+                context, 
+                fontWeight: FontWeight.w900, 
+                fontSize: 16, 
+                color: _isHovered ? const Color(0xFFC89A5B) : const Color(0xFF2B2B2B)
+              ),
+              child: Text(widget.cat.localizedName(widget.lang)),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              widget.cat.localizedDescription(widget.lang).isNotEmpty 
+                ? widget.cat.localizedDescription(widget.lang) 
+                : 'Authentic sacred items consecrated with love.', 
+              style: AppTypography.bodyStyle(context, color: Colors.grey.shade500, fontSize: 11, height: 1.4), 
+              maxLines: 2, 
+              overflow: TextOverflow.ellipsis
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                Text('Explore', style: AppTypography.bodyStyle(context, fontSize: 12, fontWeight: FontWeight.w900, color: widget.primaryGreen)),
+                const SizedBox(width: 8),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: EdgeInsets.only(left: _isHovered ? 6 : 0),
+                  child: Icon(Icons.arrow_forward_ios, size: 10, color: widget.primaryGreen)
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProcessIcon extends StatelessWidget {
+  final IconData icon;
+  final int index;
+  final bool animate;
+
+  const _ProcessIcon({required this.icon, required this.index, required this.animate});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElasticIn(
+      animate: animate,
+      delay: Duration(milliseconds: index * 150),
+      child: Container(
+        width: 56, height: 56, 
+        decoration: BoxDecoration(
+          color: Colors.white12, 
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withOpacity(0.1))
+        ), 
+        child: Icon(icon, color: Colors.amber.shade200, size: 28)
+      ),
+    );
+  }
+}
 
   Widget _buildTestimonialsSection(BuildContext context, HomePortalData h, String lang, bool isMobile) {
     return Container(

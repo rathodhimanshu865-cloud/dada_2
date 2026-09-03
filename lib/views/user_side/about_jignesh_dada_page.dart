@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import '../../controllers/homepage_controller.dart';
@@ -135,11 +137,14 @@ class _Hero extends StatefulWidget {
   State<_Hero> createState() => _HeroState();
 }
 
-class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
+class _HeroState extends State<_Hero> with TickerProviderStateMixin {
   late final AnimationController _c;
   late final Animation<double> _fade;
   late final Animation<Offset> _slideText;
   late final Animation<Offset> _slideImg;
+
+  late final AnimationController _zoomController;
+  late final Animation<double> _zoomAnimation;
 
   @override
   void initState() {
@@ -150,6 +155,10 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
         .animate(CurvedAnimation(parent: _c, curve: const Interval(0.0, 0.8, curve: Curves.easeOutCubic)));
     _slideImg = Tween<Offset>(begin: const Offset(0.05, 0), end: Offset.zero)
         .animate(CurvedAnimation(parent: _c, curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic)));
+
+    _zoomController = AnimationController(vsync: this, duration: const Duration(seconds: 12))..repeat(reverse: true);
+    _zoomAnimation = Tween<double>(begin: 1.0, end: 1.08).animate(CurvedAnimation(parent: _zoomController, curve: Curves.linear));
+
     Future.delayed(const Duration(milliseconds: 150), () {
       if (mounted) {
         _c.forward();
@@ -160,6 +169,7 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _c.dispose();
+    _zoomController.dispose();
     super.dispose();
   }
 
@@ -177,7 +187,22 @@ class _HeroState extends State<_Hero> with SingleTickerProviderStateMixin {
       color: const Color(0xFFFAF8F4), // Ultra clean warm white
       child: Stack(
         children: [
-          // Subtle background monogram or watermark element could go here
+          // Background Ken Burns Zoom
+          if (hasImg) Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _zoomAnimation,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _zoomAnimation.value,
+                  child: Opacity(
+                    opacity: 0.04,
+                    child: Image.network(widget.data.heroImage, fit: BoxFit.cover),
+                  ),
+                );
+              },
+            ),
+          ),
+          
           Positioned(
             top: -100, right: -50,
             child: Icon(Icons.wb_sunny_rounded, size: 400, color: _gold.withOpacity(0.02)),
@@ -371,84 +396,153 @@ class _IntroBlock extends StatefulWidget {
 }
 
 class _IntroBlockState extends State<_IntroBlock> {
-  bool _renderHtml = false;
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(milliseconds: 150), () {
-      if (mounted) setState(() => _renderHtml = true);
-    });
-  }
+  bool _isVisible = false;
 
   @override
   Widget build(BuildContext context) {
     final hPad = widget.isMob ? 24.0 : (widget.isDsk ? 120.0 : 60.0);
     
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: widget.isMob ? 60 : 100),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1100),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Section label
-              _Label(widget.l10n.anIntroduction, widget.isMob),
-              const SizedBox(height: 8),
-              Text(widget.lang == 'hi' ? 'प्रेरक जीवन और यात्रा' : widget.lang == 'gu' ? 'પ્રેરણાદાયક જીવન અને યાત્રા' : 'The Inspiring Life & Journey',
-                style: AppTypography.headingStyle(context, fontSize: widget.isMob ? 26 : 38, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
-              const SizedBox(height: 48),
-
-              // HTML content
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 300),
-                opacity: _renderHtml ? 1.0 : 0.0,
-                child: _renderHtml ? HtmlWidget(
-                  widget.html,
-                  textStyle: AppTypography.bodyStyle(context, fontSize: widget.isMob ? 15 : 17, height: 1.95, color: _slate),
-                  customStylesBuilder: (el) {
-                    if (el.localName == 'h1') {
-                      return {
-                      'color': '#0F4C5C', 'font-size': widget.isMob ? '22px' : '30px', 'font-weight': '700',
-                      'margin-top': '56px', 'margin-bottom': '24px', 'padding-bottom': '14px',
-                      'border-bottom': '2px solid #C19A6B', 'letter-spacing': '0.5px'};
-                    }
-                    if (el.localName == 'h2') {
-                      return {
-                      'color': '#0F4C5C', 'font-size': widget.isMob ? '19px' : '24px', 'font-weight': '700',
-                      'margin-top': '44px', 'margin-bottom': '18px',
-                      'padding-left': '18px', 'border-left': '4px solid #C19A6B'};
-                    }
-                    if (el.localName == 'p') {
-                      return {'margin-bottom': '24px', 'line-height': '1.95', 'text-align': 'justify'};
-                    }
-                    if (el.localName == 'li') {
-                      return {'margin-bottom': '10px', 'line-height': '1.75', 'color': '#4A5568'};
-                    }
-                    if (el.localName == 'strong' || el.localName == 'b') {
-                      return {'color': '#0F4C5C', 'font-weight': '700'};
-                    }
-                    if (el.localName == 'em' || el.localName == 'i') {
-                      return {'color': '#C19A6B', 'font-style': 'italic'};
-                    }
-                    if (el.localName == 'blockquote') {
-                      return {
-                      'background': '#F9F3EA', 'border-left': '5px solid #C19A6B',
-                      'padding': '20px 24px', 'margin': '32px 0', 'font-style': 'italic', 'color': '#374151'};
-                    }
-                    return null;
-                  },
-                ) : const SizedBox(height: 200, width: double.infinity), // Placeholder height
-              ),
-            ],
+    return VisibilityDetector(
+      key: const Key('about-intro-block'),
+      onVisibilityChanged: (info) {
+        if (info.visibleFraction > 0.1 && !_isVisible) {
+          setState(() => _isVisible = true);
+        }
+      },
+      child: Container(
+        color: Colors.white,
+        padding: EdgeInsets.symmetric(horizontal: hPad, vertical: widget.isMob ? 60 : 100),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1100),
+            child: widget.isMob ? _buildMobileIntro() : _buildDesktopIntro(),
           ),
         ),
       ),
     );
   }
+
+  Widget _buildDesktopIntro() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 6,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FadeInDown(
+                animate: _isVisible,
+                child: _Label(widget.l10n.anIntroduction, widget.isMob),
+              ),
+              const SizedBox(height: 12),
+              FadeInUp(
+                animate: _isVisible,
+                delay: const Duration(milliseconds: 200),
+                child: Text(widget.lang == 'hi' ? 'प्रेरक जीवन और यात्रा' : widget.lang == 'gu' ? 'પ્રેરણાદાયક જીવન અને યાત્રા' : 'The Inspiring Life & Journey',
+                  style: AppTypography.headingStyle(context, fontSize: 38, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
+              ),
+              const SizedBox(height: 48),
+
+              FadeInUp(
+                animate: _isVisible,
+                delay: const Duration(milliseconds: 400),
+                child: _HtmlContent(html: widget.html, isMob: widget.isMob),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 80),
+        Expanded(
+          flex: 4,
+          child: FadeInRight(
+            animate: _isVisible,
+            delay: const Duration(milliseconds: 600),
+            child: _PortraitFrame(url: widget.portrait, height: 500),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileIntro() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FadeInDown(
+          animate: _isVisible,
+          child: _Label(widget.l10n.anIntroduction, widget.isMob),
+        ),
+        const SizedBox(height: 8),
+        FadeInUp(
+          animate: _isVisible,
+          delay: const Duration(milliseconds: 200),
+          child: Text(widget.lang == 'hi' ? 'प्रेरक जीवन और यात्रा' : widget.lang == 'gu' ? 'પ્રેરણાદાયક જીવન અને યાત્રા' : 'The Inspiring Life & Journey',
+            style: AppTypography.headingStyle(context, fontSize: 26, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
+        ),
+        const SizedBox(height: 32),
+        FadeInRight(
+          animate: _isVisible,
+          delay: const Duration(milliseconds: 400),
+          child: _PortraitFrame(url: widget.portrait, height: 400),
+        ),
+        const SizedBox(height: 40),
+        FadeInUp(
+          animate: _isVisible,
+          delay: const Duration(milliseconds: 600),
+          child: _HtmlContent(html: widget.html, isMob: widget.isMob),
+        ),
+      ],
+    );
+  }
 }
+
+class _HtmlContent extends StatelessWidget {
+  final String html;
+  final bool isMob;
+  const _HtmlContent({required this.html, required this.isMob});
+
+  @override
+  Widget build(BuildContext context) {
+    return HtmlWidget(
+      html,
+      textStyle: AppTypography.bodyStyle(context, fontSize: isMob ? 15 : 17, height: 1.95, color: _slate),
+      customStylesBuilder: (el) {
+        if (el.localName == 'h1') {
+          return {
+          'color': '#0F4C5C', 'font-size': isMob ? '22px' : '30px', 'font-weight': '700',
+          'margin-top': '56px', 'margin-bottom': '24px', 'padding-bottom': '14px',
+          'border-bottom': '2px solid #C19A6B', 'letter-spacing': '0.5px'};
+        }
+        if (el.localName == 'h2') {
+          return {
+          'color': '#0F4C5C', 'font-size': isMob ? '19px' : '24px', 'font-weight': '700',
+          'margin-top': '44px', 'margin-bottom': '18px',
+          'padding-left': '18px', 'border-left': '4px solid #C19A6B'};
+        }
+        if (el.localName == 'p') {
+          return {'margin-bottom': '24px', 'line-height': '1.95', 'text-align': 'justify'};
+        }
+        if (el.localName == 'li') {
+          return {'margin-bottom': '10px', 'line-height': '1.75', 'color': '#4A5568'};
+        }
+        if (el.localName == 'strong' || el.localName == 'b') {
+          return {'color': '#0F4C5C', 'font-weight': '700'};
+        }
+        if (el.localName == 'em' || el.localName == 'i') {
+          return {'color': '#C19A6B', 'font-style': 'italic'};
+        }
+        if (el.localName == 'blockquote') {
+          return {
+          'background': '#F9F3EA', 'border-left': '5px solid #C19A6B',
+          'padding': '20px 24px', 'margin': '32px 0', 'font-style': 'italic', 'color': '#374151'};
+        }
+        return null;
+      },
+    );
+  }
+}
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. CORE COMPETENCIES — icon-card grid on rich dark background
@@ -571,7 +665,7 @@ class _CompCardState extends State<_CompCard> {
 // ─────────────────────────────────────────────────────────────────────────────
 // 4. PROFESSIONAL HIGHLIGHTS — vertical timeline
 // ─────────────────────────────────────────────────────────────────────────────
-class _HighlightsBlock extends StatelessWidget {
+class _HighlightsBlock extends StatefulWidget {
   final List<String> items;
   final bool isMob, isDsk;
   final String lang;
@@ -579,35 +673,135 @@ class _HighlightsBlock extends StatelessWidget {
   const _HighlightsBlock({required this.items, required this.isMob, required this.isDsk, required this.lang, required this.l10n});
 
   @override
+  State<_HighlightsBlock> createState() => _HighlightsBlockState();
+}
+
+class _HighlightsBlockState extends State<_HighlightsBlock> {
+  bool _isVisible = false;
+
+  @override
   Widget build(BuildContext context) {
-    final hPad = isMob ? 24.0 : (isDsk ? 120.0 : 60.0);
-    String titleText = lang == 'hi' ? 'प्रमुख उपलब्धियां और उल्लेखनीय कार्य' : lang == 'gu' ? 'મુખ્ય સિદ્ધિઓ અને નોંધપાત્ર કાર્ય' : 'Key Achievements & Notable Work';
+    final hPad = widget.isMob ? 24.0 : (widget.isDsk ? 120.0 : 60.0);
+    String titleText = widget.lang == 'hi' ? 'प्रमुख उपलब्धियां और उल्लेखनीय कार्य' : widget.lang == 'gu' ? 'મુખ્ય સિદ્ધિઓ અને નોંધપાત્ર કાર્ય' : 'Key Achievements & Notable Work';
 
-    return Container(
-      color: _beige,
-      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: isMob ? 60 : 100),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1100),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _Label(l10n.professionalHighlights, isMob),
-              const SizedBox(height: 8),
-              Text(titleText,
-                style: AppTypography.headingStyle(context, fontSize: isMob ? 26 : 38, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
-              const SizedBox(height: 52),
+    return VisibilityDetector(
+      key: const Key('about-highlights-block'),
+      onVisibilityChanged: (info) {
+        if (info.visibleFraction > 0.1 && !_isVisible) {
+          setState(() => _isVisible = true);
+        }
+      },
+      child: Container(
+        color: _beige,
+        padding: EdgeInsets.symmetric(horizontal: hPad, vertical: widget.isMob ? 80 : 140),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1100),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FadeInDown(
+                  animate: _isVisible,
+                  child: _Label(widget.l10n.professionalHighlights, widget.isMob),
+                ),
+                const SizedBox(height: 12),
+                FadeInUp(
+                  animate: _isVisible,
+                  delay: const Duration(milliseconds: 200),
+                  child: Text(titleText,
+                    style: AppTypography.headingStyle(context, fontSize: widget.isMob ? 26 : 42, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
+                ),
+                const SizedBox(height: 70),
 
-              // Timeline
-              Column(
-                children: items.asMap().entries.map((e) =>
-                  _TimelineItem(index: e.key, text: e.value, isMob: isMob, total: items.length)
-                ).toList(),
-              ),
-            ],
+                // Animated Timeline
+                Stack(
+                  children: [
+                    // The Progressive Line
+                    Positioned(
+                      left: 20,
+                      top: 40,
+                      bottom: 40,
+                      child: _ProgressiveLine(animate: _isVisible),
+                    ),
+                    
+                    Column(
+                      children: widget.items.asMap().entries.map((e) =>
+                        _TimelineItem(
+                          index: e.key, 
+                          text: e.value, 
+                          isMob: widget.isMob, 
+                          total: widget.items.length,
+                          parentVisible: _isVisible,
+                        )
+                      ).toList(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ProgressiveLine extends StatefulWidget {
+  final bool animate;
+  const _ProgressiveLine({required this.animate});
+
+  @override
+  State<_ProgressiveLine> createState() => _ProgressiveLineState();
+}
+
+class _ProgressiveLineState extends State<_ProgressiveLine> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 2000));
+    _animation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOutQuart));
+  }
+
+  @override
+  void didUpdateWidget(_ProgressiveLine oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.animate && !oldWidget.animate) {
+      _controller.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Container(
+          width: 2,
+          color: _gold.withOpacity(0.1),
+          alignment: Alignment.topCenter,
+          child: Container(
+            width: 2,
+            height: MediaQuery.of(context).size.height * 2, // Large enough to cover
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [_gold, _gold, Colors.transparent],
+                stops: [_animation.value, _animation.value, _animation.value],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -616,7 +810,8 @@ class _TimelineItem extends StatefulWidget {
   final int index, total;
   final String text;
   final bool isMob;
-  const _TimelineItem({required this.index, required this.text, required this.isMob, required this.total});
+  final bool parentVisible;
+  const _TimelineItem({required this.index, required this.text, required this.isMob, required this.total, required this.parentVisible});
 
   @override
   State<_TimelineItem> createState() => _TimelineItemState();
@@ -627,55 +822,74 @@ class _TimelineItemState extends State<_TimelineItem> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hov = true),
-      onExit:  (_) => setState(() => _hov = false),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Node
-          Column(children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              margin: const EdgeInsets.only(top: 2),
-              width: 40, height: 40,
-              decoration: BoxDecoration(
-                color: _hov ? _gold : Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: _gold, width: 2),
-                boxShadow: _hov ? [BoxShadow(color: _gold.withOpacity(0.3), blurRadius: 12)] : [],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 30),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hov = true),
+        onExit:  (_) => setState(() => _hov = false),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Node
+            ZoomIn(
+              animate: widget.parentVisible,
+              delay: Duration(milliseconds: 400 + (widget.index * 200)),
+              duration: const Duration(milliseconds: 600),
+              manualTrigger: false,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: 42, height: 42,
+                decoration: BoxDecoration(
+                  color: _hov ? _gold : Colors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: _gold, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _gold.withOpacity(_hov ? 0.4 : 0.1),
+                      blurRadius: _hov ? 15 : 5,
+                      offset: const Offset(0, 2),
+                    )
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: Text('${widget.index + 1}',
+                  style: TextStyle(color: _hov ? Colors.white : _gold, fontWeight: FontWeight.bold, fontSize: 14)),
               ),
-              alignment: Alignment.center,
-              child: Text('${widget.index + 1}',
-                style: TextStyle(color: _hov ? Colors.white : _gold, fontWeight: FontWeight.bold, fontSize: 14)),
             ),
-            if (widget.index < widget.total - 1)
-              Container(width: 2, height: 40, color: _gold.withOpacity(0.25)),
-          ]),
-          const SizedBox(width: 24),
-          // Card
-          Expanded(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              margin: const EdgeInsets.only(bottom: 20),
-              padding: EdgeInsets.all(widget.isMob ? 18 : 24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: _hov ? _gold.withOpacity(0.5) : Colors.transparent),
-                boxShadow: [BoxShadow(
-                  color: _hov ? _gold.withOpacity(0.1) : Colors.black.withOpacity(0.04),
-                  blurRadius: _hov ? 20 : 8, offset: const Offset(0, 4))],
+            const SizedBox(width: 24),
+            
+            // Card
+            Expanded(
+              child: FadeInRight(
+                animate: widget.parentVisible,
+                delay: Duration(milliseconds: 500 + (widget.index * 200)),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  padding: EdgeInsets.all(widget.isMob ? 20 : 30),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: _hov ? _gold.withOpacity(0.5) : Colors.transparent),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _hov ? _gold.withOpacity(0.08) : Colors.black.withOpacity(0.03),
+                        blurRadius: _hov ? 30 : 10, 
+                        offset: const Offset(0, 5)
+                      )
+                    ],
+                  ),
+                  child: Text(widget.text,
+                    style: AppTypography.bodyStyle(context, fontSize: widget.isMob ? 14 : 16, color: _slate, height: 1.75, fontWeight: FontWeight.w500)),
+                ),
               ),
-              child: Text(widget.text,
-                style: AppTypography.bodyStyle(context, fontSize: widget.isMob ? 14 : 15.5, color: _slate, height: 1.75)),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 5. SOCIAL INITIATIVE — full dark premium layout
@@ -795,7 +1009,7 @@ class _PillarCardState extends State<_PillarCard> {
 // ─────────────────────────────────────────────────────────────────────────────
 // 6. PHILOSOPHY OF LIFE — giant typographic statement
 // ─────────────────────────────────────────────────────────────────────────────
-class _PhilosophyBlock extends StatelessWidget {
+class _PhilosophyBlock extends StatefulWidget {
   final String quote;
   final bool isMob;
   final String lang;
@@ -803,39 +1017,103 @@ class _PhilosophyBlock extends StatelessWidget {
   const _PhilosophyBlock({required this.quote, required this.isMob, required this.lang, required this.l10n});
 
   @override
+  State<_PhilosophyBlock> createState() => _PhilosophyBlockState();
+}
+
+class _PhilosophyBlockState extends State<_PhilosophyBlock> with SingleTickerProviderStateMixin {
+  bool _isVisible = false;
+  late AnimationController _glowController;
+
+  @override
+  void initState() {
+    super.initState();
+    _glowController = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _glowController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.symmetric(horizontal: isMob ? 24 : 60, vertical: isMob ? 60 : 100),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 900),
-          child: Column(
-            children: [
-              _Label(l10n.philosophyOfLife, isMob),
-              const SizedBox(height: 48),
-              Icon(Icons.format_quote_rounded, color: _gold.withOpacity(0.2), size: 60),
-              const SizedBox(height: 24),
-              Text(
-                quote,
-                textAlign: TextAlign.center,
-                style: AppTypography.headingStyle(context,
-                  fontSize: isMob ? 24 : 32,
-                  color: _teal,
-                  fontWeight: FontWeight.w600,
-                  height: 1.5,
-                  fontStyle: FontStyle.italic,
+    return VisibilityDetector(
+      key: const Key('about-philosophy-block'),
+      onVisibilityChanged: (info) {
+        if (info.visibleFraction > 0.4 && !_isVisible) {
+          setState(() => _isVisible = true);
+        }
+      },
+      child: Container(
+        color: Colors.white,
+        padding: EdgeInsets.symmetric(horizontal: widget.isMob ? 24 : 60, vertical: widget.isMob ? 100 : 160),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: Column(
+              children: [
+                FadeInDown(
+                  animate: _isVisible,
+                  child: _Label(widget.l10n.philosophyOfLife, widget.isMob),
                 ),
-              ),
-              const SizedBox(height: 32),
-              Container(width: 60, height: 3, color: _gold),
-            ],
+                const SizedBox(height: 60),
+                
+                // Glowing Quotes
+                AnimatedBuilder(
+                  animation: _glowController,
+                  builder: (context, child) {
+                    return FadeIn(
+                      animate: _isVisible,
+                      duration: const Duration(milliseconds: 1000),
+                      child: Icon(
+                        Icons.format_quote_rounded, 
+                        color: _gold.withOpacity(0.1 + (0.3 * _glowController.value)), 
+                        size: 100,
+                        shadows: [
+                          Shadow(color: _gold.withOpacity(0.5 * _glowController.value), blurRadius: 20),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Animated Quote Text
+                FadeIn(
+                  animate: _isVisible,
+                  delay: const Duration(milliseconds: 400),
+                  duration: const Duration(milliseconds: 1500),
+                  child: Text(
+                    widget.quote,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.headingStyle(context,
+                      fontSize: widget.isMob ? 24 : 36,
+                      color: _teal,
+                      fontWeight: FontWeight.w600,
+                      height: 1.5,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 48),
+                
+                FadeIn(
+                  animate: _isVisible,
+                  delay: const Duration(milliseconds: 1000),
+                  child: Container(width: 80, height: 3, color: _gold),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 7. PERSONAL ATTRIBUTES — tags/badges

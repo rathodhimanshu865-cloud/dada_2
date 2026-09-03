@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import 'package:dada_2/controllers/product_controller.dart';
 import 'package:dada_2/controllers/cart_controller.dart';
@@ -8,6 +9,7 @@ import 'package:dada_2/controllers/auth_controller.dart';
 import 'package:dada_2/controllers/language_controller.dart';
 import 'package:dada_2/models/product_model.dart';
 import 'package:dada_2/utils/app_typography.dart';
+import 'package:dada_2/utils/animation_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'product_quick_view.dart';
 
@@ -20,11 +22,12 @@ class ProductCard extends StatefulWidget {
   State<ProductCard> createState() => _ProductCardState();
 }
 
-class _ProductCardState extends State<ProductCard> {
+class _ProductCardState extends State<ProductCard> with TickerProviderStateMixin {
   final Color primaryTeal = const Color(0xFF0F4C5C);
   final Color discountBrown = const Color(0xFFAD8B63);
   final Color starGold = const Color(0xFFC89A5B);
   bool _isHovered = false;
+  bool _isAdded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -33,23 +36,26 @@ class _ProductCardState extends State<ProductCard> {
     final l10n = AppLocalizations.of(context)!;
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
-    // Logic: If stock is 0, 1, or 2, it is considered Out of Stock as per requirement.
     final isOutOfStock = p.stock <= 2;
+    final hasDiscount = p.comparePrice != null && p.comparePrice! > p.price;
+    final double percentOff = hasDiscount ? ((p.comparePrice! - p.price) / p.comparePrice! * 100) : 0;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      child: InkWell(
+      child: GestureDetector(
         onTap: isOutOfStock ? null : () => Navigator.pushNamed(context, '/product_details', arguments: p.id),
-        borderRadius: BorderRadius.circular(16),
-        child: Opacity(
-          opacity: isOutOfStock ? 0.7 : 1.0,
-          child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 400),
           decoration: BoxDecoration(
-            color: const Color(0xFFFAF8F4), // Light beige as per Image 3
+            color: const Color(0xFFFAF8F4),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+              BoxShadow(
+                color: Colors.black.withOpacity(_isHovered ? 0.08 : 0.02), 
+                blurRadius: _isHovered ? 30 : 10, 
+                offset: Offset(0, _isHovered ? 15 : 4)
+              ),
             ],
           ),
           child: Column(
@@ -71,11 +77,15 @@ class _ProductCardState extends State<ProductCard> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(16),
                         child: p.imageUrl.isNotEmpty 
-                          ? CachedNetworkImage(
-                              imageUrl: p.imageUrl,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF07404C))),
-                              errorWidget: (context, url, error) => const Icon(Icons.image_outlined, color: Colors.grey, size: 48),
+                          ? AnimatedScale(
+                              duration: const Duration(milliseconds: 600),
+                              scale: _isHovered ? 1.08 : 1.0,
+                              child: CachedNetworkImage(
+                                imageUrl: p.imageUrl,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF07404C))),
+                                errorWidget: (context, url, error) => const Icon(Icons.image_outlined, color: Colors.grey, size: 48),
+                              ),
                             )
                           : const Icon(Icons.image_outlined, color: Colors.grey, size: 48),
                       ),
@@ -99,20 +109,23 @@ class _ProductCardState extends State<ProductCard> {
                         ),
                       ),
 
-                    if (p.consecrationBadge.isNotEmpty && !isOutOfStock)
-                    Positioned(
-                      top: 24, left: 24,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(color: const Color(0xFF07404C), borderRadius: BorderRadius.circular(4)),
-                        child: Text(p.localizedConsecrationBadge(lang).toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                    if (hasDiscount && !isOutOfStock)
+                      Positioned(
+                        top: 24, left: 24,
+                        child: ElasticIn(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(color: const Color(0xFFC19A6B), borderRadius: BorderRadius.circular(4)),
+                            child: Text("${percentOff.toInt()}% OFF", style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
+                          ),
+                        ),
                       ),
-                    ),
 
                   Positioned.fill(
                     child: Center(
-                      child: IgnorePointer(
-                        ignoring: !_isHovered,
+                      child: AnimatedSlide(
+                        duration: const Duration(milliseconds: 300),
+                        offset: _isHovered ? Offset.zero : const Offset(0, 0.2),
                         child: AnimatedOpacity(
                           opacity: _isHovered ? 1 : 0,
                           duration: const Duration(milliseconds: 200),
@@ -145,9 +158,14 @@ class _ProductCardState extends State<ProductCard> {
                               Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
                             }
                           },
-                          child: Container(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
                             padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
+                            decoration: BoxDecoration(
+                              color: liked ? Colors.red.shade50 : Colors.white, 
+                              shape: BoxShape.circle, 
+                              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)]
+                            ),
                             child: Icon(liked ? Icons.favorite : Icons.favorite_border, size: 14, color: liked ? Colors.red : Colors.black45),
                           ),
                         );
@@ -202,35 +220,27 @@ class _ProductCardState extends State<ProductCard> {
                         crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic,
                         children: [
                           Text('₹${p.price.toInt()}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: Color(0xFF07404C))),
-                          if (p.comparePrice != null && p.comparePrice! > p.price) ...[
+                          if (hasDiscount) ...[
                             const SizedBox(width: 8),
                             Text('₹${p.comparePrice!.toInt()}', style: const TextStyle(color: Colors.grey, fontSize: 12, decoration: TextDecoration.lineThrough)),
                           ],
                         ],
                       ),
-                      InkWell(
-                        onTap: !isOutOfStock ? () {
+                      _CartActionButton(
+                        isAdded: _isAdded,
+                        isOutOfStock: isOutOfStock,
+                        onTap: () {
                           if (Provider.of<AuthController>(context, listen: false).isAuthenticated) {
                             cart.addToCart(p, 1);
+                            setState(() => _isAdded = true);
+                            Future.delayed(const Duration(seconds: 2), () {
+                              if (mounted) setState(() => _isAdded = false);
+                            });
                             Scaffold.of(context).openEndDrawer();
                           } else {
                             Provider.of<AuthController>(context, listen: false).toggleLoginPortal(true);
                           }
-                        } : null,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: !isOutOfStock ? const Color(0xFF07404C) : Colors.grey.shade400,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(!isOutOfStock ? Icons.shopping_bag_outlined : Icons.do_not_disturb_on_outlined, size: 14, color: Colors.white),
-                              const SizedBox(width: 8),
-                              Text(!isOutOfStock ? l10n.add : l10n.outOfStock, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),
-                            ],
-                          ),
-                        ),
+                        },
                       ),
                     ],
                   ),
@@ -240,26 +250,64 @@ class _ProductCardState extends State<ProductCard> {
           ],
         ),
       ),
-    ),
-    ),
-  );
+    );
+  }
+
+  void _showQuickView(BuildContext context, ProductModel product) {
+    showDialog(
+      context: context,
+      builder: (context) => ProductQuickView(product: product),
+    );
+  }
 }
 
-void _showQuickView(BuildContext context, ProductModel product) {
-  showDialog(
-    context: context,
-    builder: (context) => ProductQuickView(product: product),
-  );
+class _CartActionButton extends StatelessWidget {
+  final bool isAdded;
+  final bool isOutOfStock;
+  final VoidCallback onTap;
+
+  const _CartActionButton({
+    required this.isAdded,
+    required this.isOutOfStock,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: isOutOfStock ? null : onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: EdgeInsets.symmetric(horizontal: isAdded ? 12 : 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isOutOfStock 
+            ? Colors.grey.shade400 
+            : (isAdded ? Colors.green : const Color(0xFF07404C)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: isAdded
+            ? const Row(
+                key: ValueKey('added'),
+                children: [
+                  Icon(Icons.check, size: 14, color: Colors.white),
+                  SizedBox(width: 4),
+                  Text("ADDED", style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white)),
+                ],
+              )
+            : Row(
+                key: const ValueKey('add'),
+                children: [
+                  Icon(!isOutOfStock ? Icons.shopping_bag_outlined : Icons.do_not_disturb_on_outlined, size: 14, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Text(!isOutOfStock ? "ADD" : "SOLD", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),
+                ],
+              ),
+        ),
+      ),
+    );
+  }
 }
 
-Widget _actionCircle({required IconData icon, required Color color, required VoidCallback onTap}) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Container(
-      padding: const EdgeInsets.all(7),
-      decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-      child: Icon(icon, size: 16, color: color),
-    ),
-  );
-}
 }

@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../../../controllers/homepage_controller.dart';
 import '../../../controllers/language_controller.dart';
 import '../../../utils/responsive_utils.dart';
+import '../../../utils/animation_utils.dart';
 
-class UserFooter extends StatelessWidget {
+class UserFooter extends StatefulWidget {
   final HomePageController controller;
   const UserFooter({super.key, required this.controller});
+
+  @override
+  State<UserFooter> createState() => _UserFooterState();
+}
+
+class _UserFooterState extends State<UserFooter> {
+  bool _isVisible = false;
 
   Future<void> _launchUrl(String url) async {
     if (url.isEmpty) return;
@@ -24,102 +34,150 @@ class UserFooter extends StatelessWidget {
     final bool isMobile = Responsive.isMobile(context);
     final bool isTablet = Responsive.isTablet(context);
     final l10n = AppLocalizations.of(context)!;
+    final bool isReducedMotion = !AnimationUtils.shouldAnimate(context);
 
     const Color primaryTeal = Color(0xFF0F4C5C);
     const Color templeGold = Color(0xFFC89A5B);
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: primaryTeal,
-        border: Border(top: BorderSide(color: templeGold.withOpacity(0.3), width: 4)),
-      ),
-      padding: EdgeInsets.symmetric(
-        vertical: isMobile ? 60 : 100, 
-        horizontal: isMobile ? 24 : (isTablet ? 60 : 120)
-      ),
-      child: Column(
-        children: [
-          // MAIN FOOTER CONTENT
-          LayoutBuilder(
-            builder: (context, constraints) {
-              if (isMobile) {
-                return Column(
+    return VisibilityDetector(
+      key: const Key('user-footer-visibility'),
+      onVisibilityChanged: (info) {
+        if (info.visibleFraction > 0.1 && !_isVisible) {
+          setState(() => _isVisible = true);
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: primaryTeal,
+          border: Border(top: BorderSide(color: templeGold.withOpacity(0.3), width: 4)),
+        ),
+        padding: EdgeInsets.symmetric(
+          vertical: isMobile ? 60 : 100, 
+          horizontal: isMobile ? 24 : (isTablet ? 60 : 120)
+        ),
+        child: Column(
+          children: [
+            // MAIN FOOTER CONTENT
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (isMobile) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FadeInUp(
+                        animate: _isVisible,
+                        duration: AnimationUtils.getDuration(context, const Duration(milliseconds: 800)),
+                        child: _buildBranding(lang, primaryTeal, templeGold),
+                      ),
+                      const SizedBox(height: 60),
+                      FadeInUp(
+                        animate: _isVisible,
+                        duration: AnimationUtils.getDuration(context, const Duration(milliseconds: 800)),
+                        delay: AnimationUtils.getDuration(context, const Duration(milliseconds: 200)),
+                        child: _buildLinksGrid(context, lang, isMobile, isTablet, l10n),
+                      ),
+                    ],
+                  );
+                }
+                return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildBranding(lang, primaryTeal, templeGold),
-                    const SizedBox(height: 60),
-                    _buildLinksGrid(context, lang, isMobile, isTablet, l10n),
+                    Expanded(
+                      flex: 3, 
+                      child: FadeInUp(
+                        animate: _isVisible,
+                        duration: AnimationUtils.getDuration(context, const Duration(milliseconds: 800)),
+                        child: _buildBranding(lang, primaryTeal, templeGold),
+                      )
+                    ),
+                    const SizedBox(width: 80),
+                    Expanded(
+                      flex: 7, 
+                      child: FadeInUp(
+                        animate: _isVisible,
+                        duration: AnimationUtils.getDuration(context, const Duration(milliseconds: 800)),
+                        delay: AnimationUtils.getDuration(context, const Duration(milliseconds: 200)),
+                        child: _buildLinksGrid(context, lang, isMobile, isTablet, l10n),
+                      )
+                    ),
                   ],
                 );
-              }
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(flex: 3, child: _buildBranding(lang, primaryTeal, templeGold)),
-                  const SizedBox(width: 80),
-                  Expanded(flex: 7, child: _buildLinksGrid(context, lang, isMobile, isTablet, l10n)),
-                ],
-              );
-            },
-          ),
-          
-          const SizedBox(height: 80),
-          Divider(color: Colors.white.withOpacity(0.1), thickness: 1),
-          const SizedBox(height: 40),
-          
-          // BOTTOM BAR: COPYRIGHT & LEGAL
-          LayoutBuilder(
-            builder: (context, constraints) {
-              if (isMobile) {
-                return Column(
-                  children: [
-                    Text(
-                      controller.footer.localizedCopyright(lang),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13, letterSpacing: 0.5),
-                    ),
-                    const SizedBox(height: 30),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 20,
-                      runSpacing: 10,
+              },
+            ),
+            
+            const SizedBox(height: 80),
+            
+            // Decorative Element with Ambient Glow
+            FadeIn(
+              animate: _isVisible,
+              duration: AnimationUtils.getDuration(context, const Duration(milliseconds: 1000)),
+              delay: AnimationUtils.getDuration(context, const Duration(milliseconds: 500)),
+              child: const _AmbientGlowSymbol(),
+            ),
+            
+            const SizedBox(height: 40),
+            Divider(color: Colors.white.withOpacity(0.1), thickness: 1),
+            const SizedBox(height: 40),
+            
+            // BOTTOM BAR: COPYRIGHT & LEGAL
+            FadeIn(
+              animate: _isVisible,
+              duration: AnimationUtils.getDuration(context, const Duration(milliseconds: 1000)),
+              delay: AnimationUtils.getDuration(context, const Duration(milliseconds: 600)),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  if (isMobile) {
+                    return Column(
                       children: [
-                        _buildBottomLink(controller.footer.localizedPrivacyLabel(lang), controller.footer.privacyUrl),
-                        _buildBottomLink(controller.footer.localizedTermsLabel(lang), controller.footer.termsUrl),
-                        _buildBottomLink(controller.footer.localizedCookieLabel(lang), controller.footer.cookieUrl),
+                        Text(
+                          widget.controller.footer.localizedCopyright(lang),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13, letterSpacing: 0.5),
+                        ),
+                        const SizedBox(height: 30),
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 20,
+                          runSpacing: 10,
+                          children: [
+                            _buildBottomLink(widget.controller.footer.localizedPrivacyLabel(lang), widget.controller.footer.privacyUrl),
+                            _buildBottomLink(widget.controller.footer.localizedTermsLabel(lang), widget.controller.footer.termsUrl),
+                            _buildBottomLink(widget.controller.footer.localizedCookieLabel(lang), widget.controller.footer.cookieUrl),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+                        _buildAdminLink(context, l10n),
                       ],
-                    ),
-                    const SizedBox(height: 30),
-                    _buildAdminLink(context, l10n),
-                  ],
-                );
-              }
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      controller.footer.localizedCopyright(lang),
-                      style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14, letterSpacing: 0.5),
-                    ),
-                  ),
-                  Row(
+                    );
+                  }
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildBottomLink(controller.footer.localizedPrivacyLabel(lang), controller.footer.privacyUrl),
-                      const _DotDivider(),
-                      _buildBottomLink(controller.footer.localizedTermsLabel(lang), controller.footer.termsUrl),
-                      const _DotDivider(),
-                      _buildBottomLink(controller.footer.localizedCookieLabel(lang), controller.footer.cookieUrl),
-                      const SizedBox(width: 40),
-                      _buildAdminLink(context, l10n),
+                      Expanded(
+                        child: Text(
+                          widget.controller.footer.localizedCopyright(lang),
+                          style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14, letterSpacing: 0.5),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          _buildBottomLink(widget.controller.footer.localizedPrivacyLabel(lang), widget.controller.footer.privacyUrl),
+                          const _DotDivider(),
+                          _buildBottomLink(widget.controller.footer.localizedTermsLabel(lang), widget.controller.footer.termsUrl),
+                          const _DotDivider(),
+                          _buildBottomLink(widget.controller.footer.localizedCookieLabel(lang), widget.controller.footer.cookieUrl),
+                          const SizedBox(width: 40),
+                          _buildAdminLink(context, l10n),
+                        ],
+                      ),
                     ],
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -129,7 +187,7 @@ class UserFooter extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          controller.websiteSettings.localizedName(lang).toUpperCase(),
+          widget.controller.websiteSettings.localizedName(lang).toUpperCase(),
           style: const TextStyle(
             color: Colors.white, 
             fontSize: 32, 
@@ -140,7 +198,7 @@ class UserFooter extends StatelessWidget {
         ),
         const SizedBox(height: 30),
         Text(
-          controller.footer.localizedDescription(lang),
+          widget.controller.footer.localizedDescription(lang),
           style: TextStyle(
             color: Colors.white.withOpacity(0.7), 
             fontSize: 16, 
@@ -151,10 +209,10 @@ class UserFooter extends StatelessWidget {
         const SizedBox(height: 40),
         Row(
           children: [
-            _buildSocialIcon(Icons.facebook_rounded, controller.footer.facebookUrl),
-            _buildSocialIcon(Icons.camera_alt_rounded, controller.footer.instagramUrl),
-            _buildSocialIcon(Icons.play_circle_fill_rounded, controller.footer.youtubeUrl),
-            _buildSocialIcon(Icons.chat_bubble_outline, controller.footer.whatsappUrl),
+            _FooterSocialIcon(icon: Icons.facebook_rounded, url: widget.controller.footer.facebookUrl, color: const Color(0xFF1877F2)),
+            _FooterSocialIcon(icon: Icons.camera_alt_rounded, url: widget.controller.footer.instagramUrl, color: const Color(0xFFE4405F)),
+            _FooterSocialIcon(icon: Icons.play_circle_fill_rounded, url: widget.controller.footer.youtubeUrl, color: const Color(0xFFFF0000)),
+            _FooterSocialIcon(icon: Icons.chat_bubble_outline, url: widget.controller.footer.whatsappUrl, color: const Color(0xFF25D366)),
           ],
         ),
       ],
@@ -190,28 +248,9 @@ class UserFooter extends StatelessWidget {
           {'label': l10n.myShoppingBag, 'route': '/cart'},
         ]),
         // Dynamic Sections from Admin
-        ...controller.footer.linkSections.map((sec) => _buildLinkSection(context, sec.localizedTitle(lang), 
+        ...widget.controller.footer.linkSections.map((sec) => _buildLinkSection(context, sec.localizedTitle(lang), 
           sec.links.map((l) => {'label': l.localizedLabel(lang), 'route': l.route}).toList())),
       ],
-    );
-  }
-
-  Widget _buildSocialIcon(IconData icon, String url) {
-    return Container(
-      margin: const EdgeInsets.only(right: 16),
-      child: InkWell(
-        onTap: () => _launchUrl(url),
-        borderRadius: BorderRadius.circular(50),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.05),
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-          ),
-          child: Icon(icon, color: Colors.white.withOpacity(0.8), size: 20),
-        ),
-      ),
     );
   }
 
@@ -290,6 +329,119 @@ class UserFooter extends StatelessWidget {
   }
 }
 
+class _FooterSocialIcon extends StatefulWidget {
+  final IconData icon;
+  final String url;
+  final Color color;
+
+  const _FooterSocialIcon({required this.icon, required this.url, required this.color});
+
+  @override
+  State<_FooterSocialIcon> createState() => _FooterSocialIconState();
+}
+
+class _FooterSocialIconState extends State<_FooterSocialIcon> {
+  bool _isHovered = false;
+
+  Future<void> _launchUrl(String url) async {
+    if (url.isEmpty) return;
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      debugPrint('Could not launch $url');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isReducedMotion = !AnimationUtils.shouldAnimate(context);
+    return Container(
+      margin: const EdgeInsets.only(right: 20),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: GestureDetector(
+          onTap: () => _launchUrl(widget.url),
+          child: AnimatedContainer(
+            duration: AnimationUtils.getDuration(context, const Duration(milliseconds: 300)),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: _isHovered ? widget.color : Colors.white.withOpacity(0.05),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              boxShadow: [
+                if (_isHovered && !isReducedMotion) 
+                  BoxShadow(color: widget.color.withOpacity(0.4), blurRadius: 20, spreadRadius: 2),
+              ],
+            ),
+            child: AnimatedScale(
+              duration: AnimationUtils.getDuration(context, const Duration(milliseconds: 300)),
+              scale: (_isHovered && !isReducedMotion) ? 1.15 : 1.0,
+              curve: Curves.elasticOut,
+              child: Icon(
+                widget.icon, 
+                color: _isHovered ? Colors.white : Colors.white.withOpacity(0.8), 
+                size: 20
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AmbientGlowSymbol extends StatefulWidget {
+  const _AmbientGlowSymbol();
+
+  @override
+  State<_AmbientGlowSymbol> createState() => _AmbientGlowSymbolState();
+}
+
+class _AmbientGlowSymbolState extends State<_AmbientGlowSymbol> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _glow;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 4))..repeat(reverse: true);
+    _glow = Tween<double>(begin: 0.4, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _glow,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _glow.value,
+          child: Column(
+            children: [
+              const Icon(Icons.spa_rounded, color: Color(0xFFC89A5B), size: 40),
+              const SizedBox(height: 10),
+              Text(
+                "Radhe Radhe",
+                style: TextStyle(
+                  color: const Color(0xFFC89A5B).withOpacity(0.8),
+                  fontSize: 12,
+                  letterSpacing: 4,
+                  fontWeight: FontWeight.bold
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _DotDivider extends StatelessWidget {
   const _DotDivider();
 
@@ -308,3 +460,4 @@ class _DotDivider extends StatelessWidget {
     );
   }
 }
+

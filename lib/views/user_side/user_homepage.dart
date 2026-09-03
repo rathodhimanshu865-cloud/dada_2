@@ -6,6 +6,7 @@ import 'sections/user_hero_slider.dart';
 import 'sections/user_featured_quote.dart';
 import 'sections/user_about_preview.dart';
 import 'sections/user_upcoming_kathas.dart';
+import 'sections/user_stats.dart';
 import 'sections/user_latest_videos.dart';
 import 'sections/user_photo_gallery.dart';
 import 'sections/user_daily_suvichar.dart';
@@ -47,13 +48,13 @@ class _UserHomePageState extends State<UserHomePage> {
       scrollController: _scrollController,
       child: Column(
         children: [
-          if (controller.homepageData.showHeroSlider) UserHeroSlider(controller: controller),
+          if (controller.homepageData.showHeroSlider) UserHeroSlider(controller: controller, scrollController: _scrollController),
           if (controller.homepageData.showFeaturedQuote) UserFeaturedQuote(controller: controller),
           if (controller.homepageData.showAboutPreview) UserAboutPreview(controller: controller),
           if (controller.homepageData.showUpcomingKathas) UserUpcomingKathas(controller: controller),
+          const UserStatsSection(),
           if (controller.homepageData.showLatestVideos) UserLatestVideos(controller: controller),
           if (controller.homepageData.showPhotoGallery) UserPhotoGallery(controller: controller),
-          if (controller.homepageData.showTeachings) UserTeachings(controller: controller),
           if (controller.homepageData.showDailySuvichar) UserDailySuvichar(controller: controller),
           if (controller.homepageData.showRamKathaSection) UserRamKatha(controller: controller),
           if (controller.homepageData.showNewsSection) UserNews(controller: controller),

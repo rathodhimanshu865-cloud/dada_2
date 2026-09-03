@@ -76,6 +76,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noPhotosAdded => 'No photos added to this section yet.';
 
   @override
+  String get noVideosAdded => 'No videos added to this section yet.';
+
+  @override
   String get moreDetails => 'More Details';
 
   @override

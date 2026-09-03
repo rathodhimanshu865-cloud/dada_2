@@ -77,6 +77,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'अभी तक इस अनुभाग में कोई फ़ोटो नहीं जोड़ा गया है।';
 
   @override
+  String get noVideosAdded =>
+      'अभी तक इस अनुभाग में कोई वीडियो नहीं जोड़ा गया है।';
+
+  @override
   String get moreDetails => 'अधिक जानकारी';
 
   @override
