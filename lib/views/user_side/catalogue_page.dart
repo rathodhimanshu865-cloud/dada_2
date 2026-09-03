@@ -289,12 +289,16 @@ class _CataloguePageState extends State<CataloguePage> {
   Widget _buildProductGrid(BuildContext context, ProductController prod, List<ProductModel> products, bool isMobile) {
     final bool isTablet = Responsive.isTablet(context);
     final bool isDesktop = Responsive.isDesktop(context);
+    
+    int crossAxisCount = isDesktop ? 4 : (isTablet ? 3 : 2);
+    double aspectRatio = isDesktop ? 0.72 : (isTablet ? 0.7 : 0.58); // More height for mobile cards to prevent overflow
+    
     return SliverPadding(
       padding: EdgeInsets.fromLTRB(isMobile ? 12 : 40, 20, isMobile ? 12 : 40, 0),
       sliver: SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: isDesktop ? 4 : (isTablet ? 3 : 2),
-          childAspectRatio: isDesktop ? 0.72 : (isTablet ? 0.7 : 0.6),
+          crossAxisCount: crossAxisCount,
+          childAspectRatio: aspectRatio,
           crossAxisSpacing: isMobile ? 12 : 24,
           mainAxisSpacing: isMobile ? 16 : 40,
         ),
@@ -302,7 +306,7 @@ class _CataloguePageState extends State<CataloguePage> {
           (context, index) {
             return SiteCardEntrance(
               key: ValueKey('${products[index].id}_$index'),
-              index: index,
+              index: index % 8, // Reset stagger after 8 items for smoother infinite scroll feel
               child: ProductCard(product: products[index]),
             );
           },

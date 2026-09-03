@@ -63,10 +63,19 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> with TickerProvider
 
     final bool isMobile = Responsive.isMobile(context);
 
-    final List<String> allUrls = {
-      ...controller.realTimePhotos.map((p) => p['url'] as String? ?? '').where((u) => u.isNotEmpty),
-      ...data.sections.expand((s) => s.photoUrls),
-    }.toList();
+    // Deduplicate while preserving order of realTimePhotos followed by sections
+    final List<String> allUrls = [];
+    final Set<String> seen = {};
+    
+    for (var p in controller.realTimePhotos) {
+      final url = p['url'] as String? ?? '';
+      if (url.isNotEmpty && url.startsWith('http') && seen.add(url)) allUrls.add(url);
+    }
+    for (var s in data.sections) {
+      for (var url in s.photoUrls) {
+        if (url.isNotEmpty && url.startsWith('http') && seen.add(url)) allUrls.add(url);
+      }
+    }
 
     List<PhotoGallerySection> categories = [
       PhotoGallerySection(
@@ -283,7 +292,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> with TickerProvider
                     .map<Widget>((e) {
                   final int overallIndex = e.key;
                   return SiteCardEntrance(
-                    index: overallIndex,
+                    index: overallIndex % 12, // Ensure delay doesn't accumulate indefinitely
                     child: _PhotoCard(
                       url: e.value,
                       index: overallIndex,

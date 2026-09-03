@@ -511,7 +511,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         SiteElevatedButton(
           onPressed: () async {
             const phone = "919876543210";
-            final message = "Pranam! I would like to order: ${p.localizedName(lang)}\nQuantity: $_quantity\nPrice: ₹${p.price.toInt()}\nProduct Link: https://dada-store.web.app/product_details?id=${p.id}";
+            final message = "Pranam! I would like to order: ${p.localizedName(lang)}\nQuantity: $_quantity\nPrice: ₹${p.price.toInt()}\nProduct Link: https://dada-89661.web.app/product_details?id=${p.id}";
             final url = "https://wa.me/$phone?text=${Uri.encodeComponent(message)}";
             if (await canLaunchUrl(Uri.parse(url))) {
               await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
@@ -521,7 +521,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           foregroundColor: const Color(0xFF25D366),
           borderRadius: BorderRadius.circular(8),
           padding: const EdgeInsets.symmetric(vertical: 18),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.chat_bubble_outline, color: Color(0xFF25D366), size: 16), const SizedBox(width: 10), Text(AppLocalizations.of(context)!.orderInquireWhatsApp, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12))]),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.chat_bubble_outline, color: Color(0xFF25D366), size: 16), const SizedBox(width: 10), Text(AppLocalizations.of(context)!.orderInquireWhatsapp, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12))]),
         ),
         const SizedBox(height: 32),
         _buildDeliveryChecker(isMobile),
@@ -543,30 +543,36 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         Text(AppLocalizations.of(context)!.sacredConsecrationTitle, 
           textAlign: TextAlign.center,
           style: GoogleFonts.cormorantGaramond(fontSize: isMobile ? 32 : 44, fontWeight: FontWeight.w700, color: primaryTeal)),
+        const SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(AppLocalizations.of(context)!.vedicSanctityDesc, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+        ),
         const SizedBox(height: 60),
-        isMobile 
-          ? Column(
-              children: [
-                _processItem(Icons.water_drop_outlined, AppLocalizations.of(context)!.gangaJalTitle, AppLocalizations.of(context)!.gangaJalDesc, true, 0),
-                const SizedBox(height: 40),
-                _processItem(Icons.auto_fix_high_outlined, AppLocalizations.of(context)!.vedicMantraTitle, AppLocalizations.of(context)!.vedicMantraDesc, true, 1),
-                const SizedBox(height: 40),
-                _processItem(Icons.inventory_2_outlined, AppLocalizations.of(context)!.zeroBreakageTitle, AppLocalizations.of(context)!.zeroBreakageDesc, true, 2),
-                const SizedBox(height: 40),
-                _processItem(Icons.payments_outlined, AppLocalizations.of(context)!.codAvailableTitle, AppLocalizations.of(context)!.codAvailableDesc, true, 3),
-              ],
-            )
-          : Row(
-              children: [
-                _processItem(Icons.water_drop_outlined, AppLocalizations.of(context)!.gangaJalTitle, AppLocalizations.of(context)!.gangaJalDesc, false, 0),
-                const SizedBox(width: 32),
-                _processItem(Icons.auto_fix_high_outlined, AppLocalizations.of(context)!.vedicMantraTitle, AppLocalizations.of(context)!.vedicMantraDesc, false, 1),
-                const SizedBox(width: 32),
-                _processItem(Icons.inventory_2_outlined, AppLocalizations.of(context)!.zeroBreakageTitle, AppLocalizations.of(context)!.zeroBreakageDesc, false, 2),
-                const SizedBox(width: 32),
-                _processItem(Icons.payments_outlined, AppLocalizations.of(context)!.codAvailableTitle, AppLocalizations.of(context)!.codAvailableDesc, false, 3),
-              ],
-            ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 0 : 40),
+          child: isMobile 
+            ? Column(
+                children: [
+                  _processItem(Icons.water_drop_outlined, AppLocalizations.of(context)!.gangaJalTitle, AppLocalizations.of(context)!.gangaJalDesc, true, 0),
+                  _processItem(Icons.auto_fix_high_outlined, AppLocalizations.of(context)!.vedicMantraTitle, AppLocalizations.of(context)!.vedicMantraDesc, true, 1),
+                  _processItem(Icons.inventory_2_outlined, AppLocalizations.of(context)!.zeroBreakageTitle, AppLocalizations.of(context)!.zeroBreakageDesc, true, 2),
+                  _processItem(Icons.payments_outlined, AppLocalizations.of(context)!.codAvailableTitle, AppLocalizations.of(context)!.codAvailableDesc, true, 3),
+                ],
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _processItem(Icons.water_drop_outlined, AppLocalizations.of(context)!.gangaJalTitle, AppLocalizations.of(context)!.gangaJalDesc, false, 0),
+                  const SizedBox(width: 32),
+                  _processItem(Icons.auto_fix_high_outlined, AppLocalizations.of(context)!.vedicMantraTitle, AppLocalizations.of(context)!.vedicMantraDesc, false, 1),
+                  const SizedBox(width: 32),
+                  _processItem(Icons.inventory_2_outlined, AppLocalizations.of(context)!.zeroBreakageTitle, AppLocalizations.of(context)!.zeroBreakageDesc, false, 2),
+                  const SizedBox(width: 32),
+                  _processItem(Icons.payments_outlined, AppLocalizations.of(context)!.codAvailableTitle, AppLocalizations.of(context)!.codAvailableDesc, false, 3),
+                ],
+              ),
+        ),
       ],
     );
   }

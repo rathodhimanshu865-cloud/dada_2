@@ -154,7 +154,7 @@ class MyApp extends StatelessWidget {
             Consumer<AuthController>(
               builder: (context, auth, _) {
                 if (auth.showLoginPortal) {
-                  return const LoginPage();
+                  return const Positioned.fill(child: LoginPage());
                 }
                 return const SizedBox.shrink();
               },
