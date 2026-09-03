@@ -9,6 +9,7 @@ import '../../controllers/language_controller.dart';
 import '../../utils/responsive_utils.dart';
 import 'sections/product_cart_layout.dart';
 import '../../utils/app_typography.dart';
+import '../../utils/animation_utils.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
@@ -71,7 +72,11 @@ class CartPage extends StatelessWidget {
           const SizedBox(height: 24),
           Text(cart.errorMessage!, style: const TextStyle(fontSize: 18)),
           const SizedBox(height: 30),
-          ElevatedButton(onPressed: cart.clearError, child: Text(l10n.tryAgain)),
+          SiteElevatedButton(
+            onPressed: cart.clearError,
+            enableHoverLift: false,
+            child: Text(l10n.tryAgain),
+          ),
         ],
       ),
     );
@@ -101,12 +106,11 @@ class CartPage extends StatelessWidget {
               style: AppTypography.bodyStyle(context, fontSize: 18, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 30),
-            ElevatedButton(
+            SiteElevatedButton(
               onPressed: () => Navigator.pushNamed(context, '/catalogue'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F4C5C),
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-              ),
+              enableHoverLift: false,
+              backgroundColor: const Color(0xFF0F4C5C),
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
               child: Text(l10n.exploreCatalogue),
             ),
           ],
@@ -359,9 +363,11 @@ class CartPage extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 height: 60,
-                child: ElevatedButton(
+                child: SiteElevatedButton(
                   onPressed: () => Navigator.pushNamed(context, '/checkout'),
-                  style: ElevatedButton.styleFrom(backgroundColor: teal, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                  enableHoverLift: false,
+                  backgroundColor: teal,
+                  borderRadius: BorderRadius.circular(8),
                   child: Text(l10n.proceedToCheckout, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1, color: Colors.white)),
                 ),
               ),

@@ -156,9 +156,6 @@ class _HeroState extends State<_Hero> with TickerProviderStateMixin {
     _slideImg = Tween<Offset>(begin: const Offset(0.05, 0), end: Offset.zero)
         .animate(CurvedAnimation(parent: _c, curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic)));
 
-    _zoomController = AnimationController(vsync: this, duration: const Duration(seconds: 12))..repeat(reverse: true);
-    _zoomAnimation = Tween<double>(begin: 1.0, end: 1.08).animate(CurvedAnimation(parent: _zoomController, curve: Curves.linear));
-
     Future.delayed(const Duration(milliseconds: 150), () {
       if (mounted) {
         _c.forward();
@@ -169,7 +166,6 @@ class _HeroState extends State<_Hero> with TickerProviderStateMixin {
   @override
   void dispose() {
     _c.dispose();
-    _zoomController.dispose();
     super.dispose();
   }
 
@@ -187,21 +183,6 @@ class _HeroState extends State<_Hero> with TickerProviderStateMixin {
       color: const Color(0xFFFAF8F4), // Ultra clean warm white
       child: Stack(
         children: [
-          // Background Ken Burns Zoom
-          if (hasImg) Positioned.fill(
-            child: AnimatedBuilder(
-              animation: _zoomAnimation,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _zoomAnimation.value,
-                  child: Opacity(
-                    opacity: 0.04,
-                    child: Image.network(widget.data.heroImage, fit: BoxFit.cover),
-                  ),
-                );
-              },
-            ),
-          ),
           
           Positioned(
             top: -100, right: -50,
@@ -423,14 +404,9 @@ class _IntroBlockState extends State<_IntroBlock> {
   }
 
   Widget _buildDesktopIntro() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 6,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
               FadeInDown(
                 animate: _isVisible,
                 child: _Label(widget.l10n.anIntroduction, widget.isMob),
@@ -440,6 +416,7 @@ class _IntroBlockState extends State<_IntroBlock> {
                 animate: _isVisible,
                 delay: const Duration(milliseconds: 200),
                 child: Text(widget.lang == 'hi' ? 'प्रेरक जीवन और यात्रा' : widget.lang == 'gu' ? 'પ્રેરણાદાયક જીવન અને યાત્રા' : 'The Inspiring Life & Journey',
+                  textAlign: TextAlign.center,
                   style: AppTypography.headingStyle(context, fontSize: 38, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
               ),
               const SizedBox(height: 48),
@@ -449,25 +426,13 @@ class _IntroBlockState extends State<_IntroBlock> {
                 delay: const Duration(milliseconds: 400),
                 child: _HtmlContent(html: widget.html, isMob: widget.isMob),
               ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 80),
-        Expanded(
-          flex: 4,
-          child: FadeInRight(
-            animate: _isVisible,
-            delay: const Duration(milliseconds: 600),
-            child: _PortraitFrame(url: widget.portrait, height: 500),
-          ),
-        ),
-      ],
+          ],
     );
   }
 
   Widget _buildMobileIntro() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         FadeInDown(
           animate: _isVisible,
@@ -478,15 +443,10 @@ class _IntroBlockState extends State<_IntroBlock> {
           animate: _isVisible,
           delay: const Duration(milliseconds: 200),
           child: Text(widget.lang == 'hi' ? 'प्रेरक जीवन और यात्रा' : widget.lang == 'gu' ? 'પ્રેરણાદાયક જીવન અને યાત્રા' : 'The Inspiring Life & Journey',
+            textAlign: TextAlign.center,
             style: AppTypography.headingStyle(context, fontSize: 26, color: _teal, fontWeight: FontWeight.w700, height: 1.2)),
         ),
         const SizedBox(height: 32),
-        FadeInRight(
-          animate: _isVisible,
-          delay: const Duration(milliseconds: 400),
-          child: _PortraitFrame(url: widget.portrait, height: 400),
-        ),
-        const SizedBox(height: 40),
         FadeInUp(
           animate: _isVisible,
           delay: const Duration(milliseconds: 600),
@@ -521,7 +481,7 @@ class _HtmlContent extends StatelessWidget {
           'padding-left': '18px', 'border-left': '4px solid #C19A6B'};
         }
         if (el.localName == 'p') {
-          return {'margin-bottom': '24px', 'line-height': '1.95', 'text-align': 'justify'};
+          return {'margin-bottom': '24px', 'line-height': '1.95', 'text-align': 'center'};
         }
         if (el.localName == 'li') {
           return {'margin-bottom': '10px', 'line-height': '1.75', 'color': '#4A5568'};

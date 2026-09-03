@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
@@ -285,6 +285,17 @@ class HomePageController extends ChangeNotifier {
 
   Future<void> publish() async {
     try {
+      // Auto-stamp new photo URLs with addedAt timestamp for 48-hour expiration
+      for (var section in photoGalleryData.sections) {
+        for (int i = 0; i < section.photoUrls.length; i++) {
+          final url = section.photoUrls[i];
+          if (url.isNotEmpty && !url.contains('?addedAt=') && !url.contains('&addedAt=')) {
+            final separator = url.contains('?') ? '&' : '?';
+            section.photoUrls[i] = '$url${separator}addedAt=${DateTime.now().millisecondsSinceEpoch}';
+          }
+        }
+      }
+
       final data = {
         'websiteSettings': websiteSettings.toMap(),
         'heroSection': heroSection.toMap(),

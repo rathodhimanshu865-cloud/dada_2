@@ -6,6 +6,7 @@ import '../../controllers/homepage_controller.dart';
 import '../../controllers/language_controller.dart';
 import '../../models/homepage_model.dart';
 import '../../utils/app_typography.dart';
+import '../../utils/animation_utils.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 
@@ -111,15 +112,22 @@ class _KathaListPageState extends State<KathaListPage> {
           SizedBox(height: isMobile ? 30 : 60),
 
           // ── Tab row ──────────────────────────────────────────────────────
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: isMobile ? 30 : 80,
-            children: [
-              _tabButton(AppLocalizations.of(context)!.allKathas, activeTab == 0,
-                  () => setState(() { activeTab = 0; currentPage = 1; })),
-              _tabButton(AppLocalizations.of(context)!.upcomingKathas, activeTab == 1,
-                  () => Navigator.pushNamed(context, '/upcoming_ram_kathas')),
+          SiteFilterTabBar(
+            tabs: [
+              AppLocalizations.of(context)!.allKathas,
+              AppLocalizations.of(context)!.upcomingKathas
             ],
+            activeIndex: activeTab,
+            onTabSelected: (index) {
+              if (index == 0) {
+                setState(() {
+                  activeTab = 0;
+                  currentPage = 1;
+                });
+              } else {
+                Navigator.pushNamed(context, '/upcoming_ram_kathas');
+              }
+            },
           ),
 
           SizedBox(height: isMobile ? 30 : 60),
@@ -205,17 +213,14 @@ class _KathaListPageState extends State<KathaListPage> {
                     ),
                   ),
                 ),
-                ElevatedButton(
+                SiteElevatedButton(
                   onPressed: () => setState(() { _searchQuery = _searchController.text; currentPage = 1; }),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryTeal,
-                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 30),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(12),
-                        bottomRight: Radius.circular(12),
-                      ),
-                    ),
+                  enableHoverLift: false,
+                  backgroundColor: primaryTeal,
+                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 30),
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(12),
+                    bottomRight: Radius.circular(12),
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.searchKathas,
@@ -277,8 +282,11 @@ class _KathaListPageState extends State<KathaListPage> {
             int index = entry.key;
             KathaRecord katha = entry.value;
             bool isExpanded = expandedIndex == index;
-            return Column(
-              children: [
+            return SiteCardEntrance(
+              index: index,
+              reducedMotion: false,
+              child: Column(
+                children: [
                 InkWell(
                   onTap: () => setState(() => expandedIndex = isExpanded ? null : index),
                   child: Container(
@@ -302,8 +310,9 @@ class _KathaListPageState extends State<KathaListPage> {
                     ),
                   ),
                 ),
-                if (isExpanded) _buildExpandedDetails(katha, lang),
-              ],
+                  if (isExpanded) _buildExpandedDetails(katha, lang),
+                ],
+              ),
             );
           }),
           const SizedBox(height: 80),
@@ -358,17 +367,14 @@ class _KathaListPageState extends State<KathaListPage> {
                 ),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
+                  child: SiteElevatedButton(
                     onPressed: () => setState(() { _searchQuery = _searchController.text; currentPage = 1; }),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryTeal,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(12),
-                          bottomRight: Radius.circular(12),
-                        ),
-                      ),
+                    enableHoverLift: false,
+                    backgroundColor: primaryTeal,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(12),
+                      bottomRight: Radius.circular(12),
                     ),
                     child: Text(
                       AppLocalizations.of(context)!.searchKathas,
@@ -408,7 +414,11 @@ class _KathaListPageState extends State<KathaListPage> {
             int index = entry.key;
             KathaRecord katha = entry.value;
             bool isExpanded = expandedIndex == index;
-            return _buildMobileKathaCard(katha, index, isExpanded, lang);
+            return SiteCardEntrance(
+              index: index,
+              reducedMotion: false,
+              child: _buildMobileKathaCard(katha, index, isExpanded, lang),
+            );
           }),
 
           const SizedBox(height: 40),

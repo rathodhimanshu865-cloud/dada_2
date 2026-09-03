@@ -8,6 +8,7 @@ import '../../controllers/auth_controller.dart';
 import '../../models/order_model.dart';
 import '../../utils/app_typography.dart';
 import '../../utils/invoice_helper.dart';
+import '../../utils/animation_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 
@@ -213,7 +214,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               const SizedBox(height: 20),
               Text(l10n.yourBagIsEmpty, style: AppTypography.headingStyle(context, fontSize: 24)),
               const SizedBox(height: 20),
-              ElevatedButton(onPressed: () => Navigator.pushNamed(context, '/product'), child: Text(l10n.backToProducts)),
+              SiteElevatedButton(onPressed: () => Navigator.pushNamed(context, '/product'), enableHoverLift: false, child: Text(l10n.backToProducts)),
             ],
           ),
         ),
@@ -412,7 +413,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         children: [
           if (_currentStep == 2) TextButton.icon(onPressed: () => setState(() => _currentStep = 1), icon: const Icon(Icons.arrow_back), label: Text(l10n.back)),
           if (_currentStep == 1) const Spacer(),
-          ElevatedButton(
+          SiteElevatedButton(
             onPressed: orderController.isLoading ? null : () { 
               if (_currentStep == 1) { 
                 if (_formKey.currentState!.validate()) {
@@ -422,8 +423,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 _startPayment(); 
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white, padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 32, vertical: 20)),
-            child: orderController.isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(_currentStep == 1 ? l10n.nextStep : l10n.completeOrder),
+            enableHoverLift: false,
+            backgroundColor: primaryTeal, 
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 32, vertical: 20),
+            child: orderController.isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(_currentStep == 1 ? l10n.nextStep : l10n.completeOrder, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -474,21 +477,39 @@ class _CheckoutPageState extends State<CheckoutPage> {
               children: [
                 SizedBox(
                   width: isMobile ? double.infinity : null,
-                  child: ElevatedButton.icon(
+                  child: SiteElevatedButton(
                     onPressed: () => InvoiceHelper.printInvoice(_placedOrder!),
-                    icon: const Icon(Icons.picture_as_pdf, size: 18),
-                    label: Text(l10n.downloadInvoice, style: const TextStyle(fontSize: 12)),
-                    style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24)),
+                    enableHoverLift: false,
+                    backgroundColor: primaryTeal, 
+                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.picture_as_pdf, size: 18, color: Colors.white),
+                        const SizedBox(width: 8),
+                        Text(l10n.downloadInvoice, style: const TextStyle(fontSize: 12, color: Colors.white)),
+                      ],
+                    ),
                   ),
                 ),
                 if (isMobile) const SizedBox(height: 16) else const SizedBox(width: 16),
                 SizedBox(
                   width: isMobile ? double.infinity : null,
-                  child: ElevatedButton.icon(
+                  child: SiteElevatedButton(
                     onPressed: () => InvoiceHelper.shareToWhatsApp(_placedOrder!),
-                    icon: const Icon(Icons.share, size: 18),
-                    label: Text(l10n.sendToWhatsApp, style: const TextStyle(fontSize: 12)),
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF25D366), padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24)),
+                    enableHoverLift: false,
+                    backgroundColor: const Color(0xFF25D366), 
+                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.share, size: 18, color: Colors.white),
+                        const SizedBox(width: 8),
+                        Text(l10n.sendToWhatsApp, style: const TextStyle(fontSize: 12, color: Colors.white)),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -497,10 +518,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ],
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
+            child: SiteElevatedButton(
               onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/product', (route) => false), 
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 18)),
-              child: Text(l10n.continueShopping),
+              enableHoverLift: false,
+              backgroundColor: Colors.black, 
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              child: Text(l10n.continueShopping, style: const TextStyle(color: Colors.white)),
             ),
           ),
           const SizedBox(height: 24),

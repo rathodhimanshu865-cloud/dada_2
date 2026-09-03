@@ -454,7 +454,7 @@ class _UserHeaderState extends State<UserHeader>
     Color activeColor,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 11),
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       child: PopupMenuButton<String>(
         offset: const Offset(0, 50),
         elevation: 20,
@@ -919,7 +919,7 @@ class _AnimatedNavLinkState extends State<_AnimatedNavLink> with SingleTickerPro
         onTap: widget.onTap,
         hoverColor: Colors.transparent,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 7),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -930,10 +930,10 @@ class _AnimatedNavLinkState extends State<_AnimatedNavLink> with SingleTickerPro
                     duration: const Duration(milliseconds: 200),
                     style: AppTypography.bodyStyle(
                       context,
-                      fontSize: 15,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: currentColor,
-                      letterSpacing: 0.1,
+                      letterSpacing: 0,
                     ),
                     child: Text(widget.title.toUpperCase()),
                   ),

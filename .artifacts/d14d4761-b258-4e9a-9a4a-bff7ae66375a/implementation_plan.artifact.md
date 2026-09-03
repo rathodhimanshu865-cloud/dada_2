@@ -1,39 +1,40 @@
-# Store Home Portal Animation Plan
+# Product Catalog & Cart Drawer Animation Plan
 
-This plan details the UI/UX improvements for the Product Store Home page (`ProductHomePage`) with cinematic entry animations, interactive category tiles, and dynamic product cards.
+This plan details the premium UI/UX enhancements for the Product Catalog (`CataloguePage`) and the Cart Drawer (`CartDrawer`), focusing on smooth filtering, staggered grids, and tactile feedback.
 
 ## Proposed Changes
 
-### 1. Store Hero/Banner [MODIFY] [product_home_page.dart](file:///D:/dada_2/lib/views/user_side/product_home_page.dart)
-- **Entrance**: Implement a fade-in and scale-up animation (`opacity 0 -> 1`, `scale 0.96 -> 1.0`) on page load.
-- **Content Reveal**: Stagger the entrance of the heading, subtitle, and CTA buttons.
+### 1. Full Catalog Page [MODIFY] [catalogue_page.dart](file:///D:/dada_2/lib/views/user_side/catalogue_page.dart)
+- **Sticky Filter Bar**:
+    - Implement a `SliverPersistentHeader` to make the category/filter bar sticky.
+    - Add a background blur and subtle shadow that fades in as it sticks.
+- **Product Grid Reveal**:
+    - Staggered entrance for product cards (`FadeInUp` with incremental delays).
+    - On filter/sort change: Current items fade/scale out (150ms) before the new set enters.
 
-### 2. Interactive Category Collections [MODIFY] [product_home_page.dart](file:///D:/dada_2/lib/views/user_side/product_home_page.dart)
-- **Staggered Entrance**: Use `VisibilityDetector` and `FadeInUp` to reveal collection tiles with a 60ms stagger.
-- **Tactile Feedback**:
-  - **Desktop**: Add hover scaling (`1.08x`) for category images and a subtle gold color shift for labels.
-  - **Mobile**: Implement a quick scale-down (`0.97x`) on tap before navigating to the catalogue.
+### 2. Enhanced Product Card [MODIFY] [product_card.dart](file:///D:/dada_2/lib/views/user_side/sections/product_card.dart)
+- **Image Hover Swap**: Crossfade to the second image in `product.imageUrls` on hover (if available).
+- **Interactive UI**:
+    - "Quick View" button slides up from the bottom edge on hover.
+    - Card lifts by 4px with an expanded shadow bloom.
+    - Mobile: Tap feedback via `AnimatedScale`.
 
-### 3. Featured Products Grid [MODIFY] [product_card.dart](file:///D:/dada_2/lib/views/user_side/sections/product_card.dart)
-- **Entrance**: Staggered reveal for product cards in the grid.
-- **Product Card Enhancements**:
-  - **Hover Action**: "Add to Cart" button slides up from the bottom on desktop hover.
-  - **Price Badge**: Pop-in animation for discount tags using spring easing.
-  - **Action Feedback**: Crossfade transition to a "Added!" checkmark state upon clicking "Add to Cart".
+### 3. Quick View Modal [MODIFY] [product_quick_view.dart](file:///D:/dada_2/lib/views/user_side/sections/product_quick_view.dart)
+- **Positioned Entrance**: Animate scale+fade-in from the card's general position.
+- **Micro-Interactions**: Thumbnails crossfade the main image on selection.
 
-### 4. Trust Badges & Process [MODIFY] [product_home_page.dart](file:///D:/dada_2/lib/views/user_side/product_home_page.dart)
-- **Settle Animation**: Process icons (Ganga Jal, Vedic Mantra, etc.) will use a scale-down "settle" effect (`1.1 -> 1.0` with bounce) when they first enter the viewport.
-- **Staggered Reveal**: Fade and rise entrance for process descriptions.
-
-### 5. Wisdom & Testimonials [MODIFY] [product_home_page.dart](file:///D:/dada_2/lib/views/user_side/product_home_page.dart)
-- **Scroll Reveal**: Sections will slide up smoothly as the user scrolls down.
+### 4. Cart Drawer [MODIFY] [cart_drawer.dart](file:///D:/dada_2/lib/views/user_side/sections/cart_drawer.dart)
+- **Entrance**: Slide-in from right (100% -> 0) with backdrop fade.
+- **Staggered Items**: Cart items slide in one by one.
+- **Tactile Feedback**: Quantity +/- buttons scale down (0.9x) on tap.
+- **Removal Animation**: Items slide out to the right and collapse their height smoothly.
 
 ## Verification Plan
 
 ### Manual Verification
-- Navigate to the Store Home Portal.
-- Observe the hero banner's scale-in entrance.
-- Scroll through "Sacred Collections" to check the staggered tile reveals.
-- Hover over category tiles on desktop to verify the image scale and label color shift.
-- Test the "Add to Cart" interaction on product cards: verify the slide-up button (desktop) and the checkmark state change.
-- Check the trust icons for the "settle" bounce effect on scroll.
+- Navigate to the Full Catalog.
+- Scroll down to verify the sticky filter bar behavior.
+- Change a category and observe the smooth exit/entrance of product cards.
+- Hover over products to test image swapping and the "Quick View" button.
+- Open the Cart Drawer: check for staggered item entrance.
+- Test removing a cart item and verify the smooth height collapse.

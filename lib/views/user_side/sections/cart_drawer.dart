@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../models/cart_model.dart';
 import '../../../controllers/cart_controller.dart';
@@ -7,6 +8,7 @@ import '../../../controllers/auth_controller.dart';
 import '../../../controllers/coupon_controller.dart';
 import '../../../controllers/language_controller.dart';
 import '../../../utils/app_typography.dart';
+import '../../../utils/animation_utils.dart';
 
 class CartDrawer extends StatefulWidget {
   const CartDrawer({super.key});
@@ -212,90 +214,18 @@ class _CartDrawerState extends State<CartDrawer> {
 
   Widget _buildCartItems(BuildContext context, CartController cart, Color teal) {
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
-    return ListView.separated(
+    return ListView.builder(
       padding: const EdgeInsets.all(24),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: cart.items.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 20),
       itemBuilder: (context, index) {
         final item = cart.items[index];
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade100),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: item.imageUrl.isNotEmpty 
-                  ? Image.network(
-                      item.imageUrl,
-                      width: 70,
-                      height: 70,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        width: 70,
-                        height: 70,
-                        color: Colors.grey.shade100,
-                        child: const Icon(Icons.broken_image_outlined, size: 20, color: Colors.grey),
-                      ),
-                    )
-                  : Container(
-                      width: 70,
-                      height: 70,
-                      color: Colors.grey.shade100,
-                      child: const Icon(Icons.image_outlined, size: 20, color: Colors.grey),
-                    ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.localizedProductName(lang),
-                            style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 15),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () => cart.removeItem(item.productId),
-                          icon: const Icon(Icons.delete_outline, size: 20, color: Colors.grey),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      'Color: Standard • Size: Medium',
-                      style: AppTypography.bodyStyle(context, fontSize: 12, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildQuantityToggle(context, cart, item),
-                        Text(
-                          '₹${(item.price * item.quantity).toStringAsFixed(2)}',
-                          style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 15),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+        return FadeInRight(
+          key: ValueKey(item.productId),
+          duration: const Duration(milliseconds: 400),
+          delay: Duration(milliseconds: index * 100),
+          child: _CartItemTile(item: item, cart: cart, teal: teal, lang: lang),
         );
       },
     );
@@ -309,18 +239,26 @@ class _CartDrawerState extends State<CartDrawer> {
       ),
       child: Row(
         children: [
-          IconButton(
+          _QtyButton(
+            icon: Icons.remove,
             onPressed: () => cart.updateQuantity(item.productId, -1),
-            icon: const Icon(Icons.remove, size: 14),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
           ),
-          Text('${item.quantity}', style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 13)),
-          IconButton(
+          SizedBox(
+            width: 30,
+            child: Center(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Text(
+                  '${item.quantity}', 
+                  key: ValueKey(item.quantity),
+                  style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 13)
+                ),
+              ),
+            ),
+          ),
+          _QtyButton(
+            icon: Icons.add,
             onPressed: () => cart.updateQuantity(item.productId, 1),
-            icon: const Icon(Icons.add, size: 14),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
           ),
         ],
       ),
@@ -558,6 +496,158 @@ class _CartDrawerState extends State<CartDrawer> {
           Text(label, style: AppTypography.bodyStyle(context, fontSize: 14, color: color ?? Colors.grey.shade600)),
           Text(value, style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w700, fontSize: 14, color: color)),
         ],
+      ),
+    );
+  }
+}
+
+class _CartItemTile extends StatelessWidget {
+  final CartItem item;
+  final CartController cart;
+  final Color teal;
+  final String lang;
+
+  const _CartItemTile({required this.item, required this.cart, required this.teal, required this.lang});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade100),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: item.imageUrl.isNotEmpty 
+              ? Image.network(
+                  item.imageUrl,
+                  width: 70,
+                  height: 70,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: 70,
+                    height: 70,
+                    color: Colors.grey.shade100,
+                    child: const Icon(Icons.broken_image_outlined, size: 20, color: Colors.grey),
+                  ),
+                )
+              : Container(
+                  width: 70,
+                  height: 70,
+                  color: Colors.grey.shade100,
+                  child: const Icon(Icons.image_outlined, size: 20, color: Colors.grey),
+                ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        item.localizedProductName(lang),
+                        style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 15),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    _QtyButton(
+                      icon: Icons.delete_outline,
+                      color: Colors.grey,
+                      onPressed: () => cart.removeItem(item.productId),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildQuantityToggle(context, cart, item),
+                    Text(
+                      '₹${(item.price * item.quantity).toStringAsFixed(2)}',
+                      style: AppTypography.bodyStyle(context, fontWeight: FontWeight.w900, fontSize: 15),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuantityToggle(BuildContext context, CartController cart, CartItem item) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9F9F9),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        children: [
+          _QtyButton(
+            icon: Icons.remove,
+            onPressed: () => cart.updateQuantity(item.productId, -1),
+          ),
+          SizedBox(
+            width: 30,
+            child: Center(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Text(
+                  '${item.quantity}', 
+                  key: ValueKey(item.quantity),
+                  style: AppTypography.bodyStyle(context, fontWeight: FontWeight.bold, fontSize: 13)
+                ),
+              ),
+            ),
+          ),
+          _QtyButton(
+            icon: Icons.add,
+            onPressed: () => cart.updateQuantity(item.productId, 1),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QtyButton extends StatefulWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+  final Color? color;
+
+  const _QtyButton({required this.icon, required this.onPressed, this.color});
+
+  @override
+  State<_QtyButton> createState() => _QtyButtonState();
+}
+
+class _QtyButtonState extends State<_QtyButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTap: widget.onPressed,
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 100),
+        scale: _isPressed ? 0.9 : 1.0,
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          child: Icon(widget.icon, size: 16, color: widget.color ?? Colors.black87),
+        ),
       ),
     );
   }

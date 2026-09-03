@@ -175,7 +175,16 @@ class TeachingsPageData {
     this.divinePurposeTitleHi = '', this.divinePurposeTitleGu = '',
     this.divinePurposeDesc1Hi = '', this.divinePurposeDesc1Gu = '',
     this.divinePurposeDesc2Hi = '', this.divinePurposeDesc2Gu = '',
-  }) : pillars = pillars ?? [];
+  }) : pillars = pillars ?? [
+    TeachingCard(title: 'The Value of Time', subtitle: 'Life Lessons', description: 'Time is the most precious resource given to humans. By dedicating it to noble causes and spiritual growth, we elevate our soul.', icon: 'Time once lost can never be regained. Use it for the welfare of others.'),
+    TeachingCard(title: 'Pure Love', subtitle: 'Devotion', description: 'True devotion requires dissolving the ego and accepting everyone with unconditional love, recognizing the divine presence in all beings.', icon: 'Devotion is not merely singing hymns, but seeing the divine in every heart.'),
+    TeachingCard(title: 'Action without Attachment', subtitle: 'Karma', description: 'When we act without being attached to the outcome, we free ourselves from anxiety and experience true peace of mind.', icon: 'Perform your duties sincerely, leaving the results to the divine will.'),
+    TeachingCard(title: 'Service to Mankind', subtitle: 'Humanity', description: 'Compassion in action is true religion. Feeding the hungry, helping the sick, and supporting the weak are the most direct paths to God.', icon: 'Serving the needy is the highest form of worship.'),
+    TeachingCard(title: 'Patience and Faith', subtitle: 'Life Lessons', description: 'Challenges are inevitable, but our response defines us. Holding onto faith during dark times brings immense inner strength.', icon: 'With patience and unwavering faith, every obstacle becomes a stepping stone.'),
+    TeachingCard(title: 'Surrender', subtitle: 'Devotion', description: 'When we surrender our will to God, we no longer carry the burden of the world. We become instruments of His divine plan.', icon: 'Total surrender to the Almighty brings absolute fearlessness.'),
+    TeachingCard(title: 'Law of Reciprocity', subtitle: 'Karma', description: 'Every thought and action creates a ripple. Positive deeds return as blessings, while negativity binds the soul.', icon: 'What you give to the world, you will eventually receive back manifold.'),
+    TeachingCard(title: 'Unity in Diversity', subtitle: 'Humanity', description: 'Just as rivers flow differently but reach the same ocean, spiritual paths may vary, but the destination of truth remains one.', icon: 'Different paths lead to the same peak. Respect every soul\'s journey.'),
+  ];
 
   Map<String, dynamic> toMap() => {
     'heroTitle': heroTitle, 'heroSubtitle': heroSubtitle, 'heroImage': heroImage,

@@ -24,7 +24,6 @@ class ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<ProductCard> with TickerProviderStateMixin {
   final Color primaryTeal = const Color(0xFF0F4C5C);
-  final Color discountBrown = const Color(0xFFAD8B63);
   final Color starGold = const Color(0xFFC89A5B);
   bool _isHovered = false;
   bool _isAdded = false;
@@ -47,12 +46,13 @@ class _ProductCardState extends State<ProductCard> with TickerProviderStateMixin
         onTap: isOutOfStock ? null : () => Navigator.pushNamed(context, '/product_details', arguments: p.id),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 400),
+          transform: Matrix4.translationValues(0, _isHovered ? -6 : 0, 0),
           decoration: BoxDecoration(
             color: const Color(0xFFFAF8F4),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(_isHovered ? 0.08 : 0.02), 
+                color: Colors.black.withOpacity(_isHovered ? 0.12 : 0.02), 
                 blurRadius: _isHovered ? 30 : 10, 
                 offset: Offset(0, _isHovered ? 15 : 4)
               ),
@@ -76,18 +76,34 @@ class _ProductCardState extends State<ProductCard> with TickerProviderStateMixin
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(16),
-                        child: p.imageUrl.isNotEmpty 
-                          ? AnimatedScale(
-                              duration: const Duration(milliseconds: 600),
-                              scale: _isHovered ? 1.08 : 1.0,
-                              child: CachedNetworkImage(
-                                imageUrl: p.imageUrl,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF07404C))),
-                                errorWidget: (context, url, error) => const Icon(Icons.image_outlined, color: Colors.grey, size: 48),
-                              ),
-                            )
-                          : const Icon(Icons.image_outlined, color: Colors.grey, size: 48),
+                        child: Hero(
+                          tag: 'product_image_${p.id}',
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 500),
+                            child: _isHovered && p.imageUrls.length > 1
+                                ? CachedNetworkImage(
+                                    key: const ValueKey('hover_image'),
+                                    imageUrl: p.imageUrls[1],
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF07404C))),
+                                  )
+                                : AnimatedScale(
+                                    duration: const Duration(milliseconds: 600),
+                                    scale: _isHovered ? 1.08 : 1.0,
+                                    child: CachedNetworkImage(
+                                      key: const ValueKey('main_image'),
+                                      imageUrl: p.imageUrl,
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF07404C))),
+                                      errorWidget: (context, url, error) => const Icon(Icons.image_outlined, color: Colors.grey, size: 48),
+                                    ),
+                                  ),
+                          ),
+                        ),
                       ),
                     ),
 
@@ -250,6 +266,7 @@ class _ProductCardState extends State<ProductCard> with TickerProviderStateMixin
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -308,6 +325,4 @@ class _CartActionButton extends StatelessWidget {
       ),
     );
   }
-}
-
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:dada_2/l10n/app_localizations.dart';
 import '../../../controllers/language_controller.dart';
 import '../../../models/product_model.dart';
@@ -9,6 +10,7 @@ import '../../../controllers/product_controller.dart';
 import '../../../controllers/cart_controller.dart';
 import '../../../controllers/auth_controller.dart';
 import '../../../utils/responsive_utils.dart';
+import '../../../utils/animation_utils.dart';
 
 class ProductQuickView extends StatefulWidget {
   final ProductModel product;
@@ -46,62 +48,65 @@ class _ProductQuickViewState extends State<ProductQuickView> {
     final bool isMobile = Responsive.isMobile(context);
     final l10n = AppLocalizations.of(context)!;
 
-    return Dialog(
-      backgroundColor: Colors.white,
-      insetPadding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 40, vertical: isMobile ? 12 : 24),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(isMobile ? 16 : 24)),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: 1100, 
-          maxHeight: MediaQuery.of(context).size.height * 0.9
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(isMobile ? 16 : 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: const Color(0xFFFAF3E0), borderRadius: BorderRadius.circular(30)),
-                    child: Text(l10n.quickView.toUpperCase(), style: TextStyle(color: templeGold, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text(l10n.skuLabel(p.sku), overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold))),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context), 
-                    icon: const Icon(Icons.close, color: Colors.grey),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              
-              Flexible(
-                child: SingleChildScrollView(
-                  child: isMobile 
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildImageSection(p, isMobile),
-                          const SizedBox(height: 24),
-                          _buildInfoSection(p, lang, auth, cart, isMobile),
-                        ],
-                      )
-                    : Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(flex: 5, child: _buildImageSection(p, isMobile)),
-                          const SizedBox(width: 40),
-                          Expanded(flex: 6, child: _buildInfoSection(p, lang, auth, cart, isMobile)),
-                        ],
-                      ),
+    return ZoomIn(
+      duration: const Duration(milliseconds: 400),
+      child: Dialog(
+        backgroundColor: Colors.white,
+        insetPadding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 40, vertical: isMobile ? 12 : 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(isMobile ? 16 : 24)),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 1100, 
+            maxHeight: MediaQuery.of(context).size.height * 0.9
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(isMobile ? 16 : 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(color: const Color(0xFFFAF3E0), borderRadius: BorderRadius.circular(30)),
+                      child: Text(l10n.quickView.toUpperCase(), style: TextStyle(color: templeGold, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(l10n.skuLabel(p.sku), overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold))),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context), 
+                      icon: const Icon(Icons.close, color: Colors.grey),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 24),
+                
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: isMobile 
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildImageSection(p, isMobile),
+                            const SizedBox(height: 24),
+                            _buildInfoSection(p, lang, auth, cart, isMobile),
+                          ],
+                        )
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(flex: 5, child: _buildImageSection(p, isMobile)),
+                            const SizedBox(width: 40),
+                            Expanded(flex: 6, child: _buildInfoSection(p, lang, auth, cart, isMobile)),
+                          ],
+                        ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -109,7 +114,6 @@ class _ProductQuickViewState extends State<ProductQuickView> {
   }
 
   Widget _buildImageSection(ProductModel p, bool isMobile) {
-    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         AspectRatio(
@@ -127,11 +131,17 @@ class _ProductQuickViewState extends State<ProductQuickView> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(
-                      imageUrl: _productImages[_selectedImageIndex],
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                      errorWidget: (context, url, error) => const Icon(Icons.image_outlined, size: 48, color: Colors.grey),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: CachedNetworkImage(
+                        key: ValueKey(_productImages[_selectedImageIndex]),
+                        imageUrl: _productImages[_selectedImageIndex],
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) => const Icon(Icons.image_outlined, size: 48, color: Colors.grey),
+                      ),
                     ),
                   ),
                 ),
@@ -139,10 +149,12 @@ class _ProductQuickViewState extends State<ProductQuickView> {
               if (p.isFeatured)
                 Positioned(
                   top: 12, left: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: const Color(0xFFD42E2E), borderRadius: BorderRadius.circular(4)),
-                    child: Text(l10n.bestseller, style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w900)),
+                  child: FadeInLeft(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(color: const Color(0xFFD42E2E), borderRadius: BorderRadius.circular(4)),
+                      child: Text(AppLocalizations.of(context)!.bestseller, style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w900)),
+                    ),
                   ),
                 ),
               Positioned(
@@ -163,12 +175,14 @@ class _ProductQuickViewState extends State<ProductQuickView> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: _productImages.asMap().entries.map((e) => GestureDetector(
               onTap: () => setState(() => _selectedImageIndex = e.key),
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
                 margin: const EdgeInsets.only(right: 10),
                 width: isMobile ? 55 : 65, height: isMobile ? 55 : 65,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: _selectedImageIndex == e.key ? primaryTeal : Colors.grey.shade200, width: 2),
+                  boxShadow: _selectedImageIndex == e.key ? [BoxShadow(color: primaryTeal.withOpacity(0.1), blurRadius: 8)] : [],
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(6),

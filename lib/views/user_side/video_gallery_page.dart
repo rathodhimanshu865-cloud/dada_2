@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:visibility_detector/visibility_detector.dart';
+import '../../utils/animation_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/language_controller.dart';
@@ -114,64 +114,33 @@ class _VideoGalleryPageState extends State<VideoGalleryPage> {
           if (categories.length > 1)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(categories.length, (index) {
-                    final category = categories[index];
-                    bool isActive = activeCategoryIndex == index;
-                    return GestureDetector(
-                      onTap: () {
-                        if (activeCategoryIndex != index) {
-                          setState(() {
-                            _isFiltering = true;
-                            activeCategoryIndex = index;
-                          });
-                          Future.delayed(const Duration(milliseconds: 300), () {
-                            if (mounted) setState(() => _isFiltering = false);
-                          });
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-                        decoration: const BoxDecoration(color: Colors.transparent),
-                        child: Column(
-                          children: [
-                            Text(
-                              category.localizedCategoryTitle(lang).toUpperCase(),
-                              style: TextStyle(
-                                color: isActive ? primaryTeal : Colors.grey,
-                                fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-                                letterSpacing: 1.5,
-                                fontSize: 13,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                              height: 2,
-                              width: isActive ? 30 : 0,
-                              color: accentBrown,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
-                ),
+              child: SiteFilterTabBar(
+                tabs: categories.map((c) => c.localizedCategoryTitle(lang)).toList(),
+                activeIndex: activeCategoryIndex,
+                onTabSelected: (index) {
+                  if (activeCategoryIndex != index) {
+                    setState(() {
+                      _isFiltering = true;
+                      activeCategoryIndex = index;
+                    });
+                    Future.delayed(const Duration(milliseconds: 300), () {
+                      if (mounted) setState(() => _isFiltering = false);
+                    });
+                  }
+                },
               ),
             ),
 
           const SizedBox(height: 40),
 
           // Video Grid with Exit/Entrance Animation
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
+          SiteGridSwitcher(
             child: _isFiltering 
-              ? const SizedBox(height: 600, width: double.infinity)
-              : _buildVideoGrid(context, currentVideos, primaryTeal, accentBrown, lang),
+              ? const SizedBox(key: ValueKey('loading'), height: 600, width: double.infinity)
+              : SizedBox(
+                  key: ValueKey('grid-$activeCategoryIndex'),
+                  child: _buildVideoGrid(context, currentVideos, primaryTeal, accentBrown, lang),
+                ),
           ),
 
           const SizedBox(height: 100),
@@ -209,9 +178,8 @@ class _VideoGalleryPageState extends State<VideoGalleryPage> {
                     .where((e) => e.key % cols == colIdx)
                     .map<Widget>((e) {
                       int overallIndex = e.key;
-                      return FadeInUp(
-                        duration: const Duration(milliseconds: 600),
-                        delay: Duration(milliseconds: (overallIndex % 6) * 100),
+                      return SiteCardEntrance(
+                        index: overallIndex,
                         child: _VideoCard(video: e.value, lang: lang, isMobile: isMobile, accentBrown: accentBrown),
                       );
                     })
@@ -337,27 +305,9 @@ class _VideoCardState extends State<_VideoCard> {
   }
 
   void _openVideoModal(BuildContext context, String url) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Video Player',
-      barrierColor: Colors.black.withOpacity(0.85),
-      transitionDuration: const Duration(milliseconds: 400),
-      pageBuilder: (context, anim1, anim2) {
-        return _VideoPlayerModal(url: url);
-      },
-      transitionBuilder: (context, anim1, anim2, child) {
-        return ScaleTransition(
-          scale: Tween<double>(begin: 0.9, end: 1.0).animate(
-            CurvedAnimation(parent: anim1, curve: Curves.easeOutCubic),
-          ),
-          child: FadeTransition(
-            opacity: anim1,
-            child: child,
-          ),
-        );
-      },
-    );
+    Navigator.of(context).push(SiteLightboxRoute(
+      builder: (context) => _VideoPlayerModal(url: url),
+    ));
   }
 }
 
@@ -414,17 +364,19 @@ class _VideoPlayerModal extends StatelessWidget {
                           style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 30),
-                        ElevatedButton.icon(
+                        SiteElevatedButton(
                           onPressed: () {
                             _launchUrl(url);
                             Navigator.pop(context);
                           },
-                          icon: const Icon(Icons.play_arrow_rounded),
-                          label: const Text("OPEN IN YOUTUBE"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFC19A6B),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                          backgroundColor: const Color(0xFFC19A6B),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.play_arrow_rounded, color: Colors.white),
+                              const SizedBox(width: 8),
+                              const Text("OPEN IN YOUTUBE"),
+                            ],
                           ),
                         ),
                       ],

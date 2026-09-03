@@ -1,20 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../controllers/homepage_controller.dart';
-import '../../controllers/product_controller.dart';
-import '../../controllers/language_controller.dart';
-import '../../l10n/app_localizations.dart';
-import '../../models/homepage_model.dart';
-import '../../models/category_model.dart';
-import 'sections/product_cart_layout.dart';
-import 'sections/product_card.dart';
-import '../../utils/app_typography.dart';
-import '../../utils/responsive_utils.dart';
-
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import '../../controllers/homepage_controller.dart';
@@ -449,6 +435,124 @@ class _ProductHomePageState extends State<ProductHomePage> {
     );
     return isMobile ? content : Expanded(child: content);
   }
+
+  Widget _buildTestimonialsSection(BuildContext context, HomePortalData h, String lang, bool isMobile) {
+    return Container(
+      color: Colors.white, padding: EdgeInsets.symmetric(vertical: 100, horizontal: isMobile ? 20 : 80),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1400),
+          child: Column(
+            children: [
+              Flex(
+                direction: isMobile ? Axis.vertical : Axis.horizontal,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                children: [
+                  Column(crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.devoteeExperiences, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)), const SizedBox(height: 12), Text(h.localizedTestimonialsHeading(lang).isNotEmpty ? h.localizedTestimonialsHeading(lang) : 'Words of Devotion', textAlign: isMobile ? TextAlign.center : TextAlign.start, style: AppTypography.headingStyle(context, fontSize: isMobile ? 32 : 40, fontWeight: FontWeight.w900, color: primaryGreen))]), 
+                  if (isMobile) const SizedBox(height: 20),
+                  Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.star, color: Colors.amber, size: 18), const SizedBox(width: 8), Text(AppLocalizations.of(context)!.averageRatingText, style: TextStyle(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.bold))])
+                ]
+              ),
+              const SizedBox(height: 80),
+              isMobile 
+                ? Column(
+                    children: [
+                      _testimonialCard('Bhavin & Jigna Patel', 'Ahmedabad, Gujarat', 'Akhand Jyot Home Mandir + Pu. Dada Frame', 'The acrylic frame arrived with holy Ganga jal scent and Chandan tika. When placed in our home mandir, the entire room felt transformed with serene divine grace. Truly authentic seva!', isMobile),
+                      const SizedBox(height: 24),
+                      _testimonialCard('Maheshbhai Shah', 'Mumbai, Maharashtra', 'Sacred Car Dashboard Acrylic Idol & Keychain', 'Superb diamond-polished finish! Pu. Dada\'s darshan photo remains crystal clear on the car dashboard. Packaging was completely break-proof and reached in 48 hours with Cash on Delivery.', isMobile),
+                      const SizedBox(height: 24),
+                      _testimonialCard('Dr. Rekhaben Joshi', 'Surat, Gujarat', 'Solid Brass Padukas & Rakshasutra Set', 'The sacred padukas have exquisite weight and traditional Vedic detailing. We do daily chandan archana. Heartfelt gratitude to Himanshubhai and the entire seva team.', isMobile),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      _testimonialCard('Bhavin & Jigna Patel', 'Ahmedabad, Gujarat', 'Akhand Jyot Home Mandir + Pu. Dada Frame', 'The acrylic frame arrived with holy Ganga jal scent and Chandan tika. When placed in our home mandir, the entire room felt transformed with serene divine grace. Truly authentic seva!', isMobile),
+                      const SizedBox(width: 24),
+                      _testimonialCard('Maheshbhai Shah', 'Mumbai, Maharashtra', 'Sacred Car Dashboard Acrylic Idol & Keychain', 'Superb diamond-polished finish! Pu. Dada\'s darshan photo remains crystal clear on the car dashboard. Packaging was completely break-proof and reached in 48 hours with Cash on Delivery.', isMobile),
+                      const SizedBox(width: 24),
+                      _testimonialCard('Dr. Rekhaben Joshi', 'Surat, Gujarat', 'Solid Brass Padukas & Rakshasutra Set', 'The sacred padukas have exquisite weight and traditional Vedic detailing. We do daily chandan archana. Heartfelt gratitude to Himanshubhai and the entire seva team.', isMobile),
+                    ],
+                  ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _testimonialCard(String name, String city, String order, String quote, bool isMobile) {
+    final Widget content = Container(padding: const EdgeInsets.all(32), decoration: BoxDecoration(color: const Color(0xFFF9F9F9), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade100)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [Row(children: List.generate(5, (index) => const Icon(Icons.star, color: Colors.amber, size: 16))), const Spacer(), const Text('Verified Devotee • 2 days ago', style: TextStyle(color: Colors.grey, fontSize: 10))]), const SizedBox(height: 24), Text('"$quote"', style: TextStyle(color: Colors.black87.withOpacity(0.7), fontSize: 14, height: 1.7, fontStyle: FontStyle.italic)), const SizedBox(height: 40), Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF07404C))), const SizedBox(height: 4), Text('$city', style: TextStyle(color: Colors.grey.shade500, fontSize: 11)), const SizedBox(height: 8), Text('Ordered: $order', style: TextStyle(color: templeGold, fontSize: 10, fontWeight: FontWeight.bold))]));
+    return isMobile ? content : Expanded(child: content);
+  }
+
+  Widget _buildWisdomSection(BuildContext context, HomePortalData h, String lang, bool isMobile) {
+    return Container(
+      color: const Color(0xFFFAF8F4), padding: EdgeInsets.symmetric(vertical: 100, horizontal: isMobile ? 20 : 80),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1400),
+          child: Column(
+            children: [
+              Text(AppLocalizations.of(context)!.spiritualEssence, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)), const SizedBox(height: 12), Text(h.localizedWisdomHeading(lang).isNotEmpty ? h.localizedWisdomHeading(lang) : 'Spiritual Wisdom', textAlign: TextAlign.center, style: AppTypography.headingStyle(context, fontSize: isMobile ? 32 : 44, fontWeight: FontWeight.w900, color: primaryGreen)), const SizedBox(height: 80),
+              isMobile 
+                ? Column(
+                    children: [
+                      _wisdomCard('True religion is that which brings inner peace, removes all worries, and sees the pure divine soul in every living being.', 'Param Pujya Dadaji', 'Inner Peace & Harmony', isMobile),
+                      const SizedBox(height: 24),
+                      _wisdomCard('Keep the sacred presence of the Lord with you in your heart, in your home, and in all your actions. Auspiciousness will follow effortlessly.', 'Spiritual Aphorisms', 'Constant Remembrance', isMobile),
+                      const SizedBox(height: 24),
+                      _wisdomCard('Where there is no clash, no deceit, and only pure love and devotion, that place becomes the highest temple of God.', 'Vedic Satsang', 'Purity of Devotion', isMobile),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      _wisdomCard('True religion is that which brings inner peace, removes all worries, and sees the pure divine soul in every living being.', 'Param Pujya Dadaji', 'Inner Peace & Harmony', isMobile),
+                      const SizedBox(width: 24),
+                      _wisdomCard('Keep the sacred presence of the Lord with you in your heart, in your home, and in all your actions. Auspiciousness will follow effortlessly.', 'Spiritual Aphorisms', 'Constant Remembrance', isMobile),
+                      const SizedBox(width: 24),
+                      _wisdomCard('Where there is no clash, no deceit, and only pure love and devotion, that place becomes the highest temple of God.', 'Vedic Satsang', 'Purity of Devotion', isMobile),
+                    ],
+                  ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _wisdomCard(String quote, String author, String tag, bool isMobile) {
+    final Widget content = Container(padding: const EdgeInsets.all(40), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: templeGold.withOpacity(0.1))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(Icons.format_quote, color: templeGold.withOpacity(0.3), size: 40), const SizedBox(height: 20), Text(quote, style: TextStyle(color: primaryGreen.withOpacity(0.8), fontSize: 16, height: 1.8, fontWeight: FontWeight.w500)), const SizedBox(height: 40), Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(author, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black87)), Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: const Color(0xFFFAF8F4), borderRadius: BorderRadius.circular(20), border: Border.all(color: templeGold.withOpacity(0.2))), child: Text(tag, style: TextStyle(color: templeGold, fontSize: 10, fontWeight: FontWeight.bold)))])]));
+    return isMobile ? content : Expanded(child: content);
+  }
+
+  Widget _buildHelpBar(BuildContext context, HomePortalData h, String lang, bool isMobile) {
+    return FadeInUp(
+      animate: _isVisible,
+      duration: const Duration(milliseconds: 800),
+      delay: const Duration(milliseconds: 400),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 80, vertical: 40),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1400),
+            child: Container(
+              padding: EdgeInsets.all(isMobile ? 20 : 40), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade100)),
+              child: Flex(
+                direction: isMobile ? Axis.vertical : Axis.horizontal,
+                children: [
+                  Container(width: 56, height: 56, decoration: BoxDecoration(color: primaryGreen, shape: BoxShape.circle), child: const Icon(Icons.forum_outlined, color: Colors.white, size: 24)),
+                  const SizedBox(width: 24, height: 24),
+                  Expanded(flex: isMobile ? 0 : 1, child: Column(crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start, children: [Text(h.localizedWhatsappTitle(lang).isNotEmpty ? h.localizedWhatsappTitle(lang) : 'Connect via WhatsApp', textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF07404C))), const SizedBox(height: 8), Text(h.localizedWhatsappSubtitle(lang).isNotEmpty ? h.localizedWhatsappSubtitle(lang) : 'Our seva team is here to guide you.', textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(color: Colors.grey, fontSize: 14))])),
+                  if (isMobile) const SizedBox(height: 24),
+                  ElevatedButton.icon(onPressed: () {}, icon: const Icon(Icons.chat_bubble, size: 18), label: Text(h.localizedWhatsappBtnText(lang).isNotEmpty ? h.localizedWhatsappBtnText(lang).toUpperCase() : 'CHAT NOW', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)), style: ElevatedButton.styleFrom(backgroundColor: primaryGreen, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)))),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _CategoryTile extends StatefulWidget {
@@ -585,120 +689,6 @@ class _ProcessIcon extends StatelessWidget {
           border: Border.all(color: Colors.white.withOpacity(0.1))
         ), 
         child: Icon(icon, color: Colors.amber.shade200, size: 28)
-      ),
-    );
-  }
-}
-
-  Widget _buildTestimonialsSection(BuildContext context, HomePortalData h, String lang, bool isMobile) {
-    return Container(
-      color: Colors.white, padding: EdgeInsets.symmetric(vertical: 100, horizontal: isMobile ? 20 : 80),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1400),
-          child: Column(
-            children: [
-              Flex(
-                direction: isMobile ? Axis.vertical : Axis.horizontal,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween, 
-                children: [
-                  Column(crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.devoteeExperiences, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)), const SizedBox(height: 12), Text(h.localizedTestimonialsHeading(lang).isNotEmpty ? h.localizedTestimonialsHeading(lang) : 'Words of Devotion', textAlign: isMobile ? TextAlign.center : TextAlign.start, style: AppTypography.headingStyle(context, fontSize: isMobile ? 32 : 40, fontWeight: FontWeight.w900, color: primaryGreen))]), 
-                  if (isMobile) const SizedBox(height: 20),
-                  Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.star, color: Colors.amber, size: 18), const SizedBox(width: 8), Text(AppLocalizations.of(context)!.averageRatingText, style: TextStyle(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.bold))])
-                ]
-              ),
-              const SizedBox(height: 80),
-              isMobile 
-                ? Column(
-                    children: [
-                      _testimonialCard('Bhavin & Jigna Patel', 'Ahmedabad, Gujarat', 'Akhand Jyot Home Mandir + Pu. Dada Frame', 'The acrylic frame arrived with holy Ganga jal scent and Chandan tika. When placed in our home mandir, the entire room felt transformed with serene divine grace. Truly authentic seva!', isMobile),
-                      const SizedBox(height: 24),
-                      _testimonialCard('Maheshbhai Shah', 'Mumbai, Maharashtra', 'Sacred Car Dashboard Acrylic Idol & Keychain', 'Superb diamond-polished finish! Pu. Dada\'s darshan photo remains crystal clear on the car dashboard. Packaging was completely break-proof and reached in 48 hours with Cash on Delivery.', isMobile),
-                      const SizedBox(height: 24),
-                      _testimonialCard('Dr. Rekhaben Joshi', 'Surat, Gujarat', 'Solid Brass Padukas & Rakshasutra Set', 'The sacred padukas have exquisite weight and traditional Vedic detailing. We do daily chandan archana. Heartfelt gratitude to Himanshubhai and the entire seva team.', isMobile),
-                    ],
-                  )
-                : Row(
-                    children: [
-                      _testimonialCard('Bhavin & Jigna Patel', 'Ahmedabad, Gujarat', 'Akhand Jyot Home Mandir + Pu. Dada Frame', 'The acrylic frame arrived with holy Ganga jal scent and Chandan tika. When placed in our home mandir, the entire room felt transformed with serene divine grace. Truly authentic seva!', isMobile),
-                      const SizedBox(width: 24),
-                      _testimonialCard('Maheshbhai Shah', 'Mumbai, Maharashtra', 'Sacred Car Dashboard Acrylic Idol & Keychain', 'Superb diamond-polished finish! Pu. Dada\'s darshan photo remains crystal clear on the car dashboard. Packaging was completely break-proof and reached in 48 hours with Cash on Delivery.', isMobile),
-                      const SizedBox(width: 24),
-                      _testimonialCard('Dr. Rekhaben Joshi', 'Surat, Gujarat', 'Solid Brass Padukas & Rakshasutra Set', 'The sacred padukas have exquisite weight and traditional Vedic detailing. We do daily chandan archana. Heartfelt gratitude to Himanshubhai and the entire seva team.', isMobile),
-                    ],
-                  ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _testimonialCard(String name, String city, String order, String quote, bool isMobile) {
-    final Widget content = Container(padding: const EdgeInsets.all(32), decoration: BoxDecoration(color: const Color(0xFFF9F9F9), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade100)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [Row(children: List.generate(5, (index) => const Icon(Icons.star, color: Colors.amber, size: 16))), const Spacer(), const Text('Verified Devotee • 2 days ago', style: TextStyle(color: Colors.grey, fontSize: 10))]), const SizedBox(height: 24), Text('"$quote"', style: TextStyle(color: Colors.black87.withOpacity(0.7), fontSize: 14, height: 1.7, fontStyle: FontStyle.italic)), const SizedBox(height: 40), Text(name, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF07404C))), const SizedBox(height: 4), Text('$city', style: TextStyle(color: Colors.grey.shade500, fontSize: 11)), const SizedBox(height: 8), Text('Ordered: $order', style: TextStyle(color: templeGold, fontSize: 10, fontWeight: FontWeight.bold))]));
-    return isMobile ? content : Expanded(child: content);
-  }
-
-  Widget _buildWisdomSection(BuildContext context, HomePortalData h, String lang, bool isMobile) {
-    return Container(
-      color: const Color(0xFFFAF8F4), padding: EdgeInsets.symmetric(vertical: 100, horizontal: isMobile ? 20 : 80),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1400),
-          child: Column(
-            children: [
-              Text(AppLocalizations.of(context)!.spiritualEssence, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)), const SizedBox(height: 12), Text(h.localizedWisdomHeading(lang).isNotEmpty ? h.localizedWisdomHeading(lang) : 'Spiritual Wisdom', textAlign: TextAlign.center, style: AppTypography.headingStyle(context, fontSize: isMobile ? 32 : 44, fontWeight: FontWeight.w900, color: primaryGreen)), const SizedBox(height: 80),
-              isMobile 
-                ? Column(
-                    children: [
-                      _wisdomCard('True religion is that which brings inner peace, removes all worries, and sees the pure divine soul in every living being.', 'Param Pujya Dadaji', 'Inner Peace & Harmony', isMobile),
-                      const SizedBox(height: 24),
-                      _wisdomCard('Keep the sacred presence of the Lord with you in your heart, in your home, and in all your actions. Auspiciousness will follow effortlessly.', 'Spiritual Aphorisms', 'Constant Remembrance', isMobile),
-                      const SizedBox(height: 24),
-                      _wisdomCard('Where there is no clash, no deceit, and only pure love and devotion, that place becomes the highest temple of God.', 'Vedic Satsang', 'Purity of Devotion', isMobile),
-                    ],
-                  )
-                : Row(
-                    children: [
-                      _wisdomCard('True religion is that which brings inner peace, removes all worries, and sees the pure divine soul in every living being.', 'Param Pujya Dadaji', 'Inner Peace & Harmony', isMobile),
-                      const SizedBox(width: 24),
-                      _wisdomCard('Keep the sacred presence of the Lord with you in your heart, in your home, and in all your actions. Auspiciousness will follow effortlessly.', 'Spiritual Aphorisms', 'Constant Remembrance', isMobile),
-                      const SizedBox(width: 24),
-                      _wisdomCard('Where there is no clash, no deceit, and only pure love and devotion, that place becomes the highest temple of God.', 'Vedic Satsang', 'Purity of Devotion', isMobile),
-                    ],
-                  ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _wisdomCard(String quote, String author, String tag, bool isMobile) {
-    final Widget content = Container(padding: const EdgeInsets.all(40), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: templeGold.withOpacity(0.1))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(Icons.format_quote, color: templeGold.withOpacity(0.3), size: 40), const SizedBox(height: 20), Text(quote, style: TextStyle(color: primaryGreen.withOpacity(0.8), fontSize: 16, height: 1.8, fontWeight: FontWeight.w500)), const SizedBox(height: 40), Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(author, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black87)), Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: const Color(0xFFFAF8F4), borderRadius: BorderRadius.circular(20), border: Border.all(color: templeGold.withOpacity(0.2))), child: Text(tag, style: TextStyle(color: templeGold, fontSize: 10, fontWeight: FontWeight.bold)))])]));
-    return isMobile ? content : Expanded(child: content);
-  }
-
-  Widget _buildHelpBar(BuildContext context, HomePortalData h, String lang, bool isMobile) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 80, vertical: 40),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1400),
-          child: Container(
-            padding: EdgeInsets.all(isMobile ? 20 : 40), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade100)),
-            child: Flex(
-              direction: isMobile ? Axis.vertical : Axis.horizontal,
-              children: [
-                Container(width: 56, height: 56, decoration: BoxDecoration(color: primaryGreen, shape: BoxShape.circle), child: const Icon(Icons.forum_outlined, color: Colors.white, size: 24)),
-                const SizedBox(width: 24, height: 24),
-                Expanded(flex: isMobile ? 0 : 1, child: Column(crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start, children: [Text(h.localizedWhatsappTitle(lang).isNotEmpty ? h.localizedWhatsappTitle(lang) : 'Connect via WhatsApp', textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF07404C))), const SizedBox(height: 8), Text(h.localizedWhatsappSubtitle(lang).isNotEmpty ? h.localizedWhatsappSubtitle(lang) : 'Our seva team is here to guide you.', textAlign: isMobile ? TextAlign.center : TextAlign.start, style: const TextStyle(color: Colors.grey, fontSize: 14))])),
-                if (isMobile) const SizedBox(height: 24),
-                ElevatedButton.icon(onPressed: () {}, icon: const Icon(Icons.chat_bubble, size: 18), label: Text(h.localizedWhatsappBtnText(lang).isNotEmpty ? h.localizedWhatsappBtnText(lang).toUpperCase() : 'CHAT NOW', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)), style: ElevatedButton.styleFrom(backgroundColor: primaryGreen, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 25), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)))),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

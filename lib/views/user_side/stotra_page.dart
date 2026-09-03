@@ -1,15 +1,63 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dada_2/l10n/app_localizations.dart';
 import '../../controllers/homepage_controller.dart';
 import '../../controllers/language_controller.dart';
 import 'sections/user_page_layout.dart';
 import 'sections/user_footer.dart';
 import '../../utils/app_typography.dart';
-import 'package:dada_2/l10n/app_localizations.dart';
+import '../../utils/animation_utils.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
-class StotraPage extends StatelessWidget {
+class StotraPage extends StatefulWidget {
   const StotraPage({super.key});
+
+  @override
+  State<StotraPage> createState() => _StotraPageState();
+}
+
+class _StotraPageState extends State<StotraPage> with TickerProviderStateMixin {
+  late final AnimationController _zoomController;
+  late final Animation<double> _zoomAnimation;
+
+  // Bookmark / favorite IDs set
+  final Set<String> _bookmarks = {};
+
+  final Color primaryTeal = const Color(0xFF0F4C5C);
+  final Color goldAccent = const Color(0xFFC89A5B);
+  final Color backgroundBeige = const Color(0xFFF9F3EA);
+
+  @override
+  void initState() {
+    super.initState();
+    _zoomController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 14),
+    )..repeat(reverse: true);
+
+    _zoomAnimation = Tween<double>(begin: 1.0, end: 1.07).animate(
+      CurvedAnimation(parent: _zoomController, curve: Curves.linear),
+    );
+  }
+
+  @override
+  void dispose() {
+    _zoomController.dispose();
+    super.dispose();
+  }
+
+  void _toggleBookmark(String id) {
+    setState(() {
+      if (_bookmarks.contains(id)) {
+        _bookmarks.remove(id);
+      } else {
+        _bookmarks.add(id);
+      }
+    });
+  }
 
   Future<void> _launchUrl(String url) async {
     if (url.isEmpty) return;
@@ -21,18 +69,17 @@ class StotraPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const primaryTeal = Color(0xFF0F4C5C);
-    const backgroundBeige = Color(0xFFF9F3EA);
     final controller = Provider.of<HomePageController>(context);
     final section = controller.stotraSection;
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
 
     if (controller.isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
+      return Scaffold(body: Center(child: CircularProgressIndicator(color: primaryTeal)));
     }
 
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isMobile = screenWidth < 1100;
+    final bool isReducedMotion = !AnimationUtils.shouldAnimate(context);
 
     return UserPageLayout(
       controller: controller,
@@ -40,45 +87,19 @@ class StotraPage extends StatelessWidget {
         children: [
           const SizedBox(height: 120),
 
-          // ── Page hero banner ────────────────────────────────────────────
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80),
-            color: backgroundBeige.withValues(alpha: 0.5),
-            child: Column(
-              children: [
-                Text(
-                  section.localizedPageTitle(lang),
-                  style: AppTypography.headingStyle(
-                    context,
-                    fontSize: AppTypography.getResponsiveSize(
-                        context, desktop: 52, tablet: 44, mobile: 34),
-                    fontWeight: FontWeight.bold,
-                    color: primaryTeal,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  AppLocalizations.of(context)!.homeStotra,
-                  style: AppTypography.bodyStyle(
-                    context,
-                    color: primaryTeal.withValues(alpha: 0.6),
-                    fontSize: isMobile ? 14 : 16,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // 1. Devotional Banner with breathing glow animation
+          _buildBanner(context, section, lang, isMobile, isReducedMotion),
 
           SizedBox(height: isMobile ? 30 : 60),
 
-          // ── Content: table on desktop, cards on mobile ──────────────────
+          const SizedBox(height: 40),
+          _AnimatedTrishulDivider(primaryTeal: primaryTeal, goldAccent: goldAccent),
+          const SizedBox(height: 40),
+
+          // 2. Stotra / Bhajan / Aarti PDF List
           Padding(
             padding: EdgeInsets.symmetric(horizontal: isMobile ? 15 : 100),
-            child: isMobile
-                ? _buildMobileCardList(context, section, lang, primaryTeal)
-                : _buildDesktopTable(context, section, lang, primaryTeal),
+            child: _buildStotraList(context, section, lang, isMobile),
           ),
 
           const SizedBox(height: 80),
@@ -88,152 +109,259 @@ class StotraPage extends StatelessWidget {
     );
   }
 
-  // ── Desktop: full multi-column table ─────────────────────────────────────
-  Widget _buildDesktopTable(BuildContext context, dynamic section, String lang, Color primaryTeal) {
-    return Column(
-      children: [
-        // Column headers
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 20),
-          decoration: BoxDecoration(
-            color: primaryTeal.withValues(alpha: 0.04),
-            border: Border(bottom: BorderSide(color: primaryTeal.withValues(alpha: 0.15), width: 2)),
-          ),
-          child: Row(
-            children: [
-              _colHeader(AppLocalizations.of(context)!.idColumn, flex: 1),
-              _colHeader(AppLocalizations.of(context)!.nameTitle, flex: 5),
-              _colHeader(AppLocalizations.of(context)!.englishCol, flex: 2, center: true),
-              _colHeader(AppLocalizations.of(context)!.hindiCol, flex: 2, center: true),
-              _colHeader(AppLocalizations.of(context)!.gujaratiCol, flex: 2, center: true),
-            ],
-          ),
-        ),
-        ...section.items.asMap().entries.map((entry) {
-          int index = entry.key;
-          final item = entry.value;
-          return Container(
-            padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 20),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.grey[100]!)),
-            ),
-            child: Row(
-              children: [
-                Expanded(flex: 1, child: _circleId('${index + 1}', primaryTeal)),
-                Expanded(
-                  flex: 5,
-                  child: Text(
-                    item.localizedTitle(lang).toUpperCase(),
-                    style: AppTypography.bodyStyle(
-                      context,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF444444),
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ),
-                _pdfLink(AppLocalizations.of(context)!.download, item.englishPdfUrl, primaryTeal, flex: 2),
-                _pdfLink(AppLocalizations.of(context)!.download, item.hindiPdfUrl, primaryTeal, flex: 2),
-                _pdfLink(AppLocalizations.of(context)!.download, item.gujaratiPdfUrl, primaryTeal, flex: 2),
-              ],
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  // ── Mobile: card per stotra ───────────────────────────────────────────────
-  Widget _buildMobileCardList(BuildContext context, dynamic section, String lang, Color primaryTeal) {
-    const accentBrown = Color(0xFFC19A6B);
-    return Column(
-      children: section.items.asMap().entries.map<Widget>((entry) {
-        int index = entry.key;
-        final item = entry.value;
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 20,
-                offset: const Offset(0, 6),
-              ),
-            ],
-            border: Border.all(color: Colors.grey[100]!),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Number + Title row
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _circleId('${index + 1}', primaryTeal),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      item.localizedTitle(lang).toUpperCase(),
-                      style: AppTypography.bodyStyle(
-                        context,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF333333),
-                        letterSpacing: 0.3,
+  // ── Banner with Ken-Burns breathing glow ─────────────────────────────────
+  Widget _buildBanner(
+      BuildContext context, dynamic section, String lang, bool isMobile, bool isReducedMotion) {
+    return Container(
+      width: double.infinity,
+      color: backgroundBeige,
+      child: Stack(
+        children: [
+          // Background Glow — scale breathing animation preserved
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _zoomAnimation,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: isReducedMotion ? 1.0 : _zoomAnimation.value,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        center: Alignment.center,
+                        radius: 1.2,
+                        colors: [
+                          goldAccent.withValues(alpha: 0.18),
+                          primaryTeal.withValues(alpha: 0.05),
+                          backgroundBeige,
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              // Download buttons row
-              Row(
-                children: [
-                  _mobilePdfButton(context, 'EN', item.englishPdfUrl, primaryTeal),
-                  const SizedBox(width: 12),
-                  _mobilePdfButton(context, 'हि', item.hindiPdfUrl, accentBrown),
-                  const SizedBox(width: 12),
-                  _mobilePdfButton(context, 'ગુ', item.gujaratiPdfUrl, const Color(0xFF4A7C59)),
-                ],
-              ),
-            ],
+                );
+              },
+            ),
           ),
-        );
-      }).toList(),
+
+          // Banner Content
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: isMobile ? 50 : 90, horizontal: 20),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 900),
+                child: Column(
+                  children: [
+                    FadeInDown(
+                      duration: const Duration(milliseconds: 700),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: goldAccent.withValues(alpha: 0.2),
+                              blurRadius: 15,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                          border: Border.all(color: goldAccent.withValues(alpha: 0.4)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.menu_book_rounded, color: goldAccent, size: 16),
+                            const SizedBox(width: 8),
+                            Text(
+                              "SACRED TEXTS & DEVOTIONAL PDFS",
+                              style: TextStyle(
+                                color: goldAccent,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 800),
+                      child: Text(
+                        section.localizedPageTitle(lang),
+                        textAlign: TextAlign.center,
+                        style: AppTypography.headingStyle(
+                          context,
+                          fontSize: AppTypography.getResponsiveSize(
+                              context, desktop: 48, tablet: 38, mobile: 28),
+                          fontWeight: FontWeight.bold,
+                          color: primaryTeal,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 400),
+                      duration: const Duration(milliseconds: 800),
+                      child: Text(
+                        AppLocalizations.of(context)!.homeStotra,
+                        textAlign: TextAlign.center,
+                        style: AppTypography.bodyStyle(
+                          context,
+                          color: primaryTeal.withValues(alpha: 0.75),
+                          fontSize: isMobile ? 14 : 17,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _mobilePdfButton(BuildContext context, String label, String url, Color color) {
-    bool hasUrl = url.isNotEmpty;
-    return Opacity(
-      opacity: hasUrl ? 1.0 : 0.25,
+  // ── PDF Item List ─────────────────────────────────────────────────────────
+  Widget _buildStotraList(
+      BuildContext context, dynamic section, String lang, bool isMobile) {
+    final items = section.items;
+
+    return Column(
+      children: List.generate(items.length, (index) {
+        final item = items[index];
+        final String itemId = 'stotra_$index';
+        final String title = item.localizedTitle(lang);
+        final bool isBookmarked = _bookmarks.contains(itemId);
+
+        return SiteCardEntrance(
+          index: index,
+          reducedMotion: false,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: EdgeInsets.symmetric(
+                vertical: isMobile ? 16 : 20, horizontal: isMobile ? 14 : 24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade200),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 15,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // Index number badge
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: primaryTeal.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${index + 1}',
+                      style: TextStyle(
+                        color: primaryTeal,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 18),
+
+                // Title
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title.toUpperCase(),
+                        style: AppTypography.bodyStyle(
+                          context,
+                          fontSize: isMobile ? 14 : 16,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF333333),
+                          letterSpacing: 0.3,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (isMobile && (item.englishPdfUrl.isNotEmpty || item.hindiPdfUrl.isNotEmpty || item.gujaratiPdfUrl.isNotEmpty)) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          children: [
+                            if (item.englishPdfUrl.isNotEmpty)
+                              _pdfChip("EN", item.englishPdfUrl, primaryTeal),
+                            if (item.hindiPdfUrl.isNotEmpty)
+                              _pdfChip("हि", item.hindiPdfUrl, goldAccent),
+                            if (item.gujaratiPdfUrl.isNotEmpty)
+                              _pdfChip("ગુ", item.gujaratiPdfUrl, const Color(0xFF4A7C59)),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+
+                // PDF Links (desktop)
+                if (!isMobile) ...[
+                  if (item.englishPdfUrl.isNotEmpty)
+                    _pdfChip("EN", item.englishPdfUrl, primaryTeal),
+                  if (item.hindiPdfUrl.isNotEmpty)
+                    _pdfChip("हि", item.hindiPdfUrl, goldAccent),
+                  if (item.gujaratiPdfUrl.isNotEmpty)
+                    _pdfChip("ગુ", item.gujaratiPdfUrl, const Color(0xFF4A7C59)),
+                ],
+
+                const SizedBox(width: 12),
+
+                // Bookmark icon (kept for UX — preserves the spring-bounce animation)
+                _BookmarkButton(
+                  isBookmarked: isBookmarked,
+                  onTap: () => _toggleBookmark(itemId),
+                  primaryTeal: primaryTeal,
+                ),
+              ],
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _pdfChip(String label, String url, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: InkWell(
-        onTap: hasUrl ? () => _launchUrl(url) : null,
-        borderRadius: BorderRadius.circular(8),
+        onTap: () => _launchUrl(url),
+        borderRadius: BorderRadius.circular(6),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: color.withValues(alpha: 0.3)),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: color.withValues(alpha: 0.25)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.picture_as_pdf_outlined, size: 18, color: color),
-              const SizedBox(width: 6),
+              Icon(Icons.picture_as_pdf_outlined, size: 14, color: color),
+              const SizedBox(width: 4),
               Text(
                 label,
-                style: AppTypography.bodyStyle(
-                  context,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color),
               ),
             ],
           ),
@@ -241,62 +369,172 @@ class StotraPage extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _pdfLink(String label, String url, Color color, {required int flex}) {
-    bool hasUrl = url.isNotEmpty;
-    return Expanded(
-      flex: flex,
-      child: Center(
-        child: InkWell(
-          onTap: hasUrl ? () => _launchUrl(url) : null,
-          child: Opacity(
-            opacity: hasUrl ? 1.0 : 0.2,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.picture_as_pdf_outlined, size: 24, color: color),
-                const SizedBox(width: 10),
-                Text(label, style: const TextStyle(fontSize: 15, color: Color(0xFF444444), fontWeight: FontWeight.w600)),
-              ],
+// ---------------------------------------------------------------------------
+// ANIMATED TRISHUL DIVIDER (animation preserved)
+// ---------------------------------------------------------------------------
+class _AnimatedTrishulDivider extends StatefulWidget {
+  final Color primaryTeal;
+  final Color goldAccent;
+
+  const _AnimatedTrishulDivider({required this.primaryTeal, required this.goldAccent});
+
+  @override
+  State<_AnimatedTrishulDivider> createState() => _AnimatedTrishulDividerState();
+}
+
+class _AnimatedTrishulDividerState extends State<_AnimatedTrishulDivider> with SingleTickerProviderStateMixin {
+  bool _isVisible = false;
+  late final AnimationController _pulseController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return VisibilityDetector(
+      key: const Key('trishul-divider'),
+      onVisibilityChanged: (info) {
+        if (info.visibleFraction > 0.5 && !_isVisible) {
+          if (mounted) setState(() => _isVisible = true);
+        }
+      },
+      child: FadeIn(
+        animate: _isVisible,
+        duration: const Duration(milliseconds: 1000),
+        child: Row(
+          children: [
+            Expanded(child: Container(height: 1, color: widget.goldAccent.withOpacity(0.2))),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: AnimatedBuilder(
+                animation: _pulseController,
+                builder: (context, child) {
+                  return Icon(
+                    Icons.menu_book_rounded,
+                    color: widget.goldAccent.withOpacity(0.3 + (0.4 * _pulseController.value)),
+                    size: 32,
+                    shadows: [
+                      Shadow(color: widget.goldAccent.withOpacity(0.5 * _pulseController.value), blurRadius: 15)
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
+            Expanded(child: Container(height: 1, color: widget.goldAccent.withOpacity(0.2))),
+          ],
         ),
       ),
     );
   }
+}
 
-  Widget _colHeader(String title, {required int flex, bool center = false}) {
-    const primaryTeal = Color(0xFF0F4C5C);
-    return Expanded(
-      flex: flex,
-      child: Text(
-        title,
-        textAlign: center ? TextAlign.center : TextAlign.start,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: primaryTeal.withValues(alpha: 0.7),
-          letterSpacing: 1.5,
-        ),
-      ),
+// ---------------------------------------------------------------------------
+// BOOKMARK BUTTON WITH SPRING BOUNCE (replaces FavoriteHeartButton — keeps animation)
+// ---------------------------------------------------------------------------
+class _BookmarkButton extends StatefulWidget {
+  final bool isBookmarked;
+  final VoidCallback onTap;
+  final Color primaryTeal;
+
+  const _BookmarkButton({
+    required this.isBookmarked,
+    required this.onTap,
+    required this.primaryTeal,
+  });
+
+  @override
+  State<_BookmarkButton> createState() => _BookmarkButtonState();
+}
+
+class _BookmarkButtonState extends State<_BookmarkButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _bounceController;
+  late final Animation<double> _scaleAnimation;
+  bool _showParticles = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _bounceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
     );
+
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.35), weight: 50),
+      TweenSequenceItem(tween: Tween(begin: 1.35, end: 1.0), weight: 50),
+    ]).animate(CurvedAnimation(parent: _bounceController, curve: Curves.easeOutBack));
   }
 
-  Widget _circleId(String id, Color color) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 3)),
-        ],
-      ),
-      child: Center(
-        child: Text(
-          id,
-          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+  @override
+  void dispose() {
+    _bounceController.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    widget.onTap();
+    _bounceController.forward(from: 0.0);
+    setState(() => _showParticles = true);
+    Future.delayed(const Duration(milliseconds: 350), () {
+      if (mounted) setState(() => _showParticles = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _handleTap,
+      child: SizedBox(
+        width: 36,
+        height: 36,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Particle burst animation — preserved
+            if (_showParticles)
+              ...List.generate(6, (i) {
+                final double angle = (i * 60) * (pi / 180);
+                return TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.0, end: 14.0),
+                  duration: const Duration(milliseconds: 300),
+                  builder: (context, val, child) {
+                    return Transform.translate(
+                      offset: Offset(cos(angle) * val, sin(angle) * val),
+                      child: Container(
+                        width: 3,
+                        height: 3,
+                        decoration: BoxDecoration(
+                          color: widget.primaryTeal,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }),
+
+            // Bouncing bookmark icon
+            ScaleTransition(
+              scale: _scaleAnimation,
+              child: Icon(
+                widget.isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                color: widget.isBookmarked ? widget.primaryTeal : Colors.grey.shade400,
+                size: 22,
+              ),
+            ),
+          ],
         ),
       ),
     );

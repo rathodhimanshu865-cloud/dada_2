@@ -11,12 +11,15 @@ import '../../controllers/product_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/review_controller.dart';
 import '../../l10n/app_localizations.dart';
+import 'package:animate_do/animate_do.dart';
 import '../../models/product_model.dart';
 import '../../models/review_model.dart';
 import 'sections/product_cart_layout.dart';
 import 'sections/product_card.dart';
+import 'sections/product_details_animations.dart';
 import '../../utils/app_typography.dart';
 import '../../utils/responsive_utils.dart';
+import '../../utils/animation_utils.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   const ProductDetailsPage({super.key});
@@ -28,8 +31,8 @@ class ProductDetailsPage extends StatefulWidget {
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int _quantity = 1;
   int _selectedImageIndex = 0;
-  bool _includeGangajalKit = true;
-  bool _includeGiftWrap = false;
+  final bool _includeGangajalKit = false;
+  final bool _includeGiftWrap = false;
   
   final Color primaryTeal = const Color(0xFF07404C);
   final Color templeGold = const Color(0xFFC89A5B);
@@ -42,6 +45,29 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   bool _isPincodeValid = false;
   String? _pincodeError;
   bool _isReviewFormOpen = false;
+  int _selectedTabIndex = 0;
+
+  final ScrollController _scrollController = ScrollController();
+  bool _showStickyBottomBar = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 600 && !_showStickyBottomBar) {
+        setState(() => _showStickyBottomBar = true);
+      } else if (_scrollController.offset <= 600 && _showStickyBottomBar) {
+        setState(() => _showStickyBottomBar = false);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _pincodeCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
@@ -63,7 +89,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         _productStream = productController.getProductDetails(productId);
         _reviewsStream = reviewController.getProductReviews(productId);
       }
-    } catch (e) {}
+      } catch (e) {
+        // ignore error
+      }
   }
 
   void _validatePincode(String value) {
@@ -155,9 +183,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                 Expanded(flex: 5, child: _buildProductInfo(p, isMobile)),
                               ],
                             ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 48),
+                          SacredDivider(color: templeGold),
+                          const SizedBox(height: 48),
                           _buildFrequentlyBlessedTogether(p, productController, isMobile),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 48),
+                          SacredDivider(color: templeGold),
+                          const SizedBox(height: 48),
                           _buildDetailsTabs(p),
                         ],
                       );
@@ -178,10 +210,35 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           const SliverToBoxAdapter(child: SizedBox(height: 60)),
         ];
 
-        return ProductCartLayout(
-          controller: homeController,
-          slivers: contentSlivers,
-          child: const SizedBox.shrink(),
+        final bool isOutOfStock = p.stock <= 0;
+        final auth = Provider.of<AuthController>(context);
+        final cart = Provider.of<CartController>(context, listen: false);
+
+        return Stack(
+          children: [
+            ProductCartLayout(
+              controller: homeController,
+              scrollController: _scrollController,
+              slivers: contentSlivers,
+              child: const SizedBox.shrink(),
+            ),
+            if (isMobile)
+              Positioned(
+                bottom: 0, left: 0, right: 0,
+                child: AnimatedSlide(
+                  offset: _showStickyBottomBar ? Offset.zero : const Offset(0, 1),
+                  duration: const Duration(milliseconds: 300),
+                  child: Container(
+                    padding: const EdgeInsets.all(16).copyWith(bottom: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, -5))],
+                    ),
+                    child: _buildActionButtons(p, isOutOfStock, auth, cart),
+                  ),
+                ),
+              ),
+          ],
         );
       },
     );
@@ -189,20 +246,27 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   Widget _buildTopHeader(ProductModel p, bool isMobile) {
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: isMobile ? 20 : 40),
-      color: Colors.white,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1400),
-          child: Row(
-            children: [
-              Text(AppLocalizations.of(context)!.sacredCatalog, style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
-              Icon(Icons.chevron_right, size: 12, color: Colors.grey.shade400),
-              Flexible(child: Text(p.categoryId.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w600))),
-              Icon(Icons.chevron_right, size: 12, color: Colors.grey.shade400),
-              Flexible(child: Text(p.localizedName(lang), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.bold))),
-            ],
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 200),
+      builder: (context, val, child) => Opacity(
+        opacity: val,
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: isMobile ? 20 : 40),
+          color: Colors.white,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1400),
+              child: Row(
+                children: [
+                  HoverUnderlineText(text: AppLocalizations.of(context)!.sacredCatalog, style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w600), onTap: () => Navigator.pop(context)),
+                  Icon(Icons.chevron_right, size: 12, color: Colors.grey.shade400),
+                  Flexible(child: HoverUnderlineText(text: p.categoryId.toUpperCase(), style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w600), onTap: (){})),
+                  Icon(Icons.chevron_right, size: 12, color: Colors.grey.shade400),
+                  Flexible(child: Text(p.localizedName(lang), maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.bold))),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -220,13 +284,49 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 height: isMobile ? 350 : 550,
                 width: double.infinity,
                 decoration: BoxDecoration(color: const Color(0xFFF9F9F9), borderRadius: BorderRadius.circular(8)),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: CachedNetworkImage(
-                    imageUrl: images[_selectedImageIndex], 
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) => const Icon(Icons.image_outlined, size: 100, color: Colors.grey),
+                child: TweenAnimationBuilder<double>(
+                  key: ValueKey(p.id),
+                  tween: Tween(begin: 0.95, end: 1.0),
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeOut,
+                  builder: (context, scale, child) => Transform.scale(
+                    scale: scale,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: isMobile 
+                        ? PageView.builder(
+                            itemCount: images.length,
+                            onPageChanged: (i) => setState(() => _selectedImageIndex = i),
+                            itemBuilder: (context, index) {
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Hero(
+                                  tag: 'product_image_${p.id}',
+                                  child: CachedNetworkImage(
+                                    key: ValueKey(images[index]),
+                                    imageUrl: images[index], 
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                                    errorWidget: (context, url, error) => const Icon(Icons.image_outlined, size: 100, color: Colors.grey),
+                                  ),
+                                ),
+                              );
+                            }
+                          )
+                        : Hero(
+                            tag: 'product_image_${p.id}',
+                            child: ZoomableImageDesktop(
+                              key: ValueKey(images[_selectedImageIndex]),
+                              imageUrl: images[_selectedImageIndex],
+                              childWidget: CachedNetworkImage(
+                                imageUrl: images[_selectedImageIndex], 
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                                errorWidget: (context, url, error) => const Icon(Icons.image_outlined, size: 100, color: Colors.grey),
+                              ),
+                            ),
+                          ),
+                    ),
                   ),
                 ),
               ),
@@ -250,18 +350,23 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           scrollDirection: Axis.horizontal,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: images.asMap().entries.map((e) => GestureDetector(
-              onTap: () => setState(() => _selectedImageIndex = e.key),
-              child: Container(
-                margin: const EdgeInsets.only(right: 12),
-                width: isMobile ? 60 : 70, height: isMobile ? 60 : 70,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: _selectedImageIndex == e.key ? primaryTeal : Colors.grey.shade200, width: 2),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(6), 
-                  child: CachedNetworkImage(imageUrl: e.value, fit: BoxFit.cover),
+            children: images.asMap().entries.map((e) => ZoomIn(
+              delay: Duration(milliseconds: 40 * e.key),
+              duration: const Duration(milliseconds: 400),
+              child: GestureDetector(
+                onTap: () => setState(() => _selectedImageIndex = e.key),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: const EdgeInsets.only(right: 12),
+                  width: isMobile ? 60 : 70, height: isMobile ? 60 : 70,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: _selectedImageIndex == e.key ? primaryTeal : Colors.grey.shade200, width: _selectedImageIndex == e.key ? 2 : 1),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6), 
+                    child: CachedNetworkImage(imageUrl: e.value, fit: BoxFit.cover),
+                  ),
                 ),
               ),
             )).toList(),
@@ -285,12 +390,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   void _showFullScreenImage(BuildContext context, String url) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.black.withOpacity(0.9),
-        insetPadding: EdgeInsets.zero,
-        child: Stack(
+    Navigator.of(context).push(SiteLightboxRoute(
+      builder: (context) => Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
           alignment: Alignment.center,
           children: [
             InteractiveViewer(child: CachedNetworkImage(imageUrl: url, fit: BoxFit.contain)),
@@ -298,7 +401,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildProductInfo(ProductModel p, bool isMobile) {
@@ -321,20 +424,19 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 children: [
                   Text(p.categoryId.toUpperCase(), style: TextStyle(color: templeGold, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 2)),
                   const SizedBox(height: 12),
-                  Text(p.localizedName(lang), textAlign: TextAlign.start, style: GoogleFonts.cormorantGaramond(fontSize: isMobile ? 32 : 42, fontWeight: FontWeight.w700, color: primaryTeal, height: 1.1)),
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 100),
+                    duration: const Duration(milliseconds: 400),
+                    from: 15,
+                    child: Text(p.localizedName(lang), textAlign: TextAlign.start, style: GoogleFonts.cormorantGaramond(fontSize: isMobile ? 32 : 42, fontWeight: FontWeight.w700, color: primaryTeal, height: 1.1)),
+                  ),
                 ],
               ),
             ),
             if (!isMobile) Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Row(
-                  children: List.generate(5, (i) => Icon(
-                    i < p.rating ? Icons.star : Icons.star_border,
-                    color: Colors.amber,
-                    size: 16,
-                  )),
-                ),
+                AnimatedSequentialStars(rating: p.rating, size: 16, alignment: MainAxisAlignment.end),
                 const SizedBox(height: 4),
                 Text('${p.rating} (${AppLocalizations.of(context)!.reviewsCount(p.reviewCount)})', style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
               ],
@@ -344,13 +446,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         const SizedBox(height: 16),
         Row(
           children: [
-            Row(
-              children: List.generate(5, (i) => Icon(
-                i < p.rating ? Icons.star : Icons.star_border,
-                color: Colors.amber,
-                size: 18,
-              )),
-            ),
+            AnimatedSequentialStars(rating: p.rating, size: 18),
             const SizedBox(width: 12),
             Text('${p.rating} • ${AppLocalizations.of(context)!.reviewsCount(p.reviewCount)}', style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.bold)),
           ],
@@ -377,12 +473,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             Text('₹${p.price.toInt()}', style: TextStyle(fontSize: isMobile ? 32 : 40, fontWeight: FontWeight.w900, color: primaryTeal)),
             const SizedBox(width: 12),
             if (p.comparePrice != null) ...[
-              Text('₹${p.comparePrice!.toInt()}', style: const TextStyle(fontSize: 18, color: Colors.grey, decoration: TextDecoration.lineThrough)),
+              StrikeThroughPrice(price: p.comparePrice!, style: const TextStyle(fontSize: 18, color: Colors.grey)),
               const SizedBox(width: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(color: const Color(0xFF8B4513).withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
-                child: Text('${p.discountPercentage}% ${AppLocalizations.of(context)!.off}', style: const TextStyle(color: Color(0xFF8B4513), fontWeight: FontWeight.w900, fontSize: 11)),
+              ZoomIn(
+                delay: const Duration(milliseconds: 400),
+                duration: const Duration(milliseconds: 400),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(color: const Color(0xFF8B4513).withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                  child: Text('${p.discountPercentage}% ${AppLocalizations.of(context)!.off}', style: const TextStyle(color: Color(0xFF8B4513), fontWeight: FontWeight.w900, fontSize: 11)),
+                ),
               ),
             ],
           ],
@@ -394,6 +494,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const SizedBox(width: 8, height: 8),
               Container(width: 8, height: 8, decoration: BoxDecoration(color: isOutOfStock ? Colors.red : const Color(0xFF10B981), shape: BoxShape.circle)),
               const SizedBox(width: 8),
               Text(isOutOfStock ? AppLocalizations.of(context)!.outOfStockSacred : AppLocalizations.of(context)!.inSanctifiedStock, style: TextStyle(color: isOutOfStock ? Colors.red : const Color(0xFF065F46), fontSize: 12, fontWeight: FontWeight.bold)),
@@ -401,31 +502,44 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           ),
         ),
         const SizedBox(height: 32),
-        
+        _buildActionButtons(p, isOutOfStock, auth, cart),
+        const SizedBox(height: 16),
+        _buildWhatsAppBtn(p, lang),
+        const SizedBox(height: 32),
+        _buildDeliveryChecker(isMobile),
+        const SizedBox(height: 32),
+        _buildTrustFeatures(isMobile),
+      ],
+    );
+  }
+
+  Widget _buildActionButtons(ProductModel p, bool isOutOfStock, AuthController auth, CartController cart) {
+    return Column(
+      children: [
         Row(
           children: [
             _qtySelector(),
             const SizedBox(width: 16),
             Expanded(
-              child: ElevatedButton(
-                onPressed: !isOutOfStock ? () {
+              child: AddToCartButton(
+                disabled: isOutOfStock,
+                label: AppLocalizations.of(context)!.addToBag,
+                successLabel: 'ADDED!',
+                price: (p.price * _quantity).toDouble(),
+                backgroundColor: primaryTeal,
+                onAddToCart: () async {
                   if (!_isPincodeValid) {
                     setState(() => _pincodeError = AppLocalizations.of(context)!.checkDeliveryAvailability);
                     return;
                   }
                   if (auth.isAuthenticated) {
+                    await Future.delayed(const Duration(milliseconds: 600)); // fake loading
                     cart.addToCart(p, _quantity);
-                    Scaffold.of(context).openEndDrawer();
+                    if (mounted) Scaffold.of(context).openEndDrawer();
                   } else {
                     auth.toggleLoginPortal(true);
                   }
-                } : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: !isOutOfStock ? primaryTeal : Colors.grey.shade400, 
-                  padding: const EdgeInsets.symmetric(vertical: 20), 
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
-                ),
-                child: Text(!isOutOfStock ? '${AppLocalizations.of(context)!.addToBag.toUpperCase()} • ₹${(p.price * _quantity).toInt()}' : AppLocalizations.of(context)!.outOfStock, style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 13, letterSpacing: 1)),
+                },
               ),
             ),
           ],
@@ -434,7 +548,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         Row(
           children: [
             Expanded(
-              child: ElevatedButton(
+              child: PulsingBuyNowButton(
+                label: !isOutOfStock ? AppLocalizations.of(context)!.instantSacredCheckout : AppLocalizations.of(context)!.outOfStock,
+                backgroundColor: templeGold,
                 onPressed: !isOutOfStock ? () {
                   if (!_isPincodeValid) {
                     setState(() => _pincodeError = AppLocalizations.of(context)!.enterPincode);
@@ -447,12 +563,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     auth.toggleLoginPortal(true);
                   }
                 } : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: !isOutOfStock ? templeGold : Colors.grey.shade300, 
-                  minimumSize: const Size(double.infinity, 60),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                child: Text(!isOutOfStock ? AppLocalizations.of(context)!.instantSacredCheckout.toUpperCase() : AppLocalizations.of(context)!.outOfStock, style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 13, letterSpacing: 1.5)),
               ),
             ),
             const SizedBox(width: 16),
@@ -471,12 +581,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             }),
           ],
         ),
-        const SizedBox(height: 16),
-        _buildWhatsAppBtn(p, lang),
-        const SizedBox(height: 32),
-        _buildDeliveryChecker(isMobile),
-        const SizedBox(height: 32),
-        _buildTrustFeatures(isMobile),
       ],
     );
   }
@@ -528,7 +632,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
             ),
             const SizedBox(width: 10),
-            ElevatedButton(onPressed: () => _validatePincode(_pincodeCtrl.text), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF07404C), padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))), child: Text(AppLocalizations.of(context)!.check, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))),
+            SiteElevatedButton(
+              onPressed: () => _validatePincode(_pincodeCtrl.text),
+              enableHoverLift: false, // Functional CTA
+              backgroundColor: const Color(0xFF07404C),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              borderRadius: BorderRadius.circular(4),
+              child: Text(AppLocalizations.of(context)!.check, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+            ),
           ],
         ),
         if (_pincodeError != null)
@@ -579,8 +690,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         spacing: 16, runSpacing: 12,
         alignment: WrapAlignment.center,
         children: [
-          _trustIconItem(Icons.eco_outlined, AppLocalizations.of(context)!.vedicPure, AppLocalizations.of(context)!.naturalMaterials, isMobile),
-          _trustIconItem(Icons.auto_awesome, AppLocalizations.of(context)!.abhimantrit, AppLocalizations.of(context)!.mantraEnergized, isMobile),
+          BounceInUp(delay: const Duration(milliseconds: 200), child: _trustIconItem(Icons.eco_outlined, AppLocalizations.of(context)!.vedicPure, AppLocalizations.of(context)!.naturalMaterials, isMobile)),
+          BounceInUp(delay: const Duration(milliseconds: 300), child: _trustIconItem(Icons.auto_awesome, AppLocalizations.of(context)!.abhimantrit, AppLocalizations.of(context)!.mantraEnergized, isMobile)),
         ],
       ),
     ],
@@ -635,11 +746,23 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _bundleItem(p, true),
+                      FadeInLeft(
+                        delay: const Duration(milliseconds: 200),
+                        duration: const Duration(milliseconds: 600),
+                        child: _bundleItem(p, true)
+                      ),
                       const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.add, size: 14, color: Colors.grey)),
-                      _bundleItem(others[0], true),
+                      FadeInLeft(
+                        delay: const Duration(milliseconds: 400),
+                        duration: const Duration(milliseconds: 600),
+                        child: _bundleItem(others[0], true)
+                      ),
                       const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.add, size: 14, color: Colors.grey)),
-                      _bundleItem(others[1], true),
+                      FadeInLeft(
+                        delay: const Duration(milliseconds: 600),
+                        duration: const Duration(milliseconds: 600),
+                        child: _bundleItem(others[1], true)
+                      ),
                     ],
                   ),
                 ),
@@ -666,7 +789,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       const SizedBox(height: 24),
                       SizedBox(
                         width: isMobile ? double.infinity : null,
-                        child: ElevatedButton.icon(
+                        child: SiteElevatedButton(
                           onPressed: () {
                              final cart = Provider.of<CartController>(context, listen: false);
                              cart.addToCart(p, 1);
@@ -674,13 +797,17 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                              cart.addToCart(others[1], 1);
                              Scaffold.of(context).openEndDrawer();
                           },
-                          icon: const Icon(Icons.shopping_bag_outlined, size: 16),
-                          label: Text(AppLocalizations.of(context)!.addCompleteSet, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryTeal, 
-                            foregroundColor: Colors.white, 
-                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+                          backgroundColor: primaryTeal,
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.shopping_bag_outlined, size: 16),
+                              const SizedBox(width: 8),
+                              Text(AppLocalizations.of(context)!.addCompleteSet, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                            ],
                           ),
                         ),
                       ),
@@ -738,95 +865,102 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   Widget _buildDetailsTabs(ProductModel p) {
     final lang = Provider.of<LanguageController>(context).locale.languageCode;
-    final bool isMobile = Responsive.isMobile(context);
-    return DefaultTabController(
-      length: 5,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TabBar(
-            isScrollable: true,
-            indicatorColor: primaryTeal, 
-            labelColor: primaryTeal, 
-            unselectedLabelColor: Colors.grey,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: isMobile ? 13 : 14),
-            indicatorSize: isMobile ? TabBarIndicatorSize.tab : TabBarIndicatorSize.label,
-            indicatorWeight: 3,
-            dividerColor: Colors.transparent,
-            tabs: [
-              Tab(text: AppLocalizations.of(context)!.vedicSignificanceTab),
-              Tab(text: AppLocalizations.of(context)!.specificationsTab),
-              Tab(text: AppLocalizations.of(context)!.sacredCareTab),
-              Tab(text: '${AppLocalizations.of(context)!.devoteeReviewsTab} (${p.reviewCount})'),
-              Tab(text: AppLocalizations.of(context)!.faqsTab)
-            ],
-          ),
-          const SizedBox(height: 24),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 300, maxHeight: 1000),
-            child: SizedBox(
-              height: 500,
-              child: TabBarView(
-                children: [
-                  SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(AppLocalizations.of(context)!.aboutThisOffering, style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 14)),
-                        const SizedBox(height: 12),
-                        Text(p.localizedDescription(lang), style: const TextStyle(height: 1.6, color: Colors.black87, fontSize: 13)),
-                        const SizedBox(height: 20),
-                        Text(AppLocalizations.of(context)!.blessingsSignificance, style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 13)),
-                        const SizedBox(height: 8),
-                        ...p.localizedHighlights(lang).map((h) => Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
-                          child: Text("• $h", style: const TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
-                        )),
-                      ],
-                    ),
-                  ),
-                  SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _specRow(AppLocalizations.of(context)!.material, AppLocalizations.of(context)!.premiumMaterial),
-                        _specRow(AppLocalizations.of(context)!.sku, "DADA-${p.id.substring(0, 5).toUpperCase()}"),
-                        _specRow(AppLocalizations.of(context)!.category, p.categoryId),
-                        _specRow(AppLocalizations.of(context)!.origin, AppLocalizations.of(context)!.authenticAshramAtelier),
-                        _specRow(AppLocalizations.of(context)!.weight, AppLocalizations.of(context)!.approxWeight),
-                      ],
-                    ),
-                  ),
-                  SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(AppLocalizations.of(context)!.purityStandards, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.teal, fontSize: 14)),
-                        const SizedBox(height: 12),
-                        Text(AppLocalizations.of(context)!.sacredCareInstructions, style: const TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
-                      ],
-                    ),
-                  ),
-                  _buildReviewsTab(p),
-                  SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(AppLocalizations.of(context)!.faqEnergizedQ, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                        Text(AppLocalizations.of(context)!.faqEnergizedA, style: const TextStyle(color: Colors.black54, fontSize: 12)),
-                        const SizedBox(height: 16),
-                        Text(AppLocalizations.of(context)!.faqGiftQ, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                        Text(AppLocalizations.of(context)!.faqGiftA, style: const TextStyle(color: Colors.black54, fontSize: 12)),
-                      ],
-                    ),
-                  ),
-                ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SiteFilterTabBar(
+          tabs: [
+            AppLocalizations.of(context)!.vedicSignificanceTab,
+            AppLocalizations.of(context)!.specificationsTab,
+            AppLocalizations.of(context)!.sacredCareTab,
+            '${AppLocalizations.of(context)!.devoteeReviewsTab} (${p.reviewCount})',
+            AppLocalizations.of(context)!.faqsTab
+          ],
+          activeIndex: _selectedTabIndex,
+          onTabSelected: (idx) => setState(() => _selectedTabIndex = idx),
+        ),
+        const SizedBox(height: 24),
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 300, maxHeight: 1000),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(begin: const Offset(0.02, 0), end: Offset.zero).animate(animation),
+                child: child,
               ),
             ),
+            child: SizedBox(
+              key: ValueKey(_selectedTabIndex),
+              width: double.infinity,
+              child: _getTabContent(_selectedTabIndex, p, lang),
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
+  }
+
+  Widget _getTabContent(int index, ProductModel p, String lang) {
+    if (index == 0) {
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(AppLocalizations.of(context)!.aboutThisOffering, style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 14)),
+            const SizedBox(height: 12),
+            Text(p.localizedDescription(lang), style: const TextStyle(height: 1.6, color: Colors.black87, fontSize: 13)),
+            const SizedBox(height: 20),
+            Text(AppLocalizations.of(context)!.blessingsSignificance, style: TextStyle(fontWeight: FontWeight.bold, color: primaryTeal, fontSize: 13)),
+            const SizedBox(height: 8),
+            ...p.localizedHighlights(lang).map((h) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text("• $h", style: const TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
+            )),
+          ],
+        ),
+      );
+    } else if (index == 1) {
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _specRow(AppLocalizations.of(context)!.material, AppLocalizations.of(context)!.premiumMaterial),
+            _specRow(AppLocalizations.of(context)!.sku, "DADA-${p.id.substring(0, 5).toUpperCase()}"),
+            _specRow(AppLocalizations.of(context)!.category, p.categoryId),
+            _specRow(AppLocalizations.of(context)!.origin, AppLocalizations.of(context)!.authenticAshramAtelier),
+            _specRow(AppLocalizations.of(context)!.weight, AppLocalizations.of(context)!.approxWeight),
+          ],
+        ),
+      );
+    } else if (index == 2) {
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(AppLocalizations.of(context)!.purityStandards, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.teal, fontSize: 14)),
+            const SizedBox(height: 12),
+            Text(AppLocalizations.of(context)!.sacredCareInstructions, style: const TextStyle(height: 1.6, color: Colors.black54, fontSize: 12)),
+          ],
+        ),
+      );
+    } else if (index == 3) {
+      return _buildReviewsTab(p);
+    } else {
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(AppLocalizations.of(context)!.faqEnergizedQ, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            Text(AppLocalizations.of(context)!.faqEnergizedA, style: const TextStyle(color: Colors.black54, fontSize: 12)),
+            const SizedBox(height: 16),
+            Text(AppLocalizations.of(context)!.faqGiftQ, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            Text(AppLocalizations.of(context)!.faqGiftA, style: const TextStyle(color: Colors.black54, fontSize: 12)),
+          ],
+        ),
+      );
+    }
   }
 
   Widget _specRow(String label, String value) => Padding(
@@ -895,7 +1029,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: reviews.length,
                     separatorBuilder: (c, i) => const Divider(),
-                    itemBuilder: (c, i) => _buildReviewItem(reviews[i]),
+                    itemBuilder: (c, i) => SiteCardEntrance(
+                      index: i,
+                      child: _buildReviewItem(reviews[i]),
+                    ),
                   ),
             ],
           ),
@@ -1124,9 +1261,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         children: [
           Row(children: [Text(review.userName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)), const Spacer(), Text(review.createdAt.toString().split(' ')[0], style: const TextStyle(color: Colors.grey, fontSize: 10))]),
           const SizedBox(height: 4),
-          Row(children: List.generate(5, (i) => Icon(i < review.rating ? Icons.star : Icons.star_border, color: Colors.amber, size: 12))),
+          AnimatedSequentialStars(rating: review.rating, size: 12),
           const SizedBox(height: 8),
           Text(review.comment, style: const TextStyle(fontSize: 12, height: 1.4, color: Colors.black87)),
+          const SizedBox(height: 8),
+          const HelpfulThumbsUp(),
         ],
       ),
     );
@@ -1153,7 +1292,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           crossAxisSpacing: isMobile ? 12 : 20, 
           mainAxisSpacing: 20
         ),
-        delegate: SliverChildBuilderDelegate((c, i) => ProductCard(product: products[i]), childCount: products.length),
+        delegate: SliverChildBuilderDelegate(
+          (c, i) => SiteCardEntrance(index: i, child: ProductCard(product: products[i])), 
+          childCount: products.length
+        ),
       ),
     );
   }
@@ -1173,12 +1315,18 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null, icon: const Icon(Icons.remove, size: 16)),
+        SitePressable(
+          onTap: _quantity > 1 ? () => setState(() => _quantity--) : null,
+          child: const Padding(padding: EdgeInsets.all(16), child: Icon(Icons.remove, size: 16)),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text('$_quantity', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          child: AnimatedQuantityNumber(quantity: _quantity),
         ),
-        IconButton(onPressed: () => setState(() => _quantity++), icon: const Icon(Icons.add, size: 16)),
+        SitePressable(
+          onTap: () => setState(() => _quantity++),
+          child: const Padding(padding: EdgeInsets.all(16), child: Icon(Icons.add, size: 16)),
+        ),
       ],
     ),
   );

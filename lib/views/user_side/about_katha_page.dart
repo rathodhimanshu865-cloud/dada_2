@@ -19,25 +19,10 @@ class AboutKathaPage extends StatefulWidget {
 
 class _AboutKathaPageState extends State<AboutKathaPage> with TickerProviderStateMixin {
   bool _isVisible = false;
-  late final AnimationController _zoomController;
-  late final Animation<double> _zoomAnimation;
 
-  @override
-  void initState() {
-    super.initState();
-    _zoomController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 12),
-    )..repeat(reverse: true);
-    
-    _zoomAnimation = Tween<double>(begin: 1.0, end: 1.06).animate(
-      CurvedAnimation(parent: _zoomController, curve: Curves.linear),
-    );
-  }
 
   @override
   void dispose() {
-    _zoomController.dispose();
     super.dispose();
   }
 
@@ -79,21 +64,7 @@ class _AboutKathaPageState extends State<AboutKathaPage> with TickerProviderStat
               color: backgroundBeige,
               child: Stack(
                 children: [
-                  if (data.heroImage.isNotEmpty)
-                    Positioned.fill(
-                      child: AnimatedBuilder(
-                        animation: _zoomAnimation,
-                        builder: (context, child) {
-                          return Transform.scale(
-                            scale: isReducedMotion ? 1.0 : _zoomAnimation.value,
-                            child: Opacity(
-                              opacity: 0.1,
-                              child: Image.network(data.heroImage, fit: BoxFit.cover),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+
 
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: horizontalPad, vertical: isMobile ? 60 : 100),
@@ -273,68 +244,35 @@ class _AboutKathaPageState extends State<AboutKathaPage> with TickerProviderStat
                     BoxShadow(color: primaryTeal.withOpacity(0.3), blurRadius: 40, offset: const Offset(0, 20))
                   ]
                 ),
-                child: isMobile
-                  ? Column(
-                      children: [
-                        const Icon(Icons.temple_hindu_outlined, color: Colors.white54, size: 60),
-                        const SizedBox(height: 30),
-                        Text(
-                          data.localizedCtaTitle(lang),
-                          textAlign: TextAlign.center,
-                          style: AppTypography.headingStyle(
-                            context,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        Text(data.localizedCtaSubtitle(lang), textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 15, height: 1.5)),
-                        const SizedBox(height: 40),
-                        _PulsingCTAButton(
-                          text: data.localizedCtaButtonText(lang),
-                          onPressed: () => Navigator.pushNamed(context, '/katha_list'),
-                          backgroundColor: backgroundBeige,
-                          foregroundColor: primaryTeal,
-                        ),
-                      ],
-                    )
-                  : Row(
-                      children: [
-                        const Icon(Icons.temple_hindu_outlined, color: Colors.white54, size: 80),
-                        const SizedBox(width: 60),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                data.localizedCtaTitle(lang),
-                                style: AppTypography.headingStyle(
-                                  context,
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 15),
-                              Text(data.localizedCtaSubtitle(lang), style: const TextStyle(color: Colors.white70, fontSize: 18, height: 1.5)),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 40),
-                        _PulsingCTAButton(
-                          text: data.localizedCtaButtonText(lang),
-                          onPressed: () => Navigator.pushNamed(context, '/katha_list'),
-                          backgroundColor: backgroundBeige,
-                          foregroundColor: primaryTeal,
-                        ),
-                      ],
+                child: Column(
+                  children: [
+                    const Icon(Icons.temple_hindu_outlined, color: Colors.white54, size: 60),
+                    const SizedBox(height: 30),
+                    Text(
+                      data.localizedCtaTitle(lang),
+                      textAlign: TextAlign.center,
+                      style: AppTypography.headingStyle(
+                        context,
+                        fontSize: isMobile ? 24 : 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
+                    const SizedBox(height: 15),
+                    Text(data.localizedCtaSubtitle(lang), textAlign: TextAlign.center, style: TextStyle(color: Colors.white70, fontSize: isMobile ? 15 : 18, height: 1.5)),
+                    const SizedBox(height: 40),
+                    _PulsingCTAButton(
+                      text: 'Explore Other Kathas',
+                      onPressed: () => Navigator.pushNamed(context, '/katha_list'),
+                      backgroundColor: backgroundBeige,
+                      foregroundColor: primaryTeal,
+                    ),
+                  ],
+                ),
               ),
             ),
             
-            const SizedBox(height: 120),
-            _RelatedKathas(primaryTeal: primaryTeal, accentGold: accentBrown, isMobile: isMobile, currentPath: '/about_katha'),
+
 
             const SizedBox(height: 120),
             UserFooter(controller: controller),
@@ -582,21 +520,18 @@ class _PulsingCTAButtonState extends State<_PulsingCTAButton> with SingleTickerP
               )
             ]
           ),
-          child: ElevatedButton(
+          child: SiteElevatedButton(
             onPressed: widget.onPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: widget.backgroundColor, 
-              foregroundColor: widget.foregroundColor, 
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25), 
-              elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
+            enableHoverLift: false, // It pulses anyway
+            backgroundColor: widget.backgroundColor,
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
+            borderRadius: BorderRadius.circular(8),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(widget.text, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1.5)),
+                Text(widget.text, style: TextStyle(color: widget.foregroundColor, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1.5)),
                 const SizedBox(width: 15),
-                const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                Icon(Icons.arrow_forward_ios_rounded, size: 16, color: widget.foregroundColor),
               ],
             ),
           ),
@@ -606,146 +541,3 @@ class _PulsingCTAButtonState extends State<_PulsingCTAButton> with SingleTickerP
   }
 }
 
-class _RelatedKathas extends StatelessWidget {
-  final Color primaryTeal;
-  final Color accentGold;
-  final bool isMobile;
-  final String currentPath;
-
-  const _RelatedKathas({
-    required this.primaryTeal, 
-    required this.accentGold, 
-    required this.isMobile,
-    required this.currentPath,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final kathas = [
-      {'title': 'Devi Bhagwat Katha', 'route': '/about_devi_katha', 'image': 'https://firebasestorage.googleapis.com/v0/b/jignesh-dada-app.appspot.com/o/placeholders%2Fdevi.jpg?alt=media'},
-      {'title': 'Shivmahapurana Katha', 'route': '/about_shiv_katha', 'image': 'https://firebasestorage.googleapis.com/v0/b/jignesh-dada-app.appspot.com/o/placeholders%2Fshiv.jpg?alt=media'},
-      {'title': 'Bhagwat Katha', 'route': '/about_katha', 'image': 'https://firebasestorage.googleapis.com/v0/b/jignesh-dada-app.appspot.com/o/placeholders%2Fbhagwat.jpg?alt=media'},
-    ].where((k) => k['route'] != currentPath).toList();
-
-    return Column(
-      children: [
-        Text(
-          "EXPLORE OTHER KATHAS",
-          style: TextStyle(color: accentGold, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 4),
-        ),
-        const SizedBox(height: 60),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 100),
-          child: isMobile 
-            ? SizedBox(
-                height: 350,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: kathas.length,
-                  itemBuilder: (context, index) => Container(
-                    width: 280,
-                    margin: const EdgeInsets.only(right: 20),
-                    child: _RelatedKathaCard(data: kathas[index], accentGold: accentGold, primaryTeal: primaryTeal),
-                  ),
-                ),
-              )
-            : Row(
-                children: kathas.map((k) => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: _RelatedKathaCard(data: k, accentGold: accentGold, primaryTeal: primaryTeal),
-                  ),
-                )).toList(),
-              ),
-        ),
-      ],
-    );
-  }
-}
-
-class _RelatedKathaCard extends StatefulWidget {
-  final Map<String, String> data;
-  final Color accentGold;
-  final Color primaryTeal;
-
-  const _RelatedKathaCard({required this.data, required this.accentGold, required this.primaryTeal});
-
-  @override
-  State<_RelatedKathaCard> createState() => _RelatedKathaCardState();
-}
-
-class _RelatedKathaCardState extends State<_RelatedKathaCard> {
-  bool _isHovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTap: () => Navigator.pushNamed(context, widget.data['route']!),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 400),
-          transform: Matrix4.translationValues(0, _isHovered ? -12 : 0, 0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(_isHovered ? 0.2 : 0.1), 
-                blurRadius: _isHovered ? 40 : 20, 
-                offset: Offset(0, _isHovered ? 20 : 10)
-              )
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Stack(
-              children: [
-                AspectRatio(
-                  aspectRatio: 0.8,
-                  child: Image.network(widget.data['image']!, fit: BoxFit.cover),
-                ),
-                Positioned.fill(
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 400),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent, 
-                          widget.primaryTeal.withOpacity(_isHovered ? 0.9 : 0.7)
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 30,
-                  left: 25,
-                  right: 25,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.data['title']!.toUpperCase(),
-                        style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1),
-                      ),
-                      const SizedBox(height: 10),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 400),
-                        width: _isHovered ? 60 : 0,
-                        height: 2,
-                        color: widget.accentGold,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
