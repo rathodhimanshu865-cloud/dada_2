@@ -290,13 +290,13 @@ class _CataloguePageState extends State<CataloguePage> {
     final bool isTablet = Responsive.isTablet(context);
     final bool isDesktop = Responsive.isDesktop(context);
     return SliverPadding(
-      padding: EdgeInsets.fromLTRB(isMobile ? 16 : 40, 20, isMobile ? 16 : 40, 0),
+      padding: EdgeInsets.fromLTRB(isMobile ? 12 : 40, 20, isMobile ? 12 : 40, 0),
       sliver: SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: isDesktop ? 4 : (isTablet ? 3 : 2),
-          childAspectRatio: isDesktop ? 0.72 : 0.65,
+          childAspectRatio: isDesktop ? 0.72 : (isTablet ? 0.7 : 0.6),
           crossAxisSpacing: isMobile ? 12 : 24,
-          mainAxisSpacing: isMobile ? 24 : 40,
+          mainAxisSpacing: isMobile ? 16 : 40,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) {

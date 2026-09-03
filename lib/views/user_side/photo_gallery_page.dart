@@ -63,10 +63,15 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> with TickerProvider
 
     final bool isMobile = Responsive.isMobile(context);
 
+    final List<String> allUrls = {
+      ...controller.realTimePhotos.map((p) => p['url'] as String? ?? '').where((u) => u.isNotEmpty),
+      ...data.sections.expand((s) => s.photoUrls),
+    }.toList();
+
     List<PhotoGallerySection> categories = [
       PhotoGallerySection(
         heading: lang == 'hi' ? 'सभी तस्वीरें' : lang == 'gu' ? 'બધી તસવીરો' : 'All Photos',
-        photoUrls: controller.realTimePhotos.map((p) => p['url'] as String? ?? '').where((u) => u.isNotEmpty).toList(),
+        photoUrls: allUrls,
       ),
       ...data.sections,
     ];

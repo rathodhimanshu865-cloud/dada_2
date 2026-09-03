@@ -1106,6 +1106,7 @@ class _MobileMenuPanelState extends State<_MobileMenuPanel> with SingleTickerPro
     final bool isExpansion = item['type'] == 'expansion';
     final String? route = item['route'] as String?;
     final bool isActive = route != null && widget.currentRoute == route;
+    final l10n = AppLocalizations.of(context)!;
 
     if (isExpansion) {
       return ExpansionTile(
@@ -1114,7 +1115,11 @@ class _MobileMenuPanelState extends State<_MobileMenuPanel> with SingleTickerPro
           title: Text(child['title']!),
           onTap: () {
             Navigator.pop(context);
-            Navigator.pushNamed(context, child['route']!);
+            if (child['title'] == l10n.loginSignUp) {
+              widget.authController.toggleLoginPortal(true);
+            } else {
+              Navigator.pushNamed(context, child['route']!);
+            }
           },
         )).toList(),
       );
@@ -1130,7 +1135,11 @@ class _MobileMenuPanelState extends State<_MobileMenuPanel> with SingleTickerPro
       ),
       onTap: () {
         Navigator.pop(context);
-        Navigator.pushNamed(context, route!);
+        if (route == '/my_orders' && !widget.authController.isAuthenticated) {
+          widget.authController.toggleLoginPortal(true);
+        } else {
+          Navigator.pushNamed(context, route!);
+        }
       },
     );
   }

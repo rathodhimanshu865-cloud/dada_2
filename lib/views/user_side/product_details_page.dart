@@ -186,6 +186,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           const SizedBox(height: 48),
                           SacredDivider(color: templeGold),
                           const SizedBox(height: 48),
+                          _buildConsecrationProcess(isMobile),
+                          const SizedBox(height: 48),
+                          SacredDivider(color: templeGold),
+                          const SizedBox(height: 48),
                           _buildFrequentlyBlessedTogether(p, productController, isMobile),
                           const SizedBox(height: 48),
                           SacredDivider(color: templeGold),
@@ -412,7 +416,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     final isOutOfStock = p.stock <= 2;
 
     return Column(
-      crossAxisAlignment: isMobile ? CrossAxisAlignment.start : CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -504,13 +508,85 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         const SizedBox(height: 32),
         _buildActionButtons(p, isOutOfStock, auth, cart),
         const SizedBox(height: 16),
-        _buildWhatsAppBtn(p, lang),
+        SiteElevatedButton(
+          onPressed: () async {
+            const phone = "919876543210";
+            final message = "Pranam! I would like to order: ${p.localizedName(lang)}\nQuantity: $_quantity\nPrice: ₹${p.price.toInt()}\nProduct Link: https://dada-store.web.app/product_details?id=${p.id}";
+            final url = "https://wa.me/$phone?text=${Uri.encodeComponent(message)}";
+            if (await canLaunchUrl(Uri.parse(url))) {
+              await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+            }
+          },
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF25D366),
+          borderRadius: BorderRadius.circular(8),
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.chat_bubble_outline, color: Color(0xFF25D366), size: 16), const SizedBox(width: 10), Text(AppLocalizations.of(context)!.orderInquireWhatsApp, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12))]),
+        ),
         const SizedBox(height: 32),
         _buildDeliveryChecker(isMobile),
         const SizedBox(height: 32),
         _buildTrustFeatures(isMobile),
       ],
     );
+  }
+
+  Widget _buildConsecrationProcess(bool isMobile) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(border: Border.all(color: primaryTeal.withOpacity(0.2)), borderRadius: BorderRadius.circular(4)),
+          child: Text(AppLocalizations.of(context)!.vedicAssuranceLabel, style: TextStyle(color: primaryTeal.withOpacity(0.6), fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1)),
+        ),
+        const SizedBox(height: 24),
+        Text(AppLocalizations.of(context)!.sacredConsecrationTitle, 
+          textAlign: TextAlign.center,
+          style: GoogleFonts.cormorantGaramond(fontSize: isMobile ? 32 : 44, fontWeight: FontWeight.w700, color: primaryTeal)),
+        const SizedBox(height: 60),
+        isMobile 
+          ? Column(
+              children: [
+                _processItem(Icons.water_drop_outlined, AppLocalizations.of(context)!.gangaJalTitle, AppLocalizations.of(context)!.gangaJalDesc, true, 0),
+                const SizedBox(height: 40),
+                _processItem(Icons.auto_fix_high_outlined, AppLocalizations.of(context)!.vedicMantraTitle, AppLocalizations.of(context)!.vedicMantraDesc, true, 1),
+                const SizedBox(height: 40),
+                _processItem(Icons.inventory_2_outlined, AppLocalizations.of(context)!.zeroBreakageTitle, AppLocalizations.of(context)!.zeroBreakageDesc, true, 2),
+                const SizedBox(height: 40),
+                _processItem(Icons.payments_outlined, AppLocalizations.of(context)!.codAvailableTitle, AppLocalizations.of(context)!.codAvailableDesc, true, 3),
+              ],
+            )
+          : Row(
+              children: [
+                _processItem(Icons.water_drop_outlined, AppLocalizations.of(context)!.gangaJalTitle, AppLocalizations.of(context)!.gangaJalDesc, false, 0),
+                const SizedBox(width: 32),
+                _processItem(Icons.auto_fix_high_outlined, AppLocalizations.of(context)!.vedicMantraTitle, AppLocalizations.of(context)!.vedicMantraDesc, false, 1),
+                const SizedBox(width: 32),
+                _processItem(Icons.inventory_2_outlined, AppLocalizations.of(context)!.zeroBreakageTitle, AppLocalizations.of(context)!.zeroBreakageDesc, false, 2),
+                const SizedBox(width: 32),
+                _processItem(Icons.payments_outlined, AppLocalizations.of(context)!.codAvailableTitle, AppLocalizations.of(context)!.codAvailableDesc, false, 3),
+              ],
+            ),
+      ],
+    );
+  }
+
+  Widget _processItem(IconData icon, String title, String desc, bool isMobile, int index) {
+    final content = Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(color: primaryTeal.withOpacity(0.05), shape: BoxShape.circle),
+          child: Icon(icon, color: templeGold, size: 28),
+        ),
+        const SizedBox(height: 20),
+        Text(title, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+        const SizedBox(height: 12),
+        Text(desc, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade600, fontSize: 12, height: 1.5)),
+      ],
+    );
+    if (isMobile) return Padding(padding: const EdgeInsets.only(bottom: 32), child: content);
+    return Expanded(child: content);
   }
 
   Widget _buildActionButtons(ProductModel p, bool isOutOfStock, AuthController auth, CartController cart) {
@@ -576,7 +652,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             const SizedBox(width: 12),
             _circleIcon(Icons.share_outlined, size: 24, onTap: () {
               final lang = Provider.of<LanguageController>(context, listen: false).locale.languageCode;
-              final String url = 'https://dada-store.web.app/product_details?id=${p.id}';
+              final String url = 'https://dada-89661.web.app/product_details?id=${p.id}';
               Share.share('${AppLocalizations.of(context)!.checkOutSacredItem} ${p.localizedName(lang)}\n$url');
             }),
           ],
@@ -585,20 +661,26 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildWhatsAppBtn(ProductModel p, String lang) => Container(
-    height: 55,
-    width: double.infinity,
-    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4), border: Border.all(color: const Color(0xFF25D366))),
-    child: InkWell(
-      onTap: () async {
-        const phone = "919876543210";
-        final message = "Pranam! I would like to order: ${p.localizedName(lang)}\nQuantity: $_quantity\nPrice: ₹${p.price.toInt()}\nProduct Link: https://dada-store.web.app/product_details?id=${p.id}";
-        final url = "https://wa.me/$phone?text=${Uri.encodeComponent(message)}";
-        if (await canLaunchUrl(Uri.parse(url))) {
-          await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-        }
-      },
-      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.chat_bubble_outline, color: Color(0xFF25D366), size: 16), const SizedBox(width: 10), Text(AppLocalizations.of(context)!.orderInquireWhatsapp, style: const TextStyle(color: Color(0xFF25D366), fontWeight: FontWeight.bold, fontSize: 12))]),
+  Widget _buildWhatsAppBtn(ProductModel p, String lang) => SiteElevatedButton(
+    backgroundColor: Colors.white,
+    foregroundColor: const Color(0xFF25D366),
+    borderRadius: BorderRadius.circular(8),
+    padding: const EdgeInsets.symmetric(vertical: 18),
+    onPressed: () async {
+      const phone = "919876543210";
+      final message = "Pranam! I would like to order: ${p.localizedName(lang)}\nQuantity: $_quantity\nPrice: ₹${p.price.toInt()}\nProduct Link: https://dada-89661.web.app/product_details?id=${p.id}";
+      final url = "https://wa.me/$phone?text=${Uri.encodeComponent(message)}";
+      if (await canLaunchUrl(Uri.parse(url))) {
+        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      }
+    },
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.chat_bubble_outline, color: Color(0xFF25D366), size: 18),
+        const SizedBox(width: 12),
+        Text(AppLocalizations.of(context)!.orderInquireWhatsApp, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+      ],
     ),
   );
 
@@ -868,20 +950,23 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SiteFilterTabBar(
-          tabs: [
-            AppLocalizations.of(context)!.vedicSignificanceTab,
-            AppLocalizations.of(context)!.specificationsTab,
-            AppLocalizations.of(context)!.sacredCareTab,
-            '${AppLocalizations.of(context)!.devoteeReviewsTab} (${p.reviewCount})',
-            AppLocalizations.of(context)!.faqsTab
-          ],
-          activeIndex: _selectedTabIndex,
-          onTabSelected: (idx) => setState(() => _selectedTabIndex = idx),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SiteFilterTabBar(
+            tabs: [
+              AppLocalizations.of(context)!.vedicSignificanceTab,
+              AppLocalizations.of(context)!.specificationsTab,
+              AppLocalizations.of(context)!.sacredCareTab,
+              '${AppLocalizations.of(context)!.devoteeReviewsTab} (${p.reviewCount})',
+              AppLocalizations.of(context)!.faqsTab
+            ],
+            activeIndex: _selectedTabIndex,
+            onTabSelected: (idx) => setState(() => _selectedTabIndex = idx),
+          ),
         ),
         const SizedBox(height: 24),
         ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 300, maxHeight: 1000),
+          constraints: const BoxConstraints(minHeight: 300),
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
             transitionBuilder: (child, animation) => FadeTransition(

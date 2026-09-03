@@ -277,52 +277,53 @@ class _LoginPageState extends State<LoginPage>
           GestureDetector(
             onTap: () => auth.toggleLoginPortal(false),
             child: Container(
-              color: Colors.black54,
+              color: Colors.black.withOpacity(0.7), // Darker backdrop
               width: double.infinity,
               height: double.infinity,
             ),
           ),
 
-          // ── Card (scale + fade entrance) ─────────────────────────────────
-          Center(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 40),
+          // ── Card ─────────────────────────────────────────────────────────
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
                 child: GestureDetector(
                   onTap: () {}, // absorb taps inside card
-                  child: ScaleTransition(
-                    scale: _cardScale,
-                    child: FadeTransition(
-                      opacity: _cardOpacity,
-                      child: AnimatedBuilder(
-                        animation: _shakeAnim,
-                        builder: (context, child) => Transform.translate(
-                          offset: Offset(_shakeAnim.value, 0),
-                          child: child,
-                        ),
-                        child: Container(
-                          constraints: const BoxConstraints(maxWidth: 450),
-                          margin: const EdgeInsets.symmetric(horizontal: 20),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.12),
-                                blurRadius: 30,
-                                offset: const Offset(0, 12),
-                              ),
-                            ],
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 450),
+                    child: ScaleTransition(
+                      scale: _cardScale,
+                      child: FadeTransition(
+                        opacity: _cardOpacity,
+                        child: AnimatedBuilder(
+                          animation: _shakeAnim,
+                          builder: (context, child) => Transform.translate(
+                            offset: Offset(_shakeAnim.value, 0),
+                            child: child,
                           ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildHeader(auth),
-                              const SizedBox(height: 24),
-                              _buildTabSwitcher(),
-                              _buildForms(),
-                              _buildFooter(),
-                            ],
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 40,
+                                  offset: const Offset(0, 20),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildHeader(auth),
+                                const SizedBox(height: 24),
+                                _buildTabSwitcher(),
+                                _buildForms(),
+                                _buildFooter(),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -336,443 +337,40 @@ class _LoginPageState extends State<LoginPage>
       ),
     );
   }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // HEADER
-  // ─────────────────────────────────────────────────────────────────────────
-
-  Widget _buildHeader(AuthController auth) {
-    final l10n = AppLocalizations.of(context)!;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [primaryTeal, primaryTeal.withOpacity(0.85)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: FadeInDown(
-        duration: const Duration(milliseconds: 300),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.lock_person_outlined, color: Colors.white, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                l10n.sacredAccessPortal,
-                style: AppTypography.headingStyle(
-                  context, color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            IconButton(
-              onPressed: () => auth.toggleLoginPortal(false),
-              icon: const Icon(Icons.close, color: Colors.white70),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // TAB SWITCHER (sliding pill)
-  // ─────────────────────────────────────────────────────────────────────────
-
-  Widget _buildTabSwitcher() {
-    final l10n = AppLocalizations.of(context)!;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Container(
-        height: 55,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final double boxWidth = constraints.maxWidth;
-            return Stack(
-              children: [
-                // Sliding pill
-                AnimatedAlign(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  alignment: _activeTab == 0 ? Alignment.centerLeft : Alignment.centerRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Container(
-                      width: (boxWidth - 8) / 2,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 4)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                // Tab labels
-                Row(
-                  children: [
-                    Expanded(child: _tabLabel(l10n.signIn, 0)),
-                    Expanded(child: _tabLabel(l10n.createAccount, 1)),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _tabLabel(String text, int index) {
-    return GestureDetector(
-      onTap: () => _switchTab(index),
-      child: Container(
-        color: Colors.transparent,
-        alignment: Alignment.center,
-        child: AnimatedDefaultTextStyle(
-          duration: const Duration(milliseconds: 200),
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-            letterSpacing: 1,
-            color: _activeTab == index ? primaryTeal : Colors.grey,
-          ),
-          child: Text(text),
-        ),
-      ),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // FORMS (AnimatedSwitcher with fade+slide)
-  // ─────────────────────────────────────────────────────────────────────────
-
-  Widget _buildForms() {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 250),
-      transitionBuilder: (child, animation) => FadeTransition(
-        opacity: animation,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, 0.04),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
-          child: child,
-        ),
-      ),
-      child: _activeTab == 0
-          ? _buildLoginForm()
-          : _buildSignupForm(),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // LOGIN FORM
-  // ─────────────────────────────────────────────────────────────────────────
-
-  Widget _buildLoginForm() {
-    final l10n = AppLocalizations.of(context)!;
-    return Padding(
-      key: const ValueKey('login_form'),
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Error text
-          if (_errorText != null)
-            FadeInDown(
-              key: ValueKey(_errorText),
-              duration: const Duration(milliseconds: 200),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.shade200),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.error_outline, size: 16, color: Colors.red.shade600),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(_errorText!, style: TextStyle(color: Colors.red.shade700, fontSize: 12, fontWeight: FontWeight.w600))),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-          // Email field (staggered FadeInUp)
-          FadeInUp(delay: const Duration(milliseconds: 80), duration: const Duration(milliseconds: 300), from: 12,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildFieldLabel(l10n.emailAddressLabel),
-                _buildTextField(_loginEmailCtrl, Icons.email_outlined, 'email@example.com', focusNode: _loginEmailFocus),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Password field
-          FadeInUp(delay: const Duration(milliseconds: 160), duration: const Duration(milliseconds: 300), from: 12,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildFieldLabel(l10n.password),
-                    _buildHoverLink(l10n.forgotPassword, _handleForgotPassword),
-                  ],
-                ),
-                _buildTextField(_loginPassCtrl, Icons.lock_outline, '••••••••',
-                    isPassword: true, focusNode: _loginPassFocus),
-              ],
-            ),
-          ),
-          const SizedBox(height: 28),
-
-          // Submit button
-          FadeInUp(delay: const Duration(milliseconds: 240), duration: const Duration(milliseconds: 300), from: 12,
-            child: _buildActionButton(l10n.loginToAccount, _handleLogin),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // SIGNUP FORM
-  // ─────────────────────────────────────────────────────────────────────────
-
-  Widget _buildSignupForm() {
-    final l10n = AppLocalizations.of(context)!;
-
-    final fields = [
-      (l10n.fullNameLabel,        _signupNameCtrl,        Icons.person_outline,   'Your Name',        false, _signupNameFocus,    false),
-      (l10n.mobileWhatsAppLabel,  _signupPhoneCtrl,       Icons.phone_outlined,    '+91 00000 00000',  false, _signupPhoneFocus,   false),
-      (l10n.emailAddressLabel,    _signupEmailCtrl,       Icons.email_outlined,    'email@example.com',false, _signupEmailFocus,   false),
-      (l10n.securePasswordLabel,  _signupPassCtrl,        Icons.lock_outline,      '••••••••',          true,  _signupPassFocus,    false),
-      (l10n.confirmPasswordLabel, _signupConfirmPassCtrl, Icons.lock_outline,      '••••••••',          true,  _signupConfirmFocus, true),
-    ];
-
-    return Padding(
-      key: const ValueKey('signup_form'),
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Error text
-          if (_errorText != null)
-            FadeInDown(
-              key: ValueKey(_errorText),
-              duration: const Duration(milliseconds: 200),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.shade200),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.error_outline, size: 16, color: Colors.red.shade600),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(_errorText!, style: TextStyle(color: Colors.red.shade700, fontSize: 12, fontWeight: FontWeight.w600))),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-          // Staggered fields
-          ...fields.asMap().entries.map((e) {
-            final i   = e.key;
-            final f   = e.value;
-            return FadeInUp(
-              delay: Duration(milliseconds: 80 * (i + 1)),
-              duration: const Duration(milliseconds: 300),
-              from: 12,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildFieldLabel(f.$1),
-                    _buildTextField(f.$2, f.$3, f.$4,
-                      isPassword: f.$5, focusNode: f.$6, isConfirm: f.$7),
-                  ],
-                ),
-              ),
-            );
-          }),
-
-          // Submit button
-          FadeInUp(
-            delay: Duration(milliseconds: 80 * (fields.length + 1)),
-            duration: const Duration(milliseconds: 300),
-            from: 12,
-            child: _buildActionButton(l10n.joinCommunity, _handleSignup),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // SHARED FIELD WIDGETS
-  // ─────────────────────────────────────────────────────────────────────────
-
-  Widget _buildFieldLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 2, bottom: 8),
-      child: Text(
-        label.toUpperCase(),
-        style: AppTypography.bodyStyle(context,
-            fontSize: 10, fontWeight: FontWeight.w800,
-            color: Colors.grey.shade500, letterSpacing: 0.5),
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-    TextEditingController ctrl,
-    IconData icon,
-    String hint, {
-    bool isPassword  = false,
-    bool isConfirm   = false,
-    FocusNode? focusNode,
-  }) {
-    final isFocused = focusNode?.hasFocus ?? false;
-    final isObscure = isPassword && (isConfirm ? _obscureConfirmPass : _obscurePass);
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isFocused ? accentGold : Colors.grey.shade200,
-          width: isFocused ? 1.5 : 1.0,
-        ),
-        boxShadow: isFocused
-            ? [BoxShadow(color: accentGold.withOpacity(0.15), blurRadius: 8)]
-            : [],
-      ),
-      child: TextField(
-        controller: ctrl,
-        focusNode: focusNode,
-        obscureText: isObscure,
-        style: const TextStyle(fontSize: 14),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.grey.shade300),
-          prefixIcon: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            child: Icon(icon, size: 18,
-                color: isFocused ? accentGold : primaryTeal.withOpacity(0.5)),
-          ),
-          suffixIcon: isPassword
-              ? _buildEyeIcon(isConfirm: isConfirm)
-              : null,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEyeIcon({bool isConfirm = false}) {
-    final isObscure = isConfirm ? _obscureConfirmPass : _obscurePass;
-    return IconButton(
-      icon: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 150),
-        child: Icon(
-          isObscure ? Icons.visibility_off : Icons.visibility,
-          key: ValueKey(isObscure),
-          size: 18,
-          color: Colors.grey,
-        ),
-      ),
-      onPressed: () => setState(() {
-        if (isConfirm) {
-          _obscureConfirmPass = !_obscureConfirmPass;
-        } else {
-          _obscurePass = !_obscurePass;
-        }
-      }),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // ACTION BUTTON (idle → loading → success / error)
-  // ─────────────────────────────────────────────────────────────────────────
 
   Widget _buildActionButton(String label, VoidCallback onPressed) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: GestureDetector(
-        onTap: _buttonState == 0 ? onPressed : null,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          decoration: BoxDecoration(
-            color: _buttonState == 2
-                ? Colors.green
-                : _buttonState == 3
-                    ? Colors.red.shade400
-                    : primaryTeal,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Center(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              child: _buttonState == 1
-                  // Loading spinner
-                  ? const SizedBox(
-                      key: ValueKey('spinner'),
-                      height: 20, width: 20,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+    return SiteElevatedButton(
+      onPressed: _buttonState == 0 ? onPressed : null,
+      enableHoverLift: false, // Cleaner for auth forms
+      backgroundColor: _buttonState == 2 ? Colors.green : primaryTeal,
+      borderRadius: BorderRadius.circular(12),
+      padding: EdgeInsets.zero,
+      child: Container(
+        height: 56,
+        alignment: Alignment.center,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          child: _buttonState == 1
+              ? const SizedBox(
+                  key: ValueKey('spinner'),
+                  height: 20, width: 20,
+                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                )
+              : _buttonState == 2
+                  ? const Row(
+                      key: ValueKey('success'),
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.check_circle_outline, color: Colors.white, size: 24),
+                        SizedBox(width: 10),
+                        Text("SUCCESS", style: TextStyle(fontWeight: FontWeight.w900)),
+                      ],
                     )
-                  : _buttonState == 2
-                      // Success checkmark
-                      ? ZoomIn(
-                          key: const ValueKey('success'),
-                          duration: const Duration(milliseconds: 300),
-                          child: const Icon(Icons.check_circle_outline, color: Colors.white, size: 26),
-                        )
-                      // Idle label
-                      : Text(
-                          key: const ValueKey('label'),
-                          label.toUpperCase(),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 13,
-                            letterSpacing: 1,
-                            color: Colors.white,
-                          ),
-                        ),
-            ),
-          ),
+                  : Text(
+                      key: const ValueKey('label'),
+                      label.toUpperCase(),
+                      style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1),
+                    ),
         ),
       ),
     );
