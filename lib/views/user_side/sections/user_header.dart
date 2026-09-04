@@ -241,6 +241,8 @@ class _UserHeaderState extends State<UserHeader>
                                   ),
                                 ] else ...[
                                   const Spacer(),
+                                  _buildCartHeaderButton(isSticky, navTextColor),
+                                  const SizedBox(width: 8),
                                   _buildSearchButton(isSticky, navTextColor),
                                   const SizedBox(width: 8),
                                   _buildMobileHamburger(true, navTextColor, () => _showMobileMenu(context, l10n, currentRoute, activeNavColor, lang)),
@@ -256,6 +258,61 @@ class _UserHeaderState extends State<UserHeader>
               ),
             );
       }
+    );
+  }
+
+  Widget _buildCartHeaderButton(bool isSticky, Color textColor) {
+    return Consumer<CartController>(
+      builder: (context, cart, _) {
+        return InkWell(
+          onTap: () => Navigator.pushNamed(context, '/cart'),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: isSticky
+                      ? primaryTeal.withOpacity(0.1)
+                      : Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.shopping_bag_outlined,
+                  size: 18,
+                  color: isSticky ? primaryTeal : Colors.white,
+                ),
+              ),
+              if (cart.items.isNotEmpty)
+                Positioned(
+                  top: -4,
+                  right: -4,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.redAccent,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    child: Text(
+                      '${cart.items.length}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -1038,6 +1095,7 @@ class _MobileMenuPanelState extends State<_MobileMenuPanel> with SingleTickerPro
       {'title': widget.l10n.products, 'type': 'expansion', 'children': [
         {'title': widget.l10n.storeHomePortal, 'route': '/product'},
         {'title': widget.l10n.allSacredProducts, 'route': '/catalogue'},
+        {'title': widget.l10n.myShoppingBag, 'route': '/cart'},
         {'title': widget.l10n.pujyaDadaTeachings, 'route': '/teachings'},
         {'title': widget.l10n.trackShipment, 'route': '/track'},
         {'title': widget.authController.isAuthenticated ? widget.l10n.myOrders : widget.l10n.loginSignUp, 'route': '/my_orders'},
@@ -1049,6 +1107,8 @@ class _MobileMenuPanelState extends State<_MobileMenuPanel> with SingleTickerPro
         {'title': widget.l10n.newsGallery, 'route': '/news'},
       ]},
       {'title': widget.l10n.contact, 'route': '/contact_us'},
+      if (widget.authController.isAuthenticated)
+        {'title': widget.l10n.logout, 'type': 'action', 'id': 'logout'},
     ];
 
     return Material(
@@ -1104,6 +1164,7 @@ class _MobileMenuPanelState extends State<_MobileMenuPanel> with SingleTickerPro
 
   Widget _buildMenuItem(Map<String, dynamic> item) {
     final bool isExpansion = item['type'] == 'expansion';
+    final bool isAction = item['type'] == 'action';
     final String? route = item['route'] as String?;
     final bool isActive = route != null && widget.currentRoute == route;
     final l10n = AppLocalizations.of(context)!;
@@ -1129,16 +1190,22 @@ class _MobileMenuPanelState extends State<_MobileMenuPanel> with SingleTickerPro
       title: Text(
         item['title'] as String,
         style: TextStyle(
-          color: isActive ? widget.activeColor : const Color(0xFF2B2B2B),
+          color: isAction && item['id'] == 'logout' ? Colors.redAccent : (isActive ? widget.activeColor : const Color(0xFF2B2B2B)),
           fontWeight: FontWeight.bold,
         ),
       ),
-      onTap: () {
+      onTap: () async {
         Navigator.pop(context);
-        if (route == '/my_orders' && !widget.authController.isAuthenticated) {
-          widget.authController.toggleLoginPortal(true);
+        if (isAction) {
+          if (item['id'] == 'logout') {
+            await widget.authController.logout();
+          }
         } else {
-          Navigator.pushNamed(context, route!);
+          if (route == '/my_orders' && !widget.authController.isAuthenticated) {
+            widget.authController.toggleLoginPortal(true);
+          } else {
+            Navigator.pushNamed(context, route!);
+          }
         }
       },
     );

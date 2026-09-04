@@ -685,7 +685,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       children: [
         const Icon(Icons.chat_bubble_outline, color: Color(0xFF25D366), size: 18),
         const SizedBox(width: 12),
-        Text(AppLocalizations.of(context)!.orderInquireWhatsApp, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+        Text(AppLocalizations.of(context)!.orderInquireWhatsapp, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
       ],
     ),
   );
